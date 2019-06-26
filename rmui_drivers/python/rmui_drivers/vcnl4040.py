@@ -1,11 +1,11 @@
-import smbus2
+import smbus
 
 
 class VCNL4040(object):
 
     def __init__(self, bus=1, address=0x60):
         super(VCNL4040, self).__init__()
-        self.bus = smbus2.SMBus(bus)
+        self.bus = smbus.SMBus(bus)
         self.address = address
 
     def start_blink(self):
