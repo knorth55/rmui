@@ -7,6 +7,7 @@
   <license>BSD</license>
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>python-smbus</run_depend>
 
   <export>
   </export>
