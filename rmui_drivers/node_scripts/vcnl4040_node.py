@@ -19,10 +19,10 @@ class VCNL4040Node(object):
         duration = rospy.get_param('~duration', 0.1)
         self.ea = rospy.get_param('~ea', 0.3)
         self.sensitivity = rospy.get_param('~sensitivity', 50)
-        self.timer = rospy.Timer(
-            rospy.Duration(duration), self._timer_cb)
         self.pub = rospy.Publisher(
             '~output', ProximityStamped, queue_size=1)
+        self.timer = rospy.Timer(
+            rospy.Duration(duration), self._timer_cb)
         rospy.loginfo('vcnl4040 node initialized')
 
 
