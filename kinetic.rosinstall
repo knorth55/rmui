@@ -2,6 +2,10 @@
     local-name: knorth55/FA-I-Sensor
     uri: https://github.com/knorth55/FA-I-sensor
     version: master
+- git:
+    local-name: knorth55/rmui
+    uri: https://github.com/knorth55/rmui
+    version: master
 - tar:
     local-name: ros/common_msgs/sensor_msgs
     uri: https://github.com/ros-gbp/common_msgs-release/archive/release/kinetic/sensor_msgs/1.12.7-0.tar.gz
