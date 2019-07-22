@@ -7,7 +7,11 @@
   <license>BSD</license>
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>force_proximity_ros</run_depend>
   <run_depend>python-smbus</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
 
   <export>
   </export>
