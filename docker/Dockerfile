@@ -3,7 +3,8 @@ FROM knorth55/raspbian_ros:${ROS_DISTRO}-latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get upgrade -y
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install ssh
 
 RUN mkdir ~/ros/rmui_ws/src -p && \
     cd ~/ros/rmui_ws/src && \
