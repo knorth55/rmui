@@ -1,10 +1,10 @@
 - git:
     local-name: knorth55/FA-I-Sensor
-    uri: https://github.com/knorth55/FA-I-sensor
+    uri: https://github.com/knorth55/FA-I-sensor.git
     version: master
 - git:
     local-name: knorth55/rmui
-    uri: https://github.com/knorth55/rmui
+    uri: git@github.com:knorth55/rmui.git
     version: master
 - tar:
     local-name: ros/common_msgs/sensor_msgs
