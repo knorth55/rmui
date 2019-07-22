@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 import rospy
+from std_msgs.msg import Header
 
 from force_proximity_ros.msg import Proximity
 from force_proximity_ros.msg import ProximityStamped
-from std_msgs.msg import Header
 
-from rmui_drivers.vcnl4040 import VCNL4040
+from rmui_drivers import VCNL4040
 
 
 class VCNL4040Node(object):
