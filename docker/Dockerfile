@@ -7,7 +7,7 @@ RUN apt-get update && apt-get upgrade -y
 
 RUN mkdir ~/ros/rmui_ws/src -p && \
     cd ~/ros/rmui_ws/src && \
-    wget https://raw.githubusercontent.com/knorth55/rmui/master/kinetic.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall && \
+    wget https://raw.githubusercontent.com/knorth55/rmui/master/kinetic.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -O .rosinstall && \
     wstool update -j 2&& \
     rosdep install --ignore-src --from-path . -y -r -c
 
