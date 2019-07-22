@@ -9,7 +9,7 @@ RUN mkdir ~/ros/rmui_ws/src -p && \
     cd ~/ros/rmui_ws/src && \
     wget https://raw.githubusercontent.com/knorth55/rmui/master/kinetic.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall && \
     wstool update -j 2&& \
-    rosdep install --ignore-src --from-path . -y -r -c && \
+    rosdep install --ignore-src --from-path . -y -r -c
 
 ARG ROS_DISTRO
 RUN source ~/ros/${ROS_DISTRO}/devel/setup.bash && \
