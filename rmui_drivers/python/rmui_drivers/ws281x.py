@@ -7,12 +7,10 @@ from rpi_ws281x import PixelStrip
 class WS281x(object):
     hz = 800000
     dma = 10
-    brightness = 127
 
-    def __init__(self, pin=10, n_led=1):
-        self.strip = .PixelStrip(
-            n_led, pin, self.hz, self.dma, False,
-            self.brightness, 0)
+    def __init__(self, pin=10, n_led=1, brightness=255):
+        self.strip = PixelStrip(
+            n_led, pin, self.hz, self.dma, False, brightness, 0)
         self.strip.begin()
 
     def set_color(self, R, G, B):
