@@ -7,7 +7,7 @@
   <license>BSD</license>
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>rmui_driver</run_depend>
+  <run_depend>rmui_drivers</run_depend>
   <run_depend>rmui_msgs</run_depend>
 
   <export>
