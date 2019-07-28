@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package format="1">
-  <name>rmui</name>
+  <name>rmui_msgs</name>
   <version>0.0.0</version>
-  <description>The meta package for Robot Manipulation User Interface</description>
+  <description>The Robot Manipulation User Interface msg package</description>
   <maintainer email="shingogo.5511@gmail.com">Shingo Kitagawa</maintainer>
   <license>BSD</license>
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>rmui_driver</run_depend>
-  <run_depend>rmui_msgs</run_depend>
+
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
 
   <export>
-    <metapackage/>
   </export>
 </package>
