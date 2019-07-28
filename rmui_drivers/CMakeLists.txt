@@ -7,3 +7,10 @@ catkin_python_setup()
 
 catkin_package()
 
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslint REQUIRED)
+  find_package(rostest REQUIRED)
+  set(ROSLINT_PYTHON_OPTS "--max-line-length=80")
+  roslint_python()
+endif()
