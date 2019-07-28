@@ -10,6 +10,7 @@
 
   <run_depend>force_proximity_ros</run_depend>
   <run_depend>python-smbus</run_depend>
+  <run_depend>rmui_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
 
