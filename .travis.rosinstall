@@ -1,0 +1,4 @@
+- git:
+    local-name: knorth55/FA-I-Sensor
+    uri: https://github.com/knorth55/FA-I-sensor.git
+    version: master
