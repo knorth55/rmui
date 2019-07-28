@@ -25,7 +25,6 @@ class VCNL4040Node(object):
             rospy.Duration(duration), self._timer_cb)
         rospy.loginfo('vcnl4040 node initialized')
 
-
     def _timer_cb(self, event):
         self.sensor.start_blink()
         prx_data = self.sensor.read_proximity()

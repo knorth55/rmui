@@ -22,7 +22,6 @@ class BNO055Node(object):
             rospy.Duration(duration), self._timer_cb)
         rospy.loginfo('bno055 node initialized')
 
-
     def _timer_cb(self, event):
         q = self.sensor.read_quaternion()
         v = self.sensor.read_angular_velocity()
