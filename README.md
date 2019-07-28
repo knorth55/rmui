@@ -38,3 +38,15 @@ rosrun rmui_drivers bno055_node.py
 **output**
 
 - `~output`: (`sensor_msgs/Imu`)
+
+## Actuators
+
+### WX281x & OSTW3535C1A
+
+```bash
+rosrun rmui_drivers wx281x_node.py
+```
+
+**input**
+
+- ``~input``: (`rmui_msgs/LED`)
