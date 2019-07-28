@@ -13,10 +13,6 @@ cd ..
 catkin build
 ```
 
-## Dependency
-
-- [knorth55/FA-I-Sensor](https://github.com/knorth55/FA-I-sensor/)
-
 ## Sensors
 
 ### VCNL4040: Proxmity sensor
@@ -50,3 +46,8 @@ rosrun rmui_drivers wx281x_node.py
 **input**
 
 - ``~input``: (`rmui_msgs/LED`)
+
+
+## Dependency
+
+- [knorth55/FA-I-Sensor](https://github.com/knorth55/FA-I-sensor/)
