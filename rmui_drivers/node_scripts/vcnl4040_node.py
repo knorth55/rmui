@@ -13,7 +13,7 @@ class VCNL4040Node(object):
     def __init__(self, bus=1, address=0x60):
         super(VCNL4040Node, self).__init__()
         self.sensor = VCNL4040(bus, address)
-        self.average = self.sensor.read_proximity()
+        self.average = None
         self.fa2 = 0
 
         duration = rospy.get_param('~duration', 0.1)
@@ -27,26 +27,36 @@ class VCNL4040Node(object):
 
     def _timer_cb(self, event):
         self.sensor.start_blink()
-        prx_data = self.sensor.read_proximity()
+        prx_d = self.sensor.read_proximity()
         self.sensor.stop_blink()
 
-        fa2derivative = self.average - prx_data - self.fa2
-        self.fa2 = self.average - prx_data
-        prx_msg = ProximityStamped(
-            header=Header(stamp=rospy.Time.now()),
-            proximity=Proximity(
-                proximity=prx_data,
-                average=self.average,
-                fa2=self.fa2,
-                fa2derivative=fa2derivative))
-        if self.fa2 < -self.sensitivity:
-            prx_msg.proximity.mode = "T"
-        elif self.fa2 > self.sensitivity:
-            prx_msg.proximity.mode = "R"
-        else:
-            prx_msg.proximity.mode = "0"
+        prx_msg = self._process(prx_d)
         self.pub.publish(prx_msg)
-        self.average = self.ea * prx_data + (1 - self.ea) * self.average
+
+    def _process(self, prx_d):
+        prx_msg = ProximityStamped()
+        if self.average is None:
+            self.average = prx_d
+        average = self.ea * prx_d + (1 - self.ea) * self.average
+        fa2 = self.average - prx_d
+        fa2derivative = self.average - prx_d - self.fa2
+        self.average = average
+        self.fa2 = fa2
+
+        msg = Proximity(
+            proximity=prx_d,
+            average=average,
+            fa2=fa2,
+            fa2derivative=fa2derivative)
+        if self.fa2 < -self.sensitivity:
+            msg.mode = "T"
+        elif self.fa2 > self.sensitivity:
+            msg.mode = "R"
+        else:
+            msg.mode = "0"
+        prx_msg.proximity = msg
+        prx_msg.header.stamp = rospy.Time.now()
+        return prx_msg
 
 
 if __name__ == '__main__':
