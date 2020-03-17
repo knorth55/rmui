@@ -35,6 +35,16 @@ rosrun rmui_drivers bno055_node.py
 
 - `~output`: (`sensor_msgs/Imu`)
 
+### Multiple VCNL4040 + PCA9547: Proxmity sensors
+
+```bash
+rosrun rmui_drivers vcnl4040_multiplexa_node.py
+```
+
+**output**
+
+- `~output`: (`force_proximity_ros/ProximityArray`)
+
 ## Actuators
 
 ### WX281x & OSTW3535C1A
@@ -50,4 +60,4 @@ rosrun rmui_drivers wx281x_node.py
 
 ## Dependency
 
-- [knorth55/FA-I-Sensor](https://github.com/knorth55/FA-I-sensor/)
+- [RoboticMaterials/FA-I-Sensor](https://github.com/RoboticMaterials/FA-I-sensor/)
