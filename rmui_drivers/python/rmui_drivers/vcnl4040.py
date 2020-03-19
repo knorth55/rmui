@@ -7,14 +7,31 @@ class VCNL4040(object):
         super(VCNL4040, self).__init__()
         self.bus = smbus.SMBus(bus)
         self.address = address
-        self.bus.write_word_data(self.address, 0x00, 0x0001)
+
+    def init_sensor(self):
+        try:
+            self.bus.write_word_data(self.address, 0x00, 0x0001)
+            return True
+        except IOError as e:
+            return False
 
     def start_blink(self):
-        self.bus.write_word_data(self.address, 0x03, 0x080e)
+        try:
+            self.bus.write_word_data(self.address, 0x03, 0x080e)
+            return True
+        except IOError as e:
+            return False
 
     def stop_blink(self):
-        self.bus.write_word_data(self.address, 0x03, 0x0100)
+        try:
+            self.bus.write_word_data(self.address, 0x03, 0x0100)
+            return True
+        except IOError as e:
+            return False
 
     def read_proximity(self):
-        data = self.bus.read_word_data(self.address, 0x0008)
-        return data
+        try:
+            data = self.bus.read_word_data(self.address, 0x0008)
+            return data
+        except IOError as e:
+            return False
