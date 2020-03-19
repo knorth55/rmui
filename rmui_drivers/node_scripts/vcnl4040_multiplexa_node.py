@@ -11,17 +11,19 @@ from rmui_drivers import VCNL4040
 
 class VCNL4040MultiPlexaNode(object):
     def __init__(
-            self, bus=1, n_sensors=5,
+            self, bus=1, n_sensor=5,
             multiplexa_address=0x70, slave_address=0x60
     ):
         super(VCNL4040MultiPlexaNode, self).__init__()
         self.multiplexa = PCA9547(bus, multiplexa_address)
-        for channel in range(self.n_sensors):
+        self.sensor = VCNL4040(bus, slave_address)
+        self.n_sensor = n_sensor
+        for channel in range(self.n_sensor):
             self.multiplexa.start(channel)
-            self.sensor = VCNL4040(bus, slave_address)
+            self.sensor.init_sensor()
         self.multiplexa.stop()
-        self.fa2 = [0] * self.n_sensors
-        self.average = [None] * self.n_sensors
+        self.fa2 = [0] * self.n_sensor
+        self.average = [None] * self.n_sensor
 
         duration = rospy.get_param('~duration', 0.1)
         self.ea = rospy.get_param('~ea', 0.3)
@@ -34,14 +36,14 @@ class VCNL4040MultiPlexaNode(object):
 
     def _timer_cb(self, event):
         # start sensors
-        for channel in range(self.n_sensors):
+        for channel in range(self.n_sensor):
             self.multiplexa.start(channel)
             self.sensor.start_blink()
         self.multiplexa.stop()
 
         # stop sensors
         prx_data = []
-        for channel in range(self.n_sensors):
+        for channel in range(self.n_sensor):
             self.multiplexa.start(channel)
             prx_d = self.sensor.read_proximity()
             prx_data.append(prx_d)
@@ -54,25 +56,28 @@ class VCNL4040MultiPlexaNode(object):
     def _process(self, prx_data):
         prx_msg = ProximityArray()
         for i, prx_d in enumerate(prx_data):
-            if self.average[i] is None:
-                self.average[i] = prx_d
-            average = (1 - self.ea) * self.average[i] + self.ea * prx_d
-            fa2derivative = self.average[i] - prx_d - self.fa2[i]
-            fa2 = self.average[i] - prx_d
-            self.average[i] = average
-            self.fa2[i] = fa2
+            msg = Proximity()
+            if prx_d is not False:
+                if self.average[i] is None:
+                    self.average[i] = prx_d
+                average = (1 - self.ea) * self.average[i] + self.ea * prx_d
+                fa2derivative = self.average[i] - prx_d - self.fa2[i]
+                fa2 = self.average[i] - prx_d
+                self.average[i] = average
+                self.fa2[i] = fa2
 
-            msg = Proximity(
-                proximity=prx_d,
-                average=average,
-                fa2=fa2,
-                fa2derivative=fa2derivative)
-            if fa2 < -self.sensitivity:
-                msg.mode = "T"
-            elif fa2 > self.sensitivity:
-                msg.mode = "R"
+                msg.proximity = prx_d
+                msg.average = average
+                msg.fa2 = fa2
+                msg.fa2derivative = fa2derivative
+                if fa2 < -self.sensitivity:
+                    msg.mode = "T"
+                elif fa2 > self.sensitivity:
+                    msg.mode = "R"
+                else:
+                    msg.mode = "0"
             else:
-                msg.mode = "0"
+                msg.mode = "X"
             prx_msg.proximities.append(msg)
         prx_msg.header.stamp = rospy.Time.now()
         return prx_msg
