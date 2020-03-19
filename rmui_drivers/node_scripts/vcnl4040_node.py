@@ -13,6 +13,7 @@ class VCNL4040Node(object):
     def __init__(self, bus=1, address=0x60):
         super(VCNL4040Node, self).__init__()
         self.sensor = VCNL4040(bus, address)
+        self.sensor.init_sensor()
         self.average = None
         self.fa2 = 0
 
@@ -35,25 +36,28 @@ class VCNL4040Node(object):
 
     def _process(self, prx_d):
         prx_msg = ProximityStamped()
-        if self.average is None:
-            self.average = prx_d
-        average = self.ea * prx_d + (1 - self.ea) * self.average
-        fa2 = self.average - prx_d
-        fa2derivative = self.average - prx_d - self.fa2
-        self.average = average
-        self.fa2 = fa2
+        msg = Proximity()
+        if prx_d is not False:
+            if self.average is None:
+                self.average = prx_d
+            average = self.ea * prx_d + (1 - self.ea) * self.average
+            fa2 = self.average - prx_d
+            fa2derivative = self.average - prx_d - self.fa2
+            self.average = average
+            self.fa2 = fa2
 
-        msg = Proximity(
-            proximity=prx_d,
-            average=average,
-            fa2=fa2,
-            fa2derivative=fa2derivative)
-        if self.fa2 < -self.sensitivity:
-            msg.mode = "T"
-        elif self.fa2 > self.sensitivity:
-            msg.mode = "R"
+            msg.proximity = prx_d
+            msg.average = average
+            msg.fa2 = fa2
+            msg.fa2derivative = fa2derivative
+            if self.fa2 < -self.sensitivity:
+                msg.mode = "T"
+            elif self.fa2 > self.sensitivity:
+                msg.mode = "R"
+            else:
+                msg.mode = "0"
         else:
-            msg.mode = "0"
+            msg.mode = "X"
         prx_msg.proximity = msg
         prx_msg.header.stamp = rospy.Time.now()
         return prx_msg
