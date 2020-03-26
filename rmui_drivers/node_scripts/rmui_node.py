@@ -53,3 +53,9 @@ class RMUINode(object):
         prx_msg = self.device.get_proximity_array_msg()
         self.imu_msg.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
+
+
+if __name__ == '__main__':
+    rospy.init_node('rmui_node')
+    app = RMUINode()
+    rospy.spin()
