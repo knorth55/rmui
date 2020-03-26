@@ -21,14 +21,14 @@ class VCNL4040(object):
         except IOError:
             return False
 
-    def start_blink(self):
+    def start_sensor(self):
         try:
             self.bus.write_word_data(self.address, 0x03, 0x080e)
             return True
         except IOError:
             return False
 
-    def stop_blink(self):
+    def stop_sensor(self):
         try:
             self.bus.write_word_data(self.address, 0x03, 0x0100)
             return True
