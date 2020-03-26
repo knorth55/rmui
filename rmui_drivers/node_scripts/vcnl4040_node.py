@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Header
 
 from force_proximity_ros.msg import Proximity
 from force_proximity_ros.msg import ProximityStamped
