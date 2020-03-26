@@ -13,6 +13,12 @@ cd ..
 catkin build
 ```
 
+## RMUI device
+
+```bash
+rosrun rmui_drivers rmui_node.py
+```
+
 ## Sensors
 
 ### VCNL4040: Proxmity sensor
