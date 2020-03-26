@@ -19,6 +19,12 @@ catkin build
 rosrun rmui_drivers rmui_node.py
 ```
 
+**output**
+
+- `~output/proximities`: (`force_proximity_ros/ProximityArray`)
+
+- `~output/imu`: (`sensor_msgs/Imu`)
+
 ## Sensors
 
 ### VCNL4040: Proxmity sensor
