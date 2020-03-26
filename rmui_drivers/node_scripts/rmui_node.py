@@ -19,7 +19,7 @@ class RMUINode(object):
             vcnl_slave_address=0x60,
             imu_slave_address=0x28,
     ):
-        super(RMUI, self).__init__()
+        super(RMUINode, self).__init__()
         frame_id = rospy.get_param('~frame_id', 'rmui')
         duration = rospy.get_param('~duration', 0.1)
         ea = rospy.get_param('~ea', 0.3)
@@ -51,7 +51,7 @@ class RMUINode(object):
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
         prx_msg = self.device.get_proximity_array_msg()
-        self.imu_msg.publish(imu_msg)
+        self.pub_imu.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
 
 
