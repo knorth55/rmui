@@ -12,26 +12,26 @@ class VCNL4040(object):
         try:
             self.bus.write_word_data(self.address, 0x00, 0x0001)
             return True
-        except IOError as e:
+        except IOError:
             return False
 
     def start_blink(self):
         try:
             self.bus.write_word_data(self.address, 0x03, 0x080e)
             return True
-        except IOError as e:
+        except IOError:
             return False
 
     def stop_blink(self):
         try:
             self.bus.write_word_data(self.address, 0x03, 0x0100)
             return True
-        except IOError as e:
+        except IOError:
             return False
 
     def read_proximity(self):
         try:
             data = self.bus.read_word_data(self.address, 0x0008)
             return data
-        except IOError as e:
+        except IOError:
             return False
