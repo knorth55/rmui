@@ -16,6 +16,7 @@ class RMUINode(object):
     def __init__(
             self, bus=1, n_board_sensor=5,
             multiplexa_addresses=[0x70, 0x71, 0x72],
+            # multiplexa_addresses=[0x70, 0x71, 0x72, 0x73, 0x74, 0x75],
             vcnl_slave_address=0x60,
             imu_slave_address=0x28,
     ):
