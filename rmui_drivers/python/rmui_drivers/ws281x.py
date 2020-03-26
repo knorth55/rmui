@@ -9,6 +9,7 @@ class WS281x(object):
     dma = 10
 
     def __init__(self, pin=10, n_led=1, brightness=255):
+        super(WS281x, self).__init__()
         self.strip = PixelStrip(
             n_led, pin, self.hz, self.dma, False, brightness, 0)
         self.strip.begin()

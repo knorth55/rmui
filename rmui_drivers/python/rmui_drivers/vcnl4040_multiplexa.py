@@ -1,6 +1,7 @@
 
 class VCNL4040Multiplexa(object):
     def __init__(self, multiplexa, sensors):
+        super(VCNL4040Multiplexa, self).__init__()
         self.multiplexa = multiplexa
         self.sensors = sensors
         self.n_sensor = len(self.sensors)
