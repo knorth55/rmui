@@ -4,6 +4,10 @@ import time
 
 import smbus
 
+from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Vector3
+from sensor_msgs.msg import Imu
+
 
 class BNO055(object):
 
@@ -14,6 +18,7 @@ class BNO055(object):
         if not self.read_chip_id() == 0xA0:
             sys.exit(1)
 
+    def init_sensor(self):
         # configuration
         self.set_config_mode()
         self.reset_system()
@@ -101,3 +106,17 @@ class BNO055(object):
         acc_status = status >> 2 & 0x03
         mag_status = status & 0x03
         return sys_status, gyr_status, acc_status, mag_status
+
+    def get_imu_msg(self, q, v, a):
+        orientation = Quaternion(
+            x=q[1], y=q[2], z=q[3], w=q[0])
+        angular_velocity = Vector3(
+            x=v[0], y=v[1], z=v[2])
+        linear_acceleration = Vector3(
+            x=a[0], y=a[1], z=a[2])
+        imu_msg = Imu(
+            orientation=orientation,
+            angular_velocity=angular_velocity,
+            linear_acceleration=linear_acceleration,
+        )
+        return imu_msg
