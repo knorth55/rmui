@@ -19,7 +19,7 @@ class WS281xNode(object):
         rospy.loginfo('ws281x node initialized')
 
     def _cb(self, msg):
-        self.led.turn_on(msg.r, msg.g, msg.b)
+        self.led.set_color_all(msg.r, msg.g, msg.b)
         if msg.time >= 0:
             time.sleep(msg.time)
             self.led.turn_off()
