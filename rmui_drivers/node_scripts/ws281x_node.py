@@ -11,7 +11,7 @@ from rmui_msgs.msg import LED
 class WS281xNode(object):
     def __init__(self, pin=10):
         n_led = rospy.get_param('~n_led', 1)
-        brightness = rospy.get_param('~brightness', 255)
+        brightness = rospy.get_param('~brightness', 200)
         self.led = WS281x(pin, n_led, brightness)
         self.led.turn_off()
         self.sub = rospy.Subscriber(
