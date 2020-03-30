@@ -4,18 +4,23 @@ from force_proximity_ros.msg import ProximityArray
 
 
 class RMUI(object):
-    def __init__(self, imu, sensor_boards, frame_id='rmui'):
+    def __init__(self, imu, sensor_boards, led, frame_id='rmui'):
         super(RMUI, self).__init__()
         self.imu = imu
         self.sensor_boards = sensor_boards
         for sensor_board in self.sensor_boards:
             sensor_board.multiplexa.stop()
+        self.led = led
         self.frame_id = frame_id
 
     def init_device(self):
         self.imu.init_sensor()
         for sensor_board in self.sensor_boards:
             sensor_board.init_sensors()
+        self.led.turn_on(255, 0, 0, 0.1)
+        self.led.turn_on(0, 255, 0, 0.1)
+        self.led.turn_on(0, 0, 255, 0.1)
+        self.led.turn_off()
 
     def get_imu_msg(self):
         q = self.imu.read_quaternion()
@@ -38,3 +43,16 @@ class RMUI(object):
         prx_msg.header.stamp = rospy.Time.now()
         prx_msg.header.frame_id = self.frame_id
         return prx_msg
+
+    def turn_on_touch_led(self, prx_msg):
+        touch_led_ids = []
+        for sensor_id, prx_data in enumerate(prx_msg.proximities):
+            led_id = sensor_id // len(self.sensor_boards[0].sensors)
+            if prx_data.proximity > 2000 and led_id not in touch_led_ids:
+                touch_led_ids.append(led_id)
+
+        for led_id in range(self.led.n_led):
+            if led_id in touch_led_ids:
+                self.led.set_color(led_id, 255, 0, 0)
+            else:
+                self.led.set_color(led_id, 0, 0, 0)

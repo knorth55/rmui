@@ -10,6 +10,7 @@ from rmui_drivers import PCA9547
 from rmui_drivers import RMUI
 from rmui_drivers import VCNL4040
 from rmui_drivers import VCNL4040Multiplexa
+from rmui_drivers import WS281x
 
 
 class RMUINode(object):
@@ -19,6 +20,7 @@ class RMUINode(object):
             # multiplexa_addresses=[0x70, 0x71, 0x72, 0x73, 0x74, 0x75],
             vcnl_slave_address=0x60,
             imu_slave_address=0x28,
+            led_pin=10, led_brightness=200,
     ):
         super(RMUINode, self).__init__()
         frame_id = rospy.get_param('~frame_id', 'rmui')
@@ -37,8 +39,9 @@ class RMUINode(object):
                 sensors.append(sensor)
             sensor_board = VCNL4040Multiplexa(multiplexa, sensors)
             sensor_boards.append(sensor_board)
+        led = WS281x(led_pin, len(multiplexa_addresses), led_brightness)
 
-        self.device = RMUI(imu, sensor_boards, frame_id=frame_id)
+        self.device = RMUI(imu, sensor_boards, led, frame_id=frame_id)
         self.device.init_device()
 
         self.pub_imu = rospy.Publisher(
@@ -52,6 +55,7 @@ class RMUINode(object):
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
         prx_msg = self.device.get_proximity_array_msg()
+        self.device.turn_on_touch_led(prx_msg)
         self.pub_imu.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
 
@@ -59,4 +63,9 @@ class RMUINode(object):
 if __name__ == '__main__':
     rospy.init_node('rmui_node')
     app = RMUINode()
+
+    def shutdown_hook():
+        app.device.led.turn_off()
+
+    rospy.on_shutdown(shutdown_hook)
     rospy.spin()
