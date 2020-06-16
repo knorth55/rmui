@@ -1,6 +1,6 @@
 <launch>
-  <arg name="machine" value="rmui" />
-  <arg name="n_board" value="6" />
+  <arg name="machine" default="rmui" />
+  <arg name="n_board" default="6" />
 
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
