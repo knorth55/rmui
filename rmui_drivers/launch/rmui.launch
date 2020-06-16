@@ -1,0 +1,8 @@
+<launch>
+  <arg name="machine" value="rmui" />
+  <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
+  <machine name="localhost" address="localhost" />
+
+  <node name="rmui_drivers" pkg="rmui_drivers" type="rmui_node.py"
+        output="screen" machine="$(arg machine)" />
+</launch>

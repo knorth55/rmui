@@ -1,0 +1,4 @@
+<launch>
+  <machine name="localhost" address="localhost" />
+  <machine name="rmui" address="rmui" env-loader="/home/pi/env-loader.sh" />
+</launch>
