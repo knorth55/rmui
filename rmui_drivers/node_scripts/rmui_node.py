@@ -26,6 +26,9 @@ class RMUINode(object):
         duration = rospy.get_param('~duration', 0.1)
         ea = rospy.get_param('~ea', 0.3)
         sensitivity = rospy.get_param('~sensitivity', 50)
+        n_board = rospy.get_param('~n_board', None)
+        if n_board is not None:
+            multiplexa_addresses = multiplexa_addresses[:n_board]
 
         imu = BNO055(bus, imu_slave_address)
         sensor_boards = []

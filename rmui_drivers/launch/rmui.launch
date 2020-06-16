@@ -1,8 +1,14 @@
 <launch>
   <arg name="machine" value="rmui" />
+  <arg name="n_board" value="6" />
+
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
 
   <node name="rmui_drivers" pkg="rmui_drivers" type="rmui_node.py"
-        output="screen" machine="$(arg machine)" />
+        output="screen" machine="$(arg machine)">
+    <rosparam subst_value="true">
+      n_board: $(arg n_board)
+    </rosparam>
+  </node>
 </launch>
