@@ -22,7 +22,7 @@ class RMUINode(object):
             led_pin=10, led_brightness=200,
     ):
         super(RMUINode, self).__init__()
-        frame_id = rospy.get_param('~frame_id', 'rmui')
+        frame_id = rospy.get_param('~frame_id', 'rmui_link')
         duration = rospy.get_param('~duration', 0.1)
         ea = rospy.get_param('~ea', 0.3)
         sensitivity = rospy.get_param('~sensitivity', 50)
