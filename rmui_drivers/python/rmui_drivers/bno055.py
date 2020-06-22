@@ -10,6 +10,21 @@ from sensor_msgs.msg import Imu
 
 
 class BNO055(object):
+    orientation_covariance = [
+        0.002, 0, 0,
+        0, 0.002, 0,
+        0, 0, 0.002,
+    ]
+    angular_velocity_covariance = [
+        0.003, 0, 0,
+        0, 0.003, 0,
+        0, 0, 0.003,
+    ]
+    linear_acceleration_covariance = [
+        0.6, 0, 0,
+        0, 0.6, 0,
+        0, 0, 0.6,
+    ]
 
     def __init__(self, bus=1, address=0x28):
         super(BNO055, self).__init__()
@@ -116,7 +131,10 @@ class BNO055(object):
             x=a[0], y=a[1], z=a[2])
         imu_msg = Imu(
             orientation=orientation,
+            orientation_covariance=self.orientation_covariance,
             angular_velocity=angular_velocity,
+            angular_velocity_covariance=self.angular_velocity_covariance,
             linear_acceleration=linear_acceleration,
+            linear_acceleration_covariance=self.linear_acceleration_covariance,
         )
         return imu_msg
