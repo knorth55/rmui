@@ -106,6 +106,9 @@ class BNO055(object):
     def read_linear_acceleration(self):
         return self._read_data(0x28, 6, (1.0 / 100.0))
 
+    def read_gravity_acceleration(self):
+        return self._read_data(0x2E, 6, (1.0 / 100.0))
+
     def _read_data(self, cmd, n_byte, scale):
         buf = self.bus.read_i2c_block_data(self.address, cmd, n_byte)
         data = []
