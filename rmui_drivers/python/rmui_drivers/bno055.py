@@ -78,6 +78,9 @@ class BNO055(object):
     def set_config_mode(self):
         self._set_mode(0x00)
 
+    def set_ndof_no_fmc_mode(self):
+        self._set_mode(0x0B)
+
     def set_ndof_mode(self):
         self._set_mode(0x0C)
 
