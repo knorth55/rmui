@@ -32,6 +32,10 @@ class BNO055(object):
         self.address = address
         if not self.read_chip_id() == 0xA0:
             sys.exit(1)
+        self.sys_calib_status = 0
+        self.gyr_calib_status = 0
+        self.acc_calib_status = 0
+        self.mag_calib_status = 0
 
     def init_sensor(self):
         # configuration
@@ -62,11 +66,16 @@ class BNO055(object):
         time.sleep(0.02)
 
         # calibration
-        sys_status, gyr_status, acc_status, mag_status = \
-            self.read_calib_status()
+        calib_status = self.read_calib_status()
+        self.sys_calib_status = calib_status[0]
+        self.gyr_calib_status = calib_status[1]
+        self.acc_calib_status = calib_status[2]
+        self.mag_calib_status = calib_status[3]
         calibrated = (
-            sys_status == 3 and gyr_status == 3
-            and acc_status == 3 and mag_status == 3)
+            self.sys_calib_status == 3
+            and self.gyr_calib_status == 3
+            and self.acc_calib_status == 3
+            and self.mag_calib_status == 3)
 
         return calibrated
 
@@ -150,3 +159,7 @@ class BNO055(object):
             linear_acceleration_covariance=self.linear_acceleration_covariance,
         )
         return imu_msg
+
+    def get_calib_status(self):
+        return self.sys_calib_status, self.gyr_calib_status, \
+            self.acc_calib_status, self.mag_calib_status

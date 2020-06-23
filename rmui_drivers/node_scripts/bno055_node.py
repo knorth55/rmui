@@ -6,6 +6,8 @@ from sensor_msgs.msg import Imu
 
 from rmui_drivers import BNO055
 
+from rmui_msgs.msg import ImuCalibStatus
+
 
 class BNO055Node(object):
     def __init__(self, bus=1, address=0x28):
@@ -15,7 +17,9 @@ class BNO055Node(object):
 
         self.frame_id = rospy.get_param('~frame_id', 'imu')
         duration = rospy.get_param('~duration', 0.1)
-        self.pub = rospy.Publisher('~output', Imu, queue_size=1)
+        self.pub = rospy.Publisher('~output/imu', Imu, queue_size=1)
+        self.pub_calib = rospy.Publisher(
+            '~output/imu/calib_status', ImuCalibStatus, queue_size=1)
         self.timer = rospy.Timer(
             rospy.Duration(duration), self._timer_cb)
         rospy.loginfo('bno055 node initialized')
@@ -28,6 +32,16 @@ class BNO055Node(object):
         imu_msg.header.stamp = rospy.Time.now()
         imu_msg.header.frame_id = self.frame_id
         self.pub.publish(imu_msg)
+
+        calib_msg = ImuCalibStatus()
+        calib_status = self.sensor.get_calib_status()
+        calib_msg.system = calib_status[0]
+        calib_msg.gyroscope = calib_status[1]
+        calib_msg.accelerometer = calib_status[2]
+        calib_msg.magnetometer = calib_status[3]
+        calib_msg.header.stamp = rospy.Time.now()
+        calib_msg.header.frame_id = self.frame_id
+        self.pub_calib.publish(calib_msg)
 
 
 if __name__ == '__main__':

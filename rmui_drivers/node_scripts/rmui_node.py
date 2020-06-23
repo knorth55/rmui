@@ -12,6 +12,8 @@ from rmui_drivers import VCNL4040
 from rmui_drivers import VCNL4040Multiplexa
 from rmui_drivers import WS281x
 
+from rmui_msgs.msg import ImuCalibStatus
+
 
 class RMUINode(object):
     def __init__(
@@ -48,6 +50,8 @@ class RMUINode(object):
 
         self.pub_imu = rospy.Publisher(
             '~output/imu', Imu, queue_size=1)
+        self.pub_imu_calib = rospy.Publisher(
+            '~output/imu/calib_status', ImuCalibStatus, queue_size=1)
         self.pub_prx = rospy.Publisher(
             '~output/proximities', ProximityArray, queue_size=1)
         self.timer = rospy.Timer(
@@ -57,9 +61,11 @@ class RMUINode(object):
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
         prx_msg = self.device.get_proximity_array_msg()
+        calib_msg = self.device.get_imu_calib_msg()
         self.device.turn_on_touch_led(prx_msg)
         self.pub_imu.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
+        self.pub_imu_calib.publish(calib_msg)
 
 
 if __name__ == '__main__':

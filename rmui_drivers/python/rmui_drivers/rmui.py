@@ -2,6 +2,8 @@ import rospy
 
 from force_proximity_ros.msg import ProximityArray
 
+from rmui_msgs.msg import ImuCalibStatus
+
 
 class RMUI(object):
     def __init__(self, imu, sensor_boards, led, frame_id='rmui'):
@@ -45,6 +47,17 @@ class RMUI(object):
         prx_msg.header.stamp = rospy.Time.now()
         prx_msg.header.frame_id = self.frame_id
         return prx_msg
+
+    def get_imu_calib_msg(self):
+        calib_msg = ImuCalibStatus()
+        calib_status = self.imu.get_calib_status()
+        calib_msg.system = calib_status[0]
+        calib_msg.gyroscope = calib_status[1]
+        calib_msg.accelerometer = calib_status[2]
+        calib_msg.magnetometer = calib_status[3]
+        calib_msg.header.stamp = rospy.Time.now()
+        calib_msg.header.frame_id = self.frame_id
+        return calib_msg
 
     def turn_on_touch_led(self, prx_msg):
         touch_led_ids = []
