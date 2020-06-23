@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rmui_description</name>
+  <version>0.0.0</version>
+  <description>The rmui_description package</description>
+  <maintainer email="shingogo.5511@gmail.com">Shingo Kitagawa</maintainer>
+  <license>BSD</license>
+  <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>
