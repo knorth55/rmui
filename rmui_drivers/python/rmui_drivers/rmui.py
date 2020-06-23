@@ -18,7 +18,7 @@ class RMUI(object):
     def init_device(self):
         imu_calibrated = self.imu.init_sensor()
         if not imu_calibrated:
-            rospy.logerr('IMU is not calibrated')
+            rospy.logerr('IMU is not initially calibrated.')
         for sensor_board in self.sensor_boards:
             sensor_board.init_sensors()
         self.led.turn_on(255, 0, 0, 0.1)
