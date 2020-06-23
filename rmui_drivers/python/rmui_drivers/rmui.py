@@ -49,12 +49,12 @@ class RMUI(object):
         return prx_msg
 
     def get_imu_calib_msg(self):
+        self.device.imu.read_calib_status()
         calib_msg = ImuCalibStatus()
-        calib_status = self.imu.get_calib_status()
-        calib_msg.system = calib_status[0]
-        calib_msg.gyroscope = calib_status[1]
-        calib_msg.accelerometer = calib_status[2]
-        calib_msg.magnetometer = calib_status[3]
+        calib_msg.system = self.imu.sys_calib_status
+        calib_msg.gyroscope = self.imu.gyr_calib_status
+        calib_msg.accelerometer = self.imu.acc_calib_status
+        calib_msg.magnetometer = self.imu.mag_calib_status
         calib_msg.header.stamp = rospy.Time.now()
         calib_msg.header.frame_id = self.frame_id
         return calib_msg

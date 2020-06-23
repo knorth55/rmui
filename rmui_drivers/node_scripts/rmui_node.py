@@ -61,8 +61,8 @@ class RMUINode(object):
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
         prx_msg = self.device.get_proximity_array_msg()
-        calib_msg = self.device.get_imu_calib_msg()
         self.device.turn_on_touch_led(prx_msg)
+        calib_msg = self.device.get_imu_calib_msg()
         self.pub_imu.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
         self.pub_imu_calib.publish(calib_msg)

@@ -34,11 +34,11 @@ class BNO055Node(object):
         self.pub.publish(imu_msg)
 
         calib_msg = ImuCalibStatus()
-        calib_status = self.sensor.get_calib_status()
-        calib_msg.system = calib_status[0]
-        calib_msg.gyroscope = calib_status[1]
-        calib_msg.accelerometer = calib_status[2]
-        calib_msg.magnetometer = calib_status[3]
+        self.sensor.read_calib_status()
+        calib_msg.system = self.sensor.sys_calib_status
+        calib_msg.gyroscope = self.sensor.gyr_calib_status
+        calib_msg.accelerometer = self.sensor.acc_calib_status
+        calib_msg.magnetometer = self.sensor.mag_calib_status
         calib_msg.header.stamp = rospy.Time.now()
         calib_msg.header.frame_id = self.frame_id
         self.pub_calib.publish(calib_msg)

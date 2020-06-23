@@ -66,11 +66,7 @@ class BNO055(object):
         time.sleep(0.02)
 
         # calibration
-        calib_status = self.read_calib_status()
-        self.sys_calib_status = calib_status[0]
-        self.gyr_calib_status = calib_status[1]
-        self.acc_calib_status = calib_status[2]
-        self.mag_calib_status = calib_status[3]
+        self.read_calib_status()
         calibrated = (
             self.sys_calib_status == 3
             and self.gyr_calib_status == 3
@@ -137,11 +133,10 @@ class BNO055(object):
 
     def read_calib_status(self):
         status = self.bus.read_byte_data(self.address, 0x35)
-        sys_status = status >> 6 & 0x03
-        gyr_status = status >> 4 & 0x03
-        acc_status = status >> 2 & 0x03
-        mag_status = status & 0x03
-        return sys_status, gyr_status, acc_status, mag_status
+        self.sys_status = status >> 6 & 0x03
+        self.gyr_status = status >> 4 & 0x03
+        self.acc_status = status >> 2 & 0x03
+        self.mag_status = status & 0x03
 
     def get_imu_msg(self, q, v, a):
         orientation = Quaternion(
@@ -159,7 +154,3 @@ class BNO055(object):
             linear_acceleration_covariance=self.linear_acceleration_covariance,
         )
         return imu_msg
-
-    def get_calib_status(self):
-        return self.sys_calib_status, self.gyr_calib_status, \
-            self.acc_calib_status, self.mag_calib_status
