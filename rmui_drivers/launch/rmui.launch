@@ -5,6 +5,9 @@
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
 
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
+
   <group ns="rmui">
     <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
           output="screen" machine="$(arg machine)">
