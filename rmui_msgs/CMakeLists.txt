@@ -3,14 +3,19 @@ project(rmui_msgs)
 
 find_package(catkin
   REQUIRED
-  message_generation)
+  message_generation
+  std_msgs
+)
 
 add_message_files(
   FILES
   LED.msg
+  ImuCalibStatus.msg
 )
 
-generate_messages()
+generate_messages(
+  DEPENDENCIES std_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS
