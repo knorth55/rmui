@@ -59,7 +59,7 @@ class BNO055(object):
         time.sleep(0.01)
 
         # unit select: radian
-        self.bus.write_byte_data(self.address, 0x3B, 0x06)
+        self.set_radian_unit()
 
         # run
         self.set_ndof_mode()
@@ -101,6 +101,9 @@ class BNO055(object):
 
     def use_external_oscillator(self):
         self._set_sys_trigger(0x80)
+
+    def set_radian_unit(self):
+        self.bus.write_byte_data(self.address, 0x3B, 0x06)
 
     def _set_sys_trigger(self, cmd):
         self.bus.write_byte_data(self.address, 0x3F, cmd)
