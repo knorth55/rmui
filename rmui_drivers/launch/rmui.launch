@@ -1,6 +1,7 @@
 <launch>
   <arg name="machine" default="rmui" />
   <arg name="n_board" default="6" />
+  <arg name="gui" default="true" />
 
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
@@ -18,5 +19,8 @@
 
     <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml" />
   </group>
+
+  <node name="$(anon rviz)" pkg="rviz" type="rviz" if="$(arg gui)"
+        args="-d $(find rmui_drivers)/rvizconfig/rmui.rviz" />
 
 </launch>
