@@ -133,10 +133,10 @@ class BNO055(object):
 
     def read_calib_status(self):
         status = self.bus.read_byte_data(self.address, 0x35)
-        self.sys_status = status >> 6 & 0x03
-        self.gyr_status = status >> 4 & 0x03
-        self.acc_status = status >> 2 & 0x03
-        self.mag_status = status & 0x03
+        self.sys_calib_status = int((status >> 6) & 0x03)
+        self.gyr_calib_status = int((status >> 4) & 0x03)
+        self.acc_calib_status = int((status >> 2) & 0x03)
+        self.mag_calib_status = int(status & 0x03)
 
     def get_imu_msg(self, q, v, a):
         orientation = Quaternion(
