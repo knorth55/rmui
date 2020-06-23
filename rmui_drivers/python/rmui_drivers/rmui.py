@@ -49,7 +49,7 @@ class RMUI(object):
         return prx_msg
 
     def get_imu_calib_msg(self):
-        self.device.imu.read_calib_status()
+        self.imu.read_calib_status()
         calib_msg = ImuCalibStatus()
         calib_msg.system = self.imu.sys_calib_status
         calib_msg.gyroscope = self.imu.gyr_calib_status
