@@ -14,7 +14,9 @@ class RMUI(object):
         self.frame_id = frame_id
 
     def init_device(self):
-        self.imu.init_sensor()
+        imu_calibrated = self.imu.init_sensor()
+        if not imu_calibrated:
+            rospy.logerr('IMU is not calibrated')
         for sensor_board in self.sensor_boards:
             sensor_board.init_sensors()
         self.led.turn_on(255, 0, 0, 0.1)

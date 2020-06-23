@@ -57,9 +57,20 @@ class BNO055(object):
         # unit select: radian
         self.bus.write_byte_data(self.address, 0x3B, 0x06)
 
+        # calibration
+        sys_status, gyr_status, acc_status, mag_status = \
+            self.read_calib_status()
+        calibrated = (
+            sys_status == 3 and gyr_status == 3
+            and acc_status == 3 and mag_status == 3)
+
+        # offset
+        time.sleep(0.025)
+
         # run
         self.set_ndof_mode()
         time.sleep(0.02)
+        return calibrated
 
     def set_config_mode(self):
         self._set_mode(0x00)
