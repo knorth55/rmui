@@ -68,10 +68,10 @@ class BNO055(object):
         # calibration
         self.read_calib_status()
         calibrated = (
-            self.sys_calib_status == 3
-            and self.gyr_calib_status == 3
-            and self.acc_calib_status == 3
-            and self.mag_calib_status == 3)
+            self.sys_calib_status == 3 and
+            self.gyr_calib_status == 3 and
+            self.acc_calib_status == 3 and
+            self.mag_calib_status == 3)
 
         return calibrated
 
