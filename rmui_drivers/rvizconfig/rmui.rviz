@@ -92,6 +92,14 @@ Visualization Manager:
             {}
       Update Interval: 0
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /rmui0/rmui_node/output/proximities/markers
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 101
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0

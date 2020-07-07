@@ -9,16 +9,25 @@
   <param name="robot_description"
          command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
 
-  <group ns="rmui">
+  <group ns="rmui0">
     <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
           output="screen" machine="$(arg machine)">
       <rosparam subst_value="true">
         n_board: $(arg n_board)
       </rosparam>
     </node>
-
-    <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml" />
   </group>
+
+  <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
+        output="screen">
+    <rosparam>
+      approximate_sync: true 
+      queue_size: 10
+      node_0: /rmui0/rmui_node
+    </rosparam>
+  </node>
+
+  <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml" />
 
   <node name="$(anon rviz)" pkg="rviz" type="rviz" if="$(arg gui)"
         args="-d $(find rmui_drivers)/rvizconfig/rmui.rviz" />
