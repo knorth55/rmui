@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import matplotlib.pyplot as plt
 import re
 import sys
 
@@ -113,6 +114,7 @@ class RMUIClient(object):
         self.pub_prx_markers = rospy.Publisher(
             '{}/output/proximities/markers'.format(self.node_name),
             MarkerArray, queue_size=1)
+        self.cm = plt.get_cmap('jet')
 
     def _cb(self, prx_msg, imu_msg, imu_calib_msg):
         header = prx_msg.header
@@ -121,20 +123,17 @@ class RMUIClient(object):
                 zip(prx_msg.proximities, self.sensor_positions)):
             if proximity.proximity < self.sensitivity:
                 continue
-            prx_marker = Marker()
-            prx_marker.header = header
-            prx_marker.ns = self.node_name
-            prx_marker.id = prx_id
-            prx_marker.type = Marker.ARROW
-            prx_marker.scale.x = 0.02
-            prx_marker.scale.y = 0.03
-            prx_marker.color.r = 1.0
-            prx_marker.color.g = 0.0
-            prx_marker.color.b = 0.0
-            prx_marker.color.a = 1.0
-            prx_marker.pose.orientation.w = 1.0
-            prx_marker.lifetime = rospy.Duration(0.5)
-            prx_marker.action = Marker.ADD
+            arrow_marker = Marker()
+            arrow_marker.header = header
+            arrow_marker.ns = self.node_name
+            arrow_marker.id = 2 * prx_id
+            arrow_marker.type = Marker.ARROW
+            arrow_marker.action = Marker.ADD
+            arrow_marker.lifetime = rospy.Duration(0.5)
+            arrow_marker.pose.orientation.w = 1.0
+            arrow_marker.scale.x = 0.02
+            arrow_marker.scale.y = 0.03
+            arrow_marker.color.a = 1.0
             start_point = Point(
                 x=sensor_pos[0],
                 y=sensor_pos[1],
@@ -145,7 +144,8 @@ class RMUIClient(object):
                 z=sensor_pos[2])
             sensor_direction = self.sensor_directions[prx_id // 5]
             arrow_scale = min(
-                3000.0, proximity.proximity - self.sensitivity) / 3000.0
+                2000.0, proximity.proximity - self.sensitivity) / 2000.0
+            cm_scale = int((0.4 * (1.0 - arrow_scale) + 0.1) * 255)
             if sensor_direction[0] == '-':
                 arrow_scale = arrow_scale * -1
             if sensor_direction[-1] == 'x':
@@ -154,8 +154,44 @@ class RMUIClient(object):
                 start_point.y = start_point.y + 0.2 * arrow_scale
             else:
                 start_point.z = start_point.z + 0.2 * arrow_scale
-            prx_marker.points = [start_point, end_point]
-            prx_markers.markers.append(prx_marker)
+            arrow_marker.points = [start_point, end_point]
+            arrow_marker.color.b = self.cm(cm_scale)[0]
+            arrow_marker.color.g = self.cm(cm_scale)[1]
+            arrow_marker.color.r = self.cm(cm_scale)[2]
+            prx_markers.markers.append(arrow_marker)
+
+            cube_marker = Marker()
+            cube_marker.header = header
+            cube_marker.ns = self.node_name
+            cube_marker.id = 2 * prx_id + 1
+            cube_marker.type = Marker.CUBE
+            cube_marker.action = Marker.ADD
+            cube_marker.lifetime = rospy.Duration(0.5)
+            cube_marker.pose.position.x = sensor_pos[0]
+            cube_marker.pose.position.y = sensor_pos[1]
+            cube_marker.pose.position.z = sensor_pos[2]
+            cube_marker.pose.orientation.x = 0.0
+            cube_marker.pose.orientation.y = 0.0
+            cube_marker.pose.orientation.z = 0.0
+            cube_marker.pose.orientation.w = 1.0
+            cube_marker.color.b = self.cm(cm_scale)[0]
+            cube_marker.color.g = self.cm(cm_scale)[1]
+            cube_marker.color.r = self.cm(cm_scale)[2]
+            cube_marker.color.a = 1.0
+            if sensor_direction[-1] == 'x':
+                cube_marker.scale.x = 0.01
+                cube_marker.scale.y = 0.1
+                cube_marker.scale.z = 0.1
+            elif sensor_direction[-1] == 'y':
+                cube_marker.scale.x = 0.1
+                cube_marker.scale.y = 0.01
+                cube_marker.scale.z = 0.1
+            else:
+                cube_marker.scale.x = 0.1
+                cube_marker.scale.y = 0.1
+                cube_marker.scale.z = 0.01
+            prx_markers.markers.append(cube_marker)
+
         self.pub_prx_markers.publish(prx_markers)
 
         self.sys_calib = (imu_calib_msg.system >= 3)
