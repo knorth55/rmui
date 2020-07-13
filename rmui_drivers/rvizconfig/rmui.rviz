@@ -3,8 +3,7 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /Global Options1
+      Expanded: ~
       Splitter Ratio: 0.3470790386199951
     Tree Height: 755
   - Class: rviz/Selection
@@ -51,7 +50,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Alpha: 1
+    - Alpha: 0.800000011920929
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -81,7 +80,7 @@ Visualization Manager:
           Value: true
         world:
           Value: true
-      Marker Scale: 1
+      Marker Scale: 0.20000000298023224
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -97,12 +96,12 @@ Visualization Manager:
       Marker Topic: /rmui0/rmui_node/output/proximities/markers
       Name: MarkerArray
       Namespaces:
-        {}
+        /rmui0/rmui_node: true
       Queue Size: 101
       Value: true
   Enabled: true
   Global Options:
-    Background Color: 0; 0; 0
+    Background Color: 255; 255; 255
     Default Light: true
     Fixed Frame: world
     Frame Rate: 30
@@ -135,18 +134,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.48216766119003296
-        Y: 0.13261659443378448
-        Z: 0.2865045368671417
+        X: 0.5004109144210815
+        Y: 0.21540546417236328
+        Z: 0.28264671564102173
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7547964453697205
+      Pitch: 0.4947966933250427
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.16766506433486938
+      Yaw: 6.090848922729492
     Saved: ~
 Window Geometry:
   Displays:
