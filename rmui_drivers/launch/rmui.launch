@@ -1,6 +1,7 @@
 <launch>
   <arg name="machine" default="rmui" />
   <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
 
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
@@ -14,6 +15,7 @@
           output="screen" machine="$(arg machine)">
       <rosparam subst_value="true">
         n_board: $(arg n_board)
+        duration: $(arg duration)
       </rosparam>
     </node>
   </group>
