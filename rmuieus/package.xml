@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rmuieus</name>
+  <version>0.0.0</version>
+  <description>The Robot Manipulation User Interface program package</description>
+  <maintainer email="shingogo.5511@gmail.com">Shingo Kitagawa</maintainer>
+  <license>BSD</license>
+  <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rmui_drivers</run_depend>
+
+  <export>
+  </export>
+</package>
