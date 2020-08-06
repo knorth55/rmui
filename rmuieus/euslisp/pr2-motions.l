@@ -50,6 +50,7 @@
          (send rarm-target-coords :rotate -1.57 :x)
          (send rarm-target-coords :rotate 1.57 :z)))
       (t nil))
+    ;; approach
     (send *pr2* :inverse-kinematics
           (list larm-target-coords rarm-target-coords)
           :rotation-axis (list t t)
@@ -60,6 +61,7 @@
     (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
     (send *ri* :wait-interpolation)
 
+    ;; hold
     (send larm-target-coords :translate (float-vector 0 0 100))
     (send rarm-target-coords :translate (float-vector 0 0 100))
     (send *pr2* :inverse-kinematics
@@ -73,6 +75,7 @@
     (send *ri* :wait-interpolation)
     (send (send *pr2* :larm :end-coords :parent) :assoc *cube*)
 
+    ;; lift up
     (send larm-target-coords :translate (float-vector 0 0 100) :world)
     (send rarm-target-coords :translate (float-vector 0 0 100) :world)
     (send *pr2* :inverse-kinematics
@@ -88,6 +91,7 @@
 (defun dualarm-hold-push-side-down ()
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords)))
+    ;; lift down
     (send larm-target-coords :translate (float-vector 0 0 -100) :world)
     (send rarm-target-coords :translate (float-vector 0 0 -100) :world)
     (send *pr2* :inverse-kinematics
@@ -99,8 +103,11 @@
     (send *irtviewer* :draw-objects)
     (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
     (send *ri* :wait-interpolation)
+
+    ;; disassoc
     (send (send *pr2* :larm :end-coords :parent) :dissoc *cube*)
 
+    ;; release
     (send larm-target-coords :translate (float-vector 0 0 -100))
     (send rarm-target-coords :translate (float-vector 0 0 -100))
     (send *pr2* :inverse-kinematics
