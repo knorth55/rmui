@@ -1,4 +1,58 @@
 (require :pr2-motions "package://rmuieus/euslisp/pr2-motions.l")
 
+
+;; init
+
 (defun planner-init ()
-  (action-init))
+  (motion-init))
+
+
+;; motion planners
+
+(defun dualarm-push-hold (&key (push-direction :y)
+                               (push-position :center)
+                               (approach-direction :back))
+  (when (not (or (eq push-direction :x)
+                 (eq push-direction :y)))
+    (return-from dualarm-push-hold nil))
+  ;; push-hold
+  (cond
+    ((eq push-direction :y)
+     (push-y-axis :larm
+                  :push-position push-position
+                  :approach-direction approach-direction)
+     (push-y-axis :rarm
+                  :push-position push-position
+                  :approach-direction approach-direction))
+    (t nil))
+  ;; assoc
+  (send (send *pr2* :larm :end-coords :parent) :assoc *cube*))
+
+
+
+(defun dualarm-push-hold-release ()
+  ;; disassoc
+  (send (send *pr2* :larm :end-coords :parent) :dissoc *cube*)
+
+  ;; push-hold-release
+  (push-release :larm)
+  (push-release :rarm))
+
+
+(defun dualarm-push-hold-up (&key (push-direction :y)
+                                  (push-position :center)
+                                  (approach-direction :back))
+  (dualarm-push-hold :push-direction push-direction
+                     :push-position push-position
+                     :approach-direction approach-direction)
+  (dualarm-lift-up))
+
+
+(defun dualarm-push-hold-down (&key (push-direction :y)
+                                    (push-position :center)
+                                    (approach-direction :back))
+  (dualarm-lift-down)
+  (dualarm-push-hold-release))
+
+
+(provide :pr2-motion-planner "pr2-motion-planner.l")
