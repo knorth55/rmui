@@ -23,13 +23,15 @@
   (&key (push-axis :y) (push-position :center) (approach-direction :back)
         (front-arm :larm) (upper-arm :larm))
   ;; push-hold
-  (push-hold-motion
-    :push-axis push-axis
-    :push-position push-position
-    :approach-direction approach-direction
-    :front-arm front-arm :upper-arm upper-arm)
-  ;; assoc
-  (assoc-cube :arms))
+  (let ((holded))
+    (setq holded
+          (push-hold-motion
+            :push-axis push-axis
+            :push-position push-position
+            :approach-direction approach-direction
+            :front-arm front-arm :upper-arm upper-arm))
+    ;; assoc
+    (when holded (assoc-cube :arms))))
 
 
 (defun dualarm-push-hold-release ()
@@ -42,17 +44,20 @@
 (defun dualarm-push-hold-up
   (&key (push-axis :y) (push-position :center) (approach-direction :back)
         (front-arm :larm) (upper-arm :larm))
-  (dualarm-push-hold
-    :push-axis push-axis
-    :push-position push-position
-    :approach-direction approach-direction
-    :front-arm front-arm :upper-arm upper-arm)
-  (hold-lift-up-motion))
+  (let ((holded))
+    (setq holded
+          (dualarm-push-hold
+            :push-axis push-axis
+            :push-position push-position
+            :approach-direction approach-direction
+            :front-arm front-arm :upper-arm upper-arm))
+    (when holded (hold-lift-up-motion))))
 
 
 (defun dualarm-push-hold-down ()
-  (hold-lift-down-motion)
-  (dualarm-push-hold-release))
+  (let ((holded))
+    (setq holded (hold-lift-down-motion))
+    (when holded (dualarm-push-hold-release))))
 
 
 (provide :pr2-planners "pr2-planners.l")

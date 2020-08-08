@@ -6,7 +6,7 @@
 (defun motion-init ()
   (pr2-init)
   (setq *cube* (make-cube 350 350 265))
-  (send *cube* :translate #f(450 0 600))
+  (send *cube* :translate #f(450 0 800))
   (reset-motion)
   (objects (list *pr2* *cube*)))
 
@@ -135,50 +135,67 @@
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (return-from push-motion-step nil))
   ;; push
-  (if (eq arm :arms)
-    (let ((larm-target-coords
-            (get-push-target-coords
-              :larm :motion-type motion-type
-              :push-axis (car push-axes)
-              :push-position (car push-positions)
-              :push-direction (car push-directions)
-              :approach-direction (car approach-directions)))
-          (rarm-target-coords
-            (get-push-target-coords
-              :rarm :motion-type motion-type
-              :push-axis (cadr push-axes)
-              :push-position (cadr push-positions)
-              :push-direction (cadr push-directions)
-              :approach-direction (cadr approach-directions))))
-      (when (or (null larm-target-coords)
-                (null rarm-target-coords))
-        (return-from push-motion-step nil))
-      (send *pr2* :inverse-kinematics
-            (list larm-target-coords rarm-target-coords)
-            :move-target (list (send *pr2* :larm :end-coords)
-                               (send *pr2* :rarm :end-coords))
-            :rotation-axis (list t t)
-            :use-torso 0.001))
-    (let ((target-coords
-            (get-push-target-coords
-              arm :motion-type motion-type
-              :push-axis (car push-axes)
-              :push-position (car push-positions)
-              :push-direction (car push-directions)
-              :approach-direction (car approach-directions))))
-      (when (null target-coords)
-        (return-from push-motion-step nil))
-      (send *pr2* arm :inverse-kinematics target-coords
-            :rotation-axis t
-            :use-torso 0.001)))
-  (send *irtviewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000
-        (cond ((eq arm :larm) :larm-controller)
-              ((eq arm :rarm) :rarm-controller)
-              (t nil))
-        0)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 :torso-controller 0)
-  (send *ri* :wait-interpolation))
+  (let ((ik-solved))
+    (if (eq arm :arms)
+      (let ((larm-target-coords
+              (get-push-target-coords
+                :larm :motion-type motion-type
+                :push-axis (car push-axes)
+                :push-position (car push-positions)
+                :push-direction (car push-directions)
+                :approach-direction (car approach-directions)))
+            (rarm-target-coords
+              (get-push-target-coords
+                :rarm :motion-type motion-type
+                :push-axis (cadr push-axes)
+                :push-position (cadr push-positions)
+                :push-direction (cadr push-directions)
+                :approach-direction (cadr approach-directions))))
+        (when (or (null larm-target-coords)
+                  (null rarm-target-coords))
+          (return-from push-motion-step nil))
+        (setq ik-solved
+              (send *pr2* :inverse-kinematics
+                    (list larm-target-coords rarm-target-coords)
+                    :move-target (list (send *pr2* :larm :end-coords)
+                                       (send *pr2* :rarm :end-coords))
+                    :rotation-axis (list t t)
+                    :use-torso 0.001))
+        (unless ik-solved
+          (setq ik-solved
+                (send *pr2* :inverse-kinematics
+                      (list larm-target-coords rarm-target-coords)
+                      :move-target (list (send *pr2* :larm :end-coords)
+                                         (send *pr2* :rarm :end-coords))
+                      :rotation-axis (list :z :z)
+                      :use-torso 0.001))))
+      (let ((target-coords
+              (get-push-target-coords
+                arm :motion-type motion-type
+                :push-axis (car push-axes)
+                :push-position (car push-positions)
+                :push-direction (car push-directions)
+                :approach-direction (car approach-directions))))
+        (when (null target-coords)
+          (return-from push-motion-step nil))
+        (setq ik-solved
+              (send *pr2* arm :inverse-kinematics target-coords
+                    :rotation-axis t
+                    :use-torso 0.001))
+        (unless ik-solved
+          (setq ik-solved
+                (send *pr2* arm :inverse-kinematics target-coords
+                      :rotation-axis :z
+                      :use-torso 0.001)))))
+    (when ik-solved
+      (send *irtviewer* :draw-objects)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000
+            (cond ((eq arm :larm) :larm-controller)
+                  ((eq arm :rarm) :rarm-controller)
+                  (t nil))
+            0)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 :torso-controller 0)
+      (send *ri* :wait-interpolation))))
 
 
 (defun push-motion
@@ -189,18 +206,21 @@
 
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (return-from push-motion nil))
-  (push-motion-step
-    arm :motion-type :approach
-    :push-axes push-axes
-    :push-positions push-positions
-    :push-directions push-directions
-    :approach-directions approach-directions)
-  (push-motion-step
-    arm :motion-type :push
-    :push-axes push-axes
-    :push-positions push-positions
-    :push-directions push-directions
-    :approach-directions approach-directions))
+  (let ((approached))
+    (setq approached
+      (push-motion-step
+        arm :motion-type :approach
+        :push-axes push-axes
+        :push-positions push-positions
+        :push-directions push-directions
+        :approach-directions approach-directions))
+    (when approached
+      (push-motion-step
+        arm :motion-type :push
+        :push-axes push-axes
+        :push-positions push-positions
+        :push-directions push-directions
+        :approach-directions approach-directions))))
 
 
 (defun push-hold-motion
@@ -255,26 +275,42 @@
   ;; release
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (return-from push-release-motion nil))
-  (if (eq arm :arms)
-    (let ((larm-target-coords (get-push-release-target-coords :larm))
-          (rarm-target-coords (get-push-release-target-coords :rarm)))
-      (send *pr2* :inverse-kinematics
-            (list larm-target-coords rarm-target-coords)
-            :move-target (list (send *pr2* :larm :end-coords)
-                               (send *pr2* :rarm :end-coords))
-            :rotation-axis (list t t)
-            :use-torso 0.001))
-    (let ((target-coords (get-push-release-target-coords arm))
-      (send *pr2* arm :inverse-kinematics
-            target-coords :rotation-axis t :use-torso 0.001))))
-  (send *irtviewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000
-        (cond ((eq arm :larm) :larm-controller)
-              ((eq arm :rarm) :rarm-controller)
-              (t nil))
-        0)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 :torso-controller 0)
-  (send *ri* :wait-interpolation))
+  (let ((ik-solved))
+    (if (eq arm :arms)
+      (let ((larm-target-coords (get-push-release-target-coords :larm))
+            (rarm-target-coords (get-push-release-target-coords :rarm)))
+        (setq ik-solved
+              (send *pr2* :inverse-kinematics
+                    (list larm-target-coords rarm-target-coords)
+                    :move-target (list (send *pr2* :larm :end-coords)
+                                       (send *pr2* :rarm :end-coords))
+                    :rotation-axis (list t t)
+                    :use-torso 0.001))
+        (unless ik-solved
+          (setq ik-solved
+                (send *pr2* :inverse-kinematics
+                      (list larm-target-coords rarm-target-coords)
+                      :move-target (list (send *pr2* :larm :end-coords)
+                                         (send *pr2* :rarm :end-coords))
+                      :rotation-axis (list :z :z)
+                      :use-torso 0.001))))
+      (let ((target-coords (get-push-release-target-coords arm)))
+        (setq ik-solved
+              (send *pr2* arm :inverse-kinematics
+                    target-coords :rotation-axis t :use-torso 0.001))
+        (unless ik-solved
+          (setq ik-solved
+                (send *pr2* arm :inverse-kinematics
+                      target-coords :rotation-axis :z :use-torso 0.001)))))
+    (when ik-solved
+      (send *irtviewer* :draw-objects)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000
+            (cond ((eq arm :larm) :larm-controller)
+                  ((eq arm :rarm) :rarm-controller)
+                  (t nil))
+            0)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 :torso-controller 0)
+      (send *ri* :wait-interpolation))))
 
 
 (defun push-hold-release-motion ()
@@ -283,36 +319,50 @@
 
 (defun hold-lift-up-motion ()
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-        (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords)))
+        (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+        ik-solved)
     ;; lift up
     (send larm-target-coords :translate (float-vector 0 0 100) :world)
     (send rarm-target-coords :translate (float-vector 0 0 100) :world)
-    (send *pr2* :inverse-kinematics
-          (list larm-target-coords rarm-target-coords)
-          :rotation-axis (list t t)
-          :move-target (list (send *pr2* :larm :end-coords)
-                             (send *pr2* :rarm :end-coords))
-          :use-torso 0.001)
-    (send *irtviewer* :draw-objects)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 nil 0)
-    (send *ri* :wait-interpolation)))
+    (setq ik-solved
+          (send *pr2* :inverse-kinematics
+                (list larm-target-coords rarm-target-coords)
+                :rotation-axis (list t t)
+                :move-target (list (send *pr2* :larm :end-coords)
+                                   (send *pr2* :rarm :end-coords))
+                :use-torso 0.001))
+    (unless ik-solved
+      (setq ik-solved
+            (send *pr2* :inverse-kinematics
+                  (list larm-target-coords rarm-target-coords)
+                  :rotation-axis (list :z :z)
+                  :move-target (list (send *pr2* :larm :end-coords)
+                                     (send *pr2* :rarm :end-coords))
+                  :use-torso 0.001)))
+    (when ik-solved
+      (send *irtviewer* :draw-objects)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 nil 0)
+      (send *ri* :wait-interpolation))))
 
 
 (defun hold-lift-down-motion ()
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-        (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords)))
+        (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+        ik-solved)
     ;; lift down
     (send larm-target-coords :translate (float-vector 0 0 -100) :world)
     (send rarm-target-coords :translate (float-vector 0 0 -100) :world)
-    (send *pr2* :inverse-kinematics
-          (list larm-target-coords rarm-target-coords)
-          :rotation-axis (list t t)
-          :move-target (list (send *pr2* :larm :end-coords)
-                             (send *pr2* :rarm :end-coords))
-          :use-torso 0.001)
-    (send *irtviewer* :draw-objects)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 nil 0)
-    (send *ri* :wait-interpolation)))
+    (setq ik-solved
+          (send *pr2* :inverse-kinematics
+                (list larm-target-coords rarm-target-coords)
+                :rotation-axis (list t t)
+                :move-target (list (send *pr2* :larm :end-coords)
+                                   (send *pr2* :rarm :end-coords))
+                :use-torso 0.001))
+    (when ik-solved
+      (send *irtviewer* :draw-objects)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 nil 0)
+      (send *ri* :wait-interpolation))))
 
 
 (defun reset-motion ()
