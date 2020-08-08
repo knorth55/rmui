@@ -1,14 +1,29 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
 
 
+(defvar *cube* (make-cube 350 350 265))
+(defvar *cube-pos-x* 450)
+(defvar *cube-pos-y* 0)
+(defvar *cube-pos-z* 800)
+
 ;; init
 
 (defun motion-init ()
   (pr2-init)
-  (setq *cube* (make-cube 350 350 265))
-  (send *cube* :translate #f(450 0 800))
+  (send *cube* :newcoords
+        (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
   (reset-motion)
   (objects (list *pr2* *cube*)))
+
+
+(defun assoc-cube (arm)
+  (when (eq arm :arms) (setq arm :larm))
+  (send (send *pr2* arm :end-coords :parent) :assoc *cube*))
+
+
+(defun dissoc-cube (arm)
+  (when (eq arm :arms) (setq arm :larm))
+  (send (send *pr2* arm :end-coords :parent) :dissoc *cube*))
 
 
 ;; motions
@@ -254,13 +269,17 @@
         (approach-directions
           (cond ((eq approach-direction :side)
                  (list :left :right))
-                (t (list approach-direction approach-direction)))))
-    (push-motion
-      :arms
-      :push-axes (list push-axis push-axis)
-      :push-positions (list push-position push-position)
-      :push-directions push-directions
-      :approach-directions approach-directions)))
+                (t (list approach-direction approach-direction))))
+        holded)
+    (setq holded
+          (push-motion
+            :arms
+            :push-axes (list push-axis push-axis)
+            :push-positions (list push-position push-position)
+            :push-directions push-directions
+            :approach-directions approach-directions))
+    (when holded (assoc-cube :arms))
+    holded))
 
 
 ;; push-release & push-hold-release
@@ -314,7 +333,14 @@
 
 
 (defun push-hold-release-motion ()
-  (push-release-motion :arms))
+  (dissoc-cube :arms)
+  (let ((released (push-release-motion :arms)))
+    (if released
+      (send *cube* :newcoords
+            (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
+      (assoc-cube :arms))
+    (send *irtviewer* :draw-objects)
+    released))
 
 
 (defun hold-lift-up-motion ()
@@ -364,6 +390,20 @@
       (send *ri* :angle-vector (send *pr2* :angle-vector) 5000 nil 0)
       (send *ri* :wait-interpolation))))
 
+
+;; rotate
+
+(defun rotate-motion (&key (rotate-angle 90) (rotate-axis :z))
+  (cond
+    ((eq rotate-axis :z)
+     (push-hold-motion
+       :push-axis :y
+       :push-position :center
+       :approach-direction :back)
+     )))
+
+
+;; reset-motion
 
 (defun reset-motion ()
   (send *pr2* :reset-manip-pose)
