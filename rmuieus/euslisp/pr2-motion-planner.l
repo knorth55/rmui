@@ -18,10 +18,7 @@
   ;; push-hold
   (cond
     ((eq push-direction :y)
-     (push-y-axis :larm
-                  :push-position push-position
-                  :approach-direction approach-direction)
-     (push-y-axis :rarm
+     (push-y-axis :arms
                   :push-position push-position
                   :approach-direction approach-direction))
     (t nil))
@@ -35,8 +32,7 @@
   (send (send *pr2* :larm :end-coords :parent) :dissoc *cube*)
 
   ;; push-hold-release
-  (push-release :larm)
-  (push-release :rarm))
+  (push-release :arms))
 
 
 (defun dualarm-push-hold-up (&key (push-direction :y)
