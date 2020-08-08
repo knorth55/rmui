@@ -9,45 +9,49 @@
 
 ;; motion planners
 
-(defun dualarm-push-hold (&key (push-direction :y)
-                               (push-position :center)
-                               (approach-direction :back))
-  (when (not (or (eq push-direction :x)
-                 (eq push-direction :y)))
-    (return-from dualarm-push-hold nil))
-  ;; push-hold
-  (cond
-    ((eq push-direction :y)
-     (push-y-axis :arms
-                  :push-position push-position
-                  :approach-direction approach-direction))
-    (t nil))
-  ;; assoc
-  (send (send *pr2* :larm :end-coords :parent) :assoc *cube*))
+(defun assoc-cube (arm)
+  (when (eq arm :arms) (setq arm :larm))
+  (send (send *pr2* arm :end-coords :parent) :assoc *cube*))
 
+
+(defun dissoc-cube (arm)
+  (when (eq arm :arms) (setq arm :larm))
+  (send (send *pr2* arm :end-coords :parent) :dissoc *cube*))
+
+
+(defun dualarm-push-hold
+  (&key (push-axis :y) (push-position :center) (approach-direction :back)
+        (front-arm :larm) (upper-arm :larm))
+  ;; push-hold
+  (push-hold-motion
+    :push-axis push-axis
+    :push-position push-position
+    :approach-direction approach-direction
+    :front-arm front-arm :upper-arm upper-arm)
+  ;; assoc
+  (assoc-cube :arms))
 
 
 (defun dualarm-push-hold-release ()
   ;; disassoc
-  (send (send *pr2* :larm :end-coords :parent) :dissoc *cube*)
-
+  (dissoc-cube :arms)
   ;; push-hold-release
-  (push-release :arms))
+  (push-hold-release-motion))
 
 
-(defun dualarm-push-hold-up (&key (push-direction :y)
-                                  (push-position :center)
-                                  (approach-direction :back))
-  (dualarm-push-hold :push-direction push-direction
-                     :push-position push-position
-                     :approach-direction approach-direction)
-  (dualarm-lift-up))
+(defun dualarm-push-hold-up
+  (&key (push-axis :y) (push-position :center) (approach-direction :back)
+        (front-arm :larm) (upper-arm :larm))
+  (dualarm-push-hold
+    :push-axis push-axis
+    :push-position push-position
+    :approach-direction approach-direction
+    :front-arm front-arm :upper-arm upper-arm)
+  (hold-lift-up-motion))
 
 
-(defun dualarm-push-hold-down (&key (push-direction :y)
-                                    (push-position :center)
-                                    (approach-direction :back))
-  (dualarm-lift-down)
+(defun dualarm-push-hold-down ()
+  (hold-lift-down-motion)
   (dualarm-push-hold-release))
 
 
