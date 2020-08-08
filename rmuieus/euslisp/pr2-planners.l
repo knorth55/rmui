@@ -51,4 +51,4 @@
   (dualarm-push-hold-release))
 
 
-(provide :pr2-motion-planner "pr2-motion-planner.l")
+(provide :pr2-planners "pr2-planners.l")
