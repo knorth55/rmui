@@ -346,10 +346,15 @@
 
 (defun push-hold-release-motion ()
   (let ((released (push-release-motion :arms)))
-    (if released
+    (when released
       (send *cube* :newcoords
             (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
-      (assoc-cube :arms))
+      (let ((larm-contact-coords (send *cube* :get larm-contact-coords))
+            (rarm-contact-coords (send *cube* :get rarm-contact-coords)))
+        (send *cube* :dissoc larm-contact-coords)
+        (send *cube* :dissoc rarm-contact-coords)
+        (send *cube* :put :larm-contact-coords nil)
+        (send *cube* :put :rarm-contact-coords nil)))
     (send *irtviewer* :draw-objects)
     released))
 
