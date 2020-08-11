@@ -464,7 +464,7 @@
     released))
 
 
-(defun hold-lift-up-motion (&key (lift-height 100)(move-robot t))
+(defun hold-lift-up-motion (&key (lift-height 100) (move-robot t))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
