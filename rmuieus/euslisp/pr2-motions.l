@@ -5,6 +5,7 @@
 (defvar *cube-pos-x* 450)
 (defvar *cube-pos-y* 0)
 (defvar *cube-pos-z* 800)
+(defvar *cube-prev-lift-coords* nil)
 
 ;; init
 
