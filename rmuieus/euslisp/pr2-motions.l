@@ -1,6 +1,6 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
 
-
+;; parameters
 (defvar *cube* (make-cube 350 350 265))
 (defvar *cube-pos-x* 450)
 (defvar *cube-pos-y* 0)
@@ -14,6 +14,8 @@
   (send *cube* :worldcoords)
   (send *cube* :newcoords
         (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
+  (send *cube* :worldcoords)
+  (add-cube-coords)
   (objects (list *pr2* *cube*))
   (reset-motion))
 
@@ -26,6 +28,69 @@
 (defun dissoc-cube (arm)
   (when (eq arm :arms) (setq arm :larm))
   (send (send *pr2* arm :end-coords :parent) :dissoc *cube*))
+
+
+(defun add-cube-coords ()
+  (let* ((cube-depth (x-of-cube *cube*))
+         (cube-width (y-of-cube *cube*))
+         (cube-height (z-of-cube *cube*))
+         (cube-coords (send (send *cube* :worldcoords) :copy-worldcoords))
+         (front-cube-coords
+           (make-cascoords :name :front-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector (/ cube-depth 2.0) 0 0) :world)))
+         (back-cube-coords
+           (make-cascoords :name :back-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector (/ cube-depth -2.0) 0 0) :world)))
+         (left-cube-coords
+           (make-cascoords :name :left-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector 0 (/ cube-width 2.0) 0) :world)))
+         (right-cube-coords
+           (make-cascoords :name :right-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector 0 (/ cube-width -2.0) 0) :world)))
+         (upper-cube-coords
+           (make-cascoords :name :upper-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector 0 0 (/ cube-height 2.0)) :world)))
+         (lower-cube-coords
+           (make-cascoords :name :lower-cube-coords
+                           :coords (send (send cube-coords :copy-worldcoords) :translate
+                                         (float-vector 0 0 (/ cube-height -2.0)) :world))))
+    (send *cube* :assoc front-cube-coords)
+    (send *cube* :assoc back-cube-coords)
+    (send *cube* :assoc left-cube-coords)
+    (send *cube* :assoc right-cube-coords)
+    (send *cube* :assoc upper-cube-coords)
+    (send *cube* :assoc lower-cube-coords)
+    (send *cube* :put :front-cube-coords front-cube-coords)
+    (send *cube* :put :back-cube-coords back-cube-coords)
+    (send *cube* :put :left-cube-coords left-cube-coords)
+    (send *cube* :put :right-cube-coords right-cube-coords)
+    (send *cube* :put :upper-cube-coords upper-cube-coords)
+    (send *cube* :put :lower-cube-coords lower-cube-coords)))
+
+
+(defun get-cube-length (axis)
+  (let* ((cube-coords
+           (list (send (send *cube* :get :front-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :back-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :left-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :right-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :upper-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :lower-cube-coords) :copy-worldcoords)))
+         (cube-pos-list
+           (mapcar #'(lambda (c)
+                       (elt (send c :worldpos) (cond ((eq axis :x) 0) ((eq axis :y) 1) (t 2))))
+                   cube-coords)))
+    (- (reduce #'max cube-pos-list) (reduce #'min cube-pos-list))))
+
+
+(defun get-cube-depth () (get-cube-length :x))
+(defun get-cube-width () (get-cube-length :y))
+(defun get-cube-height () (get-cube-length :z))
 
 
 ;; motions
@@ -70,20 +135,22 @@
     (return-from get-push-target-coords nil))
   (cond
     ((eq push-axis :x)
-     (let ((target-coords (send (send *cube* :worldcoords) :copy-worldcoords))
+     (let ((target-coords
+             (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
+                          :rpy (float-vector 0 0 0)))
            (x-offset (if (eq motion-type :approach) 50 0)))
        (cond
          ((or (and (eq arm :larm) (eq approach-direction :left))
               (and (eq arm :rarm) (eq approach-direction :right)))
           (let ((z-offset (cond ((eq push-position :center) 0.0)
                                 ((eq push-position :upper)
-                                 (- (/ (z-of-cube *cube*) 2.0) 50))
+                                 (- (/ (get-cube-height) 2.0) 50))
                                 ((eq push-position :lower)
-                                 (- 50 (/ (z-of-cube *cube*) 2.0))))))
+                                 (- 50 (/ (get-cube-height) 2.0))))))
             (send target-coords :translate
                   (float-vector
                     (* (if (eq push-direction :front) 1.0 -1.0)
-                       (+ (/ (x-of-cube *cube*) 2.0) x-offset))
+                       (+ (/ (get-cube-depth) 2.0) x-offset))
                     (if (eq arm :larm) -100 100)
                     z-offset))
             (send target-coords :rotate (if (eq push-direction :front) -pi/2 pi/2) :y)
@@ -91,14 +158,14 @@
          ((eq approach-direction :upper)
           (let ((y-offset (cond ((eq push-position :center) 0.0)
                                 ((eq push-position :left)
-                                 (- (/ (y-of-cube *cube*) 2.0) 50))
+                                 (- (/ (get-cube-width) 2.0) 50))
                                 ((eq push-position :right)
-                                 (- 50 (/ (y-of-cube *cube*) 2.0))))))
+                                 (- 50 (/ (get-cube-width) 2.0))))))
 
             (send target-coords :translate
                   (float-vector
                     (* (if (eq push-direction :front) 1.0 -1.0)
-                       (+ (/ (x-of-cube *cube*) 2.0) x-offset))
+                       (+ (/ (get-cube-depth) 2.0) x-offset))
                     y-offset
                     -100))
             (send target-coords :rotate pi/2 :y)
@@ -107,33 +174,35 @@
          (t (return-from get-push-target-coords nil)))
        target-coords))
     ((eq push-axis :y)
-     (let ((target-coords (send (send *cube* :worldcoords) :copy-worldcoords))
+     (let ((target-coords
+             (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
+                          :rpy (float-vector 0 0 0)))
            (y-offset (if (eq motion-type :approach) 50 0)))
        (cond
          ((eq approach-direction :back)
           (let ((z-offset (cond ((eq push-position :center) 0.0)
                                 ((eq push-position :upper)
-                                 (- (/ (z-of-cube *cube*) 2.0) 50))
+                                 (- (/ (get-cube-height) 2.0) 50))
                                 ((eq push-position :lower)
-                                 (- 50 (/ (z-of-cube *cube*) 2.0))))))
+                                 (- 50 (/ (get-cube-height) 2.0))))))
             (send target-coords :translate
                   (float-vector
                     100
                     (* (if (eq push-direction :left) 1.0 -1.0)
-                       (+ (/ (y-of-cube *cube*) 2.0) y-offset))
+                       (+ (/ (get-cube-width) 2.0) y-offset))
                     z-offset))
             (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)))
          ((eq approach-direction :upper)
           (let ((x-offset (cond ((eq push-position :center) 0.0)
                                 ((eq push-position :front)
-                                 (- (/ (x-of-cube *cube*) 2.0) 50))
+                                 (- (/ (get-cube-depth) 2.0) 50))
                                 ((eq push-position :back)
-                                 (- 50 (/ (x-of-cube *cube*) 2.0))))))
+                                 (- 50 (/ (get-cube-depth) 2.0))))))
             (send target-coords :translate
                   (float-vector
                     x-offset
                     (* (if (eq push-direction :left) 1.0 -1.0)
-                       (+ (/ (y-of-cube *cube*) 2.0) y-offset))
+                       (+ (/ (get-cube-width) 2.0) y-offset))
                     -100))
             (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)
             (send target-coords :rotate (if (eq push-direction :left) -pi/2 pi/2) :z)))
@@ -345,15 +414,16 @@
 
 
 (defun push-hold-release-motion ()
-  (let ((released (push-release-motion :arms)))
+  (let ((released (push-release-motion :arms))
+        (larm-contact-coords (send *cube* :get :larm-contact-coords))
+        (rarm-contact-coords (send *cube* :get :rarm-contact-coords)))
     (when released
-      (send *cube* :newcoords
-            (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
-      (let ((larm-contact-coords (send *cube* :get larm-contact-coords))
-            (rarm-contact-coords (send *cube* :get rarm-contact-coords)))
+      (send *cube* :newcoords *cube-prev-lift-coords*)
+      (when larm-contact-coords
         (send *cube* :dissoc larm-contact-coords)
+        (send *cube* :put :larm-contact-coords nil))
+      (when rarm-contact-coords
         (send *cube* :dissoc rarm-contact-coords)
-        (send *cube* :put :larm-contact-coords nil)
         (send *cube* :put :rarm-contact-coords nil)))
     (send *irtviewer* :draw-objects)
     released))
@@ -363,6 +433,7 @@
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
+    (setq *cube-prev-lift-coords* (send *cube* :copy-worldcoords))
     ;; assoc
     (assoc-cube :arms)
     ;; lift up
@@ -428,7 +499,7 @@
          (rotate-count 0)
          (max-rotate-count (floor (/ rotate-angle rotate-step)))
          (current-angle 0)
-         (current-distance (/ (z-of-cube *cube*) 2.0))
+         (current-distance (/ (get-cube-height) 2.0))
          (avs nil))
     (when (push-hold-motion
            :push-axis :y
@@ -439,9 +510,9 @@
         (send *cube* :rotate rotate-step rotate-axis :world)
         (when (eq rotate-axis :x)
           (setq move-distance
-            (- (* (sin (+ (atan (/ (z-of-cube *cube*) (y-of-cube *cube*)))
+            (- (* (sin (+ (atan (/ (get-cube-height) (get-cube-width)))
                           (abs current-angle)))
-                  (/ (norm (float-vector (y-of-cube *cube*) (z-of-cube *cube*))) 2.0))
+                  (/ (norm (float-vector (get-cube-width) (get-cube-height))) 2.0))
                current-distance))
           (send *cube* :translate (float-vector 0 0 move-distance) :world)
           (setq current-distance (+ current-distance move-distance)))
@@ -463,9 +534,9 @@
       (send *cube* :rotate (- rotate-angle current-angle) rotate-axis :world)
       (when (eq rotate-axis :x)
         (setq move-distance
-          (- (* (sin (+ (atan (/ (z-of-cube *cube*) (y-of-cube *cube*)))
+          (- (* (sin (+ (atan (/ (get-cube-height) (get-cube-width)))
                         (abs rotate-angle)))
-                (/ (norm (float-vector (y-of-cube *cube*) (z-of-cube *cube*))) 2.0))
+                (/ (norm (float-vector (get-cube-width) (get-cube-height))) 2.0))
              current-distance))
         (send *cube* :translate (float-vector 0 0 move-distance) :world)
         (setq current-distance (+ current-distance move-distance)))
