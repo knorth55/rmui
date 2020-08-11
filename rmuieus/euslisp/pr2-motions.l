@@ -102,13 +102,17 @@
             (push-axis :y)
             (push-position :center)
             (push-direction :left)
-            (approach-direction :back))
+            (approach-direction :back)
+            (hold-type :tight))
 
   (when (not (or (eq arm :larm) (eq arm :rarm)))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from get-push-target-coords nil))
   (when (not (or (eq push-axis :x) (eq push-axis :y) (eq push-axis :z)))
     (ros::ros-error (format nil "push-axis is invalid: ~A" push-axis))
+    (return-from get-push-target-coords nil))
+  (when (not (or (eq hold-type :tight) (eq hold-type :normal) (eq hold-type :light)))
+    (ros::ros-error (format nil "hold-type is invalid: ~A" hold-type))
     (return-from get-push-target-coords nil))
   (when (or (and (eq push-axis :x)
                  (not (and (or (eq push-direction :front)
@@ -142,81 +146,85 @@
     (ros::ros-error (format nil "push-direction: ~A" push-direction))
     (ros::ros-error (format nil "approach-direction: ~A" approach-direction))
     (return-from get-push-target-coords nil))
-  (cond
-    ((eq push-axis :x)
-     (let ((target-coords
-             (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
-                          :rpy (float-vector 0 0 0)))
-           (x-offset (if (eq motion-type :approach) 50 0)))
-       (cond
-         ((or (and (eq arm :larm) (eq approach-direction :left))
-              (and (eq arm :rarm) (eq approach-direction :right)))
-          (let ((z-offset (cond ((eq push-position :center) 0.0)
-                                ((eq push-position :upper)
-                                 (- (/ (get-cube-height) 2.0) 50))
-                                ((eq push-position :lower)
-                                 (- 50 (/ (get-cube-height) 2.0))))))
-            (send target-coords :translate
-                  (float-vector
-                    (* (if (eq push-direction :front) 1.0 -1.0)
-                       (+ (/ (get-cube-depth) 2.0) x-offset))
-                    (if (eq arm :larm) -100 100)
-                    z-offset))
-            (send target-coords :rotate (if (eq push-direction :front) -pi/2 pi/2) :y)
-            (send target-coords :rotate (if (eq arm :larm) -pi/2 pi/2) :z)))
-         ((eq approach-direction :upper)
-          (let ((y-offset (cond ((eq push-position :center) 0.0)
-                                ((eq push-position :left)
-                                 (- (/ (get-cube-width) 2.0) 50))
-                                ((eq push-position :right)
-                                 (- 50 (/ (get-cube-width) 2.0))))))
-            (send target-coords :translate
-                  (float-vector
-                    (* (if (eq push-direction :front) 1.0 -1.0)
-                       (+ (/ (get-cube-depth) 2.0) x-offset))
-                    y-offset
-                    -100))
-            (send target-coords :rotate pi/2 :y)
-            (when (eq push-direction :front)
-              (send target-coords :rotate pi :x))))
-         (t (return-from get-push-target-coords nil)))
-       target-coords))
-    ((eq push-axis :y)
-     (let ((target-coords
-             (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
-                          :rpy (float-vector 0 0 0)))
-           (y-offset (if (eq motion-type :approach) 50 0)))
-       (cond
-         ((eq approach-direction :back)
-          (let ((z-offset (cond ((eq push-position :center) 0.0)
-                                ((eq push-position :upper)
-                                 (- (/ (get-cube-height) 2.0) 50))
-                                ((eq push-position :lower)
-                                 (- 50 (/ (get-cube-height) 2.0))))))
-            (send target-coords :translate
-                  (float-vector
-                    100
-                    (* (if (eq push-direction :left) 1.0 -1.0)
-                       (+ (/ (get-cube-width) 2.0) y-offset))
-                    z-offset))
-            (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)))
-         ((eq approach-direction :upper)
-          (let ((x-offset (cond ((eq push-position :center) 0.0)
-                                ((eq push-position :front)
-                                 (- (/ (get-cube-depth) 2.0) 50))
-                                ((eq push-position :back)
-                                 (- 50 (/ (get-cube-depth) 2.0))))))
-            (send target-coords :translate
-                  (float-vector
-                    x-offset
-                    (* (if (eq push-direction :left) 1.0 -1.0)
-                       (+ (/ (get-cube-width) 2.0) y-offset))
-                    -100))
-            (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)
-            (send target-coords :rotate (if (eq push-direction :left) -pi/2 pi/2) :z)))
-         (t (return-from get-push-target-coords nil)))
-       target-coords))
-    (t (return-from get-push-target-coords nil))))
+  (let ((hold-offset (cond ((eq hold-type :tight) 50)
+                           ((eq hold-type :normal) 0)
+                           ((eq hold-type :light) -50)
+                           (t nil))))
+    (cond
+      ((eq push-axis :x)
+       (let ((target-coords
+               (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
+                            :rpy (float-vector 0 0 0)))
+             (x-offset (if (eq motion-type :approach) 50 0)))
+         (cond
+           ((or (and (eq arm :larm) (eq approach-direction :left))
+                (and (eq arm :rarm) (eq approach-direction :right)))
+            (let ((z-offset (cond ((eq push-position :center) 0.0)
+                                  ((eq push-position :upper)
+                                   (- (/ (get-cube-height) 2.0) 50))
+                                  ((eq push-position :lower)
+                                   (- 50 (/ (get-cube-height) 2.0))))))
+              (send target-coords :translate
+                    (float-vector
+                      (* (if (eq push-direction :front) 1.0 -1.0)
+                         (+ (/ (get-cube-depth) 2.0) x-offset))
+                      (* (if (eq arm :larm) -1.0 1.0) hold-offset)
+                      z-offset))
+              (send target-coords :rotate (if (eq push-direction :front) -pi/2 pi/2) :y)
+              (send target-coords :rotate (if (eq arm :larm) -pi/2 pi/2) :z)))
+           ((eq approach-direction :upper)
+            (let ((y-offset (cond ((eq push-position :center) 0.0)
+                                  ((eq push-position :left)
+                                   (- (/ (get-cube-width) 2.0) 50))
+                                  ((eq push-position :right)
+                                   (- 50 (/ (get-cube-width) 2.0))))))
+              (send target-coords :translate
+                    (float-vector
+                      (* (if (eq push-direction :front) 1.0 -1.0)
+                         (+ (/ (get-cube-depth) 2.0) x-offset))
+                      y-offset
+                      (* -1.0 hold-offset)))
+              (send target-coords :rotate pi/2 :y)
+              (when (eq push-direction :front)
+                (send target-coords :rotate pi :x))))
+           (t (return-from get-push-target-coords nil)))
+         target-coords))
+      ((eq push-axis :y)
+       (let ((target-coords
+               (make-coords :pos (send (send *cube* :copy-worldcoords) :worldpos)
+                            :rpy (float-vector 0 0 0)))
+             (y-offset (if (eq motion-type :approach) 50 0)))
+         (cond
+           ((eq approach-direction :back)
+            (let ((z-offset (cond ((eq push-position :center) 0.0)
+                                  ((eq push-position :upper)
+                                   (- (/ (get-cube-height) 2.0) 50))
+                                  ((eq push-position :lower)
+                                   (- 50 (/ (get-cube-height) 2.0))))))
+              (send target-coords :translate
+                    (float-vector
+                      hold-offset
+                      (* (if (eq push-direction :left) 1.0 -1.0)
+                         (+ (/ (get-cube-width) 2.0) y-offset))
+                      z-offset))
+              (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)))
+           ((eq approach-direction :upper)
+            (let ((x-offset (cond ((eq push-position :center) 0.0)
+                                  ((eq push-position :front)
+                                   (- (/ (get-cube-depth) 2.0) 50))
+                                  ((eq push-position :back)
+                                   (- 50 (/ (get-cube-depth) 2.0))))))
+              (send target-coords :translate
+                    (float-vector
+                      x-offset
+                      (* (if (eq push-direction :left) 1.0 -1.0)
+                         (+ (/ (get-cube-width) 2.0) y-offset))
+                      (* -1.0 hold-offset)))
+              (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)
+              (send target-coords :rotate (if (eq push-direction :left) -pi/2 pi/2) :z)))
+           (t (return-from get-push-target-coords nil)))
+         target-coords))
+      (t (return-from get-push-target-coords nil)))))
 
 
 (defun push-motion-step
@@ -225,6 +233,7 @@
             (push-positions (list :center))
             (push-directions (list :left))
             (approach-directions (list :back))
+            (hold-type :tight)
             (move-robot t))
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
@@ -238,14 +247,16 @@
                 :push-axis (car push-axes)
                 :push-position (car push-positions)
                 :push-direction (car push-directions)
-                :approach-direction (car approach-directions)))
+                :approach-direction (car approach-directions)
+                :hold-type hold-type))
             (rarm-target-coords
               (get-push-target-coords
                 :rarm :motion-type motion-type
                 :push-axis (cadr push-axes)
                 :push-position (cadr push-positions)
                 :push-direction (cadr push-directions)
-                :approach-direction (cadr approach-directions))))
+                :approach-direction (cadr approach-directions)
+                :hold-type hold-type)))
         (when (or (null larm-target-coords)
                   (null rarm-target-coords))
           (return-from push-motion-step nil))
@@ -270,7 +281,8 @@
                 :push-axis (car push-axes)
                 :push-position (car push-positions)
                 :push-direction (car push-directions)
-                :approach-direction (car approach-directions))))
+                :approach-direction (car approach-directions)
+                :hold-type hold-type)))
         (when (null target-coords)
           (return-from push-motion-step nil))
         (setq ik-solved
@@ -299,8 +311,8 @@
             (push-positions (list :center))
             (push-directions (list :left))
             (approach-directions (list :back))
+            (hold-type :tight)
             (move-robot t))
-
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion nil))
@@ -312,6 +324,7 @@
             :push-positions push-positions
             :push-directions push-directions
             :approach-directions approach-directions
+            :hold-type hold-type
             :move-robot move-robot))
     (when approached
       (setq pushed
@@ -321,6 +334,7 @@
               :push-positions push-positions
               :push-directions push-directions
               :approach-directions approach-directions
+              :hold-type hold-type
               :move-robot move-robot))
       (list approached pushed))))
 
@@ -331,6 +345,7 @@
         (approach-direction :back)
         (front-arm :larm)
         (upper-arm :larm)
+        (hold-type :tight)
         (move-robot t))
 
   (when (not (or (eq front-arm :larm)
@@ -366,6 +381,7 @@
             :push-positions (list push-position push-position)
             :push-directions push-directions
             :approach-directions approach-directions
+            :hold-type hold-type
             :move-robot move-robot))
     (when push-holded
       (let ((larm-contact-coords
@@ -448,7 +464,7 @@
     released))
 
 
-(defun hold-lift-up-motion (&key (move-robot t))
+(defun hold-lift-up-motion (&key (lift-height 100)(move-robot t))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
@@ -456,8 +472,8 @@
     ;; assoc
     (assoc-cube :arms)
     ;; lift up
-    (send larm-target-coords :translate (float-vector 0 0 100) :world)
-    (send rarm-target-coords :translate (float-vector 0 0 100) :world)
+    (send larm-target-coords :translate (float-vector 0 0 lift-height) :world)
+    (send rarm-target-coords :translate (float-vector 0 0 lift-height) :world)
     (setq ik-solved
           (send *pr2* :inverse-kinematics
                 (list larm-target-coords rarm-target-coords)
@@ -482,15 +498,15 @@
     ik-solved))
 
 
-(defun hold-lift-down-motion (&key (move-robot t))
+(defun hold-lift-down-motion (&key (lift-height 100) (move-robot t))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
     ;; assoc
     (assoc-cube :arms)
     ;; lift down
-    (send larm-target-coords :translate (float-vector 0 0 -100) :world)
-    (send rarm-target-coords :translate (float-vector 0 0 -100) :world)
+    (send larm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
+    (send rarm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
     (setq ik-solved
           (send *pr2* :inverse-kinematics
                 (list larm-target-coords rarm-target-coords)
@@ -549,6 +565,7 @@
                    ((eq rotate-axis :y) :side)
                    ((eq rotate-axis :z) :upper))
              :front-arm front-arm
+             :hold-type :light
              :move-robot nil))
          (rotate-tms (list 5000)))
     (when rotate-avs
