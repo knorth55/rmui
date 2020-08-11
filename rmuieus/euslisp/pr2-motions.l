@@ -105,8 +105,10 @@
             (approach-direction :back))
 
   (when (not (or (eq arm :larm) (eq arm :rarm)))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from get-push-target-coords nil))
   (when (not (or (eq push-axis :x) (eq push-axis :y) (eq push-axis :z)))
+    (ros::ros-error (format nil "push-axis is invalid: ~A" push-axis))
     (return-from get-push-target-coords nil))
   (when (or (and (eq push-axis :x)
                  (not (and (or (eq push-direction :front)
@@ -133,6 +135,12 @@
                                     (or (eq push-position :front)
                                         (eq push-position :center)
                                         (eq push-position :back))))))))
+    (ros::ros-error "argument combination is invalid")
+    (ros::ros-error (format nil "arm: ~A" arm))
+    (ros::ros-error (format nil "push-axis: ~A" push-axis))
+    (ros::ros-error (format nil "push-position: ~A" push-position))
+    (ros::ros-error (format nil "push-direction: ~A" push-direction))
+    (ros::ros-error (format nil "approach-direction: ~A" approach-direction))
     (return-from get-push-target-coords nil))
   (cond
     ((eq push-axis :x)
@@ -162,7 +170,6 @@
                                  (- (/ (get-cube-width) 2.0) 50))
                                 ((eq push-position :right)
                                  (- 50 (/ (get-cube-width) 2.0))))))
-
             (send target-coords :translate
                   (float-vector
                     (* (if (eq push-direction :front) 1.0 -1.0)
@@ -219,8 +226,8 @@
             (push-directions (list :left))
             (approach-directions (list :back))
             (move-robot t))
-
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion-step nil))
   ;; push
   (let ((ik-solved))
@@ -295,6 +302,7 @@
             (move-robot t))
 
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion nil))
   (let ((approached) (pushed))
     (setq approached
@@ -384,6 +392,7 @@
 (defun push-release-motion (arm &key (move-robot t))
   ;; release
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
   (let ((ik-solved))
     (if (eq arm :arms)
