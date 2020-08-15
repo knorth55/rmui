@@ -555,11 +555,11 @@
         current-height))))
 
 
-(defun rotate-motion
+(defun push-rotate-motion
   (&key (rotate-angle pi/2) (rotate-axis :x) (front-arm :larm) (move-robot t) (tm 1000))
   (when (not (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z)))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
-    (return-from rotate-motion nil))
+    (return-from push-rotate-motion nil))
   (let* ((av)
          (rotate-height)
          (rotate-step (if (> rotate-angle 0) 0.1 -0.1))
@@ -571,7 +571,7 @@
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (rotate-avs nil)
          (rotate-tms nil))
-    (block :rotate-motion-step
+    (block :push-rotate-motion-step
       (while (> max-rotate-count rotate-count)
         (setq current-angle (+ current-angle rotate-step))
         (send *cube* :rotate rotate-step rotate-axis :world)
@@ -606,7 +606,7 @@
           (progn
             (setq rotate-avs (append rotate-avs (list av)))
             (setq rotate-tms (append rotate-tms (list tm))))
-          (return-from :rotate-motion-step nil))
+          (return-from :push-rotate-motion-step nil))
         (setq rotate-count (+ rotate-count 1)))
       (send *cube* :rotate (- rotate-angle current-angle) rotate-axis :world)
       (when (or (eq rotate-axis :x) (eq rotate-axis :y))

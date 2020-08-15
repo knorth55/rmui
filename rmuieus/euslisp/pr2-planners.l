@@ -55,7 +55,7 @@
       :push-hold-down)))
 
 
-(defun dualarm-push-hold-rotate
+(defun dualarm-push-rotate
   (&key (rotate-angle pi/2)
         (rotate-axis :x)
         (front-arm :larm)
@@ -69,10 +69,10 @@
                                    :front-arm front-arm
                                    :hold-type :light
                                    :move-robot nil))
-         (rotated (when holded (rotate-motion :rotate-angle rotate-angle
-                                              :rotate-axis rotate-axis
-                                              :front-arm front-arm
-                                              :move-robot nil)))
+         (rotated (when holded (push-rotate-motion :rotate-angle rotate-angle
+                                                   :rotate-axis rotate-axis
+                                                   :front-arm front-arm
+                                                   :move-robot nil)))
          (released (when rotated (push-hold-release-motion :move-robot nil)))
          (avs (when released (append (car holded) (car rotated) (car released))))
          (tms (when released (append (cadr holded) (cadr rotated) (cadr released)))))
