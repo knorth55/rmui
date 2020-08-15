@@ -240,7 +240,7 @@
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion-step nil))
   ;; push
-  (let ((ik-solved))
+  (let ((av))
     (if (eq arm :arms)
       (let ((larm-target-coords
               (get-push-target-coords
@@ -261,21 +261,19 @@
         (when (or (null larm-target-coords)
                   (null rarm-target-coords))
           (return-from push-motion-step nil))
-        (setq ik-solved
-              (send *pr2* :inverse-kinematics
-                    (list larm-target-coords rarm-target-coords)
-                    :move-target (list (send *pr2* :larm :end-coords)
-                                       (send *pr2* :rarm :end-coords))
-                    :rotation-axis (list t t)
-                    :use-torso 0.001))
-        (unless ik-solved
-          (setq ik-solved
-                (send *pr2* :inverse-kinematics
-                      (list larm-target-coords rarm-target-coords)
-                      :move-target (list (send *pr2* :larm :end-coords)
-                                         (send *pr2* :rarm :end-coords))
-                      :rotation-axis (list :z :z)
-                      :use-torso 0.001))))
+        (setq av (send *pr2* :inverse-kinematics
+                       (list larm-target-coords rarm-target-coords)
+                       :move-target (list (send *pr2* :larm :end-coords)
+                                          (send *pr2* :rarm :end-coords))
+                       :rotation-axis (list t t)
+                       :use-torso 0.001))
+        (unless av
+          (setq av (send *pr2* :inverse-kinematics
+                         (list larm-target-coords rarm-target-coords)
+                         :move-target (list (send *pr2* :larm :end-coords)
+                                            (send *pr2* :rarm :end-coords))
+                         :rotation-axis (list :z :z)
+                         :use-torso 0.001))))
       (let ((target-coords
               (get-push-target-coords
                 arm :motion-type motion-type
@@ -286,20 +284,18 @@
                 :hold-type hold-type)))
         (when (null target-coords)
           (return-from push-motion-step nil))
-        (setq ik-solved
-              (send *pr2* arm :inverse-kinematics target-coords
-                    :rotation-axis t
-                    :use-torso 0.001))
-        (unless ik-solved
-          (setq ik-solved
-                (send *pr2* arm :inverse-kinematics target-coords
-                      :rotation-axis :z
-                      :use-torso 0.001)))))
-    (when (and ik-solved move-robot)
+        (setq av (send *pr2* arm :inverse-kinematics target-coords
+                       :rotation-axis t
+                       :use-torso 0.001))
+        (unless av
+          (setq av (send *pr2* arm :inverse-kinematics target-coords
+                         :rotation-axis :z
+                         :use-torso 0.001)))))
+    (when (and av move-robot)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (send *irtviewer* :draw-objects)
-    (list ik-solved tm)))
+    (list av tm)))
 
 
 (defun push-motion
@@ -349,7 +345,6 @@
         (upper-arm :larm)
         (hold-type :tight)
         (move-robot t))
-
   (when (not (or (eq front-arm :larm)
                  (eq front-arm :rarm)))
     (ros::ros-error (format nil "front-arm is invalid: ~A" front-arm))
@@ -412,38 +407,34 @@
   (when (not (or (eq arm :larm) (eq arm :rarm) (eq arm :arms)))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
-  (let ((ik-solved))
+  (let ((av))
     (if (eq arm :arms)
       (let ((larm-target-coords (get-push-release-target-coords :larm))
             (rarm-target-coords (get-push-release-target-coords :rarm)))
-        (setq ik-solved
-              (send *pr2* :inverse-kinematics
-                    (list larm-target-coords rarm-target-coords)
-                    :move-target (list (send *pr2* :larm :end-coords)
-                                       (send *pr2* :rarm :end-coords))
-                    :rotation-axis (list t t)
-                    :use-torso 0.001))
-        (unless ik-solved
-          (setq ik-solved
-                (send *pr2* :inverse-kinematics
-                      (list larm-target-coords rarm-target-coords)
-                      :move-target (list (send *pr2* :larm :end-coords)
-                                         (send *pr2* :rarm :end-coords))
-                      :rotation-axis (list :z :z)
-                      :use-torso 0.001))))
+        (setq av (send *pr2* :inverse-kinematics
+                       (list larm-target-coords rarm-target-coords)
+                       :move-target (list (send *pr2* :larm :end-coords)
+                                          (send *pr2* :rarm :end-coords))
+                       :rotation-axis (list t t)
+                       :use-torso 0.001))
+        (unless av
+          (setq av (send *pr2* :inverse-kinematics
+                         (list larm-target-coords rarm-target-coords)
+                         :move-target (list (send *pr2* :larm :end-coords)
+                                            (send *pr2* :rarm :end-coords))
+                         :rotation-axis (list :z :z)
+                         :use-torso 0.001))))
       (let ((target-coords (get-push-release-target-coords arm)))
-        (setq ik-solved
-              (send *pr2* arm :inverse-kinematics
-                    target-coords :rotation-axis t :use-torso 0.001))
-        (unless ik-solved
-          (setq ik-solved
-                (send *pr2* arm :inverse-kinematics
-                      target-coords :rotation-axis :z :use-torso 0.001)))))
-    (when (and ik-solved move-robot)
+        (setq av (send *pr2* arm :inverse-kinematics
+                       target-coords :rotation-axis t :use-torso 0.001))
+        (unless av
+          (setq av (send *pr2* arm :inverse-kinematics
+                         target-coords :rotation-axis :z :use-torso 0.001)))))
+    (when (and av move-robot)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (send *irtviewer* :draw-objects)
-    (when ik-solved (list (list ik-solved) (list tm)))))
+    (when av (list (list av) (list tm)))))
 
 
 (defun push-hold-release-motion (&key (move-robot t) (tm 5000))
@@ -464,57 +455,53 @@
 (defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-        ik-solved)
+        (av))
     (setq *cube-prev-lift-coords* (send *cube* :copy-worldcoords))
     ;; lift up
     (send larm-target-coords :translate (float-vector 0 0 lift-height) :world)
     (send rarm-target-coords :translate (float-vector 0 0 lift-height) :world)
-    (setq ik-solved
-          (send *pr2* :inverse-kinematics
-                (list larm-target-coords rarm-target-coords)
-                :rotation-axis (list t t)
-                :move-target (list (send *pr2* :larm :end-coords)
+    (setq av (send *pr2* :inverse-kinematics
+                   (list larm-target-coords rarm-target-coords)
+                   :rotation-axis (list t t)
+                   :move-target (list (send *pr2* :larm :end-coords)
                                    (send *pr2* :rarm :end-coords))
                 :use-torso 0.001))
-    (unless ik-solved
-      (setq ik-solved
-            (send *pr2* :inverse-kinematics
-                  (list larm-target-coords rarm-target-coords)
-                  :rotation-axis (list :z :z)
-                  :move-target (list (send *pr2* :larm :end-coords)
-                                     (send *pr2* :rarm :end-coords))
-                  :use-torso 0.001)))
-    (when ik-solved
-      (send *cube* :translate (float-vector 0 0 lift-height) :world))
-    (when (and ik-solved move-robot)
-      (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
-    (send *irtviewer* :draw-objects)
-    (when ik-solved (list (list ik-solved) (list tm)))))
+    (unless av
+      (setq av (send *pr2* :inverse-kinematics
+                     (list larm-target-coords rarm-target-coords)
+                     :rotation-axis (list :z :z)
+                     :move-target (list (send *pr2* :larm :end-coords)
+                                        (send *pr2* :rarm :end-coords))
+                     :use-torso 0.001)))
+    (when av
+      (send *cube* :translate (float-vector 0 0 lift-height) :world)
+      (send *irtviewer* :draw-objects)
+      (when move-robot
+        (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
+        (send *ri* :wait-interpolation))
+      (list (list av) (list tm)))))
 
 
 (defun hold-lift-down-motion (&key (lift-height 100) (move-robot t) (tm 5000))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-        ik-solved)
+        (av))
     ;; lift down
     (send larm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
     (send rarm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
-    (setq ik-solved
-          (send *pr2* :inverse-kinematics
-                (list larm-target-coords rarm-target-coords)
-                :rotation-axis (list t t)
-                :move-target (list (send *pr2* :larm :end-coords)
-                                   (send *pr2* :rarm :end-coords))
-                :use-torso 0.001))
-    (when ik-solved
-      (send *cube* :translate (float-vector 0 0 (* -1.0 lift-height)) :world))
-    (when (and ik-solved move-robot)
-      (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
-    (when ik-solved (send *cube* :newcoords *cube-prev-lift-coords*))
-    (send *irtviewer* :draw-objects)
-    (when ik-solved (list (list ik-solved) (list tm)))))
+    (setq av (send *pr2* :inverse-kinematics
+                   (list larm-target-coords rarm-target-coords)
+                   :rotation-axis (list t t)
+                   :move-target (list (send *pr2* :larm :end-coords)
+                                      (send *pr2* :rarm :end-coords))
+                   :use-torso 0.001))
+    (when av
+      (send *cube* :newcoords *cube-prev-lift-coords*)
+      (send *irtviewer* :draw-objects)
+      (when move-robot
+        (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
+        (send *ri* :wait-interpolation))
+      (list (list av) (list tm)))))
 
 
 ;; rotate motion
@@ -541,7 +528,7 @@
   (when (not (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z)))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from rotate-motion nil))
-  (let* ((ik-solved)
+  (let* ((av)
          (rotate-height)
          (rotate-step (if (> rotate-angle 0) 0.1 -0.1))
          (rotate-count 0)
@@ -561,33 +548,31 @@
                 (get-rotate-height current-angle current-height :rotate-axis rotate-axis))
           (send *cube* :translate (float-vector 0 0 rotate-height) :world)
           (setq current-height (+ current-height rotate-height)))
-        (setq ik-solved
-              (send *pr2* :inverse-kinematics
-                    (list
-                      (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                            :copy-worldcoords)
-                      (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                            :copy-worldcoords))
-                    :rotation-axis (list t t)
-                    :move-target (list (send *pr2* :larm :end-coords)
-                                       (send *pr2* :rarm :end-coords))
-                    :use-torso 0.001))
-        (unless ik-solved
-          (setq ik-solved
-                (send *pr2* :inverse-kinematics
-                      (list
-                        (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                              :copy-worldcoords)
-                        (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                              :copy-worldcoords))
-                      :rotation-axis (list :z :z)
-                      :move-target (list (send *pr2* :larm :end-coords)
-                                         (send *pr2* :rarm :end-coords))
-                      :use-torso 0.001)))
+        (setq av (send *pr2* :inverse-kinematics
+                       (list
+                         (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                               :copy-worldcoords)
+                         (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                               :copy-worldcoords))
+                       :rotation-axis (list t t)
+                       :move-target (list (send *pr2* :larm :end-coords)
+                                          (send *pr2* :rarm :end-coords))
+                       :use-torso 0.001))
+        (unless av
+          (setq av (send *pr2* :inverse-kinematics
+                         (list
+                           (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                                 :copy-worldcoords)
+                           (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                                 :copy-worldcoords))
+                         :rotation-axis (list :z :z)
+                         :move-target (list (send *pr2* :larm :end-coords)
+                                            (send *pr2* :rarm :end-coords))
+                         :use-torso 0.001)))
         (send *irtviewer* :draw-objects)
-        (if ik-solved
+        (if av
           (progn
-            (setq rotate-avs (append rotate-avs (list ik-solved)))
+            (setq rotate-avs (append rotate-avs (list av)))
             (setq rotate-tms (append rotate-tms (list tm))))
           (return-from :rotate-motion-step nil))
         (setq rotate-count (+ rotate-count 1)))
@@ -597,34 +582,32 @@
               (get-rotate-height current-angle current-height :rotate-axis rotate-axis))
         (send *cube* :translate (float-vector 0 0 rotate-height) :world)
         (setq current-height (+ current-height rotate-height)))
-      (setq ik-solved
-            (send *pr2* :inverse-kinematics
-                  (list
-                    (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                          :copy-worldcoords)
-                    (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                          :copy-worldcoords))
-                  :rotation-axis (list t t)
-                  :move-target (list (send *pr2* :larm :end-coords)
-                                     (send *pr2* :rarm :end-coords))
-                  :use-torso 0.001))
-      (unless ik-solved
-        (setq ik-solved
-              (send *pr2* :inverse-kinematics
-                    (list
-                      (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                            :copy-worldcoords)
-                      (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                            :copy-worldcoords))
-                    :rotation-axis (list :z :z)
-                    :move-target (list (send *pr2* :larm :end-coords)
-                                       (send *pr2* :rarm :end-coords))
-                    :use-torso 0.001)))
+      (setq av (send *pr2* :inverse-kinematics
+                     (list
+                       (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                             :copy-worldcoords)
+                       (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                             :copy-worldcoords))
+                     :rotation-axis (list t t)
+                     :move-target (list (send *pr2* :larm :end-coords)
+                                        (send *pr2* :rarm :end-coords))
+                     :use-torso 0.001))
+      (unless av
+        (setq av (send *pr2* :inverse-kinematics
+                       (list
+                         (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                               :copy-worldcoords)
+                         (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                               :copy-worldcoords))
+                       :rotation-axis (list :z :z)
+                       :move-target (list (send *pr2* :larm :end-coords)
+                                          (send *pr2* :rarm :end-coords))
+                       :use-torso 0.001)))
       (send *irtviewer* :draw-objects)
-      (when ik-solved
-        (setq rotate-avs (append rotate-avs (list ik-solved)))
-        (setq rotate-tms (append rotate-tms (list 5000)))))
-    (if ik-solved
+      (when av
+        (setq rotate-avs (append rotate-avs (list av)))
+        (setq rotate-tms (append rotate-tms (list tm)))))
+    (if av
       (when move-robot
         (send *ri* :angle-vector-sequence rotate-avs rotate-tms nil 0)
         (send *ri* :wait-interpolation))
@@ -633,7 +616,7 @@
         (send *cube* :newcoords prev-cube-coords)
         (send *cube* :worldcoords)))
     (send *irtviewer* :draw-objects)
-    (when ik-solved (list rotate-avs rotate-tms))))
+    (when av (list rotate-avs rotate-tms))))
 
 
 ;; reset-motion
