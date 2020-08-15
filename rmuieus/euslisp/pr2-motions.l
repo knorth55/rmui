@@ -466,8 +466,6 @@
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
     (setq *cube-prev-lift-coords* (send *cube* :copy-worldcoords))
-    ;; assoc
-    (assoc-cube :arms)
     ;; lift up
     (send larm-target-coords :translate (float-vector 0 0 lift-height) :world)
     (send rarm-target-coords :translate (float-vector 0 0 lift-height) :world)
@@ -486,8 +484,8 @@
                   :move-target (list (send *pr2* :larm :end-coords)
                                      (send *pr2* :rarm :end-coords))
                   :use-torso 0.001)))
-    ;; disssoc
-    (dissoc-cube :arms)
+    (when ik-solved
+      (send *cube* :translate (float-vector 0 0 lift-height) :world))
     (when (and ik-solved move-robot)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
@@ -499,8 +497,6 @@
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
         (rarm-target-coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
         ik-solved)
-    ;; assoc
-    (assoc-cube :arms)
     ;; lift down
     (send larm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
     (send rarm-target-coords :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
@@ -511,8 +507,8 @@
                 :move-target (list (send *pr2* :larm :end-coords)
                                    (send *pr2* :rarm :end-coords))
                 :use-torso 0.001))
-    ;; disssoc
-    (dissoc-cube :arms)
+    (when ik-solved
+      (send *cube* :translate (float-vector 0 0 (* -1.0 lift-height)) :world))
     (when (and ik-solved move-robot)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
