@@ -95,6 +95,38 @@
 (defun get-cube-height () (get-cube-length :z))
 
 
+(defun get-cube-coords (direction)
+  (let* ((cube-coords
+           (list (send (send *cube* :get :front-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :back-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :left-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :right-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :upper-cube-coords) :copy-worldcoords)
+                 (send (send *cube* :get :lower-cube-coords) :copy-worldcoords)))
+         (cube-pos-list
+           (mapcar #'(lambda (c)
+                       (elt (send c :worldpos)
+                            (cond ((or (eq direction :front) (eq direction :back)) 0)
+                                  ((or (eq direction :left) (eq direction :right)) 1)
+                                  ((or (eq direction :upper) (eq direction :lower)) 2)
+                                  (t nil))))
+                   cube-coords))
+         (eval-func (cond ((or (eq direction :front) (eq direction :left) (eq direction :upper)) #'max)
+                          ((or (eq direction :back) (eq direction :right) (eq direction :lower)) #'min)
+                          (t nil)))
+         (eval-value (reduce eval-func cube-pos-list))
+         (coords-index (position-if #'(lambda (x) (eq x eval-value)) cube-pos-list)))
+    (elt cube-coords coords-index)))
+
+
+(defun get-front-cube-coords () (get-cube-coords :front))
+(defun get-back-cube-coords () (get-cube-coords :back))
+(defun get-left-cube-coords () (get-cube-coords :left))
+(defun get-right-cube-coords () (get-cube-coords :right))
+(defun get-upper-cube-coords () (get-cube-coords :upper))
+(defun get-lower-cube-coords () (get-cube-coords :lower))
+
+
 ;; motions
 ;; push & push-hold
 
