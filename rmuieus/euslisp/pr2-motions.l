@@ -84,7 +84,8 @@
                  (send (send *cube* :get :lower-cube-coords) :copy-worldcoords)))
          (cube-pos-list
            (mapcar #'(lambda (c)
-                       (elt (send c :worldpos) (cond ((eq axis :x) 0) ((eq axis :y) 1) (t 2))))
+                       (elt (send c :worldpos)
+                            (cond ((eq axis :x) 0) ((eq axis :y) 1) ((eq axis :z) 2) (t nil))))
                    cube-coords)))
     (- (reduce #'max cube-pos-list) (reduce #'min cube-pos-list))))
 
@@ -104,7 +105,6 @@
             (push-direction :left)
             (approach-direction :back)
             (hold-type :tight))
-
   (when (not (or (eq arm :larm) (eq arm :rarm)))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from get-push-target-coords nil))
