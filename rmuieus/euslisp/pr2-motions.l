@@ -676,7 +676,7 @@
 
 
 (defun rotate-motion
-  (&key (rotate-angle pi/2) (rotate-axis :x) (front-arm :larm) (rotate-type :push)
+  (&key (rotate-angle pi/2) (rotate-axis :x) (rotate-type :push)
         (move-robot t) (tm 1000) (use-torso 0.001))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
