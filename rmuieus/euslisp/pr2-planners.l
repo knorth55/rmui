@@ -60,7 +60,9 @@
 
 
 (defun dualarm-push-rotate
-  (&key (rotate-angle pi/2) (rotate-axis :x) (front-arm :larm) (move-robot t) (use-torso 0.001))
+  (&key (rotate-angle pi/2) (rotate-axis :x)
+        (front-arm :larm) (hold-type :light)
+        (move-robot t) (use-torso 0.001))
   (let* ((holded (push-hold-motion :push-axis (if (eq rotate-axis :y) :x :y)
                                    :push-position :center
                                    :approach-direction
@@ -68,12 +70,11 @@
                                          ((eq rotate-axis :y) :side)
                                          ((eq rotate-axis :z) :upper))
                                    :front-arm front-arm
-                                   :hold-type :light
+                                   :hold-type hold-type
                                    :move-robot nil
                                    :use-torso use-torso))
          (rotated (when holded (push-rotate-motion :rotate-angle rotate-angle
                                                    :rotate-axis rotate-axis
-                                                   :front-arm front-arm
                                                    :move-robot nil)))
          (released (when rotated (hold-release-motion :move-robot nil
                                                       :use-torso use-torso)))
