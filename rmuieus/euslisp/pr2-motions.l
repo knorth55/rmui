@@ -1,6 +1,8 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
 
+
 ;; parameters
+
 (defvar *cube* (make-cube 350 350 265))
 (defvar *cube-pos-x* 450)
 (defvar *cube-pos-y* 0)
@@ -128,7 +130,7 @@
 
 
 ;; motions
-;; push & push-hold
+;; push motion
 
 (defun get-push-target-coords
   (arm &key (motion-type :push)
@@ -372,6 +374,50 @@
             (list (cadr approached) (cadr pushed))))))
 
 
+;; push release motion
+
+(defun get-push-release-target-coords (arm)
+  (let ((target-coords (send (send *pr2* arm :end-coords) :copy-worldcoords)))
+    (send target-coords :translate (float-vector 0 0 -50))
+    target-coords))
+
+
+(defun push-release-motion (arm &key (move-robot t) (tm 5000) (use-torso 0.001))
+  (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
+    (return-from push-release-motion nil))
+  (let ((av))
+    (if (eq arm :arms)
+      (let ((larm-target-coords (get-push-release-target-coords :larm))
+            (rarm-target-coords (get-push-release-target-coords :rarm)))
+        (setq av (send *pr2* :inverse-kinematics
+                       (list larm-target-coords rarm-target-coords)
+                       :move-target (list (send *pr2* :larm :end-coords)
+                                          (send *pr2* :rarm :end-coords))
+                       :rotation-axis (list t t)
+                       :use-torso use-torso))
+        (unless av
+          (setq av (send *pr2* :inverse-kinematics
+                         (list larm-target-coords rarm-target-coords)
+                         :move-target (list (send *pr2* :larm :end-coords)
+                                            (send *pr2* :rarm :end-coords))
+                         :rotation-axis (list :z :z)
+                         :use-torso use-torso))))
+      (let ((target-coords (get-push-release-target-coords arm)))
+        (setq av (send *pr2* arm :inverse-kinematics target-coords
+                       :rotation-axis t :use-torso use-torso))
+        (unless av
+          (setq av (send *pr2* arm :inverse-kinematics target-coords
+                         :rotation-axis :z :use-torso use-torso)))))
+    (when (and av move-robot)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
+      (send *ri* :wait-interpolation))
+    (send *irtviewer* :draw-objects)
+    (when av (list (list av) (list tm)))))
+
+
+;; push hold motion
+
 (defun push-hold-motion
   (&key (push-axis :y)
         (push-position :center)
@@ -429,50 +475,68 @@
     push-holded))
 
 
-;; push-release & push-hold-release
+;; support hold motion
 
-(defun get-push-release-target-coords (arm)
-  (let ((target-coords (send (send *pr2* arm :end-coords) :copy-worldcoords)))
-    (send target-coords :translate (float-vector 0 0 -50))
-    target-coords))
+(defun support-hold-motion
+  (&key (support-axis :y)
+        (support-position :center)
+        (approach-direction :back)
+        (front-arm :larm)
+        (upper-arm :larm)
+        (hold-type :tight)
+        (move-robot t)
+        (use-torso 0.001))
+  (unless (or (eq front-arm :larm) (eq front-arm :rarm))
+    (ros::ros-error (format nil "front-arm is invalid: ~A" front-arm))
+    (return-from support-hold-motion nil))
+  (unless (or (eq upper-arm :larm) (eq upper-arm :rarm))
+    (ros::ros-error (format nil "upper-arm is invalid: ~A" upper-arm))
+    (return-from support-hold-motion nil))
+  (unless (or (eq approach-direction :back)
+              (eq approach-direction :upper)
+              (eq approach-direction :side))
+    (ros::ros-error (format nil "approach-direction is invalid: ~A" approach-direction))
+    (return-from support-hold-motion nil))
+  (let ((support-directions
+          (cond ((eq support-axis :x)
+                 (if (eq front-arm :larm)
+                   (list :front :back) (list :back :front)))
+                ((eq support-axis :y) (list :left :right))
+                ((eq support-axis :z)
+                 (if (eq upper-arm :larm)
+                   (list :upper :lower) (list :upper :lower)))))
+        (approach-directions
+          (cond ((eq approach-direction :side)
+                 (list :left :right))
+                (t (list approach-direction approach-direction))))
+        support-holded)
+    (setq support-holded
+          (support-motion
+            :arms
+            :support-axes (list support-axis support-axis)
+            :support-positions (list support-position support-position)
+            :support-directions support-directions
+            :approach-directions approach-directions
+            :hold-type hold-type
+            :move-robot move-robot
+            :use-torso use-torso))
+    (when support-holded
+      (let ((larm-contact-coords
+              (make-cascoords :name :larm-contact-coords
+                              :coords (send (send *pr2* :larm :end-coords) :copy-worldcoords)))
+            (rarm-contact-coords
+              (make-cascoords :name :rarm-contact-coords
+                              :coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))))
+        (send *cube* :assoc larm-contact-coords)
+        (send *cube* :assoc rarm-contact-coords)
+        (send *cube* :put :larm-contact-coords larm-contact-coords)
+        (send *cube* :put :rarm-contact-coords rarm-contact-coords)))
+    support-holded))
 
 
-(defun push-release-motion (arm &key (move-robot t) (tm 5000) (use-torso 0.001))
-  ;; release
-  (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
-    (ros::ros-error (format nil "arm is invalid: ~A" arm))
-    (return-from push-release-motion nil))
-  (let ((av))
-    (if (eq arm :arms)
-      (let ((larm-target-coords (get-push-release-target-coords :larm))
-            (rarm-target-coords (get-push-release-target-coords :rarm)))
-        (setq av (send *pr2* :inverse-kinematics
-                       (list larm-target-coords rarm-target-coords)
-                       :move-target (list (send *pr2* :larm :end-coords)
-                                          (send *pr2* :rarm :end-coords))
-                       :rotation-axis (list t t)
-                       :use-torso use-torso))
-        (unless av
-          (setq av (send *pr2* :inverse-kinematics
-                         (list larm-target-coords rarm-target-coords)
-                         :move-target (list (send *pr2* :larm :end-coords)
-                                            (send *pr2* :rarm :end-coords))
-                         :rotation-axis (list :z :z)
-                         :use-torso use-torso))))
-      (let ((target-coords (get-push-release-target-coords arm)))
-        (setq av (send *pr2* arm :inverse-kinematics target-coords
-                       :rotation-axis t :use-torso use-torso))
-        (unless av
-          (setq av (send *pr2* arm :inverse-kinematics target-coords
-                         :rotation-axis :z :use-torso use-torso)))))
-    (when (and av move-robot)
-      (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
-    (send *irtviewer* :draw-objects)
-    (when av (list (list av) (list tm)))))
+;; hold release motion
 
-
-(defun push-hold-release-motion (&key (move-robot t) (tm 5000) (use-torso 0.001))
+(defun hold-release-motion (&key (move-robot t) (tm 5000) (use-torso 0.001))
   (let ((released
           (push-release-motion :arms
                                :move-robot move-robot
@@ -490,6 +554,8 @@
     (send *irtviewer* :draw-objects)
     released))
 
+
+;; hold lift up & down motion
 
 (defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000) (use-torso 0.001))
   (let ((larm-target-coords (send (send *pr2* :larm :end-coords) :copy-worldcoords))

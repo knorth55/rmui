@@ -10,7 +10,7 @@
 ;; motion planners
 
 (defun dualarm-push-hold-release (&key (move-robot t) (use-torso 0.001))
-  (let* ((released (push-hold-release-motion :move-robot nil :use-torso use-torso))
+  (let* ((released (hold-release-motion :move-robot nil :use-torso use-torso))
          (avs (car released))
          (tms (cadr released)))
     (when released
@@ -48,8 +48,8 @@
 
 (defun dualarm-push-hold-down (&key (move-robot t) (use-torso 0.001))
   (let* ((lifted-down (hold-lift-down-motion :move-robot nil :use-torso use-torso))
-         (released (when lifted-down (push-hold-release-motion :move-robot nil
-                                                               :use-torso use-torso)))
+         (released (when lifted-down (hold-release-motion :move-robot nil
+                                                          :use-torso use-torso)))
          (avs (when released (append (car lifted-down) (car released))))
          (tms (when released (append (cadr lifted-down) (cadr released)))))
     (when released
@@ -75,8 +75,8 @@
                                                    :rotate-axis rotate-axis
                                                    :front-arm front-arm
                                                    :move-robot nil)))
-         (released (when rotated (push-hold-release-motion :move-robot nil
-                                                           :use-torso use-torso)))
+         (released (when rotated (hold-release-motion :move-robot nil
+                                                      :use-torso use-torso)))
          (avs (when released (append (car holded) (car rotated) (car released))))
          (tms (when released (append (cadr holded) (cadr rotated) (cadr released)))))
     (when released
