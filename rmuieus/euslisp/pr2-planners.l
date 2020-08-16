@@ -87,4 +87,40 @@
       :push-hold-rotate)))
 
 
+(defun dualarm-support-rotate
+  (&key (rotate-angle pi/2) (rotate-axis :x)
+        (front-arm :larm) (upper-arm :larm) (hold-type :tight)
+        (move-robot t) (use-torso 0.001))
+  (let* ((holded (support-hold-motion :support-axis rotate-axis
+                                      :push-position :center
+                                      :approach-direction
+                                      (cond ((eq rotate-axis :x) :back)
+                                            ((eq rotate-axis :y) :side))
+                                      :upper-arm
+                                      (cond ((eq rotate-axis :x)
+                                             (if (> rotate-angle 0) :rarm :larm))
+                                            (t upper-arm))
+                                      :front-arm
+                                      (cond ((eq rotate-axis :y)
+                                             (if (eq upper-arm :larm)
+                                               (if (> rotate-angle 0) :larm :rarm)
+                                               (if (> rotate-angle 0) :rarm :larm)))
+                                            (t front-arm))
+                                      :hold-type hold-type
+                                      :move-robot nil
+                                      :use-torso use-torso))
+         (rotated (when holded (support-rotate-motion :rotate-angle rotate-angle
+                                                      :rotate-axis rotate-axis
+                                                      :move-robot nil)))
+         (released (when rotated (hold-release-motion :move-robot nil
+                                                      :use-torso use-torso)))
+         (avs (when released (append (car holded) (car rotated) (car released))))
+         (tms (when released (append (cadr holded) (cadr rotated) (cadr released)))))
+    (when released
+      (when move-robot
+        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :wait-interpolation))
+      :support-hold-rotate)))
+
+
 (provide :pr2-planners "pr2-planners.l")

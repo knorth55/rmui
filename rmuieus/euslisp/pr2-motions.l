@@ -528,25 +528,30 @@
     (ros::ros-error (format nil "support-axis is invalid: ~A" support-axis))
     (ros::ros-error (format nil "approach-direction is invalid: ~A" approach-direction))
     (return-from support-hold-motion nil))
-  (let ((push-axes
+  (let* ((push-axes
           (cond ((eq support-axis :x)
                  (if (eq upper-arm :larm) (list :z :y) (list :y :z)))
                 ((eq support-axis :y)
                  (if (eq upper-arm :larm) (list :z :x) (list :x :z)))
                 (t nil)))
-        (push-directions
-          (cond ((eq support-axis :x)
-                 (if (eq upper-arm :larm) (list :upper :right) (list :left :upper)))
-                ((eq support-axis :y)
-                 (if (eq upper-arm :larm)
-                   (list :upper (if (eq front-arm :larm) :back :front))
-                   (list (if (eq front-arm :larm) :front :back) :upper)))
-                (t nil)))
-        (push-positions (list push-position push-position))
-        (approach-directions
-          (cond ((eq approach-direction :side) (list :left :right))
-                (t (list approach-direction approach-direction))))
-        support-holded)
+         (push-directions
+           (cond ((eq support-axis :x)
+                  (if (eq upper-arm :larm) (list :upper :right) (list :left :upper)))
+                 ((eq support-axis :y)
+                  (if (eq upper-arm :larm)
+                    (list :upper (if (eq front-arm :larm) :back :front))
+                    (list (if (eq front-arm :larm) :front :back) :upper)))
+                 (t nil)))
+         (push-positions (list push-position push-position))
+         (approach-directions
+           (cond ((and (eq support-axis :x) (eq approach-direction :back))
+                  (if (eq (car push-directions) :upper)
+                    (list :left :back) (list :back :right)))
+                 ((and (eq support-axis :y) (eq approach-direction :side))
+                  (if (eq (car push-directions) :upper)
+                    (list :left :upper) (list :upper :right)))
+                 (t (list approach-direction approach-direction))))
+         support-holded)
     (setq support-holded
           (push-motion
             :arms
