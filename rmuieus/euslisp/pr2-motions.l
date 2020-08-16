@@ -9,6 +9,7 @@
 (defvar *cube-pos-z* 800)
 (defvar *cube-prev-lift-coords* nil)
 
+
 ;; init
 
 (defun motion-init ()
