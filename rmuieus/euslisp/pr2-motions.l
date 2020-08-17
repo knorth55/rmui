@@ -787,8 +787,16 @@
 
 
 (defun rotate-motion
-  (&key (rotate-angle pi/2) (rotate-axis :x) (rotate-type :push)
-        (initial-rotate-angle 0) (move-robot t) (tm 1000) (use-torso 0.001))
+  (&key (rotate-angle pi/2)
+        (rotate-axis :x)
+        (rotate-type :push)
+        (initial-rotate-angle 0)
+        (move-robot t)
+        (tm 1000)
+        (use-torso 0.001)
+        (cube-height (get-cube-height))
+        (cube-depth (get-cube-depth))
+        (cube-width (get-cube-width)))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from rotate-motion nil))
@@ -801,9 +809,6 @@
          (rotate-step (if (> rotate-angle 0) 0.1 -0.1))
          (rotate-count 0)
          (max-rotate-count (floor (/ rotate-angle rotate-step)))
-         (cube-height (get-cube-height))
-         (cube-depth (get-cube-depth))
-         (cube-width (get-cube-width))
          (cube-norm-length
            (cond ((eq rotate-axis :x) (norm (float-vector cube-width cube-height)))
                  ((eq rotate-axis :y) (norm (float-vector cube-depth cube-height)))
@@ -815,7 +820,7 @@
                        ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
                        (t 0)))))
          (current-angle 0)
-         (current-z (+ (/ cube-height 2.0) *table-z*))
+         (current-z (elt (send *cube* :worldpos) 2))
          (prev-av (send *pr2* :angle-vector))
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (rotate-avs nil)
