@@ -136,7 +136,7 @@
 
 (defun dualarm-switch-rotate
   (&key (rotate-angle pi/2) (rotate-axis :x)
-        (front-arm :larm) (upper-arm :larm) (hold-type :light)
+        (front-arm :larm) (upper-arm :larm) (hold-type :tight)
         (move-robot t) (use-torso 0.001))
   (when (eq rotate-axis :z)
     (when (dualarm-push-rotate :rotate-angle rotate-angle :rotate-axis rotate-axis
@@ -149,13 +149,20 @@
          (push-rotate-angle
            (get-switch-rotate-angle :rotate-angle rotate-angle :rotate-axis rotate-axis))
          (support-rotate-angle (- rotate-angle push-rotate-angle))
+         (approach-direction (cond ((eq rotate-axis :x) :back)
+                                   ((eq rotate-axis :y) :side)))
+         (upper-arm (cond ((eq rotate-axis :x)
+                           (if (> rotate-angle 0) :rarm :larm))
+                          (t upper-arm)))
+         (front-arm (cond ((eq rotate-axis :y)
+                            (if (eq upper-arm :larm)
+                              (if (> rotate-angle 0) :larm :rarm)
+                              (if (> rotate-angle 0) :rarm :larm)))
+                          (t front-arm)))
          (push-holded
            (push-hold-motion :push-axis (if (eq rotate-axis :y) :x :y)
                              :push-position :center
-                             :approach-direction
-                             (cond ((eq rotate-axis :x) :back)
-                                   ((eq rotate-axis :y) :side)
-                                   ((eq rotate-axis :z) :upper))
+                             :approach-direction approach-direction
                              :front-arm front-arm
                              :hold-type hold-type
                              :move-robot nil
@@ -175,19 +182,9 @@
            (when push-released
              (support-hold-motion :support-axis rotate-axis
                                   :push-position :center
-                                  :approach-direction
-                                  (cond ((eq rotate-axis :x) :back)
-                                        ((eq rotate-axis :y) :side))
-                                  :upper-arm
-                                  (cond ((eq rotate-axis :x)
-                                         (if (> rotate-angle 0) :rarm :larm))
-                                        (t upper-arm))
-                                  :front-arm
-                                  (cond ((eq rotate-axis :y)
-                                         (if (eq upper-arm :larm)
-                                           (if (> rotate-angle 0) :larm :rarm)
-                                           (if (> rotate-angle 0) :rarm :larm)))
-                                        (t front-arm))
+                                  :approach-direction approach-direction
+                                  :upper-arm upper-arm
+                                  :front-arm front-arm
                                   :hold-type hold-type
                                   :move-robot nil
                                   :switch t
