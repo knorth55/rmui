@@ -5,7 +5,7 @@
 
 (defvar *cube* (make-cube 350 350 265))
 (defvar *table-z* 720)
-(defvar *cube-pos-x* 450)
+(defvar *cube-pos-x* 550)
 (defvar *cube-pos-y* 0)
 (defvar *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
 (defvar *cube-prev-lift-coords* nil)

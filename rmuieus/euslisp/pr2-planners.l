@@ -25,15 +25,14 @@
         (push-position :center)
         (approach-direction :back)
         (front-arm :larm)
-        (upper-arm :larm)
         (move-robot t)
         (use-torso 0.001))
   (let* ((holded
            (push-hold-motion :push-axis push-axis
                              :push-position push-position
                              :approach-direction approach-direction
+                             :upper-arm nil
                              :front-arm front-arm
-                             :upper-arm upper-arm
                              :move-robot nil
                              :use-torso use-torso))
          (lifted-up
