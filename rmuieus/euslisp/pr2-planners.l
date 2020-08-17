@@ -176,13 +176,15 @@
                                                  :move-robot nil
                                                  :use-torso use-torso)))
          (push-released
-           (when push-rotated (hold-release-motion :move-robot nil
+           (when push-rotated (hold-release-motion :arm upper-arm
+                                                   :move-robot nil
                                                    :use-torso use-torso)))
          (support-holded
            (when push-released
              (support-hold-motion :support-axis rotate-axis
                                   :push-position :center
                                   :approach-direction approach-direction
+                                  :approach-arm upper-arm
                                   :upper-arm upper-arm
                                   :front-arm front-arm
                                   :hold-type hold-type

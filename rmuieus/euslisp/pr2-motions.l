@@ -384,6 +384,7 @@
             (push-positions (list :center))
             (push-directions (list :left))
             (approach-directions (list :back))
+            (approach-arm nil)
             (hold-type :tight)
             (move-robot t)
             (push-tm 5000)
@@ -397,14 +398,41 @@
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion nil))
-  (let ((approached) (pushed))
+  (let* ((approached)
+         (approach-arm (if approach-arm approach-arm arm))
+         (approach-push-axes
+           (cond ((and (eq arm :arms) (not (eq approach-arm :arms)))
+                  (if (eq approach-arm :larm)
+                    (list (car push-axes))
+                    (cdr push-axes)))
+                 (t push-axes)))
+         (approach-push-positions
+           (cond ((and (eq arm :arms) (not (eq approach-arm :arms)))
+                  (if (eq approach-arm :larm)
+                    (list (car push-positions))
+                    (cdr push-positions)))
+                 (t push-positions)))
+         (approach-push-directions
+           (cond ((and (eq arm :arms) (not (eq approach-arm :arms)))
+                  (if (eq approach-arm :larm)
+                    (list (car push-directions))
+                    (cdr push-directions)))
+                 (t push-directions)))
+         (approach-approach-directions
+           (cond ((and (eq arm :arms) (not (eq approach-arm :arms)))
+                  (if (eq approach-arm :larm)
+                    (list (car approach-directions))
+                    (cdr approach-directions)))
+                 (t approach-directions)))
+         (pushed))
     (setq approached
           (push-motion-step
-            arm :motion-type :approach
-            :push-axes push-axes
-            :push-positions push-positions
-            :push-directions push-directions
-            :approach-directions approach-directions
+            approach-arm
+            :motion-type :approach
+            :push-axes approach-push-axes
+            :push-positions approach-push-positions
+            :push-directions approach-push-directions
+            :approach-directions approach-approach-directions
             :hold-type hold-type
             :move-robot move-robot
             :tm approach-tm
@@ -417,7 +445,8 @@
     (when approached
       (setq pushed
             (push-motion-step
-              arm :motion-type :push
+              arm
+              :motion-type :push
               :push-axes push-axes
               :push-positions push-positions
               :push-directions push-directions
@@ -486,6 +515,7 @@
         (approach-direction :back)
         (front-arm :larm)
         (upper-arm :larm)
+        (approach-arm nil)
         (hold-type :tight)
         (move-robot t)
         (use-torso 0.001)
@@ -524,6 +554,7 @@
             :push-positions push-positions
             :push-directions push-directions
             :approach-directions approach-directions
+            :approach-arm approach-arm
             :hold-type hold-type
             :move-robot move-robot
             :use-torso use-torso
@@ -554,6 +585,7 @@
         (approach-direction :back)
         (front-arm :larm)
         (upper-arm :larm)
+        (approach-arm nil)
         (hold-type :tight)
         (move-robot t)
         (switch nil)
@@ -609,6 +641,7 @@
             :push-positions push-positions
             :push-directions push-directions
             :approach-directions approach-directions
+            :approach-arm approach-arm
             :hold-type hold-type
             :move-robot move-robot
             :use-torso use-torso
@@ -633,23 +666,41 @@
 
 ;; hold release motion
 
-(defun hold-release-motion (&key (move-robot t) (tm 5000) (use-torso 0.001))
-  (let ((released
-          (push-release-motion :arms
-                               :move-robot move-robot
-                               :tm tm
-                               :use-torso use-torso))
-        (larm-contact-coords (send *cube* :get :larm-contact-coords))
-        (rarm-contact-coords (send *cube* :get :rarm-contact-coords)))
-    (when released
-      (when larm-contact-coords
-        (send *cube* :dissoc larm-contact-coords)
-        (send *cube* :put :larm-contact-coords nil))
-      (when rarm-contact-coords
-        (send *cube* :dissoc rarm-contact-coords)
-        (send *cube* :put :rarm-contact-coords nil)))
-    (send *irtviewer* :draw-objects)
-    released))
+(defun hold-release-motion (&key (arm :arms) (move-robot t) (tm 5000) (use-torso 0.001))
+  (if (eq arm :arms)
+    (let ((released
+            (push-release-motion :arms
+                                 :move-robot move-robot
+                                 :tm tm
+                                 :use-torso use-torso))
+          (larm-contact-coords (send *cube* :get :larm-contact-coords))
+          (rarm-contact-coords (send *cube* :get :rarm-contact-coords)))
+      (when released
+        (when larm-contact-coords
+          (send *cube* :dissoc larm-contact-coords)
+          (send *cube* :put :larm-contact-coords nil))
+        (when rarm-contact-coords
+          (send *cube* :dissoc rarm-contact-coords)
+          (send *cube* :put :rarm-contact-coords nil)))
+      (send *irtviewer* :draw-objects)
+      released)
+    (let ((released
+            (push-release-motion arm
+                                 :move-robot move-robot
+                                 :tm tm
+                                 :use-torso use-torso))
+          (contact-coords
+            (if (eq arm :larm)
+              (send *cube* :get :larm-contact-coords)
+              (send *cube* :get :rarm-contact-coords))))
+      (when released
+        (when contact-coords
+          (send *cube* :dissoc contact-coords)
+          (if (eq arm :larm)
+            (send *cube* :put :larm-contact-coords nil)
+            (send *cube* :put :rarm-contact-coords nil))))
+      (send *irtviewer* :draw-objects)
+      released)))
 
 
 ;; hold lift up & down motion
@@ -870,16 +921,17 @@
 
 ;; switch rotate motion
 
-(defun get-switch-rotate-angle (&key (rotate-angle pi/2) (rotate-axis :x))
+(defun get-switch-rotate-angle (&key (rotate-angle pi/2) (rotate-axis :x) (offset 0.1))
   (let ((cube-height (get-cube-height))
         (cube-width (get-cube-width))
         (cube-depth (get-cube-depth)))
     (* (if (> rotate-angle 0) 1.0 -1.0)
-       (cond ((eq rotate-axis :x)
-              (- pi/2 (atan (/ cube-height cube-width))))
-             ((eq rotate-axis :y)
-              (- pi/2 (atan (/ cube-height cube-depth))))
-             ((eq rotate-axis :z) (/ pi 4))))))
+       (- (cond ((eq rotate-axis :x)
+                 (- pi/2 (atan (/ cube-height cube-width))))
+                ((eq rotate-axis :y)
+                 (- pi/2 (atan (/ cube-height cube-depth))))
+                ((eq rotate-axis :z) (/ pi 4)))
+          offset))))
 
 
 ;; reset-motion
