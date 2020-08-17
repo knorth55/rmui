@@ -174,7 +174,10 @@
            (when push-holded (push-rotate-motion :rotate-angle push-rotate-angle
                                                  :rotate-axis rotate-axis
                                                  :move-robot nil
-                                                 :use-torso use-torso)))
+                                                 :use-torso use-torso
+                                                 :cube-height cube-height
+                                                 :cube-width cube-width
+                                                 :cube-depth cube-depth)))
          (push-released
            (when push-rotated (hold-release-motion :arm upper-arm
                                                    :move-robot nil
@@ -203,9 +206,13 @@
                                                        :initial-rotate-angle push-rotate-angle
                                                        :rotate-axis rotate-axis
                                                        :move-robot nil
-                                                       :use-torso use-torso)))
+                                                       :use-torso use-torso
+                                                       :cube-height cube-height
+                                                       :cube-width cube-width
+                                                       :cube-depth cube-depth)))
          (support-released
-           (when support-rotated (hold-release-motion :move-robot nil
+           (when support-rotated (hold-release-motion :arm :arms
+                                                      :move-robot nil
                                                       :use-torso use-torso)))
          (avs (when support-released
                 (append (car push-holded) (car push-rotated) (car push-released)
