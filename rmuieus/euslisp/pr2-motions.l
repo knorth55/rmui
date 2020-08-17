@@ -4,9 +4,10 @@
 ;; parameters
 
 (defvar *cube* (make-cube 350 350 265))
+(defvar *table-z* 720)
 (defvar *cube-pos-x* 450)
 (defvar *cube-pos-y* 0)
-(defvar *cube-pos-z* 800)
+(defvar *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
 (defvar *cube-prev-lift-coords* nil)
 
 
@@ -654,7 +655,7 @@
 ;; rotate motion
 
 (defun get-rotate-height
-  (&key (current-angle) (prev-height) (cube-norm-length)
+  (&key (current-angle) (prev-z) (cube-norm-length)
         (initial-angle 0)(rotate-axis :x) (rotate-type :push))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
@@ -664,19 +665,19 @@
      (cond
        ((eq rotate-axis :x)
         (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
-           prev-height))
+           (- prev-z *table-z*)))
        ((eq rotate-axis :y)
         (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
-           prev-height))))
+           (- prev-z *table-z*)))))
     ((eq rotate-type :support)
      ;; TODO: add support rotate
      (cond
        ((eq rotate-axis :x)
         (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
-           prev-height))
+           (- prev-z *table-z*)))
        ((eq rotate-axis :y)
         (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
-           prev-height))))
+           (- prev-z *table-z*)))))
     (t nil)))
 
 
@@ -707,7 +708,7 @@
                  ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
                  (t nil)))
          (current-angle 0)
-         (current-height (/ cube-height 2.0))
+         (current-z (+ (/ cube-height 2.0) *table-z*))
          (prev-av (send *pr2* :angle-vector))
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (rotate-avs nil)
@@ -719,13 +720,13 @@
         (when (or (eq rotate-axis :x) (eq rotate-axis :y))
           (setq rotate-height
                 (get-rotate-height :current-angle current-angle
-                                   :prev-height current-height
+                                   :prev-z current-z
                                    :cube-norm-length cube-norm-length
                                    :initial-angle initial-angle
                                    :rotate-axis rotate-axis
                                    :rotate-type rotate-type))
           (send *cube* :translate (float-vector 0 0 rotate-height) :world)
-          (setq current-height (+ current-height rotate-height)))
+          (setq current-z (+ current-z rotate-height)))
         (setq av (send *pr2* :inverse-kinematics
                        (list
                          (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
@@ -759,13 +760,13 @@
         (setq current-angle rotate-angle)
         (setq rotate-height
               (get-rotate-height :current-angle current-angle
-                                 :prev-height current-height
+                                 :prev-z current-z
                                  :cube-norm-length cube-norm-length
                                  :initial-angle initial-angle
                                  :rotate-axis rotate-axis
                                  :rotate-type rotate-type))
         (send *cube* :translate (float-vector 0 0 rotate-height) :world)
-        (setq current-height (+ current-height rotate-height)))
+        (setq current-z (+ current-z rotate-height)))
       (setq av (send *pr2* :inverse-kinematics
                      (list
                        (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
