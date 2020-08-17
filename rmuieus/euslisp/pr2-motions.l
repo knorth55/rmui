@@ -654,6 +654,18 @@
 
 ;; rotate motion
 
+(defun get-switch-rotate-angle (&key (rotate-angle pi/2) (rotate-axis :x))
+  (let ((cube-height (get-cube-height))
+        (cube-width (get-cube-width))
+        (cube-depth (get-cube-depth)))
+    (* (if (> rotate-angle 0) 1.0 -1.0)
+       (cond ((eq rotate-axis :x)
+              (- pi/2 (atan (/ cube-height cube-width))))
+             ((eq rotate-axis :y)
+              (- pi/2 (atan (/ cube-height cube-depth))))
+             ((eq rotate-axis :z) (/ pi 4))))))
+
+
 (defun get-rotate-height
   (&key (current-angle) (prev-z) (cube-norm-length)
         (initial-angle 0)(rotate-axis :x) (rotate-type :push))
@@ -664,26 +676,26 @@
     ((eq rotate-type :push)
      (cond
        ((eq rotate-axis :x)
-        (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
+        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
            (- prev-z *table-z*)))
        ((eq rotate-axis :y)
-        (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
+        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
            (- prev-z *table-z*)))))
+    ;; TODO: add support rotate
     ((eq rotate-type :support)
-     ;; TODO: add support rotate
      (cond
        ((eq rotate-axis :x)
-        (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
+        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
            (- prev-z *table-z*)))
        ((eq rotate-axis :y)
-        (- (* (sin (+ initial-angle (abs current-angle))) (/ cube-norm-length 2.0))
+        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
            (- prev-z *table-z*)))))
     (t nil)))
 
 
 (defun rotate-motion
   (&key (rotate-angle pi/2) (rotate-axis :x) (rotate-type :push)
-        (move-robot t) (tm 1000) (use-torso 0.001))
+        (initial-rotate-angle 0) (move-robot t) (tm 1000) (use-torso 0.001))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from rotate-motion nil))
@@ -704,9 +716,11 @@
                  ((eq rotate-axis :y) (norm (float-vector cube-depth cube-height)))
                  (t nil)))
          (initial-angle
-           (cond ((eq rotate-axis :x) (atan (/ cube-height cube-width)))
-                 ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
-                 (t nil)))
+           (+ initial-rotate-angle
+              (* (if (> rotate-angle 0) 1.0 -1.0)
+                 (cond ((eq rotate-axis :x) (atan (/ cube-height cube-width)))
+                       ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
+                       (t 0)))))
          (current-angle 0)
          (current-z (+ (/ cube-height 2.0) *table-z*))
          (prev-av (send *pr2* :angle-vector))
