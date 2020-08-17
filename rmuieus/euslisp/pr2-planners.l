@@ -97,22 +97,22 @@
   (&key (rotate-angle pi/2) (rotate-axis :x)
         (front-arm :larm) (upper-arm :larm) (hold-type :light)
         (move-robot t) (use-torso 0.001))
-  (let* ((holded
+  (let* ((approach-direction (cond ((eq rotate-axis :x) :back)
+                                   ((eq rotate-axis :y) :side)))
+         (upper-arm (cond ((eq rotate-axis :x)
+                           (if (> rotate-angle 0) :rarm :larm))
+                          (t upper-arm)))
+         (front-arm (cond ((eq rotate-axis :y)
+                           (if (eq upper-arm :larm)
+                             (if (> rotate-angle 0) :larm :rarm)
+                             (if (> rotate-angle 0) :rarm :larm)))
+                          (t front-arm)))
+         (holded
            (support-hold-motion :support-axis rotate-axis
                                 :push-position :center
-                                :approach-direction
-                                (cond ((eq rotate-axis :x) :back)
-                                      ((eq rotate-axis :y) :side))
-                                :upper-arm
-                                (cond ((eq rotate-axis :x)
-                                       (if (> rotate-angle 0) :rarm :larm))
-                                      (t upper-arm))
-                                :front-arm
-                                (cond ((eq rotate-axis :y)
-                                       (if (eq upper-arm :larm)
-                                         (if (> rotate-angle 0) :larm :rarm)
-                                         (if (> rotate-angle 0) :rarm :larm)))
-                                      (t front-arm))
+                                :approach-direction approach-direction
+                                :upper-arm upper-arm
+                                :front-arm front-arm
                                 :hold-type hold-type
                                 :move-robot nil
                                 :switch nil
