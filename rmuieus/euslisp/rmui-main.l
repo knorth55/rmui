@@ -31,12 +31,13 @@
 
 (defun proximity-cb (msg)
   (let* ((proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities)))
-         (proximity-p (some #'(lambda (prx) (> prx *prx-threshold*)) proximity))
-         (contact-positions nil))
-    (when proximity-p
-      (update-device-orientation)
-      (setq contact-positions (get-contact-positions proximity))
-      (get-motion-symbol contact-positions))))
+         (update-p (update-device-orientation))
+         (contact-positions (when update-p (get-contact-positions proximity)))
+         (motion-symbol (get-motion-symbol contact-positions))
+         (execute-p (execute-motion-symbold motion-symbol)))
+    (ros::ros-info (format nil "motion-symbol: ~A" motion-symbol))
+    (ros::ros-info (format nil "execute-p    : ~A" execute-p))
+    (ros::ros-info (format nil "device-state : ~A" *device-state*))))
 
 
 (defun main ()
