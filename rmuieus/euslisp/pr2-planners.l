@@ -1,4 +1,5 @@
 (require :pr2-motions "package://rmuieus/euslisp/pr2-motions.l")
+(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
 
 
 ;; init

@@ -1,4 +1,5 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
+(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
 
 
 ;; parameters
