@@ -103,7 +103,7 @@
           (list motion-symbol)))
   (let ((execute-p (and (>= (length *motion-symbols*) *motion-symbol-length*)
                         (every #'(lambda (x) (eq x motion-symbol)) *motion-symbols*))))
-    (when exeute-p
+    (when execute-p
       (cond
         ((eq motion-symbol :larm-left-push)
          (push-motion :larm :move-robot move-robot :use-torso use-torso

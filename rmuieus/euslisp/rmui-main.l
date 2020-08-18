@@ -34,7 +34,7 @@
          (update-p (update-device-orientation))
          (contact-positions (when update-p (get-contact-positions proximity)))
          (motion-symbol (get-motion-symbol contact-positions))
-         (execute-p (execute-motion-symbold motion-symbol)))
+         (execute-p (execute-motion-symbol motion-symbol)))
     (ros::ros-info (format nil "motion-symbol: ~A" motion-symbol))
     (ros::ros-info (format nil "execute-p    : ~A" execute-p))
     (ros::ros-info (format nil "device-state : ~A" *device-state*))))
@@ -42,8 +42,9 @@
 
 (defun main ()
   (ros::roseus "rmuieus")
+  (planner-init)
   (setq *tfl* (instance ros::transform-listener :init))
   (ros::rate 10)
-  (ros::subscribe "/rmui0/output/proximities" force_proximity_ros::ProximityArray
+  (ros::subscribe "/rmui0/rmui_node/output/proximities" force_proximity_ros::ProximityArray
                   #'proximity-cb)
   (ros::spin))
