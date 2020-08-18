@@ -1,3 +1,5 @@
+#!/usr/bin/env roseus
+
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
 (require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
 
@@ -8,6 +10,10 @@
 (defvar *table-z* 720)
 (defvar *cube-pos-x* 550)
 (defvar *cube-pos-y* 0)
+
+
+;; functions
+
 (defvar *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
 (defvar *cube-prev-lift-coords* nil)
 
