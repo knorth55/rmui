@@ -63,7 +63,7 @@ class RMUI(object):
         touch_led_ids = []
         for sensor_id, prx_data in enumerate(prx_msg.proximities):
             led_id = sensor_id // len(self.sensor_boards[0].sensors)
-            if prx_data.proximity > 2000 and led_id not in touch_led_ids:
+            if prx_data.proximity > 1000 and led_id not in touch_led_ids:
                 touch_led_ids.append(led_id)
 
         for led_id in range(self.led.n_led):
