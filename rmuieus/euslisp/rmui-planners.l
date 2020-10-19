@@ -4,11 +4,11 @@
 
 ;; parameters
 
-(defvar *device* (make-cube 100 100 100))
-(defvar *world-frame-id* "world")
+(defvar *device* (make-cube 120 120 120))
 (defvar *device-frame-id* "rmui_link")
+(defvar *prx-threshold* 500)
 (defvar *motion-symbol-length* 20)
-
+(defvar *world-frame-id* "world")
 
 ;; functions
 

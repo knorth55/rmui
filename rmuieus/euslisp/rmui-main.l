@@ -8,11 +8,6 @@
 (ros::load-ros-manifest "force_proximity_ros")
 
 
-;; parameters
-
-(defvar *prx-threshold* 500)
-
-
 ;; functions
 
 (defun update-device-orientation ()
