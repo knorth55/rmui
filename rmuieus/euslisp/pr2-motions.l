@@ -1,41 +1,15 @@
 #!/usr/bin/env roseus
 
-(load "models/room73b2-askul-1200x700-desk-0-object.l")
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
+(require :pr2-scene "package://rmuieus/euslisp/pr2-scene.l")
 (require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
-
-
-;; parameters
-
-(defvar *cube* (make-cube 350 350 265))
-(defvar *desk* (room73b2-askul-1200x700-desk-0))
-(defvar *table-z* 700)
-(defvar *cube-pos-x* 550)
-(defvar *cube-pos-y* 0)
-
-
-;; functions
-
-(defvar *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
-(defvar *cube-prev-lift-coords* nil)
 
 
 ;; init
 
 (defun motion-init ()
-  (pr2-init)
-  (send *cube* :reset-coords)
-  (send *cube* :worldcoords)
-  (send *cube* :newcoords
-        (make-coords :pos (float-vector *cube-pos-x* *cube-pos-y* *cube-pos-z*)))
-  (send *cube* :worldcoords)
-  (send *desk* :reset-coords)
-  (send *desk* :worldcoords)
-  (send *desk* :newcoords
-        (make-coords :pos (float-vector (+ *cube-pos-x* 100) *cube-pos-y* 0)))
-  (send *desk* :worldcoords)
+  (scene-init)
   (add-cube-coords)
-  (objects (list *pr2* *cube* *desk*))
   (reset-motion))
 
 
