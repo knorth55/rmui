@@ -1,5 +1,7 @@
 #!/usr/bin/env roseus
 
+(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
+
 ;; parameters
 
 (defvar *device* (make-cube 100 100 100))
