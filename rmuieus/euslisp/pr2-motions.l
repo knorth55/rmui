@@ -14,13 +14,30 @@
 
 
 (defun assoc-cube (arm)
-  (when (eq arm :arms) (setq arm :larm))
-  (send (send *pr2* arm :end-coords :parent) :assoc *cube*))
+  (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
+    (assoc-cube-step a)))
+
+
+(defun assoc-cube-step (arm)
+  (let* ((coords-name (if (eq arm :larm) :larm-contact-coords :rarm-contact-coords))
+         (contact-coords
+           (make-cascoords :name coords-name
+                           :coords (send (send *pr2* arm :end-coords) :copy-worldcoords))))
+    (send *ri* :robot arm :end-coords :assoc (car (send *ri* :find-object *cube-id*)))
+    (send *cube* :assoc contact-coords)
+    (send *cube* :put coords-name contact-coords)))
 
 
 (defun dissoc-cube (arm)
-  (when (eq arm :arms) (setq arm :larm))
-  (send (send *pr2* arm :end-coords :parent) :dissoc *cube*))
+  (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
+    (dissoc-cube-step a)))
+
+
+(defun dissoc-cube-step (arm)
+  (let ((coords-name (if (eq arm :larm) :larm-contact-coords :rarm-contact-coords)))
+    (send *ri* :robot arm :end-coords :dissoc (car (send *ri* :find-object *cube-id*)))
+    (send *cube* :dissoc (send *cube* :get coords-name))
+    (send *cube* :put coords-name nil)))
 
 
 (defun add-cube-coords ()
@@ -555,17 +572,7 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth))
-    (when push-holded
-      (let ((larm-contact-coords
-              (make-cascoords :name :larm-contact-coords
-                              :coords (send (send *pr2* :larm :end-coords) :copy-worldcoords)))
-            (rarm-contact-coords
-              (make-cascoords :name :rarm-contact-coords
-                              :coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))))
-        (send *cube* :assoc larm-contact-coords)
-        (send *cube* :assoc rarm-contact-coords)
-        (send *cube* :put :larm-contact-coords larm-contact-coords)
-        (send *cube* :put :rarm-contact-coords rarm-contact-coords)))
+    (when push-holded (assoc-cube :arms))
     push-holded))
 
 
@@ -660,17 +667,7 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth))
-    (when support-holded
-      (let ((larm-contact-coords
-              (make-cascoords :name :larm-contact-coords
-                              :coords (send (send *pr2* :larm :end-coords) :copy-worldcoords)))
-            (rarm-contact-coords
-              (make-cascoords :name :rarm-contact-coords
-                              :coords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))))
-        (send *cube* :assoc larm-contact-coords)
-        (send *cube* :assoc rarm-contact-coords)
-        (send *cube* :put :larm-contact-coords larm-contact-coords)
-        (send *cube* :put :rarm-contact-coords rarm-contact-coords)))
+    (when support-holded (assoc-cube :arms))
     support-holded))
 
 
@@ -686,12 +683,8 @@
           (larm-contact-coords (send *cube* :get :larm-contact-coords))
           (rarm-contact-coords (send *cube* :get :rarm-contact-coords)))
       (when released
-        (when larm-contact-coords
-          (send *cube* :dissoc larm-contact-coords)
-          (send *cube* :put :larm-contact-coords nil))
-        (when rarm-contact-coords
-          (send *cube* :dissoc rarm-contact-coords)
-          (send *cube* :put :rarm-contact-coords nil)))
+        (when larm-contact-coords (dissoc-cube :larm))
+        (when rarm-contact-coords (dissoc-cube :rarm)))
       (send *irtviewer* :draw-objects)
       released)
     (let ((released
@@ -703,12 +696,7 @@
             (if (eq arm :larm)
               (send *cube* :get :larm-contact-coords)
               (send *cube* :get :rarm-contact-coords))))
-      (when released
-        (when contact-coords
-          (send *cube* :dissoc contact-coords)
-          (if (eq arm :larm)
-            (send *cube* :put :larm-contact-coords nil)
-            (send *cube* :put :rarm-contact-coords nil))))
+      (when (and released contact-coords) (dissoc-cube arm))
       (send *irtviewer* :draw-objects)
       released)))
 
