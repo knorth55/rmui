@@ -33,7 +33,7 @@
         (make-coords :pos (float-vector (+ *cube-pos-x* 100) *cube-pos-y* 0)))
   (send *desk* :worldcoords)
   (setq *pr2* (instance pr2-robot :init))
-  (setq *ri* (instance pr2-interface :init :objects (list *cube* *desk*)))
+  (setq *ri* (instance pr2-interface :init :objects (list (copy-object *cube*) (copy-object *desk*))))
   (objects (list *pr2* *cube* *desk*)))
 
 
