@@ -38,6 +38,24 @@
     (send *cube* :put coords-name nil)))
 
 
+(defun assoc-cube (arm)
+  (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
+    (assoc-cube-step a)))
+
+
+(defun assoc-cube-step (arm)
+  (send *ri* :robot arm :end-coords :assoc (car (send *ri* :find-object *cube-id*))))
+
+
+(defun dissoc-cube (arm)
+  (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
+    (dissoc-cube-step a)))
+
+
+(defun dissoc-cube-step (arm)
+  (send *ri* :robot arm :end-coords :dissoc (car (send *ri* :find-object *cube-id*))))
+
+
 (defun add-cube-coords ()
   (let* ((cube-depth (x-of-cube *cube*))
          (cube-width (y-of-cube *cube*))

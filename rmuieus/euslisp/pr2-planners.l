@@ -40,12 +40,13 @@
                              :use-torso use-torso))
          (lifted-up
            (when holded (hold-lift-up-motion :move-robot nil
-                                             :use-torso use-torso)))
-         (avs (when lifted-up (append (car holded) (car lifted-up))))
-         (tms (when lifted-up (append (cadr holded) (cadr lifted-up)))))
+                                             :use-torso use-torso))))
     (when lifted-up
       (when move-robot
-        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :angle-vector-sequence (car holded) (cadr holded) nil 0)
+        (send *ri* :wait-interpolation)
+        (assoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car lifted-up) (cadr lifted-up) nil 0)
         (send *ri* :wait-interpolation))
       :push-hold-up)))
 
@@ -53,12 +54,13 @@
 (defun dualarm-push-hold-down (&key (move-robot t) (use-torso 0.001))
   (let* ((lifted-down (hold-lift-down-motion :move-robot nil :use-torso use-torso))
          (released (when lifted-down (hold-release-motion :move-robot nil
-                                                          :use-torso use-torso)))
-         (avs (when released (append (car lifted-down) (car released))))
-         (tms (when released (append (cadr lifted-down) (cadr released)))))
+                                                          :use-torso use-torso))))
     (when released
       (when move-robot
-        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :angle-vector-sequence (car lifted-down) (cadr lifted-down) nil 0)
+        (send *ri* :wait-interpolation)
+        (dissoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car released) (cadr released) nil 0)
         (send *ri* :wait-interpolation))
       :push-hold-down)))
 
@@ -86,12 +88,16 @@
                                             :use-torso use-torso)))
          (released
            (when rotated (hold-release-motion :move-robot nil
-                                              :use-torso use-torso)))
-         (avs (when released (append (car holded) (car rotated) (car released))))
-         (tms (when released (append (cadr holded) (cadr rotated) (cadr released)))))
+                                              :use-torso use-torso))))
     (when released
       (when move-robot
-        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :angle-vector-sequence (car holded) (cadr holded) nil 0)
+        (send *ri* :wait-interpolation)
+        (assoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car rotated) (cadr rotated) nil 0)
+        (send *ri* :wait-interpolation)
+        (dissoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car released) (cadr released) nil 0)
         (send *ri* :wait-interpolation))
       :push-rotate)))
 
@@ -138,7 +144,13 @@
          (tms (when released (append (cadr holded) (cadr rotated) (cadr released)))))
     (when released
       (when move-robot
-        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :angle-vector-sequence (car holded) (cadr holded) nil 0)
+        (send *ri* :wait-interpolation)
+        (assoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car rotated) (cadr rotated) nil 0)
+        (send *ri* :wait-interpolation)
+        (dissoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car released) (cadr released) nil 0)
         (send *ri* :wait-interpolation))
       :support-rotate)))
 
@@ -241,10 +253,26 @@
                         (car support-holded) (car support-rotated) (car support-released))))
          (tms (when support-released
                 (append (cadr push-holded) (cadr push-rotated) (cadr push-released)
-                        (cadr support-holded) (cadr support-rotated) (cadr support-released)))))
+                        (cadr support-holded) (cadr support-rotated) (cadr support-released))))
+         )
     (when support-released
       (when move-robot
-        (send *ri* :angle-vector-sequence avs tms nil 0)
+        (send *ri* :angle-vector-sequence (car push-holded) (cadr push-holded) nil 0)
+        (send *ri* :wait-interpolation)
+        (assoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car push-rotated) (cadr push-rotated) nil 0)
+        (send *ri* :wait-interpolation)
+        (dissoc-cube :arms)
+        (send *ri* :angle-vector-sequence
+              (append (car push-released) (car support-holded))
+              (append (cadr push-released) (cadr support-holded))
+              nil 0)
+        (send *ri* :wait-interpolation)
+        (assoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car support-rotated) (cadr support-rotated) nil 0)
+        (send *ri* :wait-interpolation)
+        (dissoc-cube :arms)
+        (send *ri* :angle-vector-sequence (car support-released) (cadr support-released) nil 0)
         (send *ri* :wait-interpolation))
       :switch-rotate)))
 
