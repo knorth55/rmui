@@ -13,29 +13,27 @@
   (reset-motion))
 
 
-(defun assoc-cube (arm)
+(defun contact-cube (arm)
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (assoc-cube-step a)))
+    (contact-cube-step a)))
 
 
-(defun assoc-cube-step (arm)
+(defun contact-cube-step (arm)
   (let* ((coords-name (if (eq arm :larm) :larm-contact-coords :rarm-contact-coords))
          (contact-coords
            (make-cascoords :name coords-name
                            :coords (send (send *pr2* arm :end-coords) :copy-worldcoords))))
-    (send *ri* :robot arm :end-coords :assoc (car (send *ri* :find-object *cube-id*)))
     (send *cube* :assoc contact-coords)
     (send *cube* :put coords-name contact-coords)))
 
 
-(defun dissoc-cube (arm)
+(defun discontact-cube (arm)
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (dissoc-cube-step a)))
+    (discontact-cube-step a)))
 
 
-(defun dissoc-cube-step (arm)
+(defun discontact-cube-step (arm)
   (let ((coords-name (if (eq arm :larm) :larm-contact-coords :rarm-contact-coords)))
-    (send *ri* :robot arm :end-coords :dissoc (car (send *ri* :find-object *cube-id*)))
     (send *cube* :dissoc (send *cube* :get coords-name))
     (send *cube* :put coords-name nil)))
 
@@ -466,6 +464,7 @@
               :cube-width cube-width
               :cube-depth cube-depth)))
     (when pushed
+      (contact-cube arm)
       (list (list (car approached) (car pushed))
             (list (cadr approached) (cadr pushed))))))
 
@@ -509,7 +508,9 @@
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (send *irtviewer* :draw-objects)
-    (when av (list (list av) (list tm)))))
+    (when av
+      (discontact-cube arm)
+      (list (list av) (list tm)))))
 
 
 ;; push hold motion
@@ -572,7 +573,6 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth))
-    (when push-holded (assoc-cube :arms))
     push-holded))
 
 
@@ -582,7 +582,7 @@
   (&key (support-axis :x)
         (push-position :center)
         (approach-direction :back)
-        (upper-arm :larm)
+        (upper-arm :rarm)
         (front-arm nil)
         (back-arm nil)
         (approach-arm nil)
@@ -667,38 +667,13 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth))
-    (when support-holded (assoc-cube :arms))
     support-holded))
 
 
 ;; hold release motion
 
 (defun hold-release-motion (&key (arm :arms) (move-robot t) (tm 5000) (use-torso 0.001))
-  (if (eq arm :arms)
-    (let ((released
-            (push-release-motion :arms
-                                 :move-robot move-robot
-                                 :tm tm
-                                 :use-torso use-torso))
-          (larm-contact-coords (send *cube* :get :larm-contact-coords))
-          (rarm-contact-coords (send *cube* :get :rarm-contact-coords)))
-      (when released
-        (when larm-contact-coords (dissoc-cube :larm))
-        (when rarm-contact-coords (dissoc-cube :rarm)))
-      (send *irtviewer* :draw-objects)
-      released)
-    (let ((released
-            (push-release-motion arm
-                                 :move-robot move-robot
-                                 :tm tm
-                                 :use-torso use-torso))
-          (contact-coords
-            (if (eq arm :larm)
-              (send *cube* :get :larm-contact-coords)
-              (send *cube* :get :rarm-contact-coords))))
-      (when (and released contact-coords) (dissoc-cube arm))
-      (send *irtviewer* :draw-objects)
-      released)))
+  (push-release-motion arm :move-robot move-robot :tm tm :use-torso use-torso))
 
 
 ;; hold lift up & down motion
