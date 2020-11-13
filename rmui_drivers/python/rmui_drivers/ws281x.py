@@ -1,7 +1,11 @@
 import time
+import warnings
 
-from rpi_ws281x import Color
-from rpi_ws281x import PixelStrip
+try:
+    from rpi_ws281x import Color
+    from rpi_ws281x import PixelStrip
+except ImportError:
+    warnings.warn('Please install rpi_ws281x for LED: pip install rpi_ws281x')
 
 
 class WS281x(object):

@@ -1,12 +1,16 @@
 import struct
 import sys
 import time
-
-import smbus
+import warnings
 
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Imu
+
+try:
+    import smbus
+except ImportError:
+    warnings.warn('Please install smbus for IMU: apt-get install python-smbus')
 
 
 class BNO055(object):
