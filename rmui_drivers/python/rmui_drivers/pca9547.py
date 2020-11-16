@@ -1,4 +1,9 @@
-import smbus
+import warnings
+
+try:
+    import smbus
+except ImportError:
+    warnings.warn('Please install smbus for IMU: apt-get install python-smbus')
 
 
 class PCA9547(object):
