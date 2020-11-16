@@ -58,8 +58,11 @@ class DummyRMUI(object):
             prx_data = [self.sensitivity + 100] * self.n_sensor
             for j, prx_d in enumerate(prx_data):
                 average = self.averages[5*i+j]
+                fa2 = self.fa2s[5*i+j]
+                if average is None:
+                    average = prx_d
                 msg, average, fa2 = prx_utils.get_proximity_msg(
-                    prx_d, average, self.fa2, self.ea, self.sensitivity)
+                    prx_d, average, fa2, self.ea, self.sensitivity)
                 self.averages[self.n_sensor*i+j] = average
                 self.fa2s[self.n_sensor*i+j] = fa2
                 msgs = msgs.append(msg)
