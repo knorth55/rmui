@@ -3,6 +3,7 @@
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+  <arg name="dummy" default="false" />
 
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
@@ -12,7 +13,14 @@
 
   <group ns="rmui0">
     <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
-          output="screen" machine="$(arg machine)">
+          output="screen" machine="$(arg machine)" unless="$(arg dummy)">
+      <rosparam subst_value="true">
+        n_board: $(arg n_board)
+        duration: $(arg duration)
+      </rosparam>
+    </node>
+    <node name="rmui_node" pkg="rmui_drivers" type="dummy_rmui_node.py"
+          output="screen" if="$(arg dummy)">
       <rosparam subst_value="true">
         n_board: $(arg n_board)
         duration: $(arg duration)
