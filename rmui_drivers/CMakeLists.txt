@@ -7,7 +7,7 @@ catkin_python_setup()
 
 catkin_package()
 
-install(DIRECTORY config launch rvizconfig
+install(DIRECTORY config launch resource rvizconfig
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   USE_SOURCE_PERMISSIONS
 )

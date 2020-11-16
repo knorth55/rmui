@@ -1,0 +1,39 @@
+- name: 'Contact board 0'
+  service: '/rmui0/rmui_node/board0/contact'
+  column: 0
+- name: 'Release board 0'
+  service: '/rmui0/rmui_node/board0/release'
+  column: 0
+- name: 'Contact board 1'
+  service: '/rmui0/rmui_node/board1/contact'
+  column: 1
+- name: 'Release board 1'
+  service: '/rmui0/rmui_node/board1/release'
+  column: 1
+- name: 'Contact board 2'
+  service: '/rmui0/rmui_node/board2/contact'
+  column: 2
+- name: 'Release board 2'
+  service: '/rmui0/rmui_node/board2/release'
+  column: 2
+- name: 'Contact board 3'
+  service: '/rmui0/rmui_node/board3/contact'
+  column: 3
+- name: 'Release board 3'
+  service: '/rmui0/rmui_node/board3/release'
+  column: 3
+- name: 'Contact board 4'
+  service: '/rmui0/rmui_node/board4/contact'
+  column: 4
+- name: 'Release board 4'
+  service: '/rmui0/rmui_node/board4/release'
+  column: 4
+- name: 'Contact board 5'
+  service: '/rmui0/rmui_node/board5/contact'
+  column: 5
+- name: 'Release board 5'
+  service: '/rmui0/rmui_node/board5/release'
+  column: 5
+- name: 'Reset button'
+  service: '/rmui0/rmui_node/contact_reset'
+  column: 6
