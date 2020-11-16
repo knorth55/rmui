@@ -1,8 +1,13 @@
-import smbus
+import warnings
 
 from rmui_drivers import prx_utils
 
 from force_proximity_ros.msg import Proximity
+
+try:
+    import smbus
+except ImportError:
+    warnings.warn('Please install smbus for IMU: apt-get install python-smbus')
 
 
 class VCNL4040(object):
