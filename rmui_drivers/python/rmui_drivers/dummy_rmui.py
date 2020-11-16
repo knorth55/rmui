@@ -38,9 +38,6 @@ class DummyRMUI(object):
         self.fa2s = [0] * (self.n_board * self.n_sensor)
         self.averages = [None] * (self.n_board * self.n_sensor)
 
-    def init_device(self):
-        rospy.loginfo('DummyRMUI is initialized.')
-
     def get_imu_msg(self):
         q = [0.0, 0.0, 0.0, 1.0]
         v = [0.0, 0.0, 0.0]
