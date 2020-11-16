@@ -27,14 +27,14 @@ class DummyRMUI(object):
 
     def __init__(
             self, n_board=6, n_sensor=5,
-            ea=0.3, sensitivity=500, frame_id='rmui'
+            ea=0.3, prx_threshold=500, frame_id='rmui'
     ):
         super(DummyRMUI, self).__init__()
         self.n_board = n_board
         self.n_sensor = n_sensor
         self.frame_id = frame_id
         self.ea = ea
-        self.sensitivity = sensitivity
+        self.prx_threshold = prx_threshold
         self.fa2s = [0] * (self.n_board * self.n_sensor)
         self.averages = [None] * (self.n_board * self.n_sensor)
 
@@ -55,24 +55,23 @@ class DummyRMUI(object):
         prx_msg = ProximityArray()
         msgs = []
         for i in range(self.n_board):
-            prx_data = [self.sensitivity + 100] * self.n_sensor
+            prx_data = [2000] * self.n_sensor
             for j, prx_d in enumerate(prx_data):
                 average = self.averages[5*i+j]
                 fa2 = self.fa2s[5*i+j]
                 if average is None:
                     average = prx_d
                 msg, average, fa2 = prx_utils.get_proximity_msg(
-                    prx_d, average, fa2, self.ea, self.sensitivity)
+                    prx_d, average, fa2, self.ea, self.prx_threshold)
                 self.averages[self.n_sensor*i+j] = average
                 self.fa2s[self.n_sensor*i+j] = fa2
-                msgs = msgs.append(msg)
+                msgs.append(msg)
         prx_msg.proximities = msgs
         prx_msg.header.stamp = rospy.Time.now()
         prx_msg.header.frame_id = self.frame_id
         return prx_msg
 
     def get_imu_calib_msg(self):
-        self.imu.read_calib_status()
         calib_msg = ImuCalibStatus()
         calib_msg.system = 3
         calib_msg.gyroscope = 3
