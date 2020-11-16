@@ -1,4 +1,5 @@
 from rmui_drivers import bno055  # NOQA
+from rmui_drivers import imu_utils  # NOQA
 from rmui_drivers import pca9547  # NOQA
 from rmui_drivers import rmui  # NOQA
 from rmui_drivers import rmui_client  # NOQA
