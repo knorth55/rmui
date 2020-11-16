@@ -2,15 +2,15 @@
 
 import rospy
 
-from force_proximity_ros.msg import ProximityArray
-from sensor_msgs.msg import Imu
-
 from rmui_drivers import BNO055
 from rmui_drivers import PCA9547
 from rmui_drivers import RMUI
 from rmui_drivers import VCNL4040
 from rmui_drivers import VCNL4040Multiplexa
 from rmui_drivers import WS281x
+
+from force_proximity_ros.msg import ProximityArray
+from sensor_msgs.msg import Imu
 
 from rmui_msgs.msg import ImuCalibStatus
 

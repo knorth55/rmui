@@ -1,6 +1,13 @@
-import smbus
+import warnings
+
+from rmui_drivers import prx_utils
 
 from force_proximity_ros.msg import Proximity
+
+try:
+    import smbus
+except ImportError:
+    warnings.warn('Please install smbus for IMU: apt-get install python-smbus')
 
 
 class VCNL4040(object):
@@ -40,29 +47,16 @@ class VCNL4040(object):
             prx_d = self.bus.read_word_data(self.address, 0x0008)
             return prx_d
         except IOError:
-            return False
+            return None
 
     def get_proximity_msg(self, prx_d):
-        msg = Proximity()
-        if prx_d is not False:
+        if prx_d is None:
+            prx_msg = Proximity()
+        else:
             if self.average is None:
                 self.average = prx_d
-            average = self.ea * prx_d + (1 - self.ea) * self.average
-            fa2 = self.average - prx_d
-            fa2derivative = self.average - prx_d - self.fa2
+            prx_msg, average, fa2 = prx_utils.get_proximity_msg(
+                prx_d, self.average, self.fa2, self.ea, self.sensitivity)
             self.average = average
             self.fa2 = fa2
-
-            msg.proximity = prx_d
-            msg.average = average
-            msg.fa2 = fa2
-            msg.fa2derivative = fa2derivative
-            if self.fa2 < -self.sensitivity:
-                msg.mode = "T"
-            elif self.fa2 > self.sensitivity:
-                msg.mode = "R"
-            else:
-                msg.mode = "0"
-        else:
-            msg.mode = "X"
-        return msg
+        return prx_msg

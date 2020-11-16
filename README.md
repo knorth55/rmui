@@ -1,9 +1,10 @@
 # rmui
+
 Robot Manipulation User Interface (RMUI)
 
 ## Installation & Build
 
-```
+```bash
 mkdir rmui_ws/src -p
 cd rmui_ws/src
 wget https://raw.githubusercontent.com/knorth55/rmui/master/kinetic.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall
@@ -19,7 +20,7 @@ catkin build
 rosrun rmui_drivers rmui_node.py
 ```
 
-**output**
+### Output
 
 - `~output/proximities`: (`force_proximity_ros/ProximityArray`)
 
@@ -33,7 +34,7 @@ rosrun rmui_drivers rmui_node.py
 rosrun rmui_drivers vcnl4040_node.py
 ```
 
-**output**
+#### Output
 
 - `~output`: (`force_proximity_ros/ProximityStamped`)
 
@@ -43,7 +44,7 @@ rosrun rmui_drivers vcnl4040_node.py
 rosrun rmui_drivers bno055_node.py
 ```
 
-**output**
+#### Output
 
 - `~output`: (`sensor_msgs/Imu`)
 
@@ -53,7 +54,7 @@ rosrun rmui_drivers bno055_node.py
 rosrun rmui_drivers vcnl4040_multiplexa_node.py
 ```
 
-**output**
+#### Output
 
 - `~output`: (`force_proximity_ros/ProximityArray`)
 
@@ -65,10 +66,9 @@ rosrun rmui_drivers vcnl4040_multiplexa_node.py
 rosrun rmui_drivers wx281x_node.py
 ```
 
-**input**
+#### Input
 
 - ``~input``: (`rmui_msgs/LED`)
-
 
 ## Dependency
 

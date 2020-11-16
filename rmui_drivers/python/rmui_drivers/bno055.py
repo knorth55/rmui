@@ -3,9 +3,7 @@ import sys
 import time
 import warnings
 
-from geometry_msgs.msg import Quaternion
-from geometry_msgs.msg import Vector3
-from sensor_msgs.msg import Imu
+from rmui_drivers import imu_utils
 
 try:
     import smbus
@@ -72,10 +70,10 @@ class BNO055(object):
         # calibration
         self.read_calib_status()
         calibrated = (
-            self.sys_calib_status == 3 and
-            self.gyr_calib_status == 3 and
-            self.acc_calib_status == 3 and
-            self.mag_calib_status == 3)
+            self.sys_calib_status == 3
+            and self.gyr_calib_status == 3
+            and self.acc_calib_status == 3
+            and self.mag_calib_status == 3)
 
         return calibrated
 
@@ -137,7 +135,8 @@ class BNO055(object):
         buf = self.bus.read_i2c_block_data(self.address, cmd, n_byte)
         data = []
         for i in range(n_byte // 2):
-            d = struct.unpack('h', struct.pack('BB', buf[2*i], buf[2*i+1]))[0]
+            d = struct.unpack(
+                'h', struct.pack('BB', buf[2 * i], buf[2 * i + 1]))[0]
             data.append(d * scale)
         return data
 
@@ -149,18 +148,9 @@ class BNO055(object):
         self.mag_calib_status = int(status & 0x03)
 
     def get_imu_msg(self, q, v, a):
-        orientation = Quaternion(
-            x=q[1], y=q[2], z=q[3], w=q[0])
-        angular_velocity = Vector3(
-            x=v[0], y=v[1], z=v[2])
-        linear_acceleration = Vector3(
-            x=a[0], y=a[1], z=a[2])
-        imu_msg = Imu(
-            orientation=orientation,
-            orientation_covariance=self.orientation_covariance,
-            angular_velocity=angular_velocity,
-            angular_velocity_covariance=self.angular_velocity_covariance,
-            linear_acceleration=linear_acceleration,
-            linear_acceleration_covariance=self.linear_acceleration_covariance,
-        )
+        imu_msg = imu_utils.get_imu_msg(
+            q, v, a,
+            self.orientation_covariance,
+            self.angular_velocity_covariance,
+            self.linear_acceleration_covariance)
         return imu_msg
