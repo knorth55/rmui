@@ -1,6 +1,6 @@
 import smbus
 
-from rmui_drivers import prox_utils
+from rmui_drivers import prx_utils
 
 from force_proximity_ros.msg import Proximity
 
@@ -50,7 +50,7 @@ class VCNL4040(object):
         else:
             if self.average is None:
                 self.average = prx_d
-            prx_msg, average, fa2 = prox_utils.get_proximity_msg(
+            prx_msg, average, fa2 = prx_utils.get_proximity_msg(
                 prx_d, self.average, self.fa2, self.ea, self.sensitivity)
             self.average = average
             self.fa2 = fa2
