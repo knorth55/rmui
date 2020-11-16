@@ -70,10 +70,10 @@ class BNO055(object):
         # calibration
         self.read_calib_status()
         calibrated = (
-            self.sys_calib_status == 3 and
-            self.gyr_calib_status == 3 and
-            self.acc_calib_status == 3 and
-            self.mag_calib_status == 3)
+            self.sys_calib_status == 3
+            and self.gyr_calib_status == 3
+            and self.acc_calib_status == 3
+            and self.mag_calib_status == 3)
 
         return calibrated
 
@@ -135,7 +135,8 @@ class BNO055(object):
         buf = self.bus.read_i2c_block_data(self.address, cmd, n_byte)
         data = []
         for i in range(n_byte // 2):
-            d = struct.unpack('h', struct.pack('BB', buf[2*i], buf[2*i+1]))[0]
+            d = struct.unpack(
+                'h', struct.pack('BB', buf[2 * i], buf[2 * i + 1]))[0]
             data.append(d * scale)
         return data
 
