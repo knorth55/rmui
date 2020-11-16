@@ -37,6 +37,7 @@ class DummyRMUI(object):
         self.prx_threshold = prx_threshold
         self.fa2s = [0] * (self.n_board * self.n_sensor)
         self.averages = [None] * (self.n_board * self.n_sensor)
+        self.contact = [False] * self.n_board
 
     def get_imu_msg(self):
         q = [0.0, 0.0, 0.0, 1.0]
@@ -55,7 +56,11 @@ class DummyRMUI(object):
         prx_msg = ProximityArray()
         msgs = []
         for i in range(self.n_board):
-            prx_data = [2000] * self.n_sensor
+            if self.contact[i]:
+                prx_value = 2000
+            else:
+                prx_value = 0
+            prx_data = [prx_value] * self.n_sensor
             for j, prx_d in enumerate(prx_data):
                 average = self.averages[5 * i + j]
                 fa2 = self.fa2s[5 * i + j]
@@ -80,3 +85,9 @@ class DummyRMUI(object):
         calib_msg.header.stamp = rospy.Time.now()
         calib_msg.header.frame_id = self.frame_id
         return calib_msg
+
+    def contact_board(self, i):
+        self.contact[i] = True
+
+    def release_board(self, i):
+        self.contact[i] = False
