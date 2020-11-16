@@ -18,9 +18,9 @@ class DummyRMUINode(object):
         n_board = rospy.get_param('~n_board', 6)
         n_sensor = rospy.get_param('~n_sensor', 5)
         ea = rospy.get_param('~ea', 0.3)
-        sensitivity = rospy.get_param('~sensitivity', 50)
+        prx_threshold = rospy.get_param('~prx_threshold', 500)
 
-        self.device = DummyRMUI(n_board, n_sensor, ea, sensitivity, frame_id)
+        self.device = DummyRMUI(n_board, n_sensor, ea, prx_threshold, frame_id)
 
         self.pub_imu = rospy.Publisher(
             '~output/imu', Imu, queue_size=1)
