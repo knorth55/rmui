@@ -20,4 +20,4 @@ def get_proximity_msg(prx_d, average, fa2, ea, sensitivity):
             prx_msg.mode = "R"
         else:
             prx_msg.mode = "0"
-    return prx_msg
+    return prx_msg, average, fa2
