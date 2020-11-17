@@ -33,6 +33,7 @@ class DummyRMUINode(object):
             '~output/proximities', ProximityArray, queue_size=1)
         self.timer = rospy.Timer(
             rospy.Duration(duration), self._timer_cb)
+        # contact
         self.contact_services = []
         self.release_services = []
         for i in range(self.n_board):
@@ -46,6 +47,16 @@ class DummyRMUINode(object):
                     self._get_release_service_cb(i)))
         self.contact_reset_service = rospy.Service(
             '~contact_reset', Empty, self._contact_reset_service_cb)
+        # rotation
+        self.rotate_services = []
+        for axis in ['x', 'y', 'z']:
+            for direction in ['cw', 'ccw']:
+                self.rotate_services.append(
+                    rospy.Service(
+                        '~{}_axis/rotate_{}90'.format(axis, direction), Empty,
+                        self._get_rotate_service_cb(axis, direction)))
+        self.rotate_reset_service = rospy.Service(
+            '~rotate_reset', Empty, self._rotate_reset_service_cb)
         rospy.loginfo('dummy rmui node initialized')
 
     def _timer_cb(self, event):
@@ -80,6 +91,28 @@ class DummyRMUINode(object):
         rospy.loginfo('all board contact is resetted')
         for i in range(self.n_board):
             self.device.release_board(i)
+        return EmptyResponse()
+
+    def _get_rotate_service_cb(self, axis, direction):
+        def _rotate_cb(req):
+            return self._rotate_service_cb(req, axis, direction)
+        return _rotate_cb
+
+    def _rotate_service_cb(self, req, axis, direction):
+        if direction == 'ccw':
+            angle = 90
+        elif direction == 'cw':
+            angle = -90
+        else:
+            rospy.logerr('Unsupported direction: {}'.format(direction))
+        rospy.loginfo(
+            'device rotates {} degree in {} axis'.format(angle, axis))
+        self.device.rotate(axis, angle)
+        return EmptyResponse()
+
+    def _rotate_reset_service_cb(self, req):
+        rospy.loginfo('all board rotation is resetted')
+        self.device.reset_rotation()
         return EmptyResponse()
 
 
