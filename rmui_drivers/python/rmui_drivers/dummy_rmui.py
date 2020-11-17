@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.spatial.transform import Rotation
+
 import rospy
 
 from rmui_drivers import imu_utils
@@ -9,6 +12,9 @@ from rmui_msgs.msg import ImuCalibStatus
 
 
 class DummyRMUI(object):
+    initial_q = np.array([0.0, 0.0, 0.0, 1.0])
+    initial_v = np.array([0.0, 0.0, 0.0])
+    initial_a = np.array([0.0, 0.0, 0.0])
     orientation_covariance = [
         0.002, 0, 0,
         0, 0.002, 0,
@@ -38,13 +44,11 @@ class DummyRMUI(object):
         self.fa2s = [0] * (self.n_board * self.n_sensor)
         self.averages = [None] * (self.n_board * self.n_sensor)
         self.contact = [False] * self.n_board
+        self.reset_rotation()
 
     def get_imu_msg(self):
-        q = [0.0, 0.0, 0.0, 1.0]
-        v = [0.0, 0.0, 0.0]
-        a = [0.0, 0.0, 0.0]
         imu_msg = imu_utils.get_imu_msg(
-            q, v, a,
+            self.q.tolist(), self.v.tolist(), self.a.tolist(),
             self.orientation_covariance,
             self.angular_velocity_covariance,
             self.linear_acceleration_covariance)
@@ -91,3 +95,13 @@ class DummyRMUI(object):
 
     def release_board(self, i):
         self.contact[i] = False
+
+    def rotate(self, axis, angle):
+        r0 = Rotation.from_quat(self.q)
+        r1 = Rotation.from_euler(axis, angle, degrees=True)
+        self.q = (r1 * r0).as_quat()
+
+    def reset_rotation(self):
+        self.q = self.initial_q.copy()
+        self.v = self.initial_v.copy()
+        self.a = self.initial_a.copy()
