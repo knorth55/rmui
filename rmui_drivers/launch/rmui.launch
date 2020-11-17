@@ -44,6 +44,8 @@
           args="-d $(find rmui_drivers)/rvizconfig/rmui.rviz" />
     <node name="rqt_contact_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
           args="--perspective-file $(find rmui_drivers)/resource/rqt_contact_buttons.perspective" />
+    <node name="rqt_rotate_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
+          args="--perspective-file $(find rmui_drivers)/resource/rqt_rotate_buttons.perspective" />
   </group>
 
 </launch>

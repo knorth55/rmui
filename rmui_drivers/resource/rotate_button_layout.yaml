@@ -1,0 +1,21 @@
+- name: 'Rotate 90 in X axis'
+  service: '/rmui0/rmui_node/x_axis/rotate_ccw90'
+  column: 0
+- name: 'Rotate -90 in X axis'
+  service: '/rmui0/rmui_node/x_axis/rotate_cw90'
+  column: 0
+- name: 'Rotate 90 in Y axis'
+  service: '/rmui0/rmui_node/y_axis/rotate_ccw90'
+  column: 1
+- name: 'Rotate -90 in Y axis'
+  service: '/rmui0/rmui_node/y_axis/rotate_cw90'
+  column: 1
+- name: 'Rotate 90 in Z axis'
+  service: '/rmui0/rmui_node/z_axis/rotate_ccw90'
+  column: 2
+- name: 'Rotate -90 in Z axis'
+  service: '/rmui0/rmui_node/z_axis/rotate_cw90'
+  column: 2
+- name: 'Reset button'
+  service: '/rmui0/rmui_node/rotate_reset'
+  column: 3
