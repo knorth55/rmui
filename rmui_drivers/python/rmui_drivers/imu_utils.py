@@ -5,7 +5,7 @@ from sensor_msgs.msg import Imu
 
 def get_imu_msg(q, v, a, q_covar, v_covar, a_covar):
     orientation = Quaternion(
-        x=q[1], y=q[2], z=q[3], w=q[0])
+        x=q[0], y=q[1], z=q[2], w=q[3])
     angular_velocity = Vector3(
         x=v[0], y=v[1], z=v[2])
     linear_acceleration = Vector3(

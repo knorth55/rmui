@@ -117,7 +117,9 @@ class BNO055(object):
         return self.bus.read_byte_data(self.address, 0x00)
 
     def read_quaternion(self):
-        return self._read_data(0x20, 8, (1.0 / (1 << 14)))
+        q = self._read_data(0x20, 8, (1.0 / (1 << 14)))
+        # w, x, y, z -> x, y, z, w
+        return [q[1], q[2], q[3], q[0]]
 
     def read_euler(self):
         return self._read_data(0x1A, 6, (1.0 / 900.0))
