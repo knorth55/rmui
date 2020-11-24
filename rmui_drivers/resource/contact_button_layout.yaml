@@ -1,39 +1,47 @@
-- name: 'Contact board 0'
+# top
+- name: |
+    Contact board 5
+    (initial top)
+  service: '/rmui0/rmui_node/board5/contact'
+  column: 0
+  service_type: 'SetBool'
+# bottom
+- name: |
+    Contact board 0
+    (initial buttom)
   service: '/rmui0/rmui_node/board0/contact'
   column: 0
-- name: 'Release board 0'
-  service: '/rmui0/rmui_node/board0/release'
-  column: 0
-- name: 'Contact board 1'
+  service_type: 'SetBool'
+  default_value: true
+# front
+- name: |
+    Contact board 1
+    (initial front)
   service: '/rmui0/rmui_node/board1/contact'
   column: 1
-- name: 'Release board 1'
-  service: '/rmui0/rmui_node/board1/release'
+  service_type: 'SetBool'
+# back
+- name: |
+    Contact board 3
+    (initial back)
+  service: '/rmui0/rmui_node/board3/contact'
   column: 1
-- name: 'Contact board 2'
+  service_type: 'SetBool'
+# left
+- name: |
+    Contact board 2
+    (initial left)
   service: '/rmui0/rmui_node/board2/contact'
   column: 2
-- name: 'Release board 2'
-  service: '/rmui0/rmui_node/board2/release'
-  column: 2
-- name: 'Contact board 3'
-  service: '/rmui0/rmui_node/board3/contact'
-  column: 3
-- name: 'Release board 3'
-  service: '/rmui0/rmui_node/board3/release'
-  column: 3
-- name: 'Contact board 4'
+  service_type: 'SetBool'
+# right
+- name: |
+    Contact board 4
+    (initial right)
   service: '/rmui0/rmui_node/board4/contact'
-  column: 4
-- name: 'Release board 4'
-  service: '/rmui0/rmui_node/board4/release'
-  column: 4
-- name: 'Contact board 5'
-  service: '/rmui0/rmui_node/board5/contact'
-  column: 5
-- name: 'Release board 5'
-  service: '/rmui0/rmui_node/board5/release'
-  column: 5
+  column: 2
+  service_type: 'SetBool'
+# reset
 - name: 'Reset button'
   service: '/rmui0/rmui_node/contact_reset'
-  column: 6
+  column: 3

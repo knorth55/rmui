@@ -8,6 +8,8 @@ from force_proximity_ros.msg import ProximityArray
 from sensor_msgs.msg import Imu
 from std_srvs.srv import Empty
 from std_srvs.srv import EmptyResponse
+from std_srvs.srv import SetBool
+from std_srvs.srv import SetBoolResponse
 
 from rmui_msgs.msg import ImuCalibStatus
 
@@ -35,16 +37,11 @@ class DummyRMUINode(object):
             rospy.Duration(duration), self._timer_cb)
         # contact
         self.contact_services = []
-        self.release_services = []
         for i in range(self.n_board):
             self.contact_services.append(
                 rospy.Service(
-                    '~board{}/contact'.format(i), Empty,
+                    '~board{}/contact'.format(i), SetBool,
                     self._get_contact_service_cb(i)))
-            self.release_services.append(
-                rospy.Service(
-                    '~board{}/release'.format(i), Empty,
-                    self._get_release_service_cb(i)))
         self.contact_reset_service = rospy.Service(
             '~contact_reset', Empty, self._contact_reset_service_cb)
         # rotation
@@ -58,6 +55,8 @@ class DummyRMUINode(object):
         self.rotate_reset_service = rospy.Service(
             '~rotate_reset', Empty, self._rotate_reset_service_cb)
         rospy.loginfo('dummy rmui node initialized')
+        # contact to ground
+        self.device.contact_board(0)
 
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
@@ -72,20 +71,14 @@ class DummyRMUINode(object):
             return self._contact_service_cb(req, i)
         return _contact_cb
 
-    def _get_release_service_cb(self, i):
-        def _release_cb(req):
-            return self._release_service_cb(req, i)
-        return _release_cb
-
     def _contact_service_cb(self, req, i):
-        rospy.loginfo('board {} is contacted'.format(i))
-        self.device.contact_board(i)
-        return EmptyResponse()
-
-    def _release_service_cb(self, req, i):
-        rospy.loginfo('board {} is released'.format(i))
-        self.device.release_board(i)
-        return EmptyResponse()
+        if req.data:
+            rospy.loginfo('board {} is contacted'.format(i))
+            self.device.contact_board(i)
+        else:
+            rospy.loginfo('board {} is released'.format(i))
+            self.device.release_board(i)
+        return SetBoolResponse(success=True)
 
     def _contact_reset_service_cb(self, req):
         rospy.loginfo('all board contact is resetted')
