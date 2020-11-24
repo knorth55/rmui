@@ -17,10 +17,10 @@
          (contact-positions (if update-p (get-contact-positions proximity)))
          (motion-symbol (get-motion-symbol contact-positions))
          (execute-p (execute-motion-symbol motion-symbol))
-         (update-device-p (if execute-p (update-device-state motion-symbol))))
-    (ros::ros-info (format nil "motion-symbol: ~A" motion-symbol))
-    (ros::ros-info (format nil "execute-p    : ~A" execute-p))
-    (ros::ros-info (format nil "device-state : ~A" *device-state*))))
+         (update-device-p (if execute-p (update-device-contact-state motion-symbol))))
+    (ros::ros-info (format nil "motion-symbol        : ~A" motion-symbol))
+    (ros::ros-info (format nil "execute-p            : ~A" execute-p))
+    (ros::ros-info (format nil "device-contact-state : ~A" *device-contact-state*))))
 
 
 (defun main ()
