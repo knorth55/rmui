@@ -7,47 +7,47 @@
 
 (defvar *prx-positions*
   (list
-    ;; board lower
-    (list :lower :front)
-    (list :lower :left)
-    (list :lower :back)
-    (list :lower :right)
-    (list :lower :center)
+    ;; board bottum
+    (list :bottum :front)
+    (list :bottum :left)
+    (list :bottum :back)
+    (list :bottum :right)
+    (list :bottum :center)
     ;; board front
     (list :front :left)
-    (list :front :lower)
+    (list :front :bottum)
     (list :front :right)
-    (list :front :upper)
+    (list :front :top)
     (list :front :center)
     ;; board left
     (list :left :back)
-    (list :left :lower)
+    (list :left :bottum)
     (list :left :front)
-    (list :left :upper)
+    (list :left :top)
     (list :left :center)
     ;; board back
     (list :back :right)
-    (list :back :lower)
+    (list :back :bottum)
     (list :back :left)
-    (list :back :upper)
+    (list :back :top)
     (list :back :center)
     ;; board right
     (list :right :front)
-    (list :right :lower)
+    (list :right :bottum)
     (list :right :back)
-    (list :right :upper)
+    (list :right :top)
     (list :right :center)
-    ;; board upper
-    (list :upper :front)
-    (list :upper :right)
-    (list :upper :back)
-    (list :upper :left)
-    (list :upper :center)))
+    ;; board top
+    (list :top :front)
+    (list :top :right)
+    (list :top :back)
+    (list :top :left)
+    (list :top :center)))
 
 
 (defvar *prx-vectors*
   (list
-    ;; board lower
+    ;; board bottum
     (float-vector sqrt1/5 0.0 -sqrt2/5)
     (float-vector 0.0 sqrt1/5 -sqrt2/5)
     (float-vector -sqrt1/5 0.0 -sqrt2/5)
@@ -77,7 +77,7 @@
     (float-vector -sqrt1/5 -sqrt2/5 0.0)
     (float-vector 0.0 -sqrt2/5 sqrt1/5)
     (float-vector 0.0 -1.0 0.0)
-    ;; board upper
+    ;; board top
     (float-vector sqrt1/5 0.0 sqrt2/5)
     (float-vector 0.0 -sqrt1/5 sqrt2/5)
     (float-vector -sqrt1/5 0.0 sqrt2/5)
