@@ -125,7 +125,8 @@
   (let ((device-rot (send *device* :copy-rot)))
     (setq *device-prx-vectors*
           (mapcar #'(lambda (prx-v) (let ((v (copy-seq prx-v))) (transform device-rot v)))
-                  *prx-vectors*))))
+                  *prx-vectors*))
+    t))
 
 
 (defun get-device-prx-positions ()
