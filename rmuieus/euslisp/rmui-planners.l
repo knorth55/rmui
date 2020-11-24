@@ -7,6 +7,7 @@
 (defvar *device* (make-cube 120 120 120))
 (defvar *device-frame-id* "rmui_link")
 (defvar *prx-threshold* 500)
+(defvar *prx-position-threshold* 0.1)
 (defvar *motion-symbol-length* 20)
 (defvar *world-frame-id* "world")
 
@@ -14,18 +15,6 @@
 
 (setq *device-contact-state* :released)
 (setq *motion-symbols* nil)
-
-(defun get-contact-positions (proximity)
-  (let ((prx-positions (get-device-prx-positions))
-        (prx-index 0)
-        (contact-positions nil))
-    (dolist (prx proximity)
-      (when (> prx *prx-threshold*)
-        (setq contact-positions
-              (append contact-positions
-                      (list (elt prx-positions prx-index)))))
-      (setq prx-index (+ prx-index 1)))
-    contact-positions))
 
 
 (defun get-motion-symbol (contact-positions)

@@ -1,8 +1,3 @@
-;; parameters
-
-(defvar *prx-position-threshold* 0.1)
-
-
 ;; functions
 (defvar sqrt1/5 (sqrt 0.2))
 (defvar sqrt2/5 (* 2.0 sqrt1/5))
@@ -90,19 +85,19 @@
     (float-vector 0.0 0.0 1.0)))
 
 
-(setq *cube-prx-vectors*
-      (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
+(defvar *cube-prx-vectors*
+  (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
 
 
-(setq *device-prx-vectors*
-      (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
+(defvar *device-prx-vectors*
+  (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
 
 
-(defun get-prx-position (prx-v)
+(defun get-prx-position (prx-v prx-position-threshold)
   (let*
     ((prx-v (scale (/ 1.0 (norm prx-v)) prx-v))
      (diff-vs (mapcar #'(lambda (v) (norm (v- prx-v v))) *prx-vectors*))
-     (diff-p (mapcar #'(lambda (x) (< x *prx-position-threshold*)) diff-vs)))
+     (diff-p (mapcar #'(lambda (x) (< x prx-position-threshold)) diff-vs)))
     (when (every #'null diff-p) (return-from get-prx-position nil))
     (elt *prx-positions* (position t diff-p))))
 
@@ -112,13 +107,15 @@
   (let ((cube-rot (send *cube* :copy-rot)))
     (setq *cube-prx-vectors*
           (mapcar #'(lambda (prx-v) (let ((v (copy-seq prx-v))) (transform cube-rot v)))
-                  *prx-vectors*))))
+                  *prx-vectors*))
+    t))
 
 
-(defun get-cube-prx-positions ()
+(defun get-cube-prx-positions (prx-position-threshold)
   (when (update-cube-prx-vectors)
-    (mapcar #'(lambda (prx-v) (get-prx-position prx-v)) *cube-prx-vectors*)))
-
+    (mapcar #'(lambda (prx-v)
+                (get-prx-position prx-v prx-position-threshold))
+            *cube-prx-vectors*)))
 
 (defun update-device-prx-vectors ()
   (unless (boundp '*device*) (return-from update-device-prx-vectors nil))
@@ -129,9 +126,24 @@
     t))
 
 
-(defun get-device-prx-positions ()
+(defun get-device-prx-positions (prx-position-threshold)
   (when (update-device-prx-vectors)
-    (mapcar #'(lambda (prx-v) (get-prx-position prx-v)) *device-prx-vectors*)))
+    (mapcar #'(lambda (prx-v)
+                (get-prx-position prx-v prx-position-threshold))
+            *device-prx-vectors*)))
+
+
+(defun get-contact-positions (proximity prx-threshold prx-position-threshold)
+  (let ((prx-positions (get-device-prx-positions prx-position-threshold))
+        (prx-index 0)
+        (contact-positions nil))
+    (dolist (prx proximity)
+      (when (> prx prx-threshold)
+        (setq contact-positions
+              (append contact-positions
+                      (list (elt prx-positions prx-index)))))
+      (setq prx-index (+ prx-index 1)))
+    contact-positions))
 
 
 (provide :prx-utils "prx-utils.l")

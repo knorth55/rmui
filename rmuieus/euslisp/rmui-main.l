@@ -14,7 +14,8 @@
 (defun proximity-cb (msg)
   (let* ((proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities)))
          (update-p (update-device-orientation))
-         (contact-positions (if update-p (get-contact-positions proximity)))
+         (contact-positions
+           (if update-p (get-contact-positions proximity *prx-threshold* *prx-position-threshold*)))
          (motion-symbol (get-motion-symbol contact-positions))
          (execute-p (execute-motion-symbol motion-symbol))
          (update-device-p (if execute-p (update-device-contact-state motion-symbol))))
