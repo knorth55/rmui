@@ -1,5 +1,6 @@
 #!/usr/bin/env roseus
 
+(require :imu-utils "package://rmuieus/euslisp/imu-utils.l")
 (require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2-motions.l")
 (require :pr2-planners "package://rmuieus/euslisp/pr2-planners.l")
@@ -10,24 +11,10 @@
 
 ;; functions
 
-(defun update-device-orientation ()
-  (unless (boundp '*tfl*)
-    (return-from update-device-orientation nil))
-  (let* ((wait-p (send *tfl* :wait-for-transform
-                       *world-frame-id* *device-frame-id* (ros::time 0) 0.1))
-         (device-coords 
-           (when wait-p 
-             (send *tfl* :lookup-transform
-                   *world-frame-id* *device-frame-id* (ros::time 0)))))
-    (when device-coords
-      (send *device* :newcoords device-coords)
-      (send *device* :worldcoords))))
-
-
 (defun proximity-cb (msg)
   (let* ((proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities)))
          (update-p (update-device-orientation))
-         (contact-positions (when update-p (get-contact-positions proximity)))
+         (contact-positions (if update-p (get-contact-positions proximity)))
          (motion-symbol (get-motion-symbol contact-positions))
          (execute-p (execute-motion-symbol motion-symbol))
          (update-device-p (if execute-p (update-device-state motion-symbol))))
