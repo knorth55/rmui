@@ -30,7 +30,7 @@
         (larm-contact-state (car *device-contact-states*))
         (rarm-contact-state (cadr *device-contact-states*))
         (floor-contact-state (caddr *device-contact-states*)))
-    ;; TODO: add rotate conditions
+    ;; TODO(knorth55): add rotate conditions
     (if (equal arm :larm)
       (cond
         ((and (or (equal rarm-contact-state :released)
