@@ -37,7 +37,8 @@
     </rosparam>
   </node>
 
-  <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml" />
+  <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml"
+           unless="$(arg dummy)"/>
 
   <group if="$(arg gui)">
     <node name="$(anon rviz)" pkg="rviz" type="rviz"

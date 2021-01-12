@@ -7,6 +7,7 @@ from rmui_drivers import imu_utils
 from rmui_drivers import prx_utils
 
 from force_proximity_ros.msg import ProximityArray
+from geometry_msgs.msg import TransformStamped
 
 from rmui_msgs.msg import ImuCalibStatus
 
@@ -90,6 +91,17 @@ class DummyRMUI(object):
         calib_msg.header.frame_id = self.frame_id
         return calib_msg
 
+    def get_transform_stamped_msg(self):
+        msg = TransformStamped()
+        msg.header.stamp = rospy.Time.now()
+        msg.header.frame_id = 'world'
+        msg.child_frame_id = self.frame_id
+        msg.transform.rotation.x = self.q[0]
+        msg.transform.rotation.y = self.q[1]
+        msg.transform.rotation.z = self.q[2]
+        msg.transform.rotation.w = self.q[3]
+        return msg
+
     def contact_board(self, i):
         self.contact[i] = True
 
@@ -100,6 +112,7 @@ class DummyRMUI(object):
         r0 = Rotation.from_quat(self.q)
         r1 = Rotation.from_euler(axis, angle, degrees=True)
         self.q = (r1 * r0).as_quat()
+        rospy.loginfo('self.q: {}'.format(self.q))
 
     def reset_rotation(self):
         self.q = self.initial_q.copy()

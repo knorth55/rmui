@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import tf2_ros
 
 from rmui_drivers import DummyRMUI
 
@@ -35,6 +36,8 @@ class DummyRMUINode(object):
             '~output/proximities', ProximityArray, queue_size=1)
         self.timer = rospy.Timer(
             rospy.Duration(duration), self._timer_cb)
+        self.broadcaster = tf2_ros.TransformBroadcaster()
+
         # contact
         self.contact_services = []
         for i in range(self.n_board):
@@ -46,12 +49,12 @@ class DummyRMUINode(object):
             '~contact_reset', Empty, self._contact_reset_service_cb)
         # rotation
         self.rotate_services = []
-        for axis in ['x', 'y', 'z']:
+        for axis in ['X', 'Y', 'Z']:
             for direction in ['cw', 'ccw']:
                 self.rotate_services.append(
                     rospy.Service(
-                        '~{}_axis/rotate_{}90'.format(axis, direction), Empty,
-                        self._get_rotate_service_cb(axis, direction)))
+                        '~{}_axis/rotate_{}90'.format(axis.lower(), direction),
+                        Empty, self._get_rotate_service_cb(axis, direction)))
         self.rotate_reset_service = rospy.Service(
             '~rotate_reset', Empty, self._rotate_reset_service_cb)
         rospy.loginfo('dummy rmui node initialized')
@@ -62,9 +65,11 @@ class DummyRMUINode(object):
         imu_msg = self.device.get_imu_msg()
         prx_msg = self.device.get_proximity_array_msg()
         calib_msg = self.device.get_imu_calib_msg()
+        transform_stamped_msg = self.device.get_transform_stamped_msg()
         self.pub_imu.publish(imu_msg)
         self.pub_prx.publish(prx_msg)
         self.pub_imu_calib.publish(calib_msg)
+        self.broadcaster.sendTransform(transform_stamped_msg)
 
     def _get_contact_service_cb(self, i):
         def _contact_cb(req):
