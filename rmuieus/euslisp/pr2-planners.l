@@ -6,8 +6,8 @@
 
 ;; init
 
-(defun planner-init ()
-  (motion-init))
+(defun planner-init (&key (cube-pos-y 0))
+  (motion-init :cube-pos-y cube-pos-y))
 
 
 ;; motion planners

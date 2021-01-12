@@ -7,8 +7,8 @@
 
 ;; init
 
-(defun motion-init ()
-  (scene-init)
+(defun motion-init (&key (cube-pos-y 0))
+  (scene-init :cube-pos-y cube-pos-y)
   (add-cube-coords)
   (reset-motion))
 
