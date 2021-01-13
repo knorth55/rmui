@@ -1,8 +1,8 @@
 ;; functions
 (defvar sqrt1/5 (sqrt 0.2))
-(defvar sqrt2/5 (* 2.0 sqrt1/5))
+(defvar sqrt4/5 (* 2.0 sqrt1/5))
 (defvar -sqrt1/5 (* -1.0 sqrt1/5))
-(defvar -sqrt2/5 (* -1.0 sqrt2/5))
+(defvar -sqrt4/5 (* -1.0 sqrt4/5))
 
 
 (defvar *prx-positions*
@@ -48,40 +48,40 @@
 (defvar *prx-vectors*
   (list
     ;; board bottom
-    (float-vector sqrt1/5 0.0 -sqrt2/5)
-    (float-vector 0.0 sqrt1/5 -sqrt2/5)
-    (float-vector -sqrt1/5 0.0 -sqrt2/5)
-    (float-vector 0.0 -sqrt1/5 -sqrt2/5)
+    (float-vector sqrt1/5 0.0 -sqrt4/5)
+    (float-vector 0.0 sqrt1/5 -sqrt4/5)
+    (float-vector -sqrt1/5 0.0 -sqrt4/5)
+    (float-vector 0.0 -sqrt1/5 -sqrt4/5)
     (float-vector 0.0 0.0 -1.0)
     ;; board front
-    (float-vector sqrt2/5 sqrt1/5 0.0)
-    (float-vector sqrt2/5 0.0 -sqrt1/5)
-    (float-vector sqrt2/5 -sqrt1/5 0.0)
-    (float-vector sqrt2/5 0.0 sqrt1/5)
+    (float-vector sqrt4/5 sqrt1/5 0.0)
+    (float-vector sqrt4/5 0.0 -sqrt1/5)
+    (float-vector sqrt4/5 -sqrt1/5 0.0)
+    (float-vector sqrt4/5 0.0 sqrt1/5)
     (float-vector 1.0 0.0 0.0)
     ;; board left
-    (float-vector -sqrt1/5 sqrt2/5 0.0)
-    (float-vector 0.0 sqrt2/5 -sqrt1/5)
-    (float-vector sqrt1/5 sqrt2/5 0.0)
-    (float-vector 0.0 sqrt2/5 sqrt1/5)
+    (float-vector -sqrt1/5 sqrt4/5 0.0)
+    (float-vector 0.0 sqrt4/5 -sqrt1/5)
+    (float-vector sqrt1/5 sqrt4/5 0.0)
+    (float-vector 0.0 sqrt4/5 sqrt1/5)
     (float-vector 0.0 1.0 0.0)
     ;; board back
-    (float-vector -sqrt2/5 -sqrt1/5 0.0)
-    (float-vector -sqrt2/5 0.0 -sqrt1/5)
-    (float-vector -sqrt2/5 sqrt1/5 0.0)
-    (float-vector -sqrt2/5 0.0 sqrt1/5)
+    (float-vector -sqrt4/5 -sqrt1/5 0.0)
+    (float-vector -sqrt4/5 0.0 -sqrt1/5)
+    (float-vector -sqrt4/5 sqrt1/5 0.0)
+    (float-vector -sqrt4/5 0.0 sqrt1/5)
     (float-vector -1.0 0.0 0.0)
     ;; board right
-    (float-vector sqrt1/5 -sqrt2/5 0.0)
-    (float-vector 0.0 -sqrt2/5 -sqrt1/5)
-    (float-vector -sqrt1/5 -sqrt2/5 0.0)
-    (float-vector 0.0 -sqrt2/5 sqrt1/5)
+    (float-vector sqrt1/5 -sqrt4/5 0.0)
+    (float-vector 0.0 -sqrt4/5 -sqrt1/5)
+    (float-vector -sqrt1/5 -sqrt4/5 0.0)
+    (float-vector 0.0 -sqrt4/5 sqrt1/5)
     (float-vector 0.0 -1.0 0.0)
     ;; board top
-    (float-vector sqrt1/5 0.0 sqrt2/5)
-    (float-vector 0.0 -sqrt1/5 sqrt2/5)
-    (float-vector -sqrt1/5 0.0 sqrt2/5)
-    (float-vector 0.0 sqrt1/5 sqrt2/5)
+    (float-vector sqrt1/5 0.0 sqrt4/5)
+    (float-vector 0.0 -sqrt1/5 sqrt4/5)
+    (float-vector -sqrt1/5 0.0 sqrt4/5)
+    (float-vector 0.0 sqrt1/5 sqrt4/5)
     (float-vector 0.0 0.0 1.0)))
 
 
