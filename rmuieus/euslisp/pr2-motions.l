@@ -594,6 +594,60 @@
     push-holded))
 
 
+;; push-move-motion
+
+(defun push-move-motion
+  (arm &key (push-axis :y)
+            (move-distance 200.0)
+            (move-robot t)
+            (tm 5000)
+            (use-torso 0.001))
+  (let ((av)
+        (prev-av (send *pr2* :angle-vector))
+        (prev-cube-coords (send *cube* :copy-worldcoords))
+        (cube-move-vector
+          (cond ((eq push-axis :x) (float-vector move-distance 0 0))
+                ((eq push-axis :y) (float-vector 0 move-distance 0))
+                ((eq push-axis :z) (float-vector 0 0 move-distance))
+                (t (float-vector 0 0 0)))))
+    (send *cube* :translate cube-move-vector :world)
+    (setq av (send *pr2* arm :inverse-kinematics
+                   (if (eq arm :larm)
+                     (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                           :copy-worldcoords)
+                     (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                           :copy-worldcoords))
+                   :rotation-axis t
+                   :move-target
+                   (if (eq arm :larm)
+                     (send *pr2* :larm :end-coords)
+                     (send *pr2* :rarm :end-coords))
+                   :use-torso use-torso))
+    (unless av
+      (setq av (send *pr2* arm :inverse-kinematics
+                     (if (eq arm :larm)
+                       (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                             :copy-worldcoords)
+                       (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                             :copy-worldcoords))
+                     :rotation-axis t
+                     :move-target
+                     (if (eq arm :larm)
+                       (send *pr2* :larm :end-coords)
+                       (send *pr2* :rarm :end-coords))
+                     :use-torso use-torso)))
+    (if av
+      (when move-robot
+        (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
+        (send *ri* :wait-interpolation))
+      (progn
+        (send *pr2* :angle-vector prev-av)
+        (send *cube* :newcoords prev-cube-coords)
+        (send *cube* :worldcoords)))
+    (send *irtviewer* :draw-objects)
+    (when av (list (list av) (list tm)))))
+
+
 ;; support hold motion
 
 (defun support-hold-motion
