@@ -13,7 +13,7 @@
 
 ;; functions
 
-(setq *device-contact-states* (list :released :released :bottom-contact))
+(setq *object-contact-states* (list :released :released :bottom-contact))
 (setq *motion-symbol-queue* (list nil nil))
 
 
@@ -27,9 +27,9 @@
 
 (defun get-motion-symbol (arm contact-positions)
   (let ((contact-surfaces (mapcar #'car contact-positions))
-        (larm-contact-state (car *device-contact-states*))
-        (rarm-contact-state (cadr *device-contact-states*))
-        (floor-contact-state (caddr *device-contact-states*)))
+        (larm-contact-state (car *object-contact-states*))
+        (rarm-contact-state (cadr *object-contact-states*))
+        (floor-contact-state (caddr *object-contact-states*)))
     ;; TODO(knorth55): add rotate conditions
     (if (equal arm :larm)
       (cond
@@ -143,9 +143,9 @@
         (rarm-motion-symbol-queue (cadr *motion-symbol-queue*))
         (larm-motion-symbol (car motion-symbols))
         (rarm-motion-symbol (cadr motion-symbols))
-        (larm-contact-state (car *device-contact-states*))
-        (rarm-contact-state (cadr *device-contact-states*))
-        (floor-contact-state (caddr *device-contact-states*))
+        (larm-contact-state (car *object-contact-states*))
+        (rarm-contact-state (cadr *object-contact-states*))
+        (floor-contact-state (caddr *object-contact-states*))
         larm-execute-p rarm-execute-p)
     (setq larm-motion-symbol-queue
           (append
@@ -280,13 +280,13 @@
             (t nil)))))))
 
 
-(defun update-device-contact-state (motion-symbols)
-  (unless motion-symbols (return-from update-device-contact-state nil))
+(defun update-object-contact-state (motion-symbols)
+  (unless motion-symbols (return-from update-object-contact-state nil))
   (let ((larm-motion-symbol (car motion-symbols))
         (rarm-motion-symbol (cadr motion-symbols))
-        (larm-contact-state (car *device-contact-states*))
-        (rarm-contact-state (cadr *device-contact-states*))
-        (floor-contact-state (caddr *device-contact-states*)))
+        (larm-contact-state (car *object-contact-states*))
+        (rarm-contact-state (cadr *object-contact-states*))
+        (floor-contact-state (caddr *object-contact-states*)))
     (setq larm-contact-state
         (cond
           ((and (equal larm-motion-symbol :left-push)
@@ -330,7 +330,7 @@
                   (equal rarm-motion-symbol :push-hold-down))
              :bottom-contact)
             (t floor-contact-state)))
-    (setq *device-contact-states*
+    (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))))
 
 
