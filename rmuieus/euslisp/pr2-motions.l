@@ -81,8 +81,8 @@
            (make-cascoords :name :top-cube-coords
                            :coords (send (send cube-coords :copy-worldcoords) :translate
                                          (float-vector 0 0 (/ cube-height 2.0)) :world)))
-         (bottum-cube-coords
-           (make-cascoords :name :bottum-cube-coords
+         (bottom-cube-coords
+           (make-cascoords :name :bottom-cube-coords
                            :coords (send (send cube-coords :copy-worldcoords) :translate
                                          (float-vector 0 0 (/ cube-height -2.0)) :world))))
     (send *cube* :assoc front-cube-coords)
@@ -90,13 +90,13 @@
     (send *cube* :assoc left-cube-coords)
     (send *cube* :assoc right-cube-coords)
     (send *cube* :assoc top-cube-coords)
-    (send *cube* :assoc bottum-cube-coords)
+    (send *cube* :assoc bottom-cube-coords)
     (send *cube* :put :front-cube-coords front-cube-coords)
     (send *cube* :put :back-cube-coords back-cube-coords)
     (send *cube* :put :left-cube-coords left-cube-coords)
     (send *cube* :put :right-cube-coords right-cube-coords)
     (send *cube* :put :top-cube-coords top-cube-coords)
-    (send *cube* :put :bottum-cube-coords bottum-cube-coords)))
+    (send *cube* :put :bottom-cube-coords bottom-cube-coords)))
 
 
 (defun get-cube-length (axis)
@@ -106,7 +106,7 @@
                  (send (send *cube* :get :left-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :right-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :top-cube-coords) :copy-worldcoords)
-                 (send (send *cube* :get :bottum-cube-coords) :copy-worldcoords)))
+                 (send (send *cube* :get :bottom-cube-coords) :copy-worldcoords)))
          (cube-pos-list
            (mapcar #'(lambda (c)
                        (elt (send c :worldpos)
@@ -127,18 +127,18 @@
                  (send (send *cube* :get :left-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :right-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :top-cube-coords) :copy-worldcoords)
-                 (send (send *cube* :get :bottum-cube-coords) :copy-worldcoords)))
+                 (send (send *cube* :get :bottom-cube-coords) :copy-worldcoords)))
          (cube-pos-list
            (mapcar #'(lambda (c)
                        (elt (send c :worldpos)
                             (cond ((or (eq direction :front) (eq direction :back)) 0)
                                   ((or (eq direction :left) (eq direction :right)) 1)
-                                  ((or (eq direction :top) (eq direction :bottum)) 2)
+                                  ((or (eq direction :top) (eq direction :bottom)) 2)
                                   (t nil))))
                    cube-coords))
          (eval-func
            (cond ((or (eq direction :front) (eq direction :left) (eq direction :top)) #'max)
-                 ((or (eq direction :back) (eq direction :right) (eq direction :bottum)) #'min)
+                 ((or (eq direction :back) (eq direction :right) (eq direction :bottom)) #'min)
                  (t nil)))
          (eval-value (reduce eval-func cube-pos-list))
          (coords-index (position-if #'(lambda (x) (eq x eval-value)) cube-pos-list)))
@@ -150,7 +150,7 @@
 (defun get-left-cube-coords () (get-cube-coords :left))
 (defun get-right-cube-coords () (get-cube-coords :right))
 (defun get-top-cube-coords () (get-cube-coords :top))
-(defun get-bottum-cube-coords () (get-cube-coords :bottum))
+(defun get-bottom-cube-coords () (get-cube-coords :bottom))
 
 
 ;; motions
@@ -184,7 +184,7 @@
                                         (and (eq arm :rarm) (eq approach-direction :right)))
                                     (or (eq push-position :top)
                                         (eq push-position :center)
-                                        (eq push-position :bottum)))
+                                        (eq push-position :bottom)))
                                (and (eq approach-direction :top)
                                     (or (eq push-position :left)
                                         (eq push-position :center)
@@ -195,14 +195,14 @@
                            (or (and (eq approach-direction :back)
                                     (or (eq push-position :top)
                                         (eq push-position :center)
-                                        (eq push-position :bottum)))
+                                        (eq push-position :bottom)))
                                (and (eq approach-direction :top)
                                     (or (eq push-position :front)
                                         (eq push-position :center)
                                         (eq push-position :back)))))))
             (and (eq push-axis :z)
                  (not (and (or (eq push-direction :top)
-                               (eq push-direction :bottum))
+                               (eq push-direction :bottom))
                            (or (and (eq approach-direction :back)
                                     (or (eq push-position :left)
                                         (eq push-position :center)
@@ -235,7 +235,7 @@
             (let ((y-offset (* (if (eq arm :larm) -1.0 1.0) hold-offset))
                   (z-offset (cond ((eq push-position :center) 0.0)
                                   ((eq push-position :top) (- (/ cube-height 2.0) 50))
-                                  ((eq push-position :bottum) (- 50 (/ cube-height 2.0))))))
+                                  ((eq push-position :bottom) (- 50 (/ cube-height 2.0))))))
               (send target-coords :translate (float-vector x-offset y-offset z-offset))
               (send target-coords :rotate (if (eq push-direction :front) -pi/2 pi/2) :y)
               (send target-coords :rotate (if (eq arm :larm) -pi/2 pi/2) :z)))
@@ -261,7 +261,7 @@
                   (z-offset (cond ((eq push-position :center) 0.0)
                                   ((eq push-position :top)
                                    (- (/ cube-height 2.0) 50))
-                                  ((eq push-position :bottum)
+                                  ((eq push-position :bottom)
                                    (- 50 (/ cube-height 2.0))))))
               (send target-coords :translate (float-vector x-offset y-offset z-offset))
               (send target-coords :rotate (if (eq push-direction :left) pi/2 -pi/2) :x)))
@@ -570,7 +570,7 @@
                  (if (eq front-arm :larm) (list :front :back) (list :back :front)))
                 ((eq push-axis :y) (list :left :right))
                 ((eq push-axis :z)
-                 (if (eq top-arm :larm) (list :top :bottum) (list :top :bottum)))))
+                 (if (eq top-arm :larm) (list :top :bottom) (list :top :bottom)))))
         (approach-directions
           (cond ((eq approach-direction :side) (list :left :right))
                 (t (list approach-direction approach-direction))))
@@ -713,13 +713,13 @@
                   (if switch
                     (list :back :back)
                     (if (or (eq (car push-directions) :top)
-                            (eq (car push-directions) :bottum))
+                            (eq (car push-directions) :bottom))
                       (list :left :back) (list :back :right))))
                  ((and (eq support-axis :y) (eq approach-direction :side))
                   (if switch
                     (list :left :right)
                     (if (or (eq (car push-directions) :top)
-                            (eq (car push-directions) :bottum))
+                            (eq (car push-directions) :bottom))
                       (list :left :top) (list :top :right))))
                  (t (list approach-direction approach-direction))))
          support-holded)
