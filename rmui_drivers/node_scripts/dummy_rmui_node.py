@@ -51,10 +51,14 @@ class DummyRMUINode(object):
         self.rotate_services = []
         for axis in ['X', 'Y', 'Z']:
             for direction in ['cw', 'ccw']:
-                self.rotate_services.append(
-                    rospy.Service(
-                        '~{}_axis/rotate_{}90'.format(axis.lower(), direction),
-                        Empty, self._get_rotate_service_cb(axis, direction)))
+                for angle in [45, 90]:
+                    self.rotate_services.append(
+                        rospy.Service(
+                            '~{}_axis/rotate_{}{}'.format(
+                                axis.lower(), direction, angle),
+                            Empty,
+                            self._get_rotate_service_cb(
+                                axis, direction, angle)))
         self.rotate_reset_service = rospy.Service(
             '~rotate_reset', Empty, self._rotate_reset_service_cb)
         rospy.loginfo('dummy rmui node initialized')
@@ -91,16 +95,16 @@ class DummyRMUINode(object):
             self.device.release_board(i)
         return EmptyResponse()
 
-    def _get_rotate_service_cb(self, axis, direction):
+    def _get_rotate_service_cb(self, axis, direction, angle):
         def _rotate_cb(req):
-            return self._rotate_service_cb(req, axis, direction)
+            return self._rotate_service_cb(req, axis, direction, angle)
         return _rotate_cb
 
-    def _rotate_service_cb(self, req, axis, direction):
+    def _rotate_service_cb(self, req, axis, direction, angle):
         if direction == 'ccw':
-            angle = 90
+            angle = angle
         elif direction == 'cw':
-            angle = -90
+            angle = -1 * angle
         else:
             rospy.logerr('Unsupported direction: {}'.format(direction))
         rospy.loginfo(
