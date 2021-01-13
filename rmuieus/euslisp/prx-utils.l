@@ -85,10 +85,6 @@
     (float-vector 0.0 0.0 1.0)))
 
 
-(defvar *cube-prx-vectors*
-  (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
-
-
 (defvar *device-prx-vectors*
   (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-vectors*))
 
@@ -101,21 +97,6 @@
     (when (every #'null diff-p) (return-from get-prx-position nil))
     (elt *prx-positions* (position t diff-p))))
 
-
-(defun update-cube-prx-vectors ()
-  (unless (boundp '*cube*) (return-from update-cube-prx-vectors nil))
-  (let ((cube-rot (send *cube* :copy-rot)))
-    (setq *cube-prx-vectors*
-          (mapcar #'(lambda (prx-v) (let ((v (copy-seq prx-v))) (transform cube-rot v)))
-                  *prx-vectors*))
-    t))
-
-
-(defun get-cube-prx-positions (prx-position-threshold)
-  (when (update-cube-prx-vectors)
-    (mapcar #'(lambda (prx-v)
-                (get-prx-position prx-v prx-position-threshold))
-            *cube-prx-vectors*)))
 
 (defun update-device-prx-vectors ()
   (unless (boundp '*device*) (return-from update-device-prx-vectors nil))
