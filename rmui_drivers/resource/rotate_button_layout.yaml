@@ -1,17 +1,35 @@
 - name: 'Rotate 90 in X axis'
   service: '/rmui0/rmui_node/x_axis/rotate_ccw90'
   column: 0
+- name: 'Rotate 45 in X axis'
+  service: '/rmui0/rmui_node/x_axis/rotate_ccw45'
+  column: 0
+- name: 'Rotate -45 in X axis'
+  service: '/rmui0/rmui_node/x_axis/rotate_cw45'
+  column: 0
 - name: 'Rotate -90 in X axis'
   service: '/rmui0/rmui_node/x_axis/rotate_cw90'
   column: 0
 - name: 'Rotate 90 in Y axis'
   service: '/rmui0/rmui_node/y_axis/rotate_ccw90'
   column: 1
+- name: 'Rotate 45 in Y axis'
+  service: '/rmui0/rmui_node/y_axis/rotate_ccw45'
+  column: 1
+- name: 'Rotate -45 in Y axis'
+  service: '/rmui0/rmui_node/y_axis/rotate_cw45'
+  column: 1
 - name: 'Rotate -90 in Y axis'
   service: '/rmui0/rmui_node/y_axis/rotate_cw90'
   column: 1
 - name: 'Rotate 90 in Z axis'
   service: '/rmui0/rmui_node/z_axis/rotate_ccw90'
+  column: 2
+- name: 'Rotate 45 in Z axis'
+  service: '/rmui0/rmui_node/z_axis/rotate_ccw45'
+  column: 2
+- name: 'Rotate -45 in Z axis'
+  service: '/rmui0/rmui_node/z_axis/rotate_cw45'
   column: 2
 - name: 'Rotate -90 in Z axis'
   service: '/rmui0/rmui_node/z_axis/rotate_cw90'
