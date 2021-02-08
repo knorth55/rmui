@@ -19,6 +19,8 @@
          (motion-symbols (get-motion-symbols contact-positions))
          (execute-symbols (execute-motion-symbols motion-symbols))
          (update-object-p (update-object-contact-state execute-symbols)))
+    (send *irtviewer* :draw-objects)
+    (send *ri* :draw-objects)
     (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
     (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
     (ros::ros-info (format nil "object-contact-states : ~A" *object-contact-states*))))
