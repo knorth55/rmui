@@ -163,7 +163,7 @@
     (when (dualarm-push-rotate :rotate-angle rotate-angle :rotate-axis rotate-axis
                                :front-arm front-arm :hold-type hold-type
                                :move-robot move-robot :use-torso use-torso)
-      :switch-rotate))
+      (return-from dualarm-switch-rotate :switch-rotate)))
   (let* ((cube-height (get-cube-height))
          (cube-width (get-cube-width))
          (cube-depth (get-cube-depth))
