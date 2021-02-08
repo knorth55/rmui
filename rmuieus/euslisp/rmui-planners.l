@@ -285,6 +285,7 @@
         (rarm-contact-state (cadr *object-contact-states*))
         (floor-contact-state (caddr *object-contact-states*))
         larm-execute-p rarm-execute-p)
+    ;; check motion symbol queue
     (setq larm-motion-symbol-queue
           (append
             (if (>= (length larm-motion-symbol-queue) *motion-symbol-length*)
@@ -305,6 +306,7 @@
     (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
     (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
 
+    ;; execute motion symbols
     (if (or larm-motion-symbol rarm-motion-symbol)
       (progn
         (if (equal larm-motion-symbol rarm-motion-symbol)
