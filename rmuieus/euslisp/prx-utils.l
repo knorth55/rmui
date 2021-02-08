@@ -246,13 +246,16 @@
   (let* ((device-center-vectors (list (elt *device-prx-vectors* 4) (elt *device-prx-vectors* 9)
                                       (elt *device-prx-vectors* 14) (elt *device-prx-vectors* 19)
                                       (elt *device-prx-vectors* 24) (elt *device-prx-vectors* 29)))
-         (diff-x-vs (mapcar #'(lambda (v) (norm (v- (float-vector 1.0 0 0) v))) device-center-vectors))
+         (diff-x-vs
+           (mapcar #'(lambda (v) (norm (v- (float-vector 1.0 0 0) v))) device-center-vectors))
          (diff-x-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-x-vs))
          (x-p (not (every #'null diff-x-p)))
-         (diff-y-vs (mapcar #'(lambda (v) (norm (v- (float-vector 0 1.0 0) v))) device-center-vectors))
+         (diff-y-vs
+           (mapcar #'(lambda (v) (norm (v- (float-vector 0 1.0 0) v))) device-center-vectors))
          (diff-y-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-y-vs))
          (y-p (not (every #'null diff-y-p)))
-         (diff-z-vs (mapcar #'(lambda (v) (norm (v- (float-vector 0 0 1.0) v))) device-center-vectors))
+         (diff-z-vs
+           (mapcar #'(lambda (v) (norm (v- (float-vector 0 0 1.0) v))) device-center-vectors))
          (diff-z-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-z-vs))
          (z-p (not (every #'null diff-z-p))))
     (cond
