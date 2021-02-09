@@ -237,13 +237,13 @@
          (support-rotated
            (when support-holded
              (support-rotate-motion :rotate-angle support-rotate-angle
-                                                       :initial-rotate-angle push-rotate-angle
-                                                       :rotate-axis rotate-axis
-                                                       :move-robot nil
-                                                       :use-torso use-torso
-                                                       :cube-height cube-height
-                                                       :cube-width cube-width
-                                                       :cube-depth cube-depth)))
+                                    :initial-rotate-angle push-rotate-angle
+                                    :rotate-axis rotate-axis
+                                    :move-robot nil
+                                    :use-torso use-torso
+                                    :cube-height cube-height
+                                    :cube-width cube-width
+                                    :cube-depth cube-depth)))
          (support-released
            (when support-rotated (hold-release-motion :arm :arms
                                                       :move-robot nil
