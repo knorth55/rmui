@@ -891,7 +891,10 @@
                  (t nil)))
          (initial-angle
            (+ initial-rotate-angle
-              (* (if (> rotate-angle 0) 1.0 -1.0)
+              (* (cond ((equal initial-rotate-angle 0)
+                        (if (> rotate-angle 0) 1.0 -1.0))
+                       ((> initial-rotate-angle 0) 1.0)
+                       (t -1.0))
                  (cond ((eq rotate-axis :x) (atan (/ cube-height cube-width)))
                        ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
                        (t 0)))))
