@@ -848,7 +848,8 @@
            (- prev-z *table-z*)))
        ((eq rotate-axis :y)
         (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))))
+           (- prev-z *table-z*)))
+       (t nil)))
     ((eq rotate-type :support)
      (cond
        ((eq rotate-axis :x)
@@ -856,7 +857,8 @@
            (- prev-z *table-z*)))
        ((eq rotate-axis :y)
         (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))))
+           (- prev-z *table-z*)))
+       (t nil)))
     (t nil)))
 
 
