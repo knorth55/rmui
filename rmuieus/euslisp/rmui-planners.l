@@ -63,6 +63,18 @@
                      (find :top contact-surfaces)
                      (find :bottom contact-surfaces))
                 :top-push)
+               ((and (equal larm-contact-state :released)
+                     (null (equal rarm-contact-state :front-left-contact))
+                     (equal floor-contact-state :bottom-contact)
+                     (find :front-left contact-surfaces)
+                     (find :bottom contact-surfaces))
+                :front-left-push)
+               ((and (equal larm-contact-state :released)
+                     (null (equal rarm-contact-state :back-left-contact))
+                     (equal floor-contact-state :bottom-contact)
+                     (find :back-left contact-surfaces)
+                     (find :bottom contact-surfaces))
+                :back-left-push)
                ((or (and (equal larm-contact-state :left-contact)
                          (equal floor-contact-state :bottom-contact)
                          (null (or (find :left contact-surfaces)
@@ -133,6 +145,18 @@
                      (find :top contact-surfaces)
                      (find :bottom contact-surfaces))
                 :top-push)
+               ((and (equal rarm-contact-state :released)
+                     (null (equal larm-contact-state :front-right-contact))
+                     (equal floor-contact-state :bottom-contact)
+                     (find :front-right contact-surfaces)
+                     (find :bottom contact-surfaces))
+                :front-right-push)
+               ((and (equal rarm-contact-state :released)
+                     (null (equal larm-contact-state :back-right-contact))
+                     (equal floor-contact-state :bottom-contact)
+                     (find :back-right contact-surfaces)
+                     (find :bottom contact-surfaces))
+                :back-right-push)
                ((or (and (equal rarm-contact-state :right-contact)
                          (equal floor-contact-state :bottom-contact)
                          (null (or (find :right contact-surfaces)
@@ -294,7 +318,6 @@
     (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
     (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
     (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
-
     ;; execute motion symbols
     (if (or larm-motion-symbol rarm-motion-symbol)
       (progn
@@ -393,6 +416,30 @@
                           :approach-directions (list :left)
                           :approach-arm :larm)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
+            ((equal larm-motion-symbol :front-left-push)
+             (push-motion :larm :move-robot move-robot :use-torso use-torso
+                          :push-axes (list :y)
+                          :push-positions (list :center)
+                          :push-directions (list :left)
+                          :approach-directions (list :back)
+                          :cube-height *cube-height*
+                          :cube-width *cube-width*
+                          :cube-depth *cube-depth*
+                          :cube-rpy (float-vector (/ -pi 4.0) 0 0)
+                          :approach-arm :larm)
+             (return-from execute-motion-symbols (list larm-motion-symbol nil)))
+            ((equal larm-motion-symbol :back-left-push)
+             (push-motion :larm :move-robot move-robot :use-torso use-torso
+                          :push-axes (list :y)
+                          :push-positions (list :center)
+                          :push-directions (list :left)
+                          :approach-directions (list :back)
+                          :cube-height *cube-height*
+                          :cube-width *cube-width*
+                          :cube-depth *cube-depth*
+                          :cube-rpy (float-vector (/ pi 4.0) 0 0)
+                          :approach-arm :larm)
+             (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :push-release)
              (push-release-motion :larm :move-robot move-robot :use-torso use-torso)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
@@ -431,6 +478,30 @@
                           :approach-directions (list :right)
                           :approach-arm :rarm)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
+            ((equal rarm-motion-symbol :front-right-push)
+             (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                          :push-axes (list :y)
+                          :push-positions (list :center)
+                          :push-directions (list :right)
+                          :approach-directions (list :back)
+                          :cube-height *cube-height*
+                          :cube-width *cube-width*
+                          :cube-depth *cube-depth*
+                          :cube-rpy (float-vector (/ pi 4.0) 0 0)
+                          :approach-arm :rarm)
+             (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
+            ((equal rarm-motion-symbol :back-right-push)
+             (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                          :push-axes (list :y)
+                          :push-positions (list :center)
+                          :push-directions (list :right)
+                          :approach-directions (list :back)
+                          :cube-height *cube-height*
+                          :cube-width *cube-width*
+                          :cube-depth *cube-depth*
+                          :cube-rpy (float-vector (/ -pi 4.0) 0 0)
+                          :approach-arm :rarm)
+             (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :push-release)
              (push-release-motion :rarm :move-robot move-robot :use-torso use-torso)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
@@ -466,6 +537,12 @@
           ((and (equal larm-motion-symbol :top-push)
                 (equal larm-contact-state :released))
            :top-contact)
+          ((and (equal larm-motion-symbol :front-left-push)
+                (equal larm-contact-state :released))
+           :front-left-contact)
+          ((and (equal larm-motion-symbol :back-left-push)
+                (equal larm-contact-state :released))
+           :back-left-contact)
           ((and (equal larm-motion-symbol :push-rotate-ccw-x45)
                 (equal larm-contact-state :left-contact))
            :top-left-contact)
@@ -510,6 +587,12 @@
           ((and (equal rarm-motion-symbol :top-push)
                 (equal rarm-contact-state :released))
            :top-contact)
+          ((and (equal rarm-motion-symbol :front-right-push)
+                (equal rarm-contact-state :released))
+           :front-right-contact)
+          ((and (equal rarm-motion-symbol :back-right-push)
+                (equal rarm-contact-state :released))
+           :back-right-contact)
           ((and (equal rarm-motion-symbol :push-rotate-ccw-x45)
                 (equal rarm-contact-state :right-contact))
            :bottom-right-contact)
