@@ -228,9 +228,12 @@
                                   :switch t
                                   :use-torso use-torso
                                   :cube-rpy
-                                  (cond ((eq rotate-axis :x) (float-vector 0 0 push-rotate-angle))
-                                        ((eq rotate-axis :y) (float-vector 0 push-rotate-angle 0))
-                                        (t (float-vector 0 0 0)))
+                                  (cond
+                                    ((eq rotate-axis :x)
+                                     (float-vector 0 0 push-rotate-angle))
+                                    ((eq rotate-axis :y)
+                                     (float-vector 0 push-rotate-angle 0))
+                                    (t (float-vector 0 0 0)))
                                   :cube-height cube-height
                                   :cube-width cube-width
                                   :cube-depth cube-depth)))
