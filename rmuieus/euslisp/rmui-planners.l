@@ -362,6 +362,7 @@
     (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
     (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
     (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
+
     ;; execute motion symbols
     (if (or larm-motion-symbol rarm-motion-symbol)
       (progn
@@ -379,7 +380,7 @@
              (hold-lift-down-motion :move-robot move-robot :use-torso use-torso)
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
-            ;; push rotate x45
+            ;; push rotate ccw x45
             ((and (equal larm-motion-symbol :push-rotate-ccw-x45)
                   (equal rarm-motion-symbol :push-rotate-ccw-x45))
              (assoc-cube :arms)
@@ -395,6 +396,7 @@
                                  :use-torso use-torso)
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
+            ;; push rotate cw x45
             ((and (equal larm-motion-symbol :push-rotate-cw-x45)
                   (equal rarm-motion-symbol :push-rotate-cw-x45))
              (assoc-cube :arms)
@@ -410,7 +412,7 @@
                                  :use-torso use-torso)
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
-            ;; push rotate z45
+            ;; push rotate ccw z45
             ((and (equal larm-motion-symbol :push-rotate-ccw-z45)
                   (equal rarm-motion-symbol :push-rotate-ccw-z45))
              (assoc-cube :arms)
@@ -418,6 +420,7 @@
                                  :move-robot move-robot :use-torso use-torso)
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
+            ;; push rotate cw z45
             ((and (equal larm-motion-symbol :push-rotate-cw-z45)
                   (equal rarm-motion-symbol :push-rotate-cw-z45))
              (assoc-cube :arms)
@@ -461,52 +464,68 @@
                           :approach-arm :larm)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :top-left-push)
-             (push-motion :larm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :left)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector 0 0 (/ pi 4.0))
-                          :approach-arm :larm)
+             (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :larm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :left)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :larm))
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :bottom-left-push)
-             (push-motion :larm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :left)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector 0 0 (/ -pi 4.0))
-                          :approach-arm :larm)
+             (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :larm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :left)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :larm))
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :front-left-push)
-             (push-motion :larm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :left)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector (/ -pi 4.0) 0 0)
-                          :approach-arm :larm)
+             (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :larm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :left)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :larm))
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :back-left-push)
-             (push-motion :larm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :left)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector (/ pi 4.0) 0 0)
-                          :approach-arm :larm)
+             (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :larm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :left)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :larm))
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :push-release)
              (push-release-motion :larm :move-robot move-robot :use-torso use-torso)
@@ -547,52 +566,68 @@
                           :approach-arm :rarm)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :top-right-push)
-             (push-motion :rarm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :right)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector 0 0 (/ -pi 4.0))
-                          :approach-arm :rarm)
+             (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :right)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :rarm))
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :bottom-right-push)
-             (push-motion :rarm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :right)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector 0 0 (/ pi 4.0))
-                          :approach-arm :rarm)
+             (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :right)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :rarm))
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :front-right-push)
-             (push-motion :rarm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :right)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector (/ pi 4.0) 0 0)
-                          :approach-arm :rarm)
+             (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :right)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :rarm))
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :back-right-push)
-             (push-motion :rarm :move-robot move-robot :use-torso use-torso
-                          :push-axes (list :y)
-                          :push-positions (list :center)
-                          :push-directions (list :right)
-                          :approach-directions (list :back)
-                          :cube-height *cube-height*
-                          :cube-width *cube-width*
-                          :cube-depth *cube-depth*
-                          :cube-rpy (float-vector (/ -pi 4.0) 0 0)
-                          :approach-arm :rarm)
+             (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-motion :rarm :move-robot move-robot :use-torso use-torso
+                            :push-axes (list :y)
+                            :push-positions (list :center)
+                            :push-directions (list :right)
+                            :approach-directions (list :back)
+                            :cube-height cube-height
+                            :cube-width cube-width
+                            :cube-depth cube-depth
+                            :cube-rpy cube-rpy
+                            :approach-arm :rarm))
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :push-release)
              (push-release-motion :rarm :move-robot move-robot :use-torso use-torso)
@@ -740,11 +775,21 @@
                            (equal rarm-motion-symbol :push-rotate-cw-x45))))
              :bottom-contact)
             (t floor-contact-state)))
-    (if (and (equal floor-contact-state :bottom-contact)
-             (or (and (equal larm-motion-symbol :push-rotate-ccw-x45)
-                      (equal rarm-motion-symbol :push-rotate-ccw-x45))
-                 (and (equal larm-motion-symbol :push-rotate-cw-x45)
-                      (equal rarm-motion-symbol :push-rotate-cw-x45))))
+    (if (or (and (equal floor-contact-state :bottom-contact)
+                 (or (and (equal larm-motion-symbol :push-rotate-ccw-x45)
+                          (equal rarm-motion-symbol :push-rotate-ccw-x45))
+                     (and (equal larm-motion-symbol :push-rotate-cw-x45)
+                          (equal rarm-motion-symbol :push-rotate-cw-x45))))
+            (and (or (and (equal larm-contact-state :left-contact)
+                          (equal rarm-contact-state :right-contact))
+                     (and (equal larm-contact-state :front-contact)
+                          (equal rarm-contact-state :back-contact))
+                     (and (equal larm-contact-state :back-contact)
+                          (equal rarm-contact-state :front-contact)))
+                 (or (and (equal larm-motion-symbol :push-rotate-ccw-z45)
+                          (equal rarm-motion-symbol :push-rotate-ccw-z45))
+                     (and (equal larm-motion-symbol :push-rotate-cw-z45)
+                          (equal rarm-motion-symbol :push-rotate-cw-z45)))))
       (progn
         (setq *cube-height* (get-cube-height))
         (setq *cube-width* (get-cube-width))

@@ -99,8 +99,10 @@
     (send *cube* :put :bottom-cube-coords bottom-cube-coords)))
 
 
-(defun get-cube-length (axis)
-  (let* ((cube-coords
+(defun get-cube-length (axis &key (cube-rpy (float-vector 0 0 0)))
+  (let* ((inverse-coords (send (make-coords :rpy cube-rpy) :inverse-transformation))
+         (cube-cpos (send (send *cube* :copy-worldcoords) :worldpos))
+         (cube-coords
            (list (send (send *cube* :get :front-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :back-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :left-cube-coords) :copy-worldcoords)
@@ -108,16 +110,20 @@
                  (send (send *cube* :get :top-cube-coords) :copy-worldcoords)
                  (send (send *cube* :get :bottom-cube-coords) :copy-worldcoords)))
          (cube-pos-list
-           (mapcar #'(lambda (c)
-                       (elt (send c :worldpos)
-                            (cond ((eq axis :x) 0) ((eq axis :y) 1) ((eq axis :z) 2) (t nil))))
-                   cube-coords)))
+           (mapcar
+             #'(lambda (c)
+                 (elt (send inverse-coords :rotate-vector (v- (send c :worldpos) cube-cpos))
+                      (cond ((eq axis :x) 0) ((eq axis :y) 1) ((eq axis :z) 2) (t nil))))
+             cube-coords)))
     (- (reduce #'max cube-pos-list) (reduce #'min cube-pos-list))))
 
 
-(defun get-cube-depth () (get-cube-length :x))
-(defun get-cube-width () (get-cube-length :y))
-(defun get-cube-height () (get-cube-length :z))
+(defun get-cube-depth (&key (cube-rpy (float-vector 0 0 0)))
+  (get-cube-length :x :cube-rpy cube-rpy))
+(defun get-cube-width (&key (cube-rpy (float-vector 0 0 0)))
+  (get-cube-length :y :cube-rpy cube-rpy))
+(defun get-cube-height (&key (cube-rpy (float-vector 0 0 0)))
+  (get-cube-length :z :cube-rpy cube-rpy))
 
 
 (defun get-cube-coords (direction)
