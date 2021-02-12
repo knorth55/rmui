@@ -243,9 +243,10 @@
 
 
 (defun select-prx-vectors-and-positions (prx-position-threshold)
-  (let* ((device-center-vectors (list (elt *device-prx-vectors* 4) (elt *device-prx-vectors* 9)
-                                      (elt *device-prx-vectors* 14) (elt *device-prx-vectors* 19)
-                                      (elt *device-prx-vectors* 24) (elt *device-prx-vectors* 29)))
+  (let* ((device-center-vectors
+           (list (elt *device-prx-vectors* 4) (elt *device-prx-vectors* 9)
+                 (elt *device-prx-vectors* 14) (elt *device-prx-vectors* 19)
+                 (elt *device-prx-vectors* 24) (elt *device-prx-vectors* 29)))
          (diff-x-vs
            (mapcar #'(lambda (v) (norm (v- (float-vector 1.0 0 0) v))) device-center-vectors))
          (diff-x-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-x-vs))
