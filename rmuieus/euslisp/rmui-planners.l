@@ -15,9 +15,6 @@
 
 (setq *object-contact-states* (list :released :released :bottom-contact))
 (setq *motion-symbol-queue* (list nil nil))
-(setq *cube-height* nil)
-(setq *cube-width* nil)
-(setq *cube-depth* nil)
 
 
 (defun get-motion-symbols (contact-positions)
@@ -29,9 +26,6 @@
 
 
 (defun get-motion-symbol (arm contact-positions)
-  (if (null *cube-height*) (setq *cube-height* (get-cube-height)))
-  (if (null *cube-width*) (setq *cube-width* (get-cube-width)))
-  (if (null *cube-depth*) (setq *cube-depth* (get-cube-depth)))
   (let ((contact-surfaces (mapcar #'car contact-positions))
         (larm-contact-state (car *object-contact-states*))
         (rarm-contact-state (cadr *object-contact-states*))
@@ -384,32 +378,42 @@
             ((and (equal larm-motion-symbol :push-rotate-ccw-x45)
                   (equal rarm-motion-symbol :push-rotate-ccw-x45))
              (assoc-cube :arms)
-             (push-rotate-motion :rotate-angle (/ pi 4.0) :rotate-axis :x
-                                 :initial-rotate-angle
-                                 (if (and (equal larm-contact-state :bottom-left-contact)
-                                          (equal rarm-contact-state :top-right-contact))
-                                   (/ -pi 4.0) 0)
-                                 :cube-height *cube-height*
-                                 :cube-width *cube-width*
-                                 :cube-depth *cube-depth*
-                                 :move-robot move-robot
-                                 :use-torso use-torso)
+             (let* ((initial-rotate-angle
+                      (if (and (equal larm-contact-state :bottom-left-contact)
+                               (equal rarm-contact-state :top-right-contact))
+                        (/ -pi 4.0) 0))
+                    (cube-rpy (float-vector 0 0 initial-rotate-angle))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-rotate-motion :rotate-angle (/ pi 4.0) :rotate-axis :x
+                                   :initial-rotate-angle initial-rotate-angle
+                                   :cube-height cube-height
+                                   :cube-width cube-width
+                                   :cube-depth cube-depth
+                                   :move-robot move-robot
+                                   :use-torso use-torso))
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
             ;; push rotate cw x45
             ((and (equal larm-motion-symbol :push-rotate-cw-x45)
                   (equal rarm-motion-symbol :push-rotate-cw-x45))
              (assoc-cube :arms)
-             (push-rotate-motion :rotate-angle (/ -pi 4.0) :rotate-axis :x
-                                 :initial-rotate-angle
-                                 (if (and (equal larm-contact-state :top-left-contact)
-                                          (equal rarm-contact-state :bottom-right-contact))
-                                   (/ pi 4.0) 0)
-                                 :cube-height *cube-height*
-                                 :cube-width *cube-width*
-                                 :cube-depth *cube-depth*
-                                 :move-robot move-robot
-                                 :use-torso use-torso)
+             (let* ((initial-rotate-angle
+                      (if (and (equal larm-contact-state :top-left-contact)
+                               (equal rarm-contact-state :bottom-right-contact))
+                        (/ pi 4.0) 0))
+                    (cube-rpy (float-vector 0 0 initial-rotate-angle))
+                    (cube-height (get-cube-height :cube-rpy cube-rpy))
+                    (cube-width (get-cube-width :cube-rpy cube-rpy))
+                    (cube-depth (get-cube-depth :cube-rpy cube-rpy)))
+               (push-rotate-motion :rotate-angle (/ -pi 4.0) :rotate-axis :x
+                                   :initial-rotate-angle initial-rotate-angle
+                                   :cube-height cube-height
+                                   :cube-width cube-width
+                                   :cube-depth cube-depth
+                                   :move-robot move-robot
+                                   :use-torso use-torso))
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
             ;; push rotate ccw z45
@@ -775,25 +779,6 @@
                            (equal rarm-motion-symbol :push-rotate-cw-x45))))
              :bottom-contact)
             (t floor-contact-state)))
-    (if (or (and (equal floor-contact-state :bottom-contact)
-                 (or (and (equal larm-motion-symbol :push-rotate-ccw-x45)
-                          (equal rarm-motion-symbol :push-rotate-ccw-x45))
-                     (and (equal larm-motion-symbol :push-rotate-cw-x45)
-                          (equal rarm-motion-symbol :push-rotate-cw-x45))))
-            (and (or (and (equal larm-contact-state :left-contact)
-                          (equal rarm-contact-state :right-contact))
-                     (and (equal larm-contact-state :front-contact)
-                          (equal rarm-contact-state :back-contact))
-                     (and (equal larm-contact-state :back-contact)
-                          (equal rarm-contact-state :front-contact)))
-                 (or (and (equal larm-motion-symbol :push-rotate-ccw-z45)
-                          (equal rarm-motion-symbol :push-rotate-ccw-z45))
-                     (and (equal larm-motion-symbol :push-rotate-cw-z45)
-                          (equal rarm-motion-symbol :push-rotate-cw-z45)))))
-      (progn
-        (setq *cube-height* (get-cube-height))
-        (setq *cube-width* (get-cube-width))
-        (setq *cube-depth* (get-cube-depth))))
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))))
 
