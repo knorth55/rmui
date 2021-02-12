@@ -836,7 +836,7 @@
 
 (defun get-rotate-height
   (&key (current-angle) (prev-z) (cube-norm-length)
-        (initial-angle 0)(rotate-axis :x) (rotate-type :push))
+        (initial-angle 0) (rotate-axis :x) (rotate-type :push))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from get-rotate-height nil))
