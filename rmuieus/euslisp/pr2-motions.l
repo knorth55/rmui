@@ -847,24 +847,10 @@
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from get-rotate-height nil))
   (cond
-    ((eq rotate-type :push)
-     (cond
-       ((eq rotate-axis :x)
-        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))
-       ((eq rotate-axis :y)
-        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))
-       (t nil)))
-    ((eq rotate-type :support)
-     (cond
-       ((eq rotate-axis :x)
-        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))
-       ((eq rotate-axis :y)
-        (- (* (sin (abs (+ initial-angle current-angle))) (/ cube-norm-length 2.0))
-           (- prev-z *table-z*)))
-       (t nil)))
+    ((or (eq rotate-axis :x) (eq rotate-axis :y))
+     (- (* (sin (abs (+ initial-angle current-angle)))
+           (/ cube-norm-length 2.0))
+        (- prev-z *table-z*)))
     (t nil)))
 
 
