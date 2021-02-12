@@ -256,8 +256,7 @@
                         (car support-holded) (car support-rotated) (car support-released))))
          (tms (when support-released
                 (append (cadr push-holded) (cadr push-rotated) (cadr push-released)
-                        (cadr support-holded) (cadr support-rotated) (cadr support-released))))
-         )
+                        (cadr support-holded) (cadr support-rotated) (cadr support-released)))))
     (when support-released
       (when move-robot
         (send *ri* :angle-vector-sequence (car push-holded) (cadr push-holded) nil 0)
