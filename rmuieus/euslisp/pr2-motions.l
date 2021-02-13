@@ -8,7 +8,11 @@
 (defmethod pr2-robot
   (:reset-cube-manip-pose ()
      (send self :angle-vector
-           (float-vector 300.0 67.6658 31.8042 104.672 -93.5934 -28.1234 -26.3438 -21.2123 -69.8193 29.4563 -101.944 -101.905 30.0165 -19.412 1.71896 0.0 50.0))))
+           (float-vector 300.0  ;; torso
+                         70 30 105 -95 -30 -25 -20  ;; larm
+                         -70 30 -105 -95 30 -25 20  ;; rarm
+                         0.0 50.0  ;; head
+                         ))))
 
 
 ;; init
@@ -1023,6 +1027,34 @@
 (defun reset-motion (&key (move-robot t) (tm 5000))
   (let ((av (send *pr2* :reset-cube-manip-pose)))
     (send *irtviewer* :draw-objects)
+    (when move-robot
+      (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
+      (send *ri* :wait-interpolation))
+    (list (list av) (list tm))))
+
+
+(defun reset-cube-manip-motion (arm &key (move-robot t) (tm 5000))
+  (let ((av (send *pr2* :angle-vector))
+        (reset-av (send *pr2* :reset-cube-manip-pose)))
+    (setq av
+          (cond
+            ((eq arm :arms)
+             (concatenate float-vector
+                          (subseq av 0 1)
+                          (subseq reset-av 1 15)
+                          (subseq av 15 17)))
+            ((eq arm :larm)
+             (concatenate float-vector
+                          (subseq av 0 1)
+                          (subseq reset-av 1 8)
+                          (subseq av 8 17)))
+            ((eq arm :rarm)
+             (concatenate float-vector
+                          (subseq av 0 8)
+                          (subseq reset-av 8 15)
+                          (subseq av 15 17)))
+            (t nil)))
+    (send *pr2* :angle-vector av)
     (when move-robot
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))

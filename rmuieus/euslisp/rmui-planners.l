@@ -600,6 +600,7 @@
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :push-release)
              (push-release-motion :larm :move-robot move-robot :use-torso use-torso)
+             (reset-cube-manip-motion :larm :move-robot move-robot)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             (t nil)))
         (if rarm-motion-symbol
@@ -702,6 +703,7 @@
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :push-release)
              (push-release-motion :rarm :move-robot move-robot :use-torso use-torso)
+             (reset-cube-manip-motion :rarm :move-robot move-robot)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             (t nil)))))))
 
