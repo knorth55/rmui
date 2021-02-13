@@ -5,6 +5,12 @@
 (require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
 
 
+(defmethod pr2-robot
+  (:reset-cube-manip-pose ()
+     (send self :angle-vector
+           (float-vector 300.0 67.6658 31.8042 104.672 -93.5934 -28.1234 -26.3438 -21.2123 -69.8193 29.4563 -101.944 -101.905 30.0165 -19.412 1.71896 0.0 50.0))))
+
+
 ;; init
 
 (defun motion-init (&key (cube-pos-y 0))
@@ -323,7 +329,7 @@
             (approach-directions (list :back))
             (hold-type :tight)
             (move-robot t)
-            (tm 5000)
+            (tm 3000)
             (use-torso 0.001)
             (cube-pos (send (send *cube* :copy-worldcoords) :worldpos))
             (cube-rpy (float-vector 0 0 0))
@@ -416,8 +422,8 @@
             (approach-arm nil)
             (hold-type :tight)
             (move-robot t)
-            (push-tm 5000)
-            (approach-tm 5000)
+            (push-tm 3000)
+            (approach-tm 3000)
             (use-torso 0.001)
             (cube-pos (send (send *cube* :copy-worldcoords) :worldpos))
             (cube-rpy (float-vector 0 0 0))
@@ -503,7 +509,7 @@
     target-coords))
 
 
-(defun push-release-motion (arm &key (move-robot t) (tm 5000) (use-torso 0.001))
+(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001))
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
@@ -608,7 +614,7 @@
   (arm &key (push-axis :y)
             (move-distance 200.0)
             (move-robot t)
-            (tm 5000)
+            (tm 3000)
             (use-torso 0.001))
   (let ((av)
         (prev-av (send *pr2* :angle-vector))
@@ -1015,7 +1021,7 @@
 ;; reset-motion
 
 (defun reset-motion (&key (move-robot t) (tm 5000))
-  (let ((av (send *pr2* :reset-manip-pose)))
+  (let ((av (send *pr2* :reset-cube-manip-pose)))
     (send *irtviewer* :draw-objects)
     (when move-robot
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
