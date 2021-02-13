@@ -44,7 +44,8 @@
 
 
 (defun assoc-cube-step (arm)
-  (send *ri* :robot arm :end-coords :assoc (car (send *ri* :find-object *cube-id*))))
+  (if (send *ri* :simulation-modep)
+    (send *ri* :robot arm :end-coords :assoc (car (send *ri* :find-object *cube-id*)))))
 
 
 (defun dissoc-cube (arm)
@@ -53,7 +54,8 @@
 
 
 (defun dissoc-cube-step (arm)
-  (send *ri* :robot arm :end-coords :dissoc (car (send *ri* :find-object *cube-id*))))
+  (if (send *ri* :simulation-modep)
+    (send *ri* :robot arm :end-coords :dissoc (car (send *ri* :find-object *cube-id*)))))
 
 
 (defun add-cube-coords ()
