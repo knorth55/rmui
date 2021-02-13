@@ -392,7 +392,7 @@
             ((and (equal larm-motion-symbol :push-hold-up)
                   (equal rarm-motion-symbol :push-hold-up))
              (assoc-cube :arms)
-             (hold-lift-up-motion :move-robot move-robot :use-torso use-torso)
+             (hold-lift-up-motion :lift-height 200 :move-robot move-robot :use-torso use-torso)
              (dissoc-cube :arms)
              (return-from execute-motion-symbols (list larm-motion-symbol rarm-motion-symbol)))
             ((and (equal larm-motion-symbol :push-hold-down)
