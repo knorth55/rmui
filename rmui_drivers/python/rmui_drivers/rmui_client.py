@@ -1,4 +1,7 @@
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except Exception:
+    print('please install matplotlib if you use RMUIClient')
 
 import rospy
 
