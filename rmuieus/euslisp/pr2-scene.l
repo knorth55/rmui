@@ -9,7 +9,7 @@
 (defvar *pr2* nil)
 (defvar *ri* nil)
 (defvar *cube-id* "cube")
-(defvar *cube* (make-cube 350 350 265 :name *cube-id*))
+(defvar *cube* (make-cube 380 380 300 :name *cube-id*))
 (defvar *desk-id* "room73b2-askul-1200x700-desk-0")
 (defvar *desk* (room73b2-askul-1200x700-desk-0))
 (defvar *table-z* 700)
