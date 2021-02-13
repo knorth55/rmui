@@ -1,5 +1,8 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
+try:
+    from scipy.spatial.transform import Rotation
+except Exception:
+    print('please install scipy for dummy rmui')
 
 import rospy
 
