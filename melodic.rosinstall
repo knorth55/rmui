@@ -7,10 +7,14 @@
     uri: https://github.com/knorth55/rmui.git
     version: master
 - tar:
-    local-name: common_msgs/geometry_msgs
+    local-name: ros/common_msgs/geometry_msgs
     uri: https://github.com/ros-gbp/common_msgs-release/archive/release/melodic/geometry_msgs/1.12.8-1.tar.gz
     version: common_msgs-release-release-melodic-geometry_msgs-1.12.8-1
 - tar:
-    local-name: common_msgs/sensor_msgs
+    local-name: ros/common_msgs/sensor_msgs
     uri: https://github.com/ros-gbp/common_msgs-release/archive/release/melodic/sensor_msgs/1.12.8-1.tar.gz
     version: common_msgs-release-release-melodic-sensor_msgs-1.12.8-1
+- tar:
+    local-name: ros/roslint
+    uri: https://github.com/ros-gbp/roslint-release/archive/release/melodic/roslint/0.11.2-0.tar.gz
+    version: roslint-release-release-melodic-roslint-0.11.2-0
