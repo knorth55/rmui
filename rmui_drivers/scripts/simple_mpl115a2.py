@@ -32,19 +32,21 @@ def main():
     c12 = float(c12) / 4194304
     print('c12: {}'.format(c12))
 
-    # start conversion
-    bus.write_byte_data(addr, 0x12, 0x00)
-    # wait for 3ms
-    time.sleep(0.003)
+    while True:
+        # start conversion
+        bus.write_byte_data(addr, 0x12, 0x00)
+        # wait for 3ms
+        time.sleep(0.003)
 
-    praw = (bus.read_byte_data(addr, 0x00) << 2) | (bus.read_byte_data(addr, 0x01) >> 6)
-    traw = (bus.read_byte_data(addr, 0x02) << 2) | (bus.read_byte_data(addr, 0x03) >> 6)
+        praw = (bus.read_byte_data(addr, 0x00) << 2) | (bus.read_byte_data(addr, 0x01) >> 6)
+        traw = (bus.read_byte_data(addr, 0x02) << 2) | (bus.read_byte_data(addr, 0x03) >> 6)
 
-    pcomp = a0 + (b1 + c12 * traw) * praw + (b2 * traw)
-    p = (pcomp * 65.0 / 1023.0) + 50.0
-    t = 25.0 - ((traw -  498.0) / 5.35)
-    print('pressure [kpa]: {}'.format(p))
-    print('temperature [c]: {}'.format(t))
+        pcomp = a0 + (b1 + c12 * traw) * praw + (b2 * traw)
+        p = (pcomp * 65.0 / 1023.0) + 50.0
+        t = 25.0 - ((traw -  498.0) / 5.35)
+        print('pressure [kpa]: {}'.format(p))
+        print('temperature [c]: {}'.format(t))
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':
