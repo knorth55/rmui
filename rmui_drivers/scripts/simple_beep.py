@@ -11,9 +11,9 @@ def main():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(SOUNDER, GPIO.OUT, initial=GPIO.LOW)
     p = GPIO.PWM(SOUNDER, 1)
-    
+
     p.start(50)
-    
+
     for melody in MELODY:
         hz = HZ[melody]
         if hz < 0:
@@ -21,7 +21,7 @@ def main():
             continue
         p.ChangeFrequency(hz)
         time.sleep(0.5)
-    
+
     p.stop()
     GPIO.cleanup()
 

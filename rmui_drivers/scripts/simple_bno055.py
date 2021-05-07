@@ -26,7 +26,7 @@ class BNO055(object):
         self.set_normal_power_mode()
         time.sleep(0.01)
 
-        # set page to 0 
+        # set page to 0
         self.set_page(0x00)
         time.sleep(0.01)
 
@@ -51,7 +51,7 @@ class BNO055(object):
         self._set_power_mode(0x00)
 
     def _set_power_mode(self, cmd):
-        self.bus.write_byte_data(self.address, 0x3E, cmd) 
+        self.bus.write_byte_data(self.address, 0x3E, cmd)
 
     def set_page(self, cmd):
         self.bus.write_byte_data(self.address, 0x07, cmd)
@@ -84,7 +84,8 @@ class BNO055(object):
         buf = self.bus.read_i2c_block_data(self.address, cmd, n_byte)
         data = []
         for i in range(n_byte // 2):
-            d = struct.unpack('h', struct.pack('BB', buf[2*i], buf[2*i+1]))[0]
+            d = struct.unpack(
+                'h', struct.pack('BB', buf[2 * i], buf[2 * i + 1]))[0]
             data.append(d * scale)
         return data
 
