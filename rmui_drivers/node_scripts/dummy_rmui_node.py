@@ -3,7 +3,7 @@
 import rospy
 import tf2_ros
 
-from rmui_drivers import DummyRMUI
+from rmui_drivers.dummy_rmui import DummyRMUI
 
 from force_proximity_ros.msg import ProximityArray
 from sensor_msgs.msg import Imu
