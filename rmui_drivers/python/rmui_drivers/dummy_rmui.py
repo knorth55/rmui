@@ -47,7 +47,7 @@ class DummyRMUI(object):
         self.prx_threshold = prx_threshold
         self.fa2s = [0] * (self.n_board * self.n_sensor)
         self.averages = [None] * (self.n_board * self.n_sensor)
-        self.contact = [False] * self.n_board
+        self.contact = [False] * (self.n_board * self.n_sensor)
         self.reset_rotation()
 
     def get_imu_msg(self):
@@ -64,12 +64,11 @@ class DummyRMUI(object):
         prx_msg = ProximityArray()
         msgs = []
         for i in range(self.n_board):
-            if self.contact[i]:
-                prx_value = 2000
-            else:
-                prx_value = 0
-            prx_data = [prx_value] * self.n_sensor
-            for j, prx_d in enumerate(prx_data):
+            for j in range(self.n_sensor):
+                if self.contact[5 * i + j]:
+                    prx_d = 2000
+                else:
+                    prx_d = 0
                 average = self.averages[5 * i + j]
                 fa2 = self.fa2s[5 * i + j]
                 if average is None:
@@ -106,10 +105,18 @@ class DummyRMUI(object):
         return msg
 
     def contact_board(self, i):
-        self.contact[i] = True
+        for j in range(self.n_sensor):
+            self.contact[5 * i + j] = True
+
+    def contact_sensor(self, i, j):
+        self.contact[5 * i + j] = True
 
     def release_board(self, i):
-        self.contact[i] = False
+        for j in range(self.n_sensor):
+            self.contact[5 * i + j] = False
+
+    def release_sensor(self, i, j):
+        self.contact[5 * i + j] = False
 
     def rotate(self, axis, angle):
         r0 = Rotation.from_quat(self.q)
