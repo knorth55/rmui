@@ -860,9 +860,8 @@
     (return-from get-rotate-height nil))
   (cond
     ((or (eq rotate-axis :x) (eq rotate-axis :y))
-     (- (* (sin (abs (+ initial-angle current-angle)))
-           (/ cube-norm-length 2.0))
-        (- prev-z *table-z*)))
+     (* (sin (abs (+ initial-angle current-angle)))
+        (/ cube-norm-length 2.0)))
     (t nil)))
 
 
@@ -886,6 +885,7 @@
     (return-from rotate-motion nil))
   (let* ((av)
          (rotate-height)
+         (prev-rotate-height)
          (rotate-step (if (> rotate-angle 0) 0.1 -0.1))
          (rotate-count 0)
          (max-rotate-count (floor (/ rotate-angle rotate-step)))
@@ -908,6 +908,13 @@
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (rotate-avs nil)
          (rotate-tms nil))
+    (setq prev-rotate-height
+          (get-rotate-height :current-angle current-angle
+                             :prev-z current-z
+                             :cube-norm-length cube-norm-length
+                             :initial-angle initial-angle
+                             :rotate-axis rotate-axis
+                             :rotate-type rotate-type))
     (block :rotate-motion-step
       (while (> max-rotate-count rotate-count)
         (setq current-angle (+ current-angle rotate-step))
@@ -920,8 +927,10 @@
                                    :initial-angle initial-angle
                                    :rotate-axis rotate-axis
                                    :rotate-type rotate-type))
-          (send *cube* :translate (float-vector 0 0 rotate-height) :world)
-          (setq current-z (+ current-z rotate-height)))
+          (send *cube* :translate
+                (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
+          (setq current-z (+ current-z (- rotate-height prev-rotate-height)))
+          (setq prev-rotate-height rotate-height))
         (setq av (send *pr2* :inverse-kinematics
                        (list
                          (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
@@ -960,8 +969,9 @@
                                  :initial-angle initial-angle
                                  :rotate-axis rotate-axis
                                  :rotate-type rotate-type))
-        (send *cube* :translate (float-vector 0 0 rotate-height) :world)
-        (setq current-z (+ current-z rotate-height)))
+        (send *cube* :translate
+              (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
+        (setq current-z (+ current-z (- rotate-height prev-rotate-height))))
       (setq av (send *pr2* :inverse-kinematics
                      (list
                        (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
