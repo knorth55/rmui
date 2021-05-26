@@ -27,6 +27,10 @@
 
 (defun get-motion-symbol (arm contact-positions)
   (let ((contact-surfaces (mapcar #'car contact-positions))
+        (bottom-contact-positions
+          (remove-if #'null
+                     (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
+                             contact-positions)))
         (larm-contact-state (car *object-contact-states*))
         (rarm-contact-state (cadr *object-contact-states*))
         (floor-contact-state (caddr *object-contact-states*))
@@ -81,6 +85,13 @@
                      (find :back-left contact-surfaces)
                      (find :bottom contact-surfaces))
                 :back-left-push)
+               ((and (equal larm-contact-state :left-contact)
+                     (equal rarm-contact-state :released)
+                     (equal floor-contact-state :bottom-contact)
+                     (find :left contact-surfaces)
+                     (find :bottom contact-surfaces)
+                     (null (find :right bottom-contact-positions)))
+                :left-move-push)
                ((or (and (equal larm-contact-state :left-contact)
                          (equal floor-contact-state :bottom-contact)
                          (null (or (find :left contact-surfaces)
@@ -185,6 +196,13 @@
                      (find :bottom-right contact-surfaces)
                      (null (find :bottom contact-surfaces)))
                 :bottom-right-push)
+               ((and (equal rarm-contact-state :right-contact)
+                     (equal larm-contact-state :released)
+                     (equal floor-contact-state :bottom-contact)
+                     (find :right contact-surfaces)
+                     (find :bottom contact-surfaces)
+                     (null (find :left bottom-contact-positions)))
+                :right-move-push)
                ((or (and (equal rarm-contact-state :right-contact)
                          (equal floor-contact-state :bottom-contact)
                          (null (or (find :right contact-surfaces)
@@ -670,6 +688,15 @@
                             :cube-rpy cube-rpy
                             :approach-arm :larm))
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
+            ((equal larm-motion-symbol :left-move-push)
+             (assoc-cube :larm)
+             (push-move-motion :larm
+                               :push-axis :y
+                               :move-distance -200.0
+                               :move-robot move-robot
+                               :use-torso use-torso)
+             (dissoc-cube :larm)
+             (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :push-release)
              (push-release-motion :larm :move-robot move-robot :use-torso use-torso)
              (reset-cube-manip-motion :larm :move-robot move-robot)
@@ -772,6 +799,15 @@
                             :cube-depth cube-depth
                             :cube-rpy cube-rpy
                             :approach-arm :rarm))
+             (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
+            ((equal rarm-motion-symbol :right-move-push)
+             (assoc-cube :rarm)
+             (push-move-motion :rarm
+                               :push-axis :y
+                               :move-distance 200.0
+                               :move-robot move-robot
+                               :use-torso use-torso)
+             (dissoc-cube :rarm)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :push-release)
              (push-release-motion :rarm :move-robot move-robot :use-torso use-torso)
@@ -953,6 +989,12 @@
                       (and (equal larm-motion-symbol :support-rotate-cw-x45)
                            (equal rarm-motion-symbol :support-rotate-cw-x45))))
              :bottom-contact)
+            ((and (equal floor-contact-state :bottom-contact)
+                  (or (equal larm-motion-symbol :left-move-push)))
+             :bottom-right-side-contact)
+            ((and (equal floor-contact-state :bottom-contact)
+                  (or (equal rarm-motion-symbol :right-move-push)))
+             :bottom-left-side-contact)
             (t floor-contact-state)))
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))))
