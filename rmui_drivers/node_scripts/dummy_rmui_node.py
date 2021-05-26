@@ -21,12 +21,12 @@ class DummyRMUINode(object):
         frame_id = rospy.get_param('~frame_id', 'rmui_link')
         duration = rospy.get_param('~duration', 0.1)
         self.n_board = rospy.get_param('~n_board', 6)
-        n_sensor = rospy.get_param('~n_sensor', 5)
+        self.n_sensor = rospy.get_param('~n_sensor', 5)
         ea = rospy.get_param('~ea', 0.3)
         prx_threshold = rospy.get_param('~prx_threshold', 500)
 
         self.device = DummyRMUI(
-            self.n_board, n_sensor, ea, prx_threshold, frame_id)
+            self.n_board, self.n_sensor, ea, prx_threshold, frame_id)
 
         self.pub_imu = rospy.Publisher(
             '~output/imu', Imu, queue_size=1)
@@ -39,12 +39,19 @@ class DummyRMUINode(object):
         self.broadcaster = tf2_ros.TransformBroadcaster()
 
         # contact
-        self.contact_services = []
+        self.contact_board_services = []
+        self.contact_sensor_services = []
         for i in range(self.n_board):
-            self.contact_services.append(
+            self.contact_board_services.append(
                 rospy.Service(
                     '~board{}/contact'.format(i), SetBool,
-                    self._get_contact_service_cb(i)))
+                    self._get_contact_board_service_cb(i)))
+            for j in range(self.n_sensor):
+                self.contact_sensor_services.append(
+                    rospy.Service(
+                        '~board{}/sensor{}/contact'.format(i, j), SetBool,
+                        self._get_contact_sensor_service_cb(i, j)))
+
         self.contact_reset_service = rospy.Service(
             '~contact_reset', Empty, self._contact_reset_service_cb)
         # rotation
@@ -75,18 +82,32 @@ class DummyRMUINode(object):
         self.pub_imu_calib.publish(calib_msg)
         self.broadcaster.sendTransform(transform_stamped_msg)
 
-    def _get_contact_service_cb(self, i):
-        def _contact_cb(req):
-            return self._contact_service_cb(req, i)
-        return _contact_cb
+    def _get_contact_board_service_cb(self, i):
+        def _contact_board_cb(req):
+            return self._contact_board_service_cb(req, i)
+        return _contact_board_cb
 
-    def _contact_service_cb(self, req, i):
+    def _contact_board_service_cb(self, req, i):
         if req.data:
             rospy.loginfo('board {} is contacted'.format(i))
             self.device.contact_board(i)
         else:
             rospy.loginfo('board {} is released'.format(i))
             self.device.release_board(i)
+        return SetBoolResponse(success=True)
+
+    def _get_contact_sensor_service_cb(self, i, j):
+        def _contact_sensor_cb(req):
+            return self._contact_sensor_service_cb(req, i, j)
+        return _contact_sensor_cb
+
+    def _contact_sensor_service_cb(self, req, i, j):
+        if req.data:
+            rospy.loginfo('board {}, sensor {} is contacted'.format(i, j))
+            self.device.contact_sensor(i, j)
+        else:
+            rospy.loginfo('board {}, sensor {} is released'.format(i, j))
+            self.device.release_sensor(i, j)
         return SetBoolResponse(success=True)
 
     def _contact_reset_service_cb(self, req):
