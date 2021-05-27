@@ -45,3 +45,4 @@
 - name: 'Reset button'
   service: '/rmui0/rmui_node/contact_reset'
   column: 3
+  service_type: 'Empty'
