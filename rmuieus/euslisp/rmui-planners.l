@@ -690,11 +690,9 @@
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :left-move-push)
              (assoc-cube :larm)
-             (push-move-motion :larm
+             (push-move-motion :larm :move-robot move-robot :use-torso use-torso
                                :push-axis :y
-                               :move-distance -200.0
-                               :move-robot move-robot
-                               :use-torso use-torso)
+                               :move-distance -200.0)
              (dissoc-cube :larm)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :push-release)
@@ -991,10 +989,10 @@
              :bottom-contact)
             ((and (equal floor-contact-state :bottom-contact)
                   (or (equal larm-motion-symbol :left-move-push)))
-             :bottom-right-side-contact)
+             :bottom-left-side-contact)
             ((and (equal floor-contact-state :bottom-contact)
                   (or (equal rarm-motion-symbol :right-move-push)))
-             :bottom-left-side-contact)
+             :bottom-right-side-contact)
             (t floor-contact-state)))
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))))
