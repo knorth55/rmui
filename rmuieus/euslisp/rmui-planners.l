@@ -14,6 +14,7 @@
 ;; functions
 
 (setq *object-contact-states* (list :released :released :bottom-contact))
+(setq *object-location-state* :center)
 (setq *motion-symbol-queue* (list nil nil))
 
 
@@ -948,7 +949,8 @@
         (rarm-motion-symbol (cadr motion-symbols))
         (larm-contact-state (car *object-contact-states*))
         (rarm-contact-state (cadr *object-contact-states*))
-        (floor-contact-state (caddr *object-contact-states*)))
+        (floor-contact-state (caddr *object-contact-states*))
+        (object-location-state *object-location-state*))
     (setq larm-contact-state
         (cond
           ((or (and (equal larm-motion-symbol :left-push)
@@ -1127,10 +1129,10 @@
                                (equal rarm-motion-symbol :support-rotate-ccw-x45))
                           (and (equal larm-motion-symbol :support-rotate-cw-x45)
                                (equal rarm-motion-symbol :support-rotate-cw-x45))))
-                 ;; TODO: check if right/left-side or not
                  (and (equal floor-contact-state :released)
                       (equal larm-motion-symbol :push-hold-down)
-                      (equal rarm-motion-symbol :push-hold-down))
+                      (equal rarm-motion-symbol :push-hold-down)
+                      (equal object-location-state :center))
                  (and (equal floor-contact-state :bottom-right-side-contact)
                       (equal larm-motion-symbol :left-move-push))
                  (and (equal floor-contact-state :bottom-left-side-contact)
@@ -1141,28 +1143,41 @@
                  (and (equal floor-contact-state :released)
                       (equal larm-motion-symbol :support-hold-down)
                       (equal rarm-motion-symbol :support-hold-down)
-                      (equal rarm-contact-state :bottom-right-side-contact))
-                 ;; TODO: check if right/left-side or not
-                 ; (and (equal floor-contact-state :released)
-                 ;      (equal larm-motion-symbol :push-hold-down)
-                 ;      (equal rarm-motion-symbol :push-hold-down))
-                 )
+                      (equal object-location-state :right))
+                 (and (equal floor-contact-state :released)
+                      (equal larm-motion-symbol :push-hold-down)
+                      (equal rarm-motion-symbol :push-hold-down)
+                      (equal object-location-state :right)))
              :bottom-left-side-contact)
             ((or (and (equal floor-contact-state :bottom-contact)
                       (equal rarm-motion-symbol :right-move-push))
                  (and (equal floor-contact-state :released)
                       (equal larm-motion-symbol :support-hold-down)
                       (equal rarm-motion-symbol :support-hold-down)
-                      (equal larm-contact-state :bottom-left-side-contact))
-                 ;; TODO: check if right/left-side or not
-                 ; (and (equal floor-contact-state :released)
-                 ;      (equal larm-motion-symbol :push-hold-down)
-                 ;      (equal rarm-motion-symbol :push-hold-down))
-                 )
+                      (equal object-location-state :left))
+                 (and (equal floor-contact-state :released)
+                      (equal larm-motion-symbol :push-hold-down)
+                      (equal rarm-motion-symbol :push-hold-down)
+                      (equal object-location-state :left)))
              :bottom-right-side-contact)
             (t floor-contact-state)))
+    (setq object-location-state
+          (cond
+            ((and (equal larm-motion-symbol :left-move-push)
+                  (equal object-location-state :center))
+             :right)
+            ((and (equal rarm-motion-symbol :right-move-push)
+                  (equal object-location-state :center))
+             :left)
+            ((or (and (equal larm-motion-symbol :left-move-push)
+                      (equal object-location-state :left))
+                 (and (equal rarm-motion-symbol :right-move-push)
+                      (equal object-location-state :right)))
+             :center)
+            (t object-location-state)))
     (setq *object-contact-states*
-          (list larm-contact-state rarm-contact-state floor-contact-state))))
+          (list larm-contact-state rarm-contact-state floor-contact-state))
+    (setq *object-location-state* object-location-state)))
 
 
 (provide :rmui-planners "rmui-planners.l")

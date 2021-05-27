@@ -24,7 +24,8 @@
     (send *ri* :draw-objects)
     (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
     (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
-    (ros::ros-info (format nil "object-contact-states : ~A" *object-contact-states*))))
+    (ros::ros-info (format nil "object-contact-states : ~A" *object-contact-states*))
+    (ros::ros-info (format nil "object-location-state : ~A" *object-location-state*))))
 
 
 (defun main ()
