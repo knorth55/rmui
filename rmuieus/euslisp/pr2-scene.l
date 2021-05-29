@@ -9,8 +9,9 @@
 (defvar *pr2* nil)
 (defvar *ri* nil)
 (defvar *cube-id* "cube")
-; (defvar *cube* (make-cube 380 380 300 :name *cube-id*))
-(defvar *cube* (make-cube 270 420 220 :name *cube-id*))
+; (defvar *cube* (make-cube 350 350 300 :name *cube-id*)) ;; cardboard box
+(defvar *cube* (make-cube 270 420 220 :name *cube-id*))  ;; ctb
+; (defvar *cube* (make-cube 300 220 500 :name *cube-id*))  ;; trash box
 (defvar *desk-id* "room73b2-askul-1200x700-desk-0")
 (defvar *desk* (room73b2-askul-1200x700-desk-0))
 (defvar *table-z* 700)
