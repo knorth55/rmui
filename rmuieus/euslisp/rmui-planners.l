@@ -896,6 +896,8 @@
                           :push-positions (list :left)
                           :push-directions (list :bottom)
                           :approach-directions (list :back)
+                          :hold-type :tight
+                          ;; :hold-type 100
                           :approach-arm :larm)
              (return-from execute-motion-symbols (list larm-motion-symbol nil)))
             ((equal larm-motion-symbol :top-right-side-push)
@@ -1024,6 +1026,8 @@
                           :push-positions (list :right)
                           :push-directions (list :bottom)
                           :approach-directions (list :back)
+                          :hold-type :tight
+                          ;; :hold-type 100
                           :approach-arm :rarm)
              (return-from execute-motion-symbols (list nil rarm-motion-symbol)))
             ((equal rarm-motion-symbol :top-left-side-push)
