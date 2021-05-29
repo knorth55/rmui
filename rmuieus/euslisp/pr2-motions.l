@@ -1048,6 +1048,7 @@
   (let ((av (send *pr2* :reset-cube-manip-pose)))
     (send *irtviewer* :draw-objects)
     (when move-robot
+      (send *ri* :stop-grasp)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (list (list av) (list tm))))
