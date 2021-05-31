@@ -8,10 +8,9 @@
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
 
-  <param name="robot_description"
-         command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
-
   <group ns="rmui0">
+    <param name="robot_description"
+           command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
     <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
           output="screen" machine="$(arg machine)" unless="$(arg dummy)">
       <rosparam subst_value="true">
@@ -26,6 +25,8 @@
         duration: $(arg duration)
       </rosparam>
     </node>
+    <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml"
+             unless="$(arg dummy)"/>
   </group>
 
   <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
@@ -36,9 +37,6 @@
       node_0: /rmui0/rmui_node
     </rosparam>
   </node>
-
-  <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml"
-           unless="$(arg dummy)"/>
 
   <group if="$(arg gui)">
     <node name="$(anon rviz)" pkg="rviz" type="rviz"
