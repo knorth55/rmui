@@ -4,6 +4,7 @@
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+  <arg name="marker_frame_id" default="ar_marker_1" />
   <arg name="rosbag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
@@ -23,5 +24,12 @@
 
   <node pkg="rmui_demos" type="rmui_pose_publisher.py" name="rmui_pose_publisher"
         respawn="true" output="screen" />
+
+  <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
+        output="screen">
+    <rosparam subst_value="true">
+      marker_frame_id: $(arg marker_frame_id)
+    </rosparam>
+  </node>
 
 </launch>

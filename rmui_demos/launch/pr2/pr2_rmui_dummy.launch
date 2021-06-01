@@ -2,6 +2,7 @@
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+  <arg name="marker_frame_id" default="ar_marker_1" />
   <arg name="rosbag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
@@ -10,6 +11,7 @@
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
+    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
     <arg name="rosbag" value="$(arg rosbag)" />
     <arg name="compress" value="$(arg compress)" />
   </include>
