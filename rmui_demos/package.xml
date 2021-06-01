@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="1">
+  <name>rmui_demos</name>
+  <version>0.0.0</version>
+  <description>The Robot Manipulation User Interface demos package</description>
+  <maintainer email="shingogo.5511@gmail.com">Shingo Kitagawa</maintainer>
+  <license>BSD</license>
+  <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>ar_track_alvar</run_depend>
+  <run_depend>depth_image_proc</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>nodelet</run_depend>
+  <run_depend>rmui_drivers</run_depend>
+  <run_depend>rosbag</run_depend>
+
+  <test_depend>roslint</test_depend>
+  <test_depend>rostest</test_depend>
+
+  <export>
+  </export>
+</package>

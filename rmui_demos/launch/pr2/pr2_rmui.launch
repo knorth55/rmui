@@ -14,9 +14,9 @@
     <arg name="dummy" value="$(arg dummy)" />
   </include>
 
-  <include file="$(find rmui_drivers)/launch/pr2_ar_tracker.launch" />
+  <include file="$(find rmui_demos)/launch/pr2_ar_tracker.launch" />
 
-  <include file="$(find rmui_drivers)/launch/pr2_rosbag_record.launch">
+  <include file="$(find rmui_demos)/launch/pr2_rosbag_record.launch">
     <arg name="rosbag" value="$(arg rosbag)" />
     <arg name="compress" value="$(arg compress)" />
   </include>

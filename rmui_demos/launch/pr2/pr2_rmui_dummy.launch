@@ -5,7 +5,7 @@
   <arg name="rosbag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
-  <include file="$(find rmui_drivers)/launch/pr2_rmui.launch">
+  <include file="$(find rmui_demos)/launch/pr2_rmui.launch">
     <arg name="dummy" value="true" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
