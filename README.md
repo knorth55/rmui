@@ -38,7 +38,7 @@ roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
 rosrun rmui_drivers rmui_node.py
 ```
 
-### Output
+#### Output
 
 - `~output/proximities`: (`force_proximity_ros/ProximityArray`)
 
