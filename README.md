@@ -32,7 +32,9 @@ roslaunch rmui_demos pr2_rmui.launch rosbag:=<path to rosbag>
 roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
 ```
 
-## RMUI device node
+## RMUI device
+
+### Miniature Tangible Cube
 
 ```bash
 rosrun rmui_drivers rmui_node.py
