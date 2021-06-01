@@ -1,0 +1,14 @@
+<launch>
+  <arg name="rosbag" />
+  <arg name="loop" default="true" />
+  <arg name="loop_flag" value="--loop" if="$(arg loop)" />
+  <arg name="loop_flag" value="" unless="$(arg loop)" />
+
+  <node pkg="rmui_demos" type="rmui_pose_publisher.py" name="rmui_pose_publisher"
+        output="screen" />
+
+  <!-- rosbag player -->
+  <node pkg="rosbag" type="play" name="rosbag_play"
+        args="$(arg rosbag) $(arg loop_flag) --clock" output="screen" />
+
+</launch>

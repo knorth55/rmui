@@ -21,4 +21,7 @@
     <arg name="compress" value="$(arg compress)" />
   </include>
 
+  <node pkg="rmui_demos" type="rmui_pose_publisher.py" name="rmui_pose_publisher"
+        respawn="true" output="screen" />
+
 </launch>
