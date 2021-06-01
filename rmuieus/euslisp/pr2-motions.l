@@ -9,10 +9,12 @@
   (:reset-cube-manip-pose ()
      (send self :angle-vector
            (float-vector 300.0  ;; torso
-                         75 20 85 -70 -60 -5 15 ;; larm
-                         -75 20 -85 -70 60 -5 -15 ;; rarm
-                         ; 70 -7.5 60 -90 -15 -5 -10  ;; larm
-                         ; -70 -7.5 -60 -90 15 -5 10  ;; rarm
+                         ;; 75 20 85 -70 -60 -5 15 ;; larm
+                         ;; -75 20 -85 -70 60 -5 -15 ;; rarm
+                         ;; 70 -7.5 60 -90 -15 -5 -10  ;; larm
+                         ;; -70 -7.5 -60 -90 15 -5 10  ;; rarm
+                         70 30 105 -95 -30 -25 -20  ;; larm
+                         -70 30 -105 -95 30 -25 20  ;; rarm
                          0.0 50.0  ;; head
                          ))))
 
@@ -1048,7 +1050,8 @@
   (let ((av (send *pr2* :reset-cube-manip-pose)))
     (send *irtviewer* :draw-objects)
     (when move-robot
-      (send *ri* :stop-grasp)
+      ; (send *ri* :stop-grasp)
+      (send *ri* :start-grasp)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (list (list av) (list tm))))
