@@ -2,19 +2,37 @@
 
 Robot Manipulation User Interface (RMUI)
 
+## Dependency
+
+- [RoboticMaterials/FA-I-Sensor](https://github.com/RoboticMaterials/FA-I-sensor/)
+
 ## Installation & Build
 
 ```bash
 mkdir rmui_ws/src -p
 cd rmui_ws/src
-wget https://raw.githubusercontent.com/knorth55/rmui/master/kinetic.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall
+wget https://raw.githubusercontent.com/knorth55/rmui/master/$ROS_DISTRO.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall
 wstool update -j 2
 rosdep install --ignore-src --from-path . -y -r -c
 cd ..
 catkin build
 ```
 
-## RMUI device
+## Demo launch
+
+### PR2 + RMUI
+
+```bash
+roslaunch rmui_demos pr2_rmui.launch rosbag:=<path to rosbag>
+```
+
+### PR2 + dummy RMUI
+
+```bash
+roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
+```
+
+## RMUI device node
 
 ```bash
 rosrun rmui_drivers rmui_node.py
@@ -69,7 +87,3 @@ rosrun rmui_drivers wx281x_node.py
 #### Input
 
 - ``~input``: (`rmui_msgs/LED`)
-
-## Dependency
-
-- [RoboticMaterials/FA-I-Sensor](https://github.com/RoboticMaterials/FA-I-sensor/)
