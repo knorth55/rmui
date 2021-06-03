@@ -16,6 +16,7 @@
           /robot_pose_ekf/odom_combined
           /base_controller/command
           /navigation/cmd_vel
+          /marker_pose_publisher/output
           /move_base_node/NavFnROS/plan
           /move_base_node/DWAPlannerROS/global_plan
           /move_base_node/DWAPlannerROS/local_plan
@@ -32,6 +33,7 @@
           /kinect_head/rgb/throttled/image_rect_color/compressed
           /kinect_head/depth_registered/throttled/image_rect/compressedDepth
           /rmui0/rmui_node/output/proximities
+          /rmui_pose_publisher/output
           /audio"
       output="screen" />
 </launch>
