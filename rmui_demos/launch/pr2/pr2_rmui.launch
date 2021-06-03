@@ -1,4 +1,5 @@
 <launch>
+  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
 
   <arg name="n_board" default="6" />
@@ -8,7 +9,7 @@
   <arg name="rosbag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
-  <include file="$(find rmui_drivers)/launch/rmui.launch">
+  <include file="$(find rmui_drivers)/launch/rmui.launch" if="$(arg rmui)">
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
@@ -23,7 +24,7 @@
   </include>
 
   <node pkg="rmui_demos" type="rmui_pose_publisher.py" name="rmui_pose_publisher"
-        respawn="true" output="screen" />
+        respawn="true" output="screen" if="$(arg rmui)" />
 
   <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
         output="screen">
