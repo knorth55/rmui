@@ -18,6 +18,7 @@
 
   <!-- rosbag player -->
   <node pkg="rosbag" type="play" name="rosbag_play"
-        args="$(arg rosbag) $(arg loop_flag) --clock" output="screen" />
+        args="$(arg rosbag) $(arg loop_flag) --clock"
+        output="screen" required="true" />
 
 </launch>
