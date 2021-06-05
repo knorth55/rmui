@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2021-06-06)
+------------------
 * update rosba record
 * add rmui arg
 * update launch

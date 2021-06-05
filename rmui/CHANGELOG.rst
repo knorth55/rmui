@@ -2,8 +2,8 @@
 Changelog for package rmui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2021-06-06)
+------------------
 * update rmui package.xml
 * Contributors: Shingo Kitagawa
 

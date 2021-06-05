@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="1">
   <name>rmui_demos</name>
-  <version>0.0.0</version>
+  <version>1.0.0</version>
   <description>The Robot Manipulation User Interface demos package</description>
   <maintainer email="shingogo.5511@gmail.com">Shingo Kitagawa</maintainer>
   <license>BSD</license>

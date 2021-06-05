@@ -2,8 +2,8 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2021-06-06)
+------------------
 * update pr2-motions.l
 * update pr2-scene
 * open grasp
