@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2021-06-16)
+------------------
 * add main
 * add more arg in pr2_rmui.launch and pr2_rmui_dummy.launch
 * Contributors: Shingo Kitagawa
