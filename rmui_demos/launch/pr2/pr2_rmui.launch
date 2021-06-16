@@ -5,8 +5,12 @@
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+
+  <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
-  <arg name="rosbag" doc="rosbag file path" />
+
+  <arg name="record" default="true" />
+  <arg name="rosbag" default="/tmp/tmp.bag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <include file="$(find rmui_drivers)/launch/rmui.launch" if="$(arg rmui)">
@@ -16,9 +20,11 @@
     <arg name="dummy" value="$(arg dummy)" />
   </include>
 
-  <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch" />
+  <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
+           if="$(arg marker)" />
 
-  <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch">
+  <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch"
+           if="$(arg record)">
     <arg name="rosbag" value="$(arg rosbag)" />
     <arg name="compress" value="$(arg compress)" />
   </include>
@@ -27,7 +33,7 @@
         respawn="true" output="screen" if="$(arg rmui)" />
 
   <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
-        output="screen">
+        output="screen" if="$(arg marker)">
     <rosparam subst_value="true">
       marker_frame_id: $(arg marker_frame_id)
     </rosparam>
