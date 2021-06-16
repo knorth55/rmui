@@ -1051,7 +1051,7 @@
     (send *irtviewer* :draw-objects)
     (when move-robot
       ; (send *ri* :stop-grasp)
-      (send *ri* :start-grasp)
+      (send *ri* :start-grasp :arms :objects nil)
       (send *ri* :angle-vector (send *pr2* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (list (list av) (list tm))))
