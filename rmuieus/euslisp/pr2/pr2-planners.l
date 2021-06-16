@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 
-(require :pr2-motions "package://rmuieus/euslisp/pr2-motions.l")
-(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
+(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 
 ;; init

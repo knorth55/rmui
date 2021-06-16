@@ -1,8 +1,8 @@
 #!/usr/bin/env roseus
 
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
-(require :pr2-scene "package://rmuieus/euslisp/pr2-scene.l")
-(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
+(require :pr2-scene "package://rmuieus/euslisp/pr2/pr2-scene.l")
+(require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 
 (defmethod pr2-robot

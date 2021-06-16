@@ -1,10 +1,10 @@
 #!/usr/bin/env roseus
 
-(require :imu-utils "package://rmuieus/euslisp/imu-utils.l")
-(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
-(require :pr2-motions "package://rmuieus/euslisp/pr2-motions.l")
-(require :pr2-planners "package://rmuieus/euslisp/pr2-planners.l")
-(require :rmui-planners "package://rmuieus/euslisp/rmui-planners.l")
+(require :imu-utils "package://rmuieus/euslisp/rmui/imu-utils.l")
+(require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
+(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :pr2-planners "package://rmuieus/euslisp/pr2/pr2-planners.l")
+(require :rmui-planners "package://rmuieus/euslisp/rmui/rmui-planners.l")
 
 (ros::load-ros-manifest "force_proximity_ros")
 

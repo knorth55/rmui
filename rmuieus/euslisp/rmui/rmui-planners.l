@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 
-(require :prx-utils "package://rmuieus/euslisp/prx-utils.l")
+(require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 ;; parameters
 
