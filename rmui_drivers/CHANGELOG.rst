@@ -2,6 +2,9 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.0 (2021-06-06)
 ------------------
 * add rmui_demos

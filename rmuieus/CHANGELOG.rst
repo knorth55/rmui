@@ -2,6 +2,12 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix for kinematics simulator
+* rename to pr2-rmui-main.l
+* Contributors: Shingo Kitagawa
+
 1.0.0 (2021-06-06)
 ------------------
 * update pr2-motions.l

@@ -2,6 +2,9 @@
 Changelog for package rmui_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.0 (2021-06-06)
 ------------------
 * update cad data: add side mold case data
