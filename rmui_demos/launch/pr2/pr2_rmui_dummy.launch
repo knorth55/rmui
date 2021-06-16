@@ -13,6 +13,8 @@
   <arg name="rosbag" default="/tmp/tmp.bag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
+  <arg name="main" default="true" />
+
   <include file="$(find rmui_demos)/launch/pr2/pr2_rmui.launch">
     <arg name="dummy" value="true" />
     <arg name="n_board" value="$(arg n_board)" />
@@ -23,5 +25,6 @@
     <arg name="compress" value="$(arg compress)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
+    <arg name="main" value="$(arg main)" />
   </include>
 </launch>

@@ -13,12 +13,17 @@
   <arg name="rosbag" default="/tmp/tmp.bag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
+  <arg name="main" default="true" />
+
   <include file="$(find rmui_drivers)/launch/rmui.launch" if="$(arg rmui)">
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="dummy" value="$(arg dummy)" />
   </include>
+
+  <node pkg="rmuieus" type="pr2-rmui-main.l" name="rmui_main"
+        args="&quot;(main)&quot;" if="$(arg main)" output="screen" />
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
            if="$(arg marker)" />
@@ -33,10 +38,11 @@
         respawn="true" output="screen" if="$(arg rmui)" />
 
   <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
-        output="screen" if="$(arg marker)">
+        respawn="true" output="screen" if="$(arg marker)">
     <rosparam subst_value="true">
       marker_frame_id: $(arg marker_frame_id)
     </rosparam>
   </node>
+
 
 </launch>
