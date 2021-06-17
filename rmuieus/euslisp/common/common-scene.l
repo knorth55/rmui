@@ -16,3 +16,5 @@
 (setq *cube-pos-x* 550)
 (setq *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
 (setq *cube-prev-lift-coords* nil)
+
+(provide :common-scene "common-scene.l")

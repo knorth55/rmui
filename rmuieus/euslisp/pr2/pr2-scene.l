@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 
-(require :rmui-scene "package://rmuieus/euslisp/rmui/rmui-scene.l")
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
+(require :common-scene "package://rmuieus/euslisp/common/common-scene.l")
 
 
 (setq *pr2* nil)

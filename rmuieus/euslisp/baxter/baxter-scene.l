@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 
-(require :rmui-scene "package://rmuieus/euslisp/rmui/rmui-scene.l")
 (require :baxter-interface "package://baxtereus/baxter-interface.l")
+(require :common-scene "package://rmuieus/euslisp/common/common-scene.l")
 
 
 (setq *baxter* nil)
