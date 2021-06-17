@@ -779,7 +779,7 @@
                            :copy-worldcoords))
                    :rotation-axis (list t t)
                    :move-target (list (send *robot* :larm :end-coords)
-                                   (send *robot* :rarm :end-coords))
+                                      (send *robot* :rarm :end-coords))
                    :use-torso use-torso))
     (unless av
       (setq av (send *robot* :inverse-kinematics
@@ -822,7 +822,7 @@
                            :copy-worldcoords))
                    :rotation-axis (list t t)
                    :move-target (list (send *robot* :larm :end-coords)
-                                   (send *robot* :rarm :end-coords))
+                                      (send *robot* :rarm :end-coords))
                    :use-torso use-torso))
     (unless av
       (setq av (send *robot* :inverse-kinematics
