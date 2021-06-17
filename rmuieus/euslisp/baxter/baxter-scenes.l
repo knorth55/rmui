@@ -4,11 +4,14 @@
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
+(setq *table-z* -800)
+(setq *table-height* 700)
+(setq *cube-pos-x* 700)
+(setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
+(setq *cube-prev-lift-coords* nil)
+
+
 ;; functions
-
-(defvar *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
-(defvar *cube-prev-lift-coords* nil)
-
 
 (defun scene-init (&key (cube-pos-y 0))
   (send *cube* :reset-coords)
@@ -19,7 +22,7 @@
   (send *desk* :reset-coords)
   (send *desk* :worldcoords)
   (send *desk* :newcoords
-        (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) 0)))
+        (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*)))
   (send *desk* :worldcoords)
   (setq *baxter* (instance baxter-robot :init))
   (setq *robot* *baxter*)

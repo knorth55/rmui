@@ -11,10 +11,5 @@
 ;; (defvar *cube* (make-cube 150 280 320 :name *cube-id*))  ;; shredder
 (defvar *desk-id* "room73b2-askul-1200x700-desk-0")
 (defvar *desk* (room73b2-askul-1200x700-desk-0))
-(defvar *table-z* 700)
-
-(setq *cube-pos-x* 550)
-(setq *cube-pos-z* (+ *table-z* (/ (z-of-cube *cube*) 2.0)))
-(setq *cube-prev-lift-coords* nil)
 
 (provide :common-scenes "common-scenes.l")
