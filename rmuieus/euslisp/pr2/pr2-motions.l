@@ -19,4 +19,12 @@
                          ))))
 
 
+(defun start-grasp (&optional (arm :arms) &key (objects nil) &rest args)
+  (send* *ri* :start-grasp arm :objects objects args))
+
+
+(defun stop-grasp (&optional (arm :arms) &rest args)
+  (send* *ri* :stop-grasp arm args))
+
+
 (provide :pr2-motions "pr2-motions.l")
