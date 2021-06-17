@@ -1330,4 +1330,4 @@
     (setq *object-location-state* object-location-state)))
 
 
-(provide :rmui-planners "rmui-planners.l")
+(provide :common-planners "common-planners.l")
