@@ -1,11 +1,8 @@
 #!/usr/bin/env roseus
 
 (require :baxter-interface "package://baxtereus/baxter-interface.l")
-(require :common-scene "package://rmuieus/euslisp/common/common-scene.l")
+(require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
-
-(setq *baxter* nil)
-(setq *ri* nil)
 
 ;; functions
 
@@ -25,6 +22,7 @@
         (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) 0)))
   (send *desk* :worldcoords)
   (setq *baxter* (instance baxter-robot :init))
+  (setq *robot* *baxter*)
   (setq *ri* (instance baxter-interface :init :objects
                        (list (copy-object *cube*) (copy-object *desk*))))
   (objects (list *baxter* *cube* *desk*)))
