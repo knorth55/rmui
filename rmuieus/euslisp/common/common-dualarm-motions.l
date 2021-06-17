@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 
-(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 
@@ -279,4 +279,4 @@
       :switch-rotate)))
 
 
-(provide :pr2-planners "pr2-planners.l")
+(provide :common-dualarm-motions "common-dualarm-motions.l")
