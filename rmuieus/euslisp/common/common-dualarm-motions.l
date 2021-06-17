@@ -4,12 +4,6 @@
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 
-;; init
-
-(defun planner-init (&key (cube-pos-y 0))
-  (motion-init :cube-pos-y cube-pos-y))
-
-
 ;; motion planners
 
 (defun dualarm-push-hold-release (&key (move-robot t) (use-torso 0.001))
