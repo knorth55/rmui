@@ -4,7 +4,7 @@
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
-(setq *table-z* -800)
+(setq *table-z* -600)
 (setq *table-height* 700)
 (setq *cube-pos-x* 700)
 (setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
