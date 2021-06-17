@@ -32,6 +32,18 @@ roslaunch rmui_demos pr2_rmui.launch rosbag:=<path to rosbag>
 roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
 ```
 
+### Baxter + RMUI
+
+```bash
+roslaunch rmui_demos baxter_rmui.launch rosbag:=<path to rosbag>
+```
+
+### Baxter + dummy RMUI
+
+```bash
+roslaunch rmui_demos baxter_rmui_dummy.launch rosbag:=<path to rosbag>
+```
+
 ## RMUI device
 
 ### Miniature Tangible Cube
