@@ -3,7 +3,7 @@
 (require :imu-utils "package://rmuieus/euslisp/rmui/imu-utils.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
-(require :pr2-planners "package://rmuieus/euslisp/pr2/pr2-planners.l")
+;; (require :pr2-planners "package://rmuieus/euslisp/pr2/pr2-planners.l")
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 (ros::load-ros-manifest "force_proximity_ros")
@@ -31,7 +31,7 @@
 
 (defun main ()
   (ros::roseus "rmuieus")
-  (planner-init)
+  (motion-init)
   (setq *tfl* (instance ros::transform-listener :init))
   (ros::rate 10)
   (ros::subscribe "/rmui0/rmui_node/output/proximities" force_proximity_ros::ProximityArray
