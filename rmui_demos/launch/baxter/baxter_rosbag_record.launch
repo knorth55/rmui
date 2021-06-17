@@ -1,0 +1,15 @@
+<launch>
+  <arg name="rosbag" doc="rosbag file path" />
+  <arg name="compress" default="false" doc="whether compress rosbag or not." />
+
+  <arg if="$(arg compress)" name="compress_flag" value="--bz2" />
+  <arg unless="$(arg compress)" name="compress_flag" value="" />
+
+  <node name="rosbag_record" pkg="rosbag" type="record"
+      args="-q $(arg compress_flag) -O $(arg rosbag) -b 0 
+          /rosout
+          /tf
+          /tf_static
+          /robot/joint_states"
+      output="screen" />
+</launch>
