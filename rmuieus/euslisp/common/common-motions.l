@@ -812,7 +812,7 @@
          (cube-height (get-cube-height)))
     ;; lift down
     (unless lift-height
-      (setq lift-height (- (- cube-z (/ cube-height 2.0)) *table-z*)))
+      (setq lift-height (- (- cube-z (/ cube-height 2.0)) (+ *table-z* *table-height*))))
     (send *cube* :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
     (setq av (send *robot* :inverse-kinematics
                    (list
