@@ -4,11 +4,12 @@
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
-(setq *table-z* -800)
+(setq *table-z* -900)
 (setq *table-height* 700)
-(setq *cube-pos-x* 700)
+(setq *cube-pos-x* 600)
 (setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
 (setq *cube-prev-lift-coords* nil)
+(setq *contact-offset* (float-vector -150 0 30))
 
 
 ;; functions
@@ -28,31 +29,31 @@
   (setq *robot* *baxter*)
   (setq *ri* (instance baxter-interface :init :objects
                        (list (copy-object *cube*) (copy-object *desk*))))
-  ;; (send (send *robot* :larm :end-coords) :translate (float-vector -200 0 50))
-  ;; (send (send *robot* :rarm :end-coords) :translate (float-vector -200 0 50))
+  ;; (send (send *robot* :larm :end-coords) :translate *contact-offset*)
+  ;; (send (send *robot* :rarm :end-coords) :translate *contact-offset*)
   ;; add :larm-contact-coords and :rarm-contact-coords
   (send *robot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
-                        :parent (send *robot* :link "left_lower_forearm")
+                        :parent (send *robot* :link "left_wrist")
                         :coords (send (send (send *robot* :larm-end-coords) :copy-worldcoords)
-                                      :translate (float-vector -200 0 50))))
+                                      :translate *contact-offset*)))
   (send *robot* :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
-                        :parent (send *robot* :link "right_lower_forearm")
+                        :parent (send *robot* :link "right_wrist")
                         :coords (send (send (send *robot* :rarm-end-coords) :copy-worldcoords)
-                                      :translate (float-vector -200 0 50))))
+                                      :translate *contact-offset*)))
   (send (send *ri* :robot) :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
-                        :parent (send (send *ri* :robot) :link "left_lower_forearm")
+                        :parent (send (send *ri* :robot) :link "left_wrist")
                         :coords
                         (send (send (send (send *ri* :robot) :larm-end-coords) :copy-worldcoords)
-                              :translate (float-vector -200 0 50))))
+                              :translate *contact-offset*)))
   (send (send *ri* :robot) :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
-                        :parent (send (send *ri* :robot) :link "right_lower_forearm")
+                        :parent (send (send *ri* :robot) :link "right_wrist")
                         :coords
                         (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
-                              :translate (float-vector -200 0 50))))
+                              :translate *contact-offset*)))
   (objects (list *baxter* *cube* *desk*)))
 
 
