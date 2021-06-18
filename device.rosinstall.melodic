@@ -1,11 +1,3 @@
-- git:
-    local-name: knorth55/FA-I-Sensor
-    uri: https://github.com/knorth55/FA-I-sensor.git
-    version: master
-- git:
-    local-name: knorth55/rmui
-    uri: https://github.com/knorth55/rmui.git
-    version: master
 - tar:
     local-name: ros/common_msgs/geometry_msgs
     uri: https://github.com/ros-gbp/common_msgs-release/archive/release/melodic/geometry_msgs/1.12.8-1.tar.gz

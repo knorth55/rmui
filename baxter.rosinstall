@@ -1,0 +1,28 @@
+- git:
+    local-name: ros-drivers/audio_common
+    uri: https://github.com/ros-drivers/audio_common.git
+    version: master
+- git:
+    local-name: knorth55/eus_vive
+    uri: https://github.com/knorth55/eus_vive.git
+    version: master
+- git:
+    local-name: knorth55/softhand_ros
+    uri: https://github.com/knorth55/softhand_ros.git
+    version: master
+- git:
+    local-name: jsk-ros-pkg/jsk_pr2eus
+    uri: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
+    version: master 
+- git:
+    local-name: jsk-ros-pkg/jsk_robot
+    uri: https://github.com/knorth55/jsk_robot.git
+    version: baxter 
+- git:
+    local-name: tohirose/dynamixel_motor
+    uri: https://github.com/tohirose/dynamixel_motor.git
+    version: softhand-v2-devel
+- git:
+    local-name: strands-project/mongodb_store
+    uri: https://github.com/strands-project/mongodb_store.git
+    version: kinetic-devel

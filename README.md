@@ -8,10 +8,40 @@ Robot Manipulation User Interface (RMUI)
 
 ## Installation & Build
 
+### Normal Workspace build
+
 ```bash
 mkdir rmui_ws/src -p
 cd rmui_ws/src
-wget https://raw.githubusercontent.com/knorth55/rmui/master/$ROS_DISTRO.rosinstall?token=ACG6QX5SPCICFKYXZK6VR725H2OKI -o .rosinstall
+wget https://raw.githubusercontent.com/knorth55/rmui/master/fc.rosinstall -o .rosinstall
+wstool update -j 2
+rosdep install --ignore-src --from-path . -y -r -c
+cd ..
+catkin build
+```
+
+### Device workspace build
+
+After normal workspace build, please do the following command.
+
+```bash
+cd rmui_ws/src
+# for device
+wstool merge knorth55/rmui/device.rosinstall.${ROS_DISTRO}
+wstool update -j 2
+rosdep install --ignore-src --from-path . -y -r -c
+cd ..
+catkin build
+```
+
+### Baxter workspace build
+
+After normal workspace build, please do the following command.
+
+```bash
+cd rmui_ws/src
+# for device
+wstool merge knorth55/rmui/baxter.rosinstall
 wstool update -j 2
 rosdep install --ignore-src --from-path . -y -r -c
 cd ..
