@@ -1,6 +1,8 @@
 #!/usr/bin/env roseus
 
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
+(require :pr2eus-moveit "package://pr2eus_moveit/euslisp/pr2eus-moveit.l")
+(require :collision-object-publisher "package://pr2eus_moveit/euslisp/collision-object-publisher.l")
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
@@ -57,6 +59,12 @@
                         :coords
                         (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
                               :translate *contact-offset*)))
+  (if (not (send *ri* :simulation-modep))
+    (progn
+      (setq *co* (instance collision-object-publisher :init))
+      (send *co* :wipe-all)
+      (send *co* :add-object *desk* :frame-id "base_footprint"
+            :relative-pose (make-coords :pos *desk-pos*))))
   (objects (list *pr2* *cube* *desk*)))
 
 
