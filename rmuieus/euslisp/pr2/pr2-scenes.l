@@ -25,9 +25,20 @@
         (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*)))
   (send *desk* :worldcoords)
   (setq *pr2* (instance pr2-robot :init))
-  (send (send *pr2* :larm :end-coords) :translate (float-vector -80 0 30))
-  (send (send *pr2* :rarm :end-coords) :translate (float-vector -80 0 30))
   (setq *robot* *pr2*)
+  ;; (send (send *robot* :larm :end-coords) :translate (float-vector -80 0 30))
+  ;; (send (send *robot* :rarm :end-coords) :translate (float-vector -80 0 30))
+  ;; add :larm-contact-coords and :rarm-contact-coords
+  (send *robot* :put :larm-contact-coords
+        (make-cascoords :name :larm-contact-coords
+                        :parent (send *robot* :link "l_wrist_roll_link")
+                        :coords (send (send (send *robot* :larm-end-coords) :copy-worldcoords)
+                                      :translate (float-vector -80 0 30))))
+  (send *robot* :put :rarm-contact-coords
+        (make-cascoords :name :rarm-contact-coords
+                        :parent (send *robot* :link "r_wrist_roll_link")
+                        :coords (send (send (send *robot* :rarm-end-coords) :copy-worldcoords)
+                                      :translate (float-vector -80 0 30))))
   (setq *ri* (instance pr2-interface :init :objects
                        (list (copy-object *cube*) (copy-object *desk*))))
   (objects (list *pr2* *cube* *desk*)))

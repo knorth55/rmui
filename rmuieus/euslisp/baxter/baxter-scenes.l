@@ -24,10 +24,21 @@
   (send *desk* :newcoords
         (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*)))
   (send *desk* :worldcoords)
-  (setq *baxter* (instance baxter-robot :init))
-  (send (send *baxter* :larm :end-coords) :translate (float-vector -200 0 50))
-  (send (send *baxter* :rarm :end-coords) :translate (float-vector -200 0 50))
+  (setq *baxter* (instance baxter-robot-safe :init))
   (setq *robot* *baxter*)
+  ;; (send (send *robot* :larm :end-coords) :translate (float-vector -200 0 50))
+  ;; (send (send *robot* :rarm :end-coords) :translate (float-vector -200 0 50))
+  ;; add :larm-contact-coords and :rarm-contact-coords
+  (send *robot* :put :larm-contact-coords
+        (make-cascoords :name :larm-contact-coords
+                        :parent (send *robot* :link "left_lower_forearm")
+                        :coords (send (send (send *robot* :larm-end-coords) :copy-worldcoords)
+                                      :translate (float-vector -200 0 50))))
+  (send *robot* :put :rarm-contact-coords
+        (make-cascoords :name :rarm-contact-coords
+                        :parent (send *robot* :link "right_lower_forearm")
+                        :coords (send (send (send *robot* :rarm-end-coords) :copy-worldcoords)
+                                      :translate (float-vector -200 0 50))))
   (setq *ri* (instance baxter-interface :init :objects
                        (list (copy-object *cube*) (copy-object *desk*))))
   (objects (list *baxter* *cube* *desk*)))
