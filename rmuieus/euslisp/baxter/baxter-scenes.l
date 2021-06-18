@@ -55,6 +55,12 @@
                         :coords
                         (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
                               :translate *contact-offset*)))
+  (if (not (send *ri* :simulation-modep))
+    (progn
+      (setq *co* (instance collision-object-publisher :init))
+      (send *co* :wipe-all)
+      (send *co* :add-object *desk* :frame-id "base"
+            :relative-pose (make-coords :pos *desk-pos*))))
   (objects (list *baxter* *cube* *desk*)))
 
 
