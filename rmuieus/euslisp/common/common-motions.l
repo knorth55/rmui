@@ -383,6 +383,8 @@
                        (list larm-target-coords rarm-target-coords)
                        :move-target (list (get-contact-coords :larm)
                                           (get-contact-coords :rarm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                        (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
                        :rotation-axis (list t t)
                        :use-torso use-torso))
         (unless av
@@ -390,6 +392,8 @@
                          (list larm-target-coords rarm-target-coords)
                          :move-target (list (get-contact-coords :larm)
                                             (get-contact-coords :rarm))
+                         :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                          (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
                          :rotation-axis (list :z :z)
                          :use-torso use-torso))))
       (let ((target-coords
@@ -407,12 +411,16 @@
                 :cube-depth cube-depth)))
         (unless target-coords
           (return-from push-motion-step nil))
-        (setq av (send *robot* arm :inverse-kinematics target-coords
-                       :rotation-axis t
+        (setq av (send *robot* :inverse-kinematics (list target-coords)
+                       :move-target (list (get-contact-coords arm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
+                       :rotation-axis (list t)
                        :use-torso use-torso))
         (unless av
-          (setq av (send *robot* arm :inverse-kinematics target-coords
-                         :rotation-axis :z
+          (setq av (send *robot* :inverse-kinematics (list target-coords)
+                         :move-target (list (get-contact-coords arm))
+                         :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
+                         :rotation-axis (list :z)
                          :use-torso use-torso)))))
     (when (and av move-robot)
       (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
@@ -528,6 +536,8 @@
                        (list larm-target-coords rarm-target-coords)
                        :move-target (list (get-contact-coords :larm)
                                           (get-contact-coords :rarm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                        (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
                        :rotation-axis (list t t)
                        :use-torso use-torso))
         (unless av
@@ -535,14 +545,22 @@
                          (list larm-target-coords rarm-target-coords)
                          :move-target (list (get-contact-coords :larm)
                                             (get-contact-coords :rarm))
+                         :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                          (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
                          :rotation-axis (list :z :z)
                          :use-torso use-torso))))
       (let ((target-coords (get-push-release-target-coords arm)))
-        (setq av (send *robot* arm :inverse-kinematics target-coords
-                       :rotation-axis t :use-torso use-torso))
+        (setq av (send *robot* :inverse-kinematics (list target-coords)
+                       :move-target (list (get-contact-coords arm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
+                       :rotation-axis (list t)
+                       :use-torso use-torso))
         (unless av
-          (setq av (send *robot* arm :inverse-kinematics target-coords
-                         :rotation-axis :z :use-torso use-torso)))))
+          (setq av (send *robot* :inverse-kinematics (list target-coords)
+                         :move-target (list (get-contact-coords arm))
+                         :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
+                         :rotation-axis (list :z)
+                         :use-torso use-torso)))))
     (when (and av move-robot)
       (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
@@ -632,30 +650,26 @@
                 ((eq push-axis :z) (float-vector 0 0 move-distance))
                 (t (float-vector 0 0 0)))))
     (send *cube* :translate cube-move-vector :world)
-    (setq av (send *robot* arm :inverse-kinematics
-                   (if (eq arm :larm)
-                     (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                           :copy-worldcoords)
-                     (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                           :copy-worldcoords))
-                   :rotation-axis t
-                   :move-target
-                   (if (eq arm :larm)
-                     (get-contact-coords :larm)
-                     (get-contact-coords :rarm))
+    (setq av (send *robot* :inverse-kinematics
+                   (list (if (eq arm :larm)
+                           (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                                 :copy-worldcoords)
+                           (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                                 :copy-worldcoords)))
+                   :move-target (list (get-contact-coords arm))
+                   :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
+                   :rotation-axis (list t)
                    :use-torso use-torso))
     (unless av
-      (setq av (send *robot* arm :inverse-kinematics
-                     (if (eq arm :larm)
-                       (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
-                             :copy-worldcoords)
-                       (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
-                             :copy-worldcoords))
-                     :rotation-axis :z
-                     :move-target
-                     (if (eq arm :larm)
-                       (get-contact-coords :larm)
-                       (get-contact-coords :rarm))
+      (setq av (send *robot* :inverse-kinematics
+                     (list (if (eq arm :larm)
+                             (send (send (send *cube* :get :larm-contact-coords) :worldcoords)
+                                   :copy-worldcoords)
+                             (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
+                                   :copy-worldcoords)))
+                     :rotation-axis (list :z)
+                     :move-target (list (get-contact-coords arm))
+                     :link-list (list (send *robot* :link-list (send (get-contact-coords arm) :parent)))
                      :use-torso use-torso)))
     (if av
       (when move-robot
@@ -783,9 +797,11 @@
                            :copy-worldcoords)
                      (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                            :copy-worldcoords))
-                   :rotation-axis (list t t)
                    :move-target (list (get-contact-coords :larm)
                                       (get-contact-coords :rarm))
+                   :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                    (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                   :rotation-axis (list t t)
                    :use-torso use-torso))
     (unless av
       (setq av (send *robot* :inverse-kinematics
@@ -794,9 +810,11 @@
                              :copy-worldcoords)
                        (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                              :copy-worldcoords))
-                     :rotation-axis (list :z :z)
                      :move-target (list (get-contact-coords :larm)
                                         (get-contact-coords :rarm))
+                     :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                      (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                     :rotation-axis (list :z :z)
                      :use-torso use-torso)))
     (if av
       (when move-robot
@@ -826,9 +844,11 @@
                            :copy-worldcoords)
                      (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                            :copy-worldcoords))
-                   :rotation-axis (list t t)
                    :move-target (list (get-contact-coords :larm)
                                       (get-contact-coords :rarm))
+                   :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                    (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                   :rotation-axis (list t t)
                    :use-torso use-torso))
     (unless av
       (setq av (send *robot* :inverse-kinematics
@@ -837,9 +857,11 @@
                              :copy-worldcoords)
                        (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                              :copy-worldcoords))
-                     :rotation-axis (list :z :z)
                      :move-target (list (get-contact-coords :larm)
                                         (get-contact-coords :rarm))
+                     :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                      (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                     :rotation-axis (list :z :z)
                      :use-torso use-torso)))
     (if av
       (when move-robot
@@ -940,9 +962,11 @@
                                :copy-worldcoords)
                          (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                                :copy-worldcoords))
-                       :rotation-axis (list t t)
                        :move-target (list (get-contact-coords :larm)
                                           (get-contact-coords :rarm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                        (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                       :rotation-axis (list t t)
                        :use-torso use-torso))
         (unless av
           (setq av (send *robot* :inverse-kinematics
@@ -951,9 +975,11 @@
                                  :copy-worldcoords)
                            (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                                  :copy-worldcoords))
-                         :rotation-axis (list :z :z)
                          :move-target (list (get-contact-coords :larm)
                                             (get-contact-coords :rarm))
+                         :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                          (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                         :rotation-axis (list :z :z)
                          :use-torso use-torso)))
         (send *irtviewer* :draw-objects)
         (if av
@@ -981,9 +1007,11 @@
                              :copy-worldcoords)
                        (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                              :copy-worldcoords))
-                     :rotation-axis (list t t)
                      :move-target (list (get-contact-coords :larm)
                                         (get-contact-coords :rarm))
+                     :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                      (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                     :rotation-axis (list t t)
                      :use-torso use-torso))
       (unless av
         (setq av (send *robot* :inverse-kinematics
@@ -992,9 +1020,11 @@
                                :copy-worldcoords)
                          (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                                :copy-worldcoords))
-                       :rotation-axis (list :z :z)
                        :move-target (list (get-contact-coords :larm)
                                           (get-contact-coords :rarm))
+                       :link-list (list (send *robot* :link-list (send (get-contact-coords :larm) :parent))
+                                        (send *robot* :link-list (send (get-contact-coords :rarm) :parent)))
+                       :rotation-axis (list :z :z)
                        :use-torso use-torso)))
       (send *irtviewer* :draw-objects)
       (when av
