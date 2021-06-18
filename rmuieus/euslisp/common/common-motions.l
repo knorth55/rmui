@@ -651,7 +651,7 @@
                              :copy-worldcoords)
                        (send (send (send *cube* :get :rarm-contact-coords) :worldcoords)
                              :copy-worldcoords))
-                     :rotation-axis t
+                     :rotation-axis :z
                      :move-target
                      (if (eq arm :larm)
                        (get-contact-coords :larm)
