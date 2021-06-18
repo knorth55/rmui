@@ -44,13 +44,15 @@
   (send (send *ri* :robot) :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send (send *ri* :robot) :link "left_lower_forearm")
-                        :coords (send (send (send (send *ri* :robot) :larm-end-coords) :copy-worldcoords)
-                                      :translate (float-vector -200 0 50))))
+                        :coords
+                        (send (send (send (send *ri* :robot) :larm-end-coords) :copy-worldcoords)
+                              :translate (float-vector -200 0 50))))
   (send (send *ri* :robot) :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
                         :parent (send (send *ri* :robot) :link "right_lower_forearm")
-                        :coords (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
-                                      :translate (float-vector -200 0 50))))
+                        :coords
+                        (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
+                              :translate (float-vector -200 0 50))))
   (objects (list *baxter* *cube* *desk*)))
 
 
