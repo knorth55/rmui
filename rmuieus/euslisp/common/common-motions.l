@@ -449,7 +449,7 @@
           (setq av (send* *robot* :inverse-kinematics (list target-coords)
                           (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))))
     (when (and av move-robot)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+      (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (send *irtviewer* :draw-objects)
     (list av tm)))
@@ -570,7 +570,7 @@
           (setq av (send* *robot* :inverse-kinematics (list target-coords)
                           (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))))
     (when (and av move-robot)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+      (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (send *irtviewer* :draw-objects)
     (when av
@@ -667,7 +667,7 @@
                       (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+        (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
         (send *ri* :wait-interpolation))
       (progn
         (send *robot* :angle-vector prev-av)
@@ -796,7 +796,7 @@
                       (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+        (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
         (send *ri* :wait-interpolation))
       (progn
         (send *robot* :angle-vector prev-av)
@@ -827,7 +827,7 @@
                       (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+        (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
         (send *ri* :wait-interpolation))
       (progn
         (send *robot* :angle-vector prev-av)
@@ -962,7 +962,7 @@
         (setq rotate-tms (append rotate-tms (list tm)))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector-sequence rotate-avs rotate-tms nil 0)
+        (ri-angle-vector-sequence rotate-avs rotate-tms nil 0)
         (send *ri* :wait-interpolation))
       (progn
         (send *robot* :angle-vector prev-av)
@@ -1003,7 +1003,7 @@
     (when move-robot
       ;; (stop-grasp :arms)
       (start-grasp :arms)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+      (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (list (list av) (list tm))))
 
@@ -1031,7 +1031,7 @@
             (t nil)))
     (send *robot* :angle-vector av)
     (when move-robot
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
+      (ri-angle-vector (send *robot* :angle-vector) tm nil 0)
       (send *ri* :wait-interpolation))
     (list (list av) (list tm))))
 

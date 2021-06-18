@@ -18,4 +18,12 @@
   (send* *ri* :stop-grasp arm :wait wait args))
 
 
+(defun ri-angle-vector (&rest args)
+  (send* *ri* :angle-vector args))
+
+
+(defun ri-angle-vector-sequence (&rest args)
+  (send* *ri* :angle-vector-sequence args))
+
+
 (provide :baxter-motions "baxter-motions.l")

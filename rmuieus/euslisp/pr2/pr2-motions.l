@@ -3,6 +3,7 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
+(require :pr2eus-moveit "package://pr2eus_moveit/euslisp/pr2eus-moveit.l")
 
 
 (defmethod pr2-robot
@@ -25,6 +26,18 @@
 
 (defun stop-grasp (&optional (arm :arms) &rest args)
   (send* *ri* :stop-grasp arm args))
+
+
+(defun ri-angle-vector (&rest args)
+  (if (send *ri* :simulation-modep)
+    (send* *ri* :angle-vector args)
+    (send* *ri* :angle-vector-motion-plan args)))
+
+
+(defun ri-angle-vector-sequence (&rest args)
+  (if (send *ri* :simulation-modep)
+    (send* *ri* :angle-vector-sequence args)
+    (send* *ri* :angle-vector-motion-plan args)))
 
 
 (provide :pr2-motions "pr2-motions.l")
