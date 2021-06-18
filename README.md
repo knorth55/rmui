@@ -65,10 +65,20 @@ roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
 ### Baxter + RMUI
 
 ```bash
+# for real robot
+roslaunch eus_vive baxter_73b2_moveit.launch
+```
+
+```bash
 roslaunch rmui_demos baxter_rmui.launch rosbag:=<path to rosbag>
 ```
 
 ### Baxter + dummy RMUI
+
+```bash
+# for real robot
+roslaunch eus_vive baxter_73b2_moveit.launch
+```
 
 ```bash
 roslaunch rmui_demos baxter_rmui_dummy.launch rosbag:=<path to rosbag>
