@@ -25,6 +25,8 @@
         (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*)))
   (send *desk* :worldcoords)
   (setq *baxter* (instance baxter-robot :init))
+  (send (send *baxter* :larm :end-coords) :translate (float-vector -200 0 50))
+  (send (send *baxter* :rarm :end-coords) :translate (float-vector -200 0 50))
   (setq *robot* *baxter*)
   (setq *ri* (instance baxter-interface :init :objects
                        (list (copy-object *cube*) (copy-object *desk*))))
