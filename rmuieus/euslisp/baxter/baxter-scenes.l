@@ -7,23 +7,24 @@
 (setq *table-z* -900)
 (setq *table-height* 700)
 (setq *cube-pos-x* 600)
-(setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
-(setq *cube-prev-lift-coords* nil)
 (setq *contact-offset* (float-vector -150 0 30))
+
+(setq *cube-prev-lift-coords* nil)
+(setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
+(setq *cube-pos* (float-vector *cube-pos-x* 0 *cube-pos-z*))
 
 
 ;; functions
 
 (defun scene-init (&key (cube-pos-y 0))
+  (setq *desk-pos* (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*))
   (send *cube* :reset-coords)
   (send *cube* :worldcoords)
-  (send *cube* :newcoords
-        (make-coords :pos (float-vector *cube-pos-x* 0 *cube-pos-z*)))
+  (send *cube* :newcoords (make-coords :pos *cube-pos*))
   (send *cube* :worldcoords)
   (send *desk* :reset-coords)
   (send *desk* :worldcoords)
-  (send *desk* :newcoords
-        (make-coords :pos (float-vector (+ *cube-pos-x* 100) (* -1 cube-pos-y) *table-z*)))
+  (send *desk* :newcoords (make-coords :pos *desk-pos*))
   (send *desk* :worldcoords)
   (setq *baxter* (instance baxter-robot-safe :init))
   (setq *robot* *baxter*)
