@@ -1,6 +1,7 @@
 #!/usr/bin/env roseus
 
 (require :baxter-interface "package://baxtereus/baxter-interface.l")
+(require :collision-object-publisher "package://pr2eus_moveit/euslisp/collision-object-publisher.l")
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
