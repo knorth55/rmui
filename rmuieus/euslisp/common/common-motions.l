@@ -90,28 +90,34 @@
          (cube-coords (send (send *cube* :worldcoords) :copy-worldcoords))
          (front-cube-coords
            (make-cascoords :name :front-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector (/ cube-depth 2.0) 0 0) :world)))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector (/ cube-depth 2.0) 0 0) :world)))
          (back-cube-coords
            (make-cascoords :name :back-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector (/ cube-depth -2.0) 0 0) :world)))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector (/ cube-depth -2.0) 0 0) :world)))
          (left-cube-coords
            (make-cascoords :name :left-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector 0 (/ cube-width 2.0) 0) :world)))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector 0 (/ cube-width 2.0) 0) :world)))
          (right-cube-coords
            (make-cascoords :name :right-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector 0 (/ cube-width -2.0) 0) :world)))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector 0 (/ cube-width -2.0) 0) :world)))
          (top-cube-coords
            (make-cascoords :name :top-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector 0 0 (/ cube-height 2.0)) :world)))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector 0 0 (/ cube-height 2.0)) :world)))
          (bottom-cube-coords
            (make-cascoords :name :bottom-cube-coords
-                           :coords (send (send cube-coords :copy-worldcoords) :translate
-                                         (float-vector 0 0 (/ cube-height -2.0)) :world))))
+                           :coords
+                           (send (send cube-coords :copy-worldcoords)
+                                 :translate (float-vector 0 0 (/ cube-height -2.0)) :world))))
     (send *cube* :assoc front-cube-coords)
     (send *cube* :assoc back-cube-coords)
     (send *cube* :assoc left-cube-coords)
