@@ -8,7 +8,7 @@
 (setq *table-z* -900)
 (setq *table-height* 700)
 (setq *cube-pos-x* 600)
-(setq *contact-offset* (float-vector -150 0 30))
+(setq *contact-offset* (float-vector -150 0 50))
 
 (setq *cube-prev-lift-coords* nil)
 (setq *cube-pos-z* (+ (+ *table-z* *table-height*) (/ (z-of-cube *cube*) 2.0)))
