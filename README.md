@@ -53,13 +53,13 @@ catkin build
 ### PR2 + RMUI
 
 ```bash
-roslaunch rmui_demos pr2_rmui.launch rosbag:=<path to rosbag>
+roslaunch rmui_demos pr2_rmui.launch
 ```
 
 ### PR2 + dummy RMUI
 
 ```bash
-roslaunch rmui_demos pr2_rmui_dummy.launch rosbag:=<path to rosbag>
+roslaunch rmui_demos pr2_rmui_dummy.launch
 ```
 
 ### Baxter + RMUI

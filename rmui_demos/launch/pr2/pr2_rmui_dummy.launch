@@ -10,7 +10,6 @@
   <arg name="marker_frame_id" default="ar_marker_1" />
 
   <arg name="record" default="true" />
-  <arg name="rosbag" default="/tmp/tmp.bag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
@@ -21,7 +20,6 @@
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="record" value="$(arg record)" />
-    <arg name="rosbag" value="$(arg rosbag)" />
     <arg name="compress" value="$(arg compress)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
