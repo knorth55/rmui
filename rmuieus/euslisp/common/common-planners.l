@@ -8,7 +8,7 @@
 (defvar *device-frame-id* "rmui_link")
 (defvar *prx-threshold* 500)
 (defvar *prx-position-threshold* 0.1)
-(defvar *motion-symbol-length* 20)
+(defvar *motion-symbol-length* 10)
 (defvar *world-frame-id* "world")
 
 ;; functions
