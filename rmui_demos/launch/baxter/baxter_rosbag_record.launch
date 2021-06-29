@@ -1,15 +1,16 @@
 <launch>
-  <arg name="rosbag" doc="rosbag file path" />
+  <arg name="home_dir" default="$(env HOME)" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg if="$(arg compress)" name="compress_flag" value="--bz2" />
   <arg unless="$(arg compress)" name="compress_flag" value="" />
 
   <node name="rosbag_record" pkg="rosbag" type="record"
-      args="-q $(arg compress_flag) -O $(arg rosbag) -b 0 
-          /rosout
-          /tf
-          /tf_static
-          /robot/joint_states"
+      args="/rosout
+            /tf
+            /tf_static
+            /robot/joint_states
+            -q $(arg compress_flag) -b 0
+            --output-prefix $(arg home_dir)/.ros/rmui/rosbag/baxter_rmui"
       output="screen" />
 </launch>

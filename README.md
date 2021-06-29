@@ -70,7 +70,7 @@ roslaunch eus_vive baxter_moveit_remote.launch
 ```
 
 ```bash
-roslaunch rmui_demos baxter_rmui.launch rosbag:=<path to rosbag>
+roslaunch rmui_demos baxter_rmui.launch
 ```
 
 ### Baxter + dummy RMUI
@@ -81,7 +81,7 @@ roslaunch eus_vive baxter_moveit_remote.launch
 ```
 
 ```bash
-roslaunch rmui_demos baxter_rmui_dummy.launch rosbag:=<path to rosbag>
+roslaunch rmui_demos baxter_rmui_dummy.launch
 ```
 
 ## RMUI device

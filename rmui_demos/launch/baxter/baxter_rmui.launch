@@ -7,7 +7,6 @@
   <arg name="gui" default="true" />
 
   <arg name="record" default="true" />
-  <arg name="rosbag" default="/tmp/tmp.bag" doc="rosbag file path" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
@@ -24,7 +23,6 @@
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_rosbag_record.launch"
            if="$(arg record)">
-    <arg name="rosbag" value="$(arg rosbag)" />
     <arg name="compress" value="$(arg compress)" />
   </include>
 </launch>
