@@ -33,6 +33,7 @@
             /kinect_head/depth_registered/throttled/image_rect/compressedDepth
             /rmui0/rmui_node/output/imu
             /rmui0/rmui_node/output/imu/calib_status
+            /rmui0/rmui_node/output/imu_calibrated
             /rmui0/rmui_node/output/proximities
             /rmui_pose_publisher/output
             /audio
