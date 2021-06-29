@@ -16,6 +16,7 @@ class WS281xNode(object):
         self.led.turn_off()
         self.sub = rospy.Subscriber(
             '~input', LED, self._cb, queue_size=1)
+        self.led.turn_on()
         rospy.loginfo('ws281x node initialized')
 
     def _cb(self, msg):
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     app = WS281xNode()
 
     def shutdown_hook():
-        app.led.turn_off()
+        app.led.turn_off(wait=1.0)
 
     rospy.on_shutdown(shutdown_hook)
     rospy.spin()
