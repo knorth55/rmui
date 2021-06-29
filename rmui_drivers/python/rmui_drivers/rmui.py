@@ -21,9 +21,10 @@ class RMUI(object):
             rospy.logerr('IMU is not initially calibrated.')
         for sensor_board in self.sensor_boards:
             sensor_board.init_sensors()
-        self.led.turn_on(255, 0, 0, 0.1)
-        self.led.turn_on(0, 255, 0, 0.1)
-        self.led.turn_on(0, 0, 255, 0.1)
+        self.led.turn_on()
+        self.led.set_color_all(255, 0, 0, 0.1)
+        self.led.set_color_all(0, 255, 0, 0.1)
+        self.led.set_color_all(0, 0, 255, 0.1)
         self.led.turn_off()
 
     def get_imu_msg(self):

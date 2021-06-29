@@ -19,19 +19,25 @@ class WS281x(object):
         self.n_led = n_led
         self.strip.begin()
 
-    def set_color_all(self, R, G, B):
+    def set_color_all(self, R, G, B, wait=None, force=False):
+        if not self.on:
+            return
         for i in range(self.strip.numPixels()):
-            self.set_color(i, R, G, B)
+            self.set_color(i, R, G, B, force=force)
+        if wait:
+            time.sleep(wait)
 
-    def set_color(self, i, R, G, B):
+    def set_color(self, i, R, G, B, force=False):
+        if force or not self.on:
+            return
         color = Color(R, G, B)
         self.strip.setPixelColor(i, color)
         self.strip.show()
 
-    def turn_on(self, R, G, B, wait=0.01):
-        self.set_color_all(R, G, B)
-        time.sleep(wait)
+    def turn_on(self):
+        self.on = True
 
     def turn_off(self, wait=0.01):
-        self.set_color_all(0, 0, 0)
+        self.set_color_all(0, 0, 0, force=True)
+        self.on = False
         time.sleep(wait)
