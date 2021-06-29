@@ -18,6 +18,7 @@ class WS281x(object):
             n_led, pin, self.hz, self.dma, False, brightness, 0)
         self.n_led = n_led
         self.strip.begin()
+        self.on = False
 
     def set_color_all(self, R, G, B, wait=None, force=False):
         if not (force or self.on):
@@ -38,6 +39,6 @@ class WS281x(object):
         self.on = True
 
     def turn_off(self, wait=0.01):
-        self.set_color_all(0, 0, 0, force=True)
         self.on = False
+        self.set_color_all(0, 0, 0, force=True)
         time.sleep(wait)
