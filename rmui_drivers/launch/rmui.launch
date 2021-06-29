@@ -47,6 +47,8 @@
           args="--perspective-file $(find rmui_drivers)/resource/rqt_contact_sensor_buttons.perspective" />
     <node name="rqt_rotate_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
           args="--perspective-file $(find rmui_drivers)/resource/rqt_rotate_buttons.perspective" />
+    <node name="rqt_contact_buttons" pkg="rqt_gui" type="rqt_gui" unless="$(arg dummy)"
+          args="--perspective-file $(find rmui_drivers)/resource/rqt_imu_buttons.perspective" />
   </group>
 
 </launch>

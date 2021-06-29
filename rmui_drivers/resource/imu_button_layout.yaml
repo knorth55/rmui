@@ -1,0 +1,4 @@
+- name: Calibrate IMU
+  service: '/rmui0/rmui_node/calibrate_imu'
+  column: 0
+  service_type: 'Trigger'
