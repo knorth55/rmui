@@ -25,7 +25,7 @@ class RMUI(object):
         self.led.set_color_all(255, 0, 0, 0.1)
         self.led.set_color_all(0, 255, 0, 0.1)
         self.led.set_color_all(0, 0, 255, 0.1)
-        self.led.turn_off()
+        self.led.set_color_all(0, 0, 0, 0.1)
 
     def get_imu_msg(self):
         q = self.imu.read_quaternion()
