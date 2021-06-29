@@ -2,11 +2,15 @@ import rospy
 
 from force_proximity_ros.msg import ProximityArray
 
+from rmui_drivers import led_utils
+
 from rmui_msgs.msg import ImuCalibStatus
 
 
 class RMUI(object):
-    def __init__(self, imu, sensor_boards, led, frame_id='rmui'):
+    def __init__(
+            self, imu, sensor_boards, led, frame_id='rmui', sensitivity=500
+    ):
         super(RMUI, self).__init__()
         self.imu = imu
         self.sensor_boards = sensor_boards
@@ -14,6 +18,7 @@ class RMUI(object):
             sensor_board.multiplexa.stop()
         self.led = led
         self.frame_id = frame_id
+        self.sensitivity = sensitivity
 
     def init_device(self):
         imu_calibrated = self.imu.init_sensor()
@@ -62,14 +67,21 @@ class RMUI(object):
         return calib_msg
 
     def turn_on_touch_led(self, prx_msg):
-        touch_led_ids = []
+        touch_prx_dict = {}
         for sensor_id, prx_data in enumerate(prx_msg.proximities):
             led_id = sensor_id // len(self.sensor_boards[0].sensors)
-            if prx_data.proximity > 1000 and led_id not in touch_led_ids:
-                touch_led_ids.append(led_id)
+            if prx_data.proximity >= self.sensitivity:
+                if led_id not in touch_prx_dict:
+                    touch_prx_dict[led_id] = [prx_data.proximity]
+                else:
+                    touch_prx_dict[led_id].append(prx_data.proximity)
 
         for led_id in range(self.led.n_led):
-            if led_id in touch_led_ids:
-                self.led.set_color(led_id, 255, 0, 0)
+            if led_id in touch_prx_dict:
+                prx_data = touch_prx_dict[led_id]
+                prx_average = sum(prx_data) / float(len(prx_data))
+                r, g, b = led_utils.prx_to_rgb(
+                    prx_average, self.sensitivity, 2000)
+                self.led.set_color(led_id, r, g, b)
             else:
                 self.led.set_color(led_id, 0, 0, 0)
