@@ -20,7 +20,7 @@ class WS281x(object):
         self.strip.begin()
 
     def set_color_all(self, R, G, B, wait=None, force=False):
-        if not self.on:
+        if not (force or self.on):
             return
         for i in range(self.strip.numPixels()):
             self.set_color(i, R, G, B, force=force)
@@ -28,7 +28,7 @@ class WS281x(object):
             time.sleep(wait)
 
     def set_color(self, i, R, G, B, force=False):
-        if force or not self.on:
+        if not (force or self.on):
             return
         color = Color(R, G, B)
         self.strip.setPixelColor(i, color)
