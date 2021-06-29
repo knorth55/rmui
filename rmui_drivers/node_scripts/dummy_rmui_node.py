@@ -34,8 +34,6 @@ class DummyRMUINode(object):
             '~output/imu/calib_status', ImuCalibStatus, queue_size=1)
         self.pub_prx = rospy.Publisher(
             '~output/proximities', ProximityArray, queue_size=1)
-        self.timer = rospy.Timer(
-            rospy.Duration(duration), self._timer_cb)
         self.broadcaster = tf2_ros.TransformBroadcaster()
 
         # contact
@@ -71,6 +69,9 @@ class DummyRMUINode(object):
         rospy.loginfo('dummy rmui node initialized')
         # contact to ground
         self.device.contact_board(0)
+
+        self.timer = rospy.Timer(
+            rospy.Duration(duration), self._timer_cb)
 
     def _timer_cb(self, event):
         imu_msg = self.device.get_imu_msg()
