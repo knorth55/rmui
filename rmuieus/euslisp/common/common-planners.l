@@ -405,8 +405,6 @@
                            (find :front-right contact-surfaces)))
                   (equal floor-contact-state :released)
                   (not (find :top contact-surfaces))
-                  ; (find :left contact-surfaces)
-                  ; (find :right contact-surfaces)
                   (find :bottom contact-surfaces))
              :push-hold-down)
             ((and (or (and (equal larm-contact-state :bottom-left-side-contact)
