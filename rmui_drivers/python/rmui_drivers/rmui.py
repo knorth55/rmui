@@ -81,7 +81,8 @@ class RMUI(object):
                 prx_data = touch_prx_dict[led_id]
                 prx_average = sum(prx_data) / float(len(prx_data))
                 r, g, b = led_utils.prx_to_rgb(
-                    prx_average, self.sensitivity, 2000)
+                    prx_average, min_prx=self.sensitivity,
+                    max_prx=2000, max_rgb=200)
                 self.led.set_color(led_id, r, g, b)
             else:
                 self.led.set_color(led_id, 0, 0, 0)
