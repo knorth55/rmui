@@ -7,14 +7,16 @@
 
   <node name="rosbag_record" pkg="rosbag" type="record"
       args="/rosout
+            /robot/joint_states
             /tf
             /tf_static
-            /robot/joint_states
+            /audio
             /rmui0/rmui_node/output/imu
             /rmui0/rmui_node/output/imu/calib_status
             /rmui0/rmui_node/output/imu_calibrated
             /rmui0/rmui_node/output/proximities
             /rmui_pose_publisher/output
+            /rmui_rviz/image/compressed
             -q $(arg compress_flag) -b 0
             --output-prefix $(arg home_dir)/.ros/rmui/rosbag/baxter_rmui"
       output="screen" />

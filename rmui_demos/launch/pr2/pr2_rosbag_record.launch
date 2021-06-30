@@ -7,9 +7,10 @@
 
   <node name="rosbag_record" pkg="rosbag" type="record"
       args="/rosout
+            /joint_states
             /tf
             /tf_static
-            /joint_states
+            /audio
             /map
             /base_odometry/odom
             /robot_pose_ekf/odom_combined
@@ -36,7 +37,7 @@
             /rmui0/rmui_node/output/imu_calibrated
             /rmui0/rmui_node/output/proximities
             /rmui_pose_publisher/output
-            /audio
+            /rmui_rviz/image/compressed
             -q $(arg compress_flag) -b 0
             --output-prefix $(arg home_dir)/.ros/rmui/rosbag/pr2_rmui"
       output="screen" />
