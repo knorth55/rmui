@@ -17,8 +17,8 @@ class RMUIPosePublisher(object):
             '~rmui_frame_id', 'rmui_link')
         self.update_rate = rospy.Duration(
             rospy.get_param('~update_rate', 0.1))
-        self.timer = rospy.Timer(self.update_rate, self._cb)
         self.pub = rospy.Publisher('~output', PoseStamped, queue_size=1)
+        self.timer = rospy.Timer(self.update_rate, self._cb)
 
     def _cb(self, event):
         if event.last_real:

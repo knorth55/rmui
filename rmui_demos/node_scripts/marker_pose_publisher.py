@@ -17,8 +17,8 @@ class MarkerPosePublisher(object):
             '~marker_frame_id', 'ar_marker_1')
         self.update_rate = rospy.Duration(
             rospy.get_param('~update_rate', 0.1))
-        self.timer = rospy.Timer(self.update_rate, self._cb)
         self.pub = rospy.Publisher('~output', PoseStamped, queue_size=1)
+        self.timer = rospy.Timer(self.update_rate, self._cb)
 
     def _cb(self, event):
         if event.last_real:
