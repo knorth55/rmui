@@ -41,14 +41,10 @@
   <group if="$(arg gui)">
     <node name="$(anon rviz)" pkg="rviz" type="rviz"
           args="-d $(find rmui_drivers)/rvizconfig/rmui.rviz" />
-    <node name="rqt_contact_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
-          args="--perspective-file $(find rmui_drivers)/resource/rqt_contact_buttons.perspective" />
-    <node name="rqt_contact_sensor_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
-          args="--perspective-file $(find rmui_drivers)/resource/rqt_contact_sensor_buttons.perspective" />
-    <node name="rqt_rotate_buttons" pkg="rqt_gui" type="rqt_gui" if="$(arg dummy)"
-          args="--perspective-file $(find rmui_drivers)/resource/rqt_rotate_buttons.perspective" />
-    <node name="rqt_contact_buttons" pkg="rqt_gui" type="rqt_gui" unless="$(arg dummy)"
-          args="--perspective-file $(find rmui_drivers)/resource/rqt_imu_buttons.perspective" />
+    <node name="$(anon reset_button)"
+          pkg="jsk_rqt_plugins" type="rqt_tabbed_buttons" output="screen" clear_params="true">
+      <rosparam command="load" file="$(find rmui_drivers)/resource/rmui_tabbed_layout.yaml" />
+    </node>
   </group>
 
 </launch>
