@@ -98,6 +98,46 @@ Visualization Manager:
       Name: RvizScenePublisher
       Value: true
       topic_name: /rmui_rviz/image
+    - Class: jsk_rviz_plugin/PieChart
+      Enabled: true
+      Name: Moving
+      Topic: /rmui0/rmui_node/output/status/moving
+      Value: true
+      auto color change: true
+      background color: 0; 0; 0
+      backround alpha: 0
+      clockwise rotate direction: false
+      foreground alpha: 0.699999988079071
+      foreground alpha 2: 0.4000000059604645
+      foreground color: 0; 0; 255
+      left: 30
+      max color: 255; 0; 0
+      max value: 1
+      min value: 0
+      show caption: true
+      size: 100
+      text size: 14
+      top: 20
+    - Class: jsk_rviz_plugin/PieChart
+      Enabled: true
+      Name: Waiting
+      Topic: /rmui0/rmui_node/output/status/waiting
+      Value: true
+      auto color change: true
+      background color: 0; 0; 0
+      backround alpha: 0
+      clockwise rotate direction: false
+      foreground alpha: 0.699999988079071
+      foreground alpha 2: 0.4000000059604645
+      foreground color: 0; 0; 255
+      left: 150
+      max color: 255; 0; 0
+      max value: 1
+      min value: 0
+      show caption: true
+      size: 100
+      text size: 14
+      top: 20
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -162,5 +202,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 939
-  X: 1987
-  Y: 699
+  X: 386
+  Y: 702

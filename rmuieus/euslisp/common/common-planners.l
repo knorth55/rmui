@@ -2,6 +2,8 @@
 
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
+(ros::load-ros-manifest "std_msgs")
+
 ;; parameters
 
 (defvar *device* (make-cube 120 120 120))
@@ -10,6 +12,9 @@
 (defvar *prx-position-threshold* 0.1)
 (defvar *motion-symbol-length* 10)
 (defvar *world-frame-id* "world")
+(defvar *waiting-visualize-topic-name* "/rmui0/rmui_node/output/status/waiting")
+(defvar *moving-visualize-topic-name* "/rmui0/rmui_node/output/status/moving")
+
 
 ;; functions
 
@@ -595,6 +600,10 @@
                       (null (or (find :bottom contact-surfaces)
                                 (find :bottom-right contact-surfaces)))))
              :support-rotate-cw-x45))))
+    (ros::publish *waiting-visualize-topic-name*
+                  (instance std_msgs::Float32 :init :data 1.0))
+    (ros::publish *moving-visualize-topic-name*
+                  (instance std_msgs::Float32 :init :data 0.0))
     (eval (append '(cond) arm-conditions dualarm-conditions
                   '(((null contact-positions) nil) (t nil))))))
 
@@ -632,6 +641,12 @@
     ;; execute motion symbols
     (if (or larm-motion-symbol rarm-motion-symbol)
       (progn
+        (if move-robot
+          (progn
+            (ros::publish *waiting-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 0.0))
+            (ros::publish *moving-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 1.0))))
         (if (equal larm-motion-symbol rarm-motion-symbol)
           (cond
             ((or (and (equal larm-motion-symbol :push-hold-up)

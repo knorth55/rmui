@@ -3,6 +3,7 @@
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 (ros::load-ros-manifest "force_proximity_ros")
+(ros::load-ros-manifest "std_msgs")
 
 
 ;; functions
@@ -28,10 +29,14 @@
 (defun main ()
   (ros::roseus "rmuieus")
   (motion-init)
+  (ros::ros-info "motion-init finished")
   (setq *tfl* (instance ros::transform-listener :init))
   (ros::rate 10)
+  (ros::advertise *waiting-visualize-topic-name* std_msgs::Float32 1)
+  (ros::advertise *moving-visualize-topic-name* std_msgs::Float32 1)
   (ros::subscribe "/rmui0/rmui_node/output/proximities" force_proximity_ros::ProximityArray
                   #'proximity-cb)
+  (ros::ros-info "initialization finished, starting")
   (ros::spin))
 
 (provide :common-main "common-main.l")
