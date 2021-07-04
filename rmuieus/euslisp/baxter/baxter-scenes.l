@@ -56,7 +56,12 @@
                         :coords
                         (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
                               :translate *contact-offset*)))
-  (if (not (send *ri* :simulation-modep))
+  (if (send *ri* :simulation-modep)
+    (progn
+      (send (get (geo:find-viewer (send *robot* :name)) :pickviewer)
+            :draw-floor nil)
+      (send (get (geo:find-viewer (send *robot* :name)) :pickviewer)
+            :change-background (float-vector 0.1 0.1 0.1)))
     (progn
       (setq *co* (instance collision-object-publisher :init))
       (send *co* :wipe-all)
