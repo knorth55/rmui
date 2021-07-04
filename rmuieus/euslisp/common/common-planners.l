@@ -602,7 +602,7 @@
                                 (find :bottom-right contact-surfaces)))))
              :support-rotate-cw-x45))))
     (ros::publish *waiting-visualize-topic-name*
-                  (instance std_msgs::Float32 :init :data 1.0))
+                  (instance std_msgs::Float32 :init :data 0.0))
     (ros::publish *moving-visualize-topic-name*
                   (instance std_msgs::Float32 :init :data 0.0))
     (eval (append '(cond) arm-conditions dualarm-conditions
@@ -619,6 +619,9 @@
         (floor-contact-state (caddr *object-contact-states*))
         larm-execute-p rarm-execute-p)
     ;; check motion symbol queue
+    (if (or larm-motion-symbol rarm-motion-symbol)
+      (ros::publish *waiting-visualize-topic-name*
+                    (instance std_msgs::Float32 :init :data 1.0)))
     (setq larm-motion-symbol-queue
           (append
             (if (>= (length larm-motion-symbol-queue) *motion-symbol-length*)
@@ -645,7 +648,7 @@
         (if move-robot
           (progn
             (ros::publish *waiting-visualize-topic-name*
-                          (instance std_msgs::Float32 :init :data 0.0))
+                          (instance std_msgs::Float32 :init :data 1.0))
             (ros::publish *moving-visualize-topic-name*
                           (instance std_msgs::Float32 :init :data 1.0))))
         (if (equal larm-motion-symbol rarm-motion-symbol)
