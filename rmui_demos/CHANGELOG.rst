@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.2 (2021-07-06)
+------------------
 * add rmui_rviz image
 * run timer at the last
 * add calibrated imu topic

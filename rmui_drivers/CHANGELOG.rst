@@ -2,8 +2,8 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.2 (2021-07-06)
+------------------
 * update rviz config
 * add moving and waiting signal
 * use tabbed layout button
