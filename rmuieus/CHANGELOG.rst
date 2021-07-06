@@ -2,6 +2,50 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update baxter background
+* update waiting command
+* update params
+* update prx-threshold
+* add moving and waiting signal
+* update rmui motion symbol length
+* fix condition for push-hold-down
+* remove comment
+* update hold-down conditions
+* update baxter offset
+* format
+* load collision-object-publisher
+* add moveit collision object
+* add desk-pos and cube-pos
+* update pr2-scenes.l
+* upset baxter-scenes.l
+* euslint
+* add get-contact-ik-args, get-contact-cube-coords to make code shorter
+* euslint
+* add larm/rarm-contact-coords in kinematics simulator
+* add link-list in ik
+* fix typo in ik rotation-axis
+* add larm/rarm-contact-coords
+* update pr2 end coordinates
+* update baxter end coordinates
+* update baxter scene
+* fix common-motions
+* remove unused function
+* add baxter/pr2-dualarm-motions.l
+* update baxter-scenes
+* format common-motions.l
+* fix scenes
+* add baxter rmui dummy and baxter rmui
+* add baxter-rmui-main.l and baxter-motions.l
+* add common-main
+* add common-motions.l
+* do not use pr2-planners.l
+* add euslisp/common
+* add rmui-scene.l
+* make directories for rmuieus codes
+* Contributors: Shingo Kitagawa
+
 1.0.1 (2021-06-16)
 ------------------
 * fix for kinematics simulator

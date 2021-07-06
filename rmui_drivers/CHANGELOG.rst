@@ -2,6 +2,26 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update rviz config
+* add moving and waiting signal
+* use tabbed layout button
+* add rmui_rviz image
+* add max_rgb
+* change device color depends on prx data
+* add imu calibration button
+* initialize in init_node
+* update ws281x_node
+* update led turnoff process
+* fix rmui led
+* fix conditions
+* add led turn_on and off
+* update rviz config
+* launch timer at the end of init
+* update rviz config
+* Contributors: Shingo Kitagawa
+
 1.0.1 (2021-06-16)
 ------------------
 
