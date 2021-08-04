@@ -1,0 +1,14 @@
+<launch>
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+
+  <group ns="rmui0">
+    <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
+          output="screen">
+      <rosparam subst_value="true">
+        n_board: $(arg n_board)
+        duration: $(arg duration)
+      </rosparam>
+    </node>
+  </group>
+</launch>
