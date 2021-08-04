@@ -4,6 +4,7 @@
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
   <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
 
   <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
   <machine name="localhost" address="localhost" />
@@ -11,20 +12,22 @@
   <group ns="rmui0">
     <param name="robot_description"
            command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
-    <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
-          output="screen" machine="$(arg machine)" unless="$(arg dummy)">
-      <rosparam subst_value="true">
-        n_board: $(arg n_board)
-        duration: $(arg duration)
-      </rosparam>
-    </node>
-    <node name="rmui_node" pkg="rmui_drivers" type="dummy_rmui_node.py"
-          output="screen" if="$(arg dummy)">
-      <rosparam subst_value="true">
-        n_board: $(arg n_board)
-        duration: $(arg duration)
-      </rosparam>
-    </node>
+    <group if="$(arg launch_device)">
+      <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
+            output="screen" machine="$(arg machine)" unless="$(arg dummy)">
+        <rosparam subst_value="true">
+          n_board: $(arg n_board)
+          duration: $(arg duration)
+        </rosparam>
+      </node>
+      <node name="rmui_node" pkg="rmui_drivers" type="dummy_rmui_node.py"
+            output="screen" if="$(arg dummy)">
+        <rosparam subst_value="true">
+          n_board: $(arg n_board)
+          duration: $(arg duration)
+        </rosparam>
+      </node>
+    </group>
     <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml"
              unless="$(arg dummy)"/>
   </group>
