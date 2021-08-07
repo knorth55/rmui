@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.3 (2021-08-07)
+------------------
 * add launch_device arg
 * Contributors: Shingo Kitagawa
 
