@@ -2,6 +2,11 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add launch_device arg
+* Contributors: Shingo Kitagawa
+
 1.0.2 (2021-07-06)
 ------------------
 * add rmui_rviz image

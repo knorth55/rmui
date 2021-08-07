@@ -2,6 +2,13 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add rmui_local.launch
+* add launch_device arg
+* update rviz config
+* Contributors: Shingo Kitagawa
+
 1.0.2 (2021-07-06)
 ------------------
 * update rviz config
