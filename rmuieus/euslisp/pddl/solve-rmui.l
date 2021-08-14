@@ -51,6 +51,12 @@
                                  (AT ?SPOT))
                  :effect '((CONTACT ?OBJECT ?ARM)))
        (instance pddl-action :init
+                 :name "contact_f"
+                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot))
+                 :precondition '((ON ?OBJECT ?SPOT)
+                                 (AT ?SPOT))
+                 :effect '())
+       (instance pddl-action :init
                  :name "liftup"
                  :parameters '((?OBJECT object) (?SPOT spot))
                  :precondition '((ON ?OBJECT ?SPOT)
@@ -59,6 +65,16 @@
                                  (CONTACT ?OBJECT RARM))
                  :effect '((HOLDUP ?OBJECT)
                            (NOT (ON ?OBJECT ?SPOT))))
+       (instance pddl-action :init
+                 :name "liftup_f"
+                 :parameters '((?OBJECT object) (?SPOT spot))
+                 :precondition '((ON ?OBJECT ?SPOT)
+                                 (AT ?SPOT)
+                                 (CONTACT ?OBJECT LARM)
+                                 (CONTACT ?OBJECT RARM))
+                 :effect '((ON ?OBJECT ?SPOT)
+                           (NOT (CONTACT ?OBJECT LARM))
+                           (NOT (CONTACT ?OBJECT RARM))))
        (instance pddl-action :init
                  :name "liftdown"
                  :parameters '((?OBJECT object) (?SPOT spot))
@@ -76,9 +92,13 @@
 ;;
 (pprint (setq *result* (solve-pddl-planning *domain* *problem* :debug nil)))
 
-(setq gr (make-graph-from-pddl-results (list *result*) :node-name :pprint))
+(setq *graph* (make-graph-from-pddl-results (list *result*) :node-name :pprint))
+(setq *graph* (add-failed-nodes *result* (list 'liftup 'contact) :graph *graph*))
 
-(send gr :write-to-pdf "rmui.pdf")
+(send *graph* :name (send *domain* :name))
+
+(setq *graph* (make-readable-graph *graph*))
+(send *graph* :write-to-pdf "rmui.pdf")
 
 (when (ros::get-param "~display_graph")
   (piped-fork "xdg-open rmui.pdf"))
