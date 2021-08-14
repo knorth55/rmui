@@ -1,5 +1,3 @@
-#!/usr/bin/env roseus
-
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 (ros::load-ros-manifest "force_proximity_ros")

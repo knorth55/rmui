@@ -1,5 +1,3 @@
-#!/usr/bin/env roseus
-
 (load "models/room73b2-askul-1200x700-desk-0-object.l")
 
 

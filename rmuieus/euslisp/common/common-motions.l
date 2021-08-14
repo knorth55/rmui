@@ -1,5 +1,3 @@
-#!/usr/bin/env roseus
-
 ;; (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 

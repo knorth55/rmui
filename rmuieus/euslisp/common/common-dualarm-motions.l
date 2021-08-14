@@ -1,5 +1,3 @@
-#!/usr/bin/env roseus
-
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
