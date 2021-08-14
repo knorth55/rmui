@@ -28,11 +28,11 @@
 ;;
 (setq *domain* (instance pddl-domain :init :name 'rmui))
 (send *domain* :requirements '(:typing))
-(send *domain* :types '(object spot arm))
-(send *domain* :constants '(CUBE - object LARM RARM - arm TABLE - spot))
+(send *domain* :types '(object spot arm side))
+(send *domain* :constants '(CUBE - object LARM RARM - arm TABLE - spot LEFT RIGHT - side))
 (send *domain* :predicates '((ON ?obj - object ?spot - spot)
                              (AT ?spot - spot)
-                             (CONTACT ?obj - object ?arm - arm)
+                             (CONTACT ?obj - object ?arm - arm ?side - side)
                              (HOLDUP ?obj - object)))
 
 ;;making action
@@ -46,23 +46,30 @@
                            (NOT (AT ?FROM))))
        (instance pddl-action :init
                  :name "contact"
-                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot))
+                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT))
-                 :effect '((CONTACT ?OBJECT ?ARM)))
+                 :effect '((CONTACT ?OBJECT ?ARM ?SIDE)))
        (instance pddl-action :init
                  :name "contact_f"
-                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot))
+                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT))
                  :effect '())
+       (instance pddl-action :init
+                 :name "release"
+                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
+                 :precondition '((ON ?OBJECT ?SPOT)
+                                 (CONTACT ?OBJECT ?ARM ?SIDE)
+                                 (AT ?SPOT))
+                 :effect '((NOT (CONTACT ?OBJECT ?ARM ?SIDE))))
        (instance pddl-action :init
                  :name "liftup"
                  :parameters '((?OBJECT object) (?SPOT spot))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
-                                 (CONTACT ?OBJECT LARM)
-                                 (CONTACT ?OBJECT RARM))
+                                 (CONTACT ?OBJECT LARM LEFT)
+                                 (CONTACT ?OBJECT RARM RIGHT))
                  :effect '((HOLDUP ?OBJECT)
                            (NOT (ON ?OBJECT ?SPOT))))
        (instance pddl-action :init
@@ -70,11 +77,11 @@
                  :parameters '((?OBJECT object) (?SPOT spot))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
-                                 (CONTACT ?OBJECT LARM)
-                                 (CONTACT ?OBJECT RARM))
+                                 (CONTACT ?OBJECT LARM LEFT)
+                                 (CONTACT ?OBJECT RARM RIGHT))
                  :effect '((ON ?OBJECT ?SPOT)
-                           (NOT (CONTACT ?OBJECT LARM))
-                           (NOT (CONTACT ?OBJECT RARM))))
+                           (NOT (CONTACT ?OBJECT LARM LEFT))
+                           (NOT (CONTACT ?OBJECT RARM RIGHT))))
        (instance pddl-action :init
                  :name "liftdown"
                  :parameters '((?OBJECT object) (?SPOT spot))
