@@ -30,7 +30,8 @@
   (dualarm-execute-motion-symbols-conditions-f
     (ros::resolve-ros-path
       "package://rmuieus/euslisp/conditions/execute_motion_symbols/dualarm-execute-motion-symbols-conditions.l"))
-  (setq *dualarm-execute-motion-symbols-conditions* (read dualarm-execute-motion-symbols-conditions-f)))
+  (setq *dualarm-execute-motion-symbols-conditions*
+        (read dualarm-execute-motion-symbols-conditions-f)))
 
 (with-open-file
   (larm-contact-state-conditions-f
