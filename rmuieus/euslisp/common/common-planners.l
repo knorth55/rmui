@@ -56,6 +56,18 @@
                   '(((null contact-positions) nil) (t nil))))))
 
 
+(defun append-motion-symbol-queue (motion-symbol-queue motion-symbol)
+  (append
+    (if (>= (length motion-symbol-queue) *motion-symbol-length*)
+      (cdr motion-symbol-queue) motion-symbol-queue)
+    (list motion-symbol)))
+
+
+(defun check-every-motion-queue (motion-symbol-queue motion-symbol)
+  (and (>= (length motion-symbol-queue) *motion-symbol-length*)
+       (every #'(lambda (x) (equal x motion-symbol)) motion-symbol-queue)))
+
+
 (defun execute-motion-symbols (motion-symbols &key (move-robot t) (use-torso 0.001))
   (let ((larm-motion-symbol-queue (car *motion-symbol-queue*))
         (rarm-motion-symbol-queue (cadr *motion-symbol-queue*))
@@ -70,21 +82,13 @@
       (ros::publish *waiting-visualize-topic-name*
                     (instance std_msgs::Float32 :init :data 1.0)))
     (setq larm-motion-symbol-queue
-          (append
-            (if (>= (length larm-motion-symbol-queue) *motion-symbol-length*)
-              (cdr larm-motion-symbol-queue) larm-motion-symbol-queue)
-            (list larm-motion-symbol)))
+          (append-motion-symbol-queue larm-motion-symbol-queue larm-motion-symbol))
     (setq rarm-motion-symbol-queue
-          (append
-            (if (>= (length rarm-motion-symbol-queue) *motion-symbol-length*)
-              (cdr rarm-motion-symbol-queue) rarm-motion-symbol-queue)
-            (list rarm-motion-symbol)))
+          (append-motion-symbol-queue rarm-motion-symbol-queue rarm-motion-symbol))
     (setq larm-execute-p
-          (and (>= (length larm-motion-symbol-queue) *motion-symbol-length*)
-               (every #'(lambda (x) (equal x larm-motion-symbol)) larm-motion-symbol-queue)))
+          (check-every-motion-queue larm-motion-symbol-queue larm-motion-symbol))
     (setq rarm-execute-p
-          (and (>= (length rarm-motion-symbol-queue) *motion-symbol-length*)
-               (every #'(lambda (x) (equal x rarm-motion-symbol)) rarm-motion-symbol-queue)))
+          (check-every-motion-queue rarm-motion-symbol-queue rarm-motion-symbol))
     (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
     (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
     (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
@@ -121,10 +125,14 @@
         (rarm-conditions *rarm-contact-state-conditions*)
         (floor-conditions *floor-contact-state-conditions*)
         (object-conditions *object-location-state-conditions*))
-    (setq larm-contact-state (eval (append '(cond) larm-conditions '((t larm-contact-state)))))
-    (setq rarm-contact-state (eval (append '(cond) rarm-conditions '((t rarm-contact-state)))))
-    (setq floor-contact-state (eval (append '(cond) floor-conditions '((t floor-contact-state)))))
-    (setq object-location-state (eval (append '(cond) object-conditions '((t object-location-state)))))
+    (setq larm-contact-state
+          (eval (append '(cond) larm-conditions '((t larm-contact-state)))))
+    (setq rarm-contact-state
+          (eval (append '(cond) rarm-conditions '((t rarm-contact-state)))))
+    (setq floor-contact-state
+          (eval (append '(cond) floor-conditions '((t floor-contact-state)))))
+    (setq object-location-state
+          (eval (append '(cond) object-conditions '((t object-location-state)))))
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))
     (setq *object-location-state* object-location-state)))
