@@ -22,12 +22,11 @@ catkin build
 
 ### Device workspace build
 
-After normal workspace build, please do the following command.
-
 ```bash
-cd rmui_ws/src
+ssh <your device>
+mkdir rmui_ws/src
 # for device
-wstool merge knorth55/rmui/device.rosinstall.${ROS_DISTRO}
+wget https://raw.githubusercontent.com/knorth55/rmui/master/device.rosinstall.${ROS_DISTRO} -o .rosinstall
 wstool update -j 2
 rosdep install --ignore-src --from-path . -y -r -c
 cd ..
@@ -36,11 +35,8 @@ catkin build
 
 ### Baxter workspace build
 
-After normal workspace build, please do the following command.
-
 ```bash
 cd rmui_ws/src
-# for device
 wstool merge knorth55/rmui/baxter.rosinstall
 wstool update -j 2
 rosdep install --ignore-src --from-path . -y -r -c
