@@ -16,7 +16,7 @@
              (get-contact-positions proximity *prx-threshold* *prx-position-threshold*)))
          (motion-symbols (get-motion-symbols contact-positions))
          (execute-symbols (execute-motion-symbols motion-symbols))
-         (update-object-p (update-object-contact-state execute-symbols)))
+         (update-scene-p (update-scene-state execute-symbols)))
     (send *irtviewer* :draw-objects)
     (send *ri* :draw-objects)
     (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
