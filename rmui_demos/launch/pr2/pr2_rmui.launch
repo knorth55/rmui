@@ -24,7 +24,7 @@
   </include>
 
   <node pkg="rmuieus" type="pr2-rmui-main.l" name="rmui_main"
-        args="&quot;(main)&quot;" if="$(arg main)" output="screen" />
+        args="&quot;(main)&quot;" if="$(arg main)" required="true" output="screen" />
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
            if="$(arg marker)" />
