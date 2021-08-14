@@ -21,20 +21,20 @@
 ;; conditions
 
 (with-open-file
-  (larm-get-motion-symbol-conditions-f
+  (larm-get-motion-symbols-conditions-f
     (ros::resolve-ros-path
-      "package://rmuieus/euslisp/conditions/get_motion_symbol/larm-get-motion-symbol-conditions.l"))
-  (setq *larm-get-motion-symbol-conditions* (read larm-get-motion-symbol-conditions-f)))
+      "package://rmuieus/euslisp/conditions/get_motion_symbols/larm-get-motion-symbols-conditions.l"))
+  (setq *larm-get-motion-symbols-conditions* (read larm-get-motion-symbols-conditions-f)))
 (with-open-file
-  (rarm-get-motion-symbol-conditions-f
+  (rarm-get-motion-symbols-conditions-f
     (ros::resolve-ros-path
-      "package://rmuieus/euslisp/conditions/get_motion_symbol/rarm-get-motion-symbol-conditions.l"))
-  (setq *rarm-get-motion-symbol-conditions* (read rarm-get-motion-symbol-conditions-f)))
+      "package://rmuieus/euslisp/conditions/get_motion_symbols/rarm-get-motion-symbols-conditions.l"))
+  (setq *rarm-get-motion-symbols-conditions* (read rarm-get-motion-symbols-conditions-f)))
 (with-open-file
-  (dualarm-get-motion-symbol-conditions-f
+  (dualarm-get-motion-symbols-conditions-f
     (ros::resolve-ros-path
-      "package://rmuieus/euslisp/conditions/get_motion_symbol/dualarm-get-motion-symbol-conditions.l"))
-  (setq *dualarm-get-motion-symbol-conditions* (read dualarm-get-motion-symbol-conditions-f)))
+      "package://rmuieus/euslisp/conditions/get_motion_symbols/dualarm-get-motion-symbols-conditions.l"))
+  (setq *dualarm-get-motion-symbols-conditions* (read dualarm-get-motion-symbols-conditions-f)))
 
 
 ;; initial conditions
@@ -64,10 +64,10 @@
         (rarm-contact-state (cadr *object-contact-states*))
         (floor-contact-state (caddr *object-contact-states*))
         (object-location-state *object-location-state*)
-        (arm-conditions (cond ((equal arm :larm) *larm-get-motion-symbol-conditions*)
-                              ((equal arm :rarm) *rarm-get-motion-symbol-conditions*)
+        (arm-conditions (cond ((equal arm :larm) *larm-get-motion-symbols-conditions*)
+                              ((equal arm :rarm) *rarm-get-motion-symbols-conditions*)
                               (t nil)))
-        (dualarm-conditions *dualarm-get-motion-symbol-conditions*))
+        (dualarm-conditions *dualarm-get-motion-symbols-conditions*))
     (ros::publish *waiting-visualize-topic-name*
                   (instance std_msgs::Float32 :init :data 0.0))
     (ros::publish *moving-visualize-topic-name*
