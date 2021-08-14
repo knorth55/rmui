@@ -153,8 +153,12 @@
 
 (defun get-cube-depth (&key (cube-rpy (float-vector 0 0 0)))
   (get-cube-length :x :cube-rpy cube-rpy))
+
+
 (defun get-cube-width (&key (cube-rpy (float-vector 0 0 0)))
   (get-cube-length :y :cube-rpy cube-rpy))
+
+
 (defun get-cube-height (&key (cube-rpy (float-vector 0 0 0)))
   (get-cube-length :z :cube-rpy cube-rpy))
 
@@ -185,10 +189,20 @@
 
 
 (defun get-front-cube-coords () (get-cube-coords :front))
+
+
 (defun get-back-cube-coords () (get-cube-coords :back))
+
+
 (defun get-left-cube-coords () (get-cube-coords :left))
+
+
 (defun get-right-cube-coords () (get-cube-coords :right))
+
+
 (defun get-top-cube-coords () (get-cube-coords :top))
+
+
 (defun get-bottom-cube-coords () (get-cube-coords :bottom))
 
 
