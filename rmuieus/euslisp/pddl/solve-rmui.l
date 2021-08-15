@@ -60,7 +60,7 @@
                            (NOT (AT ?FROM))))
        (instance pddl-action :init
                  :name "contact"
-                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
+                 :parameters '((?SPOT spot) (?OBJECT object) (?ARM arm) (?SIDE side))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
                                  (NOT (exists (?CSIDE - side)
@@ -68,7 +68,7 @@
                  :effect '((CONTACT ?OBJECT ?ARM ?SIDE)))
        (instance pddl-action :init
                  :name "contact_f"
-                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
+                 :parameters '((?SPOT spot) (?OBJECT object) (?ARM arm) (?SIDE side))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
                                  (NOT (exists (?CSIDE - side)
@@ -76,14 +76,14 @@
                  :effect '())
        (instance pddl-action :init
                  :name "release"
-                 :parameters '((?OBJECT object) (?ARM arm) (?SPOT spot) (?SIDE side))
+                 :parameters '((?SPOT spot) (?OBJECT object) (?ARM arm) (?SIDE side))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (CONTACT ?OBJECT ?ARM ?SIDE)
                                  (AT ?SPOT))
                  :effect '((NOT (CONTACT ?OBJECT ?ARM ?SIDE))))
        (instance pddl-action :init
                  :name "zrotate"
-                 :parameters '((?OBJECT object) (?SPOT spot) (?LSIDE lside) (?RSIDE rside)
+                 :parameters '((?SPOT spot) (?OBJECT object) (?LSIDE lside) (?RSIDE rside)
                                (?ZANGLE zangle) (?ROTATE-ZANGLE rotate-zangle))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
@@ -195,17 +195,17 @@
                            (NOT (CONTACT ?OBJECT RARM ?RSIDE))))
        (instance pddl-action :init
                  :name "zrotate_f"
-                 :parameters '((?OBJECT object) (?SPOT spot)
+                 :parameters '((?SPOT spot) (?OBJECT object) (?LSIDE lside) (?RSIDE rside)
                                (?ZANGLE zangle) (?ROTATE-ZANGLE rotate-zangle))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
-                                 (CONTACT ?OBJECT LARM LEFT)
-                                 (CONTACT ?OBJECT RARM RIGHT)
+                                 (CONTACT ?OBJECT LARM ?LSIDE)
+                                 (CONTACT ?OBJECT RARM ?RSIDE)
                                  (ZROTATE ?OBJECT ?ZANGLE))
                  :effect '())
        (instance pddl-action :init
                  :name "liftup"
-                 :parameters '((?OBJECT object) (?SPOT spot))
+                 :parameters '((?SPOT spot) (?OBJECT object))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
                                  (CONTACT ?OBJECT LARM LEFT)
@@ -214,7 +214,7 @@
                            (NOT (ON ?OBJECT ?SPOT))))
        (instance pddl-action :init
                  :name "liftup_f"
-                 :parameters '((?OBJECT object) (?SPOT spot))
+                 :parameters '((?SPOT spot) (?OBJECT object))
                  :precondition '((ON ?OBJECT ?SPOT)
                                  (AT ?SPOT)
                                  (CONTACT ?OBJECT LARM LEFT)
@@ -224,7 +224,7 @@
                            (NOT (CONTACT ?OBJECT RARM RIGHT))))
        (instance pddl-action :init
                  :name "liftdown"
-                 :parameters '((?OBJECT object) (?SPOT spot))
+                 :parameters '((?SPOT spot) (?OBJECT object))
                  :precondition '((AT ?SPOT)
                                  (CONTACT ?OBJECT LARM LEFT)
                                  (CONTACT ?OBJECT RARM RIGHT)
@@ -251,6 +251,55 @@
 
 (when (ros::get-param "~display_graph")
   (piped-fork "xdg-open rmui.pdf"))
+
+;; action functions
+(defun move-to (from to)
+  (ros::ros-info (format nil ";; move-to action [~a ~a]" from to))
+  t)
+
+(defun contact (spot obj arm side)
+  (ros::ros-info (format nil ";; contact action [~a ~a ~a ~a]" spot obj arm side))
+  t)
+
+(defun contact_f (spot obj arm side)
+  (ros::ros-info (format nil ";; contact_f action [~a ~a ~a ~a]" spot obj arm side))
+  t)
+
+(defun release (spot obj arm side)
+  (ros::ros-info (format nil ";; release action [~a ~a ~a ~a]" spot obj arm side))
+  t)
+
+(defun zrotate (spot obj lside rside zangle rotate-zangle)
+  (ros::ros-info
+    (format nil ";; zrotate action [~a ~a ~a ~a ~a ~a]"
+            spot obj lside rside zangle rotate-zangle))
+  t)
+
+(defun zrotate_f (spot obj lside rside zangle rotate-zangle)
+  (ros::ros-info
+    (format nil ";; zrotate_f action [~a ~a ~a ~a ~a ~a]"
+            spot obj lside rside zangle rotate-zangle))
+  t)
+
+(defun liftup (spot obj)
+  (ros::ros-info (format nil ";; liftup action [~a ~a]" spot obj))
+  t)
+
+(defun liftup_f (spot obj)
+  (ros::ros-info (format nil ";; liftup_f action [~a ~a]" spot obj))
+  t)
+
+(defun liftdown (spot obj)
+  (ros::ros-info (format nil ";; liftdown action [~a ~a]" spot obj))
+  t)
+
+
+(load "package://roseus_smach/src/state-machine-ros.l")
+(load "package://roseus_smach/src/state-machine-utils.l")
+(load "package://roseus_smach/src/pddl2smach.l")
+
+;; global data is not used (nil)
+(exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0)
 
 (when (string= "__log:=" (subseq (car (last lisp::*eustop-argument*)) 0 7))
   (ros::exit))
