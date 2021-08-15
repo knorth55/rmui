@@ -1,4 +1,5 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
+(require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
