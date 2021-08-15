@@ -2,7 +2,7 @@
   <arg name="display_graph" default="true" />
   <include file="$(find pddl_planner)/launch/pddl_ffha.launch" />
 
-  <node pkg="rmuieus" name="demo_rmui" type="solve-rmui.l" >
+  <node pkg="rmuieus" name="demo_rmui" type="solve-dualarm-liftup.l" >
     <param name="display_graph" value="$(arg display_graph)" />
   </node>
 
