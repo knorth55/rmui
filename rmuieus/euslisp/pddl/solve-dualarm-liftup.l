@@ -6,6 +6,10 @@
 (load "package://roseus_smach/src/state-machine-utils.l")
 (load "package://roseus_smach/src/pddl2smach.l")
 
+(require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
+(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
+
 ;;
 ;; problem
 ;;
@@ -258,6 +262,9 @@
     (piped-fork "xdg-open rmui.pdf")))
 
 (defun execute-smach (&key (move-robot t) (use-torso t))
+  (setq *move-robot* move-robot)
+  (setq *use-torso* use-torso)
+
   ;; action functions
   (defun move-to (from to)
     (ros::ros-info (format nil ";; move-to action [~a ~a]" from to))
@@ -265,6 +272,20 @@
 
   (defun contact (spot obj arm side)
     (ros::ros-info (format nil ";; contact action [~a ~a ~a ~a]" spot obj arm side))
+    (cond
+      ((and (equal arm 'LARM) (equal side 'LEFT))
+       (larm-left-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((and (equal arm 'LARM) (equal side 'LEFT-FRONT))
+       (larm-front-left-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((and (equal arm 'LARM) (equal side 'LEFT-BACK))
+       (larm-back-left-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((and (equal arm 'RARM) (equal side 'RIGHT))
+       (rarm-right-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((and (equal arm 'RARM) (equal side 'RIGHT-FRONT))
+       (rarm-front-right-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((and (equal arm 'RARM) (equal side 'RIGHT-BACK))
+       (rarm-back-right-push-action :move-robot *move-robot* :use-torso *use-torso*))
+      (t nil))
     t)
 
   (defun contact_f (spot obj arm side)
@@ -273,12 +294,24 @@
 
   (defun release (spot obj arm side)
     (ros::ros-info (format nil ";; release action [~a ~a ~a ~a]" spot obj arm side))
+    (cond
+      ((equal arm 'LARM)
+       (larm-push-release-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((equal arm 'RARM)
+       (rarm-push-release-action :move-robot *move-robot* :use-torso *use-torso*))
+      (t nil))
     t)
 
   (defun zrotate (spot obj lside rside zangle rotate-zangle)
     (ros::ros-info
       (format nil ";; zrotate action [~a ~a ~a ~a ~a ~a]"
               spot obj lside rside zangle rotate-zangle))
+    (cond 
+      ((equal rotate-zangle 'Z45)
+       (dualarm-push-rotate-ccw-z45-action :move-robot *move-robot* :use-torso *use-torso*))
+      ((equal rotate-zangle 'Z-45)
+       (dualarm-push-rotate-cw-z45-action :move-robot *move-robot* :use-torso *use-torso*))
+      (t nil))
     t)
 
   (defun zrotate_f (spot obj lside rside zangle rotate-zangle)
@@ -289,6 +322,7 @@
 
   (defun liftup (spot obj)
     (ros::ros-info (format nil ";; liftup action [~a ~a]" spot obj))
+    (dualarm-hold-up-action :move-robot *move-robot* :use-torso *use-torso*)
     t)
 
   (defun liftup_f (spot obj)
@@ -297,10 +331,15 @@
 
   (defun liftdown (spot obj)
     (ros::ros-info (format nil ";; liftdown action [~a ~a]" spot obj))
+    (dualarm-hold-down-action :move-robot *move-robot* :use-torso *use-torso*)
     t)
 
+  (motion-init)
+  (ros::ros-info "motion-init finished")
   (exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0))
 
+
+(ros::roseus "solve_dualarm_liftup")
 (solve-pddl)
 (execute-smach :move-robot t :use-torso t)
 
