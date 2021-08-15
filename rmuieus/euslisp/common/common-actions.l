@@ -1,5 +1,6 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
+
 ;; dualarm actions
 
 (defun dualarm-hold-up-action (&key (move-robot t) (use-torso t))
@@ -141,8 +142,8 @@
                            :use-torso use-torso))
   (dissoc-cube :arms))
 
-;; larm actions
 
+;; larm actions
 
 (defun larm-left-push-action (&key (move-robot t) (use-torso t))
   (push-motion :larm :move-robot move-robot :use-torso use-torso
