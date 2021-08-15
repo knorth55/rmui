@@ -1,14 +1,11 @@
-#!/usr/bin/env roseus
-
 (load "package://pddl_planner/src/pddl-result-graph.l")
 (load "package://pddl_planner/src/eus-pddl-client.l")
 (load "package://roseus_smach/src/state-machine-ros.l")
 (load "package://roseus_smach/src/state-machine-utils.l")
 (load "package://roseus_smach/src/pddl2smach.l")
 
-(require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
-(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
+(require :rmui-pddl-domain "package://rmuieus/euslisp/pddl/rmui-pddl-domain.l")
 
 ;;
 ;; problem
@@ -33,28 +30,6 @@
       '((HOLDUP CUBE)
         (ZROTATE CUBE Z180)
         ))
-
-;;
-;; domain
-;;
-(setq *domain* (instance pddl-domain :init :name 'rmui))
-(send *domain* :requirements '(:typing :equality :conditional-effects :quantified-preconditions))
-(send *domain* :types '(object spot arm lside rside))
-(send *domain* :constants '(CUBE - object
-                            LARM RARM - arm
-                            TABLE - spot
-                            LEFT LEFT-FRONT LEFT-BACK - lside
-                            RIGHT RIGHT-FRONT RIGHT-BACK - rside
-                            LEFT LEFT-FRONT LEFT-BACK RIGHT RIGHT-FRONT RIGHT-BACK - side
-                            Z45 Z-45 - rotate-zangle
-                            Z0 Z45 Z90 Z135 Z180 Z-45 Z-90 Z-135 - zangle
-                            ))
-(send *domain* :predicates '((ON ?obj - object ?spot - spot)
-                             (AT ?spot - spot)
-                             (CONTACT ?obj - object ?arm - arm ?side - side)
-                             (ZROTATE ?obj - object ?zangle - zangle)
-                             (HOLDUP ?obj - object)
-                             ))
 
 ;;making action
 (setq *actions*
@@ -339,9 +314,4 @@
   (exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0))
 
 
-(ros::roseus "solve_dualarm_liftup")
-(solve-pddl)
-(execute-smach :move-robot t :use-torso t)
-
-(when (string= "__log:=" (subseq (car (last lisp::*eustop-argument*)) 0 7))
-  (ros::exit))
+(provide :solve-dualarm-liftup "solve-dualarm-liftup.l")

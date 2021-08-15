@@ -1,8 +1,10 @@
 <launch>
   <arg name="display_graph" default="true" />
+  <arg name="robot" default="pr2" />
+
   <include file="$(find pddl_planner)/launch/pddl_ffha.launch" />
 
-  <node pkg="rmuieus" name="demo_rmui" type="solve-dualarm-liftup.l" >
+  <node pkg="rmuieus" name="demo_rmui" type="$(arg robot)-solve-dualarm-liftup.l" >
     <param name="display_graph" value="$(arg display_graph)" />
   </node>
 
