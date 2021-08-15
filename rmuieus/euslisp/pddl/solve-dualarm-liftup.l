@@ -281,7 +281,7 @@
     (ros::ros-info
       (format nil ";; zrotate action [~a ~a ~a ~a ~a ~a]"
               spot obj lside rside zangle rotate-zangle))
-    (cond 
+    (cond
       ((equal rotate-zangle 'Z45)
        (dualarm-push-rotate-ccw-z45-action :move-robot *move-robot* :use-torso *use-torso*))
       ((equal rotate-zangle 'Z-45)
