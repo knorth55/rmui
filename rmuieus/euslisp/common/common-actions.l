@@ -143,6 +143,48 @@
   (dissoc-cube :arms))
 
 
+;; common arm actions
+
+(defun front-push-action (arm &key (move-robot t) (use-torso t))
+  (push-motion arm :move-robot move-robot :use-torso use-torso
+               :push-axes (list :x)
+               :push-positions (list :center)
+               :push-directions (list :front)
+               :approach-directions (list (if (eq arm :larm) :left :right))
+               :approach-arm arm))
+
+
+(defun back-push-action (arm &key (move-robot t) (use-torso t))
+  (push-motion arm :move-robot move-robot :use-torso use-torso
+               :push-axes (list :x)
+               :push-positions (list :center)
+               :push-directions (list :back)
+               :approach-directions (list (if (eq arm :larm) :left :right))
+               :approach-arm arm))
+
+
+(defun top-push-action (arm &key (move-robot t) (use-torso t))
+  (push-motion arm :move-robot move-robot :use-torso use-torso
+               :push-axes (list :z)
+               :push-positions (list :center)
+               :push-directions (list :top)
+               :approach-directions (list (if (eq arm :larm) :left :right))
+               :approach-arm arm))
+
+
+(defun move-push-action (arm &key (move-robot t) (use-torso t))
+  (assoc-cube arm)
+  (push-move-motion arm :move-robot move-robot :use-torso use-torso
+                    :push-axis :y
+                    :move-distance (if (eq arm :larm) -200.0 200.0))
+  (dissoc-cube arm))
+
+
+(defun push-release-action (arm &key (move-robot t) (use-torso t))
+  (push-release-motion arm :move-robot move-robot :use-torso use-torso)
+  (reset-cube-manip-motion arm :move-robot move-robot))
+
+
 ;; larm actions
 
 (defun larm-left-push-action (&key (move-robot t) (use-torso t))
@@ -155,30 +197,16 @@
 
 
 (defun larm-front-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :larm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :x)
-               :push-positions (list :center)
-               :push-directions (list :front)
-               :approach-directions (list :left)
-               :approach-arm :larm))
+  (front-push-action :larm :move-robot move-robot :use-torso use-torso))
 
 
 (defun larm-back-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :larm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :x)
-               :push-positions (list :center)
-               :push-directions (list :back)
-               :approach-directions (list :left)
-               :approach-arm :larm))
+  (back-push-action :larm :move-robot move-robot :use-torso use-torso))
 
 
 (defun larm-top-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :larm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :z)
-               :push-positions (list :center)
-               :push-directions (list :top)
-               :approach-directions (list :left)
-               :approach-arm :larm))
+  (top-push-action :larm :move-robot move-robot :use-torso use-torso))
+
 
 (defun larm-top-left-push-action (&key (move-robot t) (use-torso t))
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
@@ -249,11 +277,7 @@
 
 
 (defun larm-left-move-push-action (&key (move-robot t) (use-torso t))
-  (assoc-cube :larm)
-  (push-move-motion :larm :move-robot move-robot :use-torso use-torso
-                    :push-axis :y
-                    :move-distance -200.0)
-  (dissoc-cube :larm))
+  (move-push-action :larm :move-robot move-robot :use-torso use-torso))
 
 
 (defun larm-bottom-left-side-push-action (&key (move-robot t) (use-torso t))
@@ -277,8 +301,7 @@
 
 
 (defun larm-push-release-action (&key (move-robot t) (use-torso t))
-  (push-release-motion :larm :move-robot move-robot :use-torso use-torso)
-  (reset-cube-manip-motion :larm :move-robot move-robot))
+  (push-release-action :larm :move-robot move-robot :use-torso use-torso))
 
 
 ;; rarm actions
@@ -293,30 +316,15 @@
 
 
 (defun rarm-front-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :rarm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :x)
-               :push-positions (list :center)
-               :push-directions (list :front)
-               :approach-directions (list :right)
-               :approach-arm :rarm))
+  (front-push-action :rarm :move-robot move-robot :use-torso use-torso))
 
 
 (defun rarm-back-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :rarm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :x)
-               :push-positions (list :center)
-               :push-directions (list :back)
-               :approach-directions (list :right)
-               :approach-arm :rarm))
+  (back-push-action :rarm :move-robot move-robot :use-torso use-torso))
 
 
 (defun rarm-top-push-action (&key (move-robot t) (use-torso t))
-  (push-motion :rarm :move-robot move-robot :use-torso use-torso
-               :push-axes (list :z)
-               :push-positions (list :center)
-               :push-directions (list :top)
-               :approach-directions (list :right)
-               :approach-arm :rarm))
+  (top-push-action :rarm :move-robot move-robot :use-torso use-torso))
 
 
 (defun rarm-top-right-push-action (&key (move-robot t) (use-torso t))
@@ -388,13 +396,7 @@
 
 
 (defun rarm-right-move-push-action (&key (move-robot t) (use-torso t))
-  (assoc-cube :rarm)
-  (push-move-motion :rarm
-                    :push-axis :y
-                    :move-distance 200.0
-                    :move-robot move-robot
-                    :use-torso use-torso)
-  (dissoc-cube :rarm))
+  (move-push-action :rarm :move-robot move-robot :use-torso use-torso))
 
 
 (defun rarm-bottom-right-side-push-action (&key (move-robot t) (use-torso t))
@@ -418,8 +420,7 @@
 
 
 (defun rarm-push-release-action (&key (move-robot t) (use-torso t))
-  (push-release-motion :rarm :move-robot move-robot :use-torso use-torso)
-  (reset-cube-manip-motion :rarm :move-robot move-robot))
+  (push-release-action :rarm :move-robot move-robot :use-torso use-torso))
 
 
 (provide :common-actions "common-actions.l")
