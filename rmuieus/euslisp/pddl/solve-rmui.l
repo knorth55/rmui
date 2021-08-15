@@ -2,6 +2,9 @@
 
 (load "package://pddl_planner/src/pddl-result-graph.l")
 (load "package://pddl_planner/src/eus-pddl-client.l")
+(load "package://roseus_smach/src/state-machine-ros.l")
+(load "package://roseus_smach/src/state-machine-utils.l")
+(load "package://roseus_smach/src/pddl2smach.l")
 
 ;;
 ;; problem
@@ -239,67 +242,67 @@
 ;;
 ;; solve planning
 ;;
-(pprint (setq *result* (solve-pddl-planning *domain* *problem* :debug nil)))
 
-(setq *graph* (make-graph-from-pddl-results (list *result*) :node-name :pprint))
-(setq *graph* (add-failed-nodes *result* (list 'liftup 'contact 'zrotate) :graph *graph*))
+(defun solve-pddl ()
+  (pprint (setq *result* (solve-pddl-planning *domain* *problem* :debug nil)))
 
-(send *graph* :name (send *domain* :name))
+  (setq *graph* (make-graph-from-pddl-results (list *result*) :node-name :pprint))
+  (setq *graph* (add-failed-nodes *result* (list 'liftup 'contact 'zrotate) :graph *graph*))
 
-(setq *graph* (make-readable-graph *graph*))
-(send *graph* :write-to-pdf "rmui.pdf")
+  (send *graph* :name (send *domain* :name))
 
-(when (ros::get-param "~display_graph")
-  (piped-fork "xdg-open rmui.pdf"))
+  (setq *graph* (make-readable-graph *graph*))
+  (send *graph* :write-to-pdf "rmui.pdf")
 
-;; action functions
-(defun move-to (from to)
-  (ros::ros-info (format nil ";; move-to action [~a ~a]" from to))
-  t)
+  (when (ros::get-param "~display_graph")
+    (piped-fork "xdg-open rmui.pdf")))
 
-(defun contact (spot obj arm side)
-  (ros::ros-info (format nil ";; contact action [~a ~a ~a ~a]" spot obj arm side))
-  t)
+(defun execute-smach (&key (move-robot t) (use-torso t))
+  ;; action functions
+  (defun move-to (from to)
+    (ros::ros-info (format nil ";; move-to action [~a ~a]" from to))
+    t)
 
-(defun contact_f (spot obj arm side)
-  (ros::ros-info (format nil ";; contact_f action [~a ~a ~a ~a]" spot obj arm side))
-  t)
+  (defun contact (spot obj arm side)
+    (ros::ros-info (format nil ";; contact action [~a ~a ~a ~a]" spot obj arm side))
+    t)
 
-(defun release (spot obj arm side)
-  (ros::ros-info (format nil ";; release action [~a ~a ~a ~a]" spot obj arm side))
-  t)
+  (defun contact_f (spot obj arm side)
+    (ros::ros-info (format nil ";; contact_f action [~a ~a ~a ~a]" spot obj arm side))
+    t)
 
-(defun zrotate (spot obj lside rside zangle rotate-zangle)
-  (ros::ros-info
-    (format nil ";; zrotate action [~a ~a ~a ~a ~a ~a]"
-            spot obj lside rside zangle rotate-zangle))
-  t)
+  (defun release (spot obj arm side)
+    (ros::ros-info (format nil ";; release action [~a ~a ~a ~a]" spot obj arm side))
+    t)
 
-(defun zrotate_f (spot obj lside rside zangle rotate-zangle)
-  (ros::ros-info
-    (format nil ";; zrotate_f action [~a ~a ~a ~a ~a ~a]"
-            spot obj lside rside zangle rotate-zangle))
-  t)
+  (defun zrotate (spot obj lside rside zangle rotate-zangle)
+    (ros::ros-info
+      (format nil ";; zrotate action [~a ~a ~a ~a ~a ~a]"
+              spot obj lside rside zangle rotate-zangle))
+    t)
 
-(defun liftup (spot obj)
-  (ros::ros-info (format nil ";; liftup action [~a ~a]" spot obj))
-  t)
+  (defun zrotate_f (spot obj lside rside zangle rotate-zangle)
+    (ros::ros-info
+      (format nil ";; zrotate_f action [~a ~a ~a ~a ~a ~a]"
+              spot obj lside rside zangle rotate-zangle))
+    t)
 
-(defun liftup_f (spot obj)
-  (ros::ros-info (format nil ";; liftup_f action [~a ~a]" spot obj))
-  t)
+  (defun liftup (spot obj)
+    (ros::ros-info (format nil ";; liftup action [~a ~a]" spot obj))
+    t)
 
-(defun liftdown (spot obj)
-  (ros::ros-info (format nil ";; liftdown action [~a ~a]" spot obj))
-  t)
+  (defun liftup_f (spot obj)
+    (ros::ros-info (format nil ";; liftup_f action [~a ~a]" spot obj))
+    t)
 
+  (defun liftdown (spot obj)
+    (ros::ros-info (format nil ";; liftdown action [~a ~a]" spot obj))
+    t)
 
-(load "package://roseus_smach/src/state-machine-ros.l")
-(load "package://roseus_smach/src/state-machine-utils.l")
-(load "package://roseus_smach/src/pddl2smach.l")
+  (exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0))
 
-;; global data is not used (nil)
-(exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0)
+(solve-pddl)
+(execute-smach :move-robot t :use-torso t)
 
 (when (string= "__log:=" (subseq (car (last lisp::*eustop-argument*)) 0 7))
   (ros::exit))
