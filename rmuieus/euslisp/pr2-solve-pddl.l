@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 
-(require :rmui-pddl-common "package://rmuieus/euslisp/pddl/rmui-pddl-common.l")
+(require :pddl-common "package://rmuieus/euslisp/pddl/pddl-common.l")
 
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")

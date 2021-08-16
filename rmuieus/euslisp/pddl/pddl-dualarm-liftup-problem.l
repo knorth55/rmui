@@ -18,7 +18,7 @@
 
 (send *problem* :goal-condition
       '((HOLDUP CUBE)
-        (ZROTATE CUBE Z90)))
+        (ZROTATE CUBE Z0)))
 
 
-(provide :rmui-pddl-dualarm-rotate-liftup-problem "rmui-pddl-dualarm-rotate-liftup-problem.l")
+(provide :pddl-dualarm-liftup-problem "pddl-dualarm-liftup-problem.l")

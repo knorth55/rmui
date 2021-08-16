@@ -5,12 +5,12 @@
 (require :pddl2smach "package://roseus_smach/src/pddl2smach.l")
 
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
-(require :rmui-pddl-domain "package://rmuieus/euslisp/pddl/rmui-pddl-domain.l")
-(require :rmui-pddl-actions "package://rmuieus/euslisp/pddl/rmui-pddl-actions.l")
+(require :pddl-domain "package://rmuieus/euslisp/pddl/pddl-domain.l")
+(require :pddl-actions "package://rmuieus/euslisp/pddl/pddl-actions.l")
 
 
 (defun load-pddl-problem (problem)
-  (load (format nil "package://rmuieus/euslisp/pddl/rmui-pddl-~A-problem.l"
+  (load (format nil "package://rmuieus/euslisp/pddl/pddl-~A-problem.l"
                 (string-downcase problem))))
 
 
@@ -38,4 +38,4 @@
   (exec-state-machine (convert-smach *graph*) nil :hz 1.0))
 
 
-(provide :rmui-pddl-common "rmui-pddl-common.l")
+(provide :pddl-common "pddl-common.l")

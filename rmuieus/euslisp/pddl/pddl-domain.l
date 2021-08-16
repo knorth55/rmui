@@ -21,4 +21,4 @@
                              (HOLDUP ?obj - object)
                              ))
 
-(provide :rmui-pddl-domain "rmui-pddl-domain.l")
+(provide :pddl-domain "pddl-domain.l")
