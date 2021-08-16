@@ -8,9 +8,9 @@
 (send *domain* :constants '(CUBE - object
                             LARM RARM - arm
                             TABLE - spot
-                            LEFT LEFT-FRONT LEFT-BACK - lside
-                            RIGHT RIGHT-FRONT RIGHT-BACK - rside
-                            LEFT LEFT-FRONT LEFT-BACK RIGHT RIGHT-FRONT RIGHT-BACK - side
+                            LEFT FRONT-LEFT BACK-LEFT - lside
+                            RIGHT FRONT-RIGHT BACK-RIGHT - rside
+                            LEFT FRONT-LEFT BACK-LEFT RIGHT FRONT-RIGHT BACK-RIGHT - side
                             Z45 Z-45 - rotate-zangle
                             Z0 Z45 Z90 Z135 Z180 Z-45 Z-90 Z-135 - zangle
                             ))
