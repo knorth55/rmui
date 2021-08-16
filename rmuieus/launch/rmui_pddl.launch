@@ -1,6 +1,6 @@
 <launch>
   <arg name="robot" default="pr2" />
-  <arg name="problem" default="dualarm-liftup" />
+  <arg name="problem" default="dualarm-rotate-liftup" />
   <arg name="main" default="true" />
   <arg name="display_graph" default="true" />
 
