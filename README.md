@@ -2,10 +2,11 @@
 
 Robot Manipulation User Interface (RMUI)
 
-## Information 
+## Information
 
 This package is the source code of the following paper:
-- [Miniature Tangible Cube: Concept and Design of Target-Object-Oriented User Interface for Dual-Arm Telemanipulation](https://ieeexplore.ieee.org/abstract/document/9483662) 
+
+- [Miniature Tangible Cube: Concept and Design of Target-Object-Oriented User Interface for Dual-Arm Telemanipulation](https://ieeexplore.ieee.org/abstract/document/9483662)
 
 ## Dependency
 
