@@ -4,6 +4,12 @@
 (ros::load-ros-manifest "std_msgs")
 
 
+;; parameters
+
+(defvar *prx-threshold* 800)
+(defvar *prx-position-threshold* 0.5)
+
+
 ;; functions
 
 (defun proximity-cb (msg)
