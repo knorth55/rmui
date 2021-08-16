@@ -9,10 +9,26 @@
   (dissoc-cube :arms))
 
 
+(defun dualarm-push-hold-up-action (&key (move-robot t) (use-torso t))
+  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso))
+
+
+(defun dualarm-support-hold-up-action (&key (move-robot t) (use-torso t))
+  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso))
+
+
 (defun dualarm-hold-down-action (&key (move-robot t) (use-torso t))
   (assoc-cube :arms)
   (hold-lift-down-motion :move-robot move-robot :use-torso use-torso)
   (dissoc-cube :arms))
+
+
+(defun dualarm-push-hold-down-action (&key (move-robot t) (use-torso t))
+  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso))
+
+
+(defun dualarm-support-hold-down-action (&key (move-robot t) (use-torso t))
+  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso))
 
 
 (defun dualarm-push-rotate-ccw-x45-action (&key (move-robot t) (use-torso t))
@@ -72,6 +88,14 @@
   (dissoc-cube :arms))
 
 
+(defun dualarm-lift-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t))
+  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso))
+
+
+(defun dualarm-side-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t))
+  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso))
+
+
 (defun dualarm-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t))
   (assoc-cube :arms)
   (let* ((initial-rotate-angle 0)
@@ -87,6 +111,14 @@
                         :move-robot move-robot
                         :use-torso use-torso))
   (dissoc-cube :arms))
+
+
+(defun dualarm-lift-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t))
+  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso))
+
+
+(defun dualarm-side-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t))
+  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso))
 
 
 (defun dualarm-push-rotate-ccw-z45-action (&key (move-robot t) (use-torso t))

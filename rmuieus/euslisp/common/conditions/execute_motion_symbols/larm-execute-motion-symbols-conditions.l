@@ -1,3 +1,5 @@
+;; WARNING: this file is deprecated and not used now.
+
 ;; left push
 (((equal larm-motion-symbol :left-push)
   (larm-left-push-action :move-robot move-robot :use-torso use-torso))

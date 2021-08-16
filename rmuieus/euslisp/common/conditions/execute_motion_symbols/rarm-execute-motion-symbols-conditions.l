@@ -1,3 +1,5 @@
+;; WARNING: this file is deprecated and not used now.
+
 ;; right push
 (((equal rarm-motion-symbol :right-push)
   (rarm-right-push-action :move-robot move-robot :use-torso use-torso))

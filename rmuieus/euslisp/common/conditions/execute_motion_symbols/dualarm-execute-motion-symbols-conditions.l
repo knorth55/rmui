@@ -1,3 +1,5 @@
+;; WARNING: this file is deprecated and not used now.
+
 ;; support push hold up
 (((or (and (equal larm-motion-symbol :push-hold-up)
            (equal rarm-motion-symbol :push-hold-up))

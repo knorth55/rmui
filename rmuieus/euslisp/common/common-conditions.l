@@ -1,5 +1,7 @@
 ;; conditions
 
+;; get-motion-symbols
+
 (with-open-file
   (larm-get-motion-symbols-conditions-f
     (ros::resolve-ros-path
@@ -16,22 +18,7 @@
       "package://rmuieus/euslisp/common/conditions/get_motion_symbols/dualarm-get-motion-symbols-conditions.l"))
   (setq *dualarm-get-motion-symbols-conditions* (read dualarm-get-motion-symbols-conditions-f)))
 
-(with-open-file
-  (larm-execute-motion-symbols-conditions-f
-    (ros::resolve-ros-path
-      "package://rmuieus/euslisp/common/conditions/execute_motion_symbols/larm-execute-motion-symbols-conditions.l"))
-  (setq *larm-execute-motion-symbols-conditions* (read larm-execute-motion-symbols-conditions-f)))
-(with-open-file
-  (rarm-execute-motion-symbols-conditions-f
-    (ros::resolve-ros-path
-      "package://rmuieus/euslisp/common/conditions/execute_motion_symbols/rarm-execute-motion-symbols-conditions.l"))
-  (setq *rarm-execute-motion-symbols-conditions* (read rarm-execute-motion-symbols-conditions-f)))
-(with-open-file
-  (dualarm-execute-motion-symbols-conditions-f
-    (ros::resolve-ros-path
-      "package://rmuieus/euslisp/common/conditions/execute_motion_symbols/dualarm-execute-motion-symbols-conditions.l"))
-  (setq *dualarm-execute-motion-symbols-conditions*
-        (read dualarm-execute-motion-symbols-conditions-f)))
+;; update-scene-state
 
 (with-open-file
   (larm-contact-state-conditions-f

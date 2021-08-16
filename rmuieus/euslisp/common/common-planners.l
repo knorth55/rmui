@@ -76,6 +76,7 @@
         (larm-contact-state (car *object-contact-states*))
         (rarm-contact-state (cadr *object-contact-states*))
         (floor-contact-state (caddr *object-contact-states*))
+        (execute-symbols nil)
         larm-execute-p rarm-execute-p)
     ;; check motion symbol queue
     (if (or larm-motion-symbol rarm-motion-symbol)
@@ -94,31 +95,36 @@
     (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
 
     ;; execute motion symbols
-    (let ((larm-conditions *larm-execute-motion-symbols-conditions*)
-          (rarm-conditions *rarm-execute-motion-symbols-conditions*)
-          (dualarm-conditions *dualarm-execute-motion-symbols-conditions*)
-          execute-symbols)
-      (if (or larm-motion-symbol rarm-motion-symbol)
-        (progn
-          (if move-robot
-            (progn
-              (ros::publish *waiting-visualize-topic-name*
-                            (instance std_msgs::Float32 :init :data 1.0))
-              (ros::publish *moving-visualize-topic-name*
-                            (instance std_msgs::Float32 :init :data 1.0))))
-          (cond
-            ((and larm-motion-symbol rarm-motion-symbol
-                  (equal larm-motion-symbol rarm-motion-symbol))
-             (eval (append '(cond) dualarm-conditions '((t nil))))
-             (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol)))
-            (larm-motion-symbol
-             (eval (append '(cond) larm-conditions '((t nil))))
-             (setq execute-symbols (list larm-motion-symbol nil)))
-            (rarm-motion-symbol
-             (eval (append '(cond) rarm-conditions '((t nil))))
-             (setq execute-symbols (list nil rarm-motion-symbol)))
-            (t nil))))
-      execute-symbols)))
+    (if (or larm-motion-symbol rarm-motion-symbol)
+      (progn
+        (if move-robot
+          (progn
+            (ros::publish *waiting-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 1.0))
+            (ros::publish *moving-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 1.0))))
+        (cond
+          ((and larm-motion-symbol rarm-motion-symbol
+                (equal larm-motion-symbol rarm-motion-symbol))
+           (eval (list (read-from-string
+                         (format nil "dualarm-~A-action"
+                                 (string-downcase larm-motion-symbol)))
+                       :move-robot move-robot :use-torso use-torso))
+           (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol)))
+          (larm-motion-symbol
+           (eval (list (read-from-string
+                         (format nil "larm-~A-action"
+                                 (string-downcase larm-motion-symbol)))
+                       :move-robot move-robot :use-torso use-torso))
+           (setq execute-symbols (list larm-motion-symbol nil)))
+          (rarm-motion-symbol
+           (eval (list (read-from-string
+                         (format nil "rarm-~A-action"
+                                 (string-downcase rarm-motion-symbol)))
+                       :move-robot move-robot :use-torso use-torso))
+           (setq execute-symbols (list nil rarm-motion-symbol)))
+          (t nil))))
+    execute-symbols))
 
 
 (defun update-scene-state (motion-symbols)
