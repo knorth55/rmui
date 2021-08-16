@@ -2,6 +2,11 @@
 
 Robot Manipulation User Interface (RMUI)
 
+## Information 
+
+This package is the source code of the following paper:
+- [Miniature Tangible Cube: Concept and Design of Target-Object-Oriented User Interface for Dual-Arm Telemanipulation](https://ieeexplore.ieee.org/abstract/document/9483662) 
+
 ## Dependency
 
 - [RoboticMaterials/FA-I-Sensor](https://github.com/RoboticMaterials/FA-I-sensor/)
@@ -137,3 +142,18 @@ rosrun rmui_drivers wx281x_node.py
 #### Input
 
 - ``~input``: (`rmui_msgs/LED`)
+
+## Citation
+
+```tex
+@ARTICLE{9483662,
+  author={Kitagawa, Shingo and Hasegawa, Shun and Yamaguchi, Naoya and Okada, Kei and Inaba, Masayuki},
+  journal={IEEE Robotics and Automation Letters},
+  title={Miniature Tangible Cube: Concept and Design of Target-Object-Oriented User Interface for Dual-Arm Telemanipulation},
+  year={2021},
+  volume={6},
+  number={4},
+  pages={6977-6984},
+  doi={10.1109/LRA.2021.3096475}
+}
+```
