@@ -15,6 +15,7 @@
 (defvar *world-frame-id* "world")
 (defvar *waiting-visualize-topic-name* "/rmui0/rmui_node/output/status/waiting")
 (defvar *moving-visualize-topic-name* "/rmui0/rmui_node/output/status/moving")
+(defvar *training-data-path* (ros::resolve-ros-path "package://rmuieus/training_data"))
 
 
 ;; initial conditions
@@ -115,8 +116,7 @@
              (eval action)
              (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol))
              (setq *executed-actions*
-                   (append *executed-actions* (list (list action-name action))))
-             ))
+                   (append *executed-actions* (list (list action-name action))))))
           (larm-motion-symbol
            (let* ((action-name
                     (format nil "larm-~A-action"
@@ -140,7 +140,16 @@
              (setq *executed-actions*
                    (append *executed-actions* (list (list action-name action))))))
           (t nil))))
+    (if execute-symbols
+      (dump-structure (format nil "~A/executed-actions.l" *training-data-path*)
+                      *executed-actions*))
     execute-symbols))
+
+
+(defun load-executed-actions (&key (filename "executed-actions.l"))
+  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+    (with-open-file (executed-actions-f filepath)
+     (setq *executed-actions* (read executed-actions-f)))))
 
 
 (defun update-scene-state (motion-symbols)
