@@ -151,7 +151,7 @@
                   (larm-motion-symbol (list larm-motion-symbol nil))
                   (rarm-motion-symbol (list nil rarm-motion-symbol))
                   (t nil)))
-          (update-executed-actions action-name action))))
+          (append-executed-actions action-name action))))
     (if execute-symbols (dump-executed-actions))
     execute-symbols))
 
@@ -176,27 +176,25 @@
       (setq *scene-states* (read scene-states-f)))))
 
 
-(defun update-executed-actions (action-name action)
-  (setq *executed-actions*
-        (append *executed-actions*
-                (list (list (read-from-string (format nil ":~A" action-name)) action)))))
+(defun append-executed-actions (action-name action)
+  (let ((executed-action (list (read-from-string (format nil ":~A" action-name)) action)))
+    (setq *executed-actions* (append *executed-actions* (list executed-action)))))
 
 
-(defun update-scene-states ()
+(defun append-scene-states ()
   (let ((larm-contact-state (car *object-contact-states*))
         (rarm-contact-state (cadr *object-contact-states*))
         (floor-contact-state (caddr *object-contact-states*))
-        (object-location-state *object-location-state*))
-    (setq *scene-states*
-          (append *scene-states*
-                  (list (list (list :larm-contact-state larm-contact-state)
-                              (list :rarm-contact-state rarm-contact-state)
-                              (list :floor-contact-state floor-contact-state)
-                              (list :object-location-state object-location-state)))))))
+        (object-location-state *object-location-state*)
+        (scene-state (list (list :larm-contact-state larm-contact-state)
+                           (list :rarm-contact-state rarm-contact-state)
+                           (list :floor-contact-state floor-contact-state)
+                           (list :object-location-state object-location-state))))
+    (setq *scene-states* (append *scene-states* (list scene-state)))))
 
 
 (defun update-scene-state (motion-symbols)
-  (if (null *scene-states*) (update-scene-states))
+  (if (null *scene-states*) (append-scene-states))
   (unless motion-symbols (return-from update-scene-state nil))
   (let ((larm-motion-symbol (car motion-symbols))
         (rarm-motion-symbol (cadr motion-symbols))
@@ -219,7 +217,7 @@
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))
     (setq *object-location-state* object-location-state)
-    (update-scene-states)
+    (append-scene-states)
     (dump-scene-states)))
 
 
