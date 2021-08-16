@@ -1,9 +1,7 @@
-(load "package://pddl_planner/src/pddl-result-graph.l")
-(load "package://pddl_planner/src/eus-pddl-client.l")
+(require :pddl-result-graph "package://pddl_planner/src/pddl-result-graph.l")
+(require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 
-;;
-;; domain
-;;
+
 (setq *domain* (instance pddl-domain :init :name 'rmui))
 (send *domain* :requirements '(:typing :equality :conditional-effects :quantified-preconditions))
 (send *domain* :types '(object spot arm lside rside))
