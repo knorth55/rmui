@@ -221,10 +221,14 @@
            (rarm-conditions *rarm-contact-state-conditions*)
            (floor-conditions *floor-contact-state-conditions*)
            (object-conditions *object-location-state-conditions*)
-           (larm-contact-state (eval (append '(cond) larm-conditions '((t prev-larm-contact-state)))))
-           (rarm-contact-state (eval (append '(cond) rarm-conditions '((t prev-rarm-contact-state)))))
-           (floor-contact-state (eval (append '(cond) floor-conditions '((t prev-floor-contact-state)))))
-           (object-location-state (eval (append '(cond) object-conditions '((t prev-object-location-state)))))
+           (larm-contact-state
+             (eval (append '(cond) larm-conditions '((t prev-larm-contact-state)))))
+           (rarm-contact-state
+             (eval (append '(cond) rarm-conditions '((t prev-rarm-contact-state)))))
+           (floor-contact-state
+             (eval (append '(cond) floor-conditions '((t prev-floor-contact-state)))))
+           (object-location-state
+             (eval (append '(cond) object-conditions '((t prev-object-location-state)))))
            (scene-state (list (list :larm-contact-state larm-contact-state)
                               (list :rarm-contact-state rarm-contact-state)
                               (list :floor-contact-state floor-contact-state)
