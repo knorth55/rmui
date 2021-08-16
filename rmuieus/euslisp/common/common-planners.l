@@ -24,6 +24,7 @@
 (setq *object-location-state* :center)
 (setq *motion-symbol-queue* (list nil nil))
 (setq *executed-actions* nil)
+(setq *scene-states* nil)
 
 
 ;; functions
@@ -70,6 +71,36 @@
        (every #'(lambda (x) (equal x motion-symbol)) motion-symbol-queue)))
 
 
+(defun get-action-from-motion-symbol (larm-motion-symbol rarm-motion-symbol
+                                      &key (move-robot t) (use-torso t))
+  (cond
+    ((and larm-motion-symbol rarm-motion-symbol
+          (equal larm-motion-symbol rarm-motion-symbol))
+     (let* ((action-name
+              (format nil "dualarm-~A-action" (string-downcase larm-motion-symbol)))
+            (action
+              (list (read-from-string action-name)
+                   :move-robot move-robot :use-torso use-torso)))
+       (list action-name action)))
+    (larm-motion-symbol
+     (let* ((action-name
+              (format nil "larm-~A-action"
+                           (string-downcase larm-motion-symbol)))
+            (action
+              (list (read-from-string action-name)
+                 :move-robot move-robot :use-torso use-torso)))
+       (list action-name action)))
+    (rarm-motion-symbol
+     (let* ((action-name
+              (format nil "rarm-~A-action"
+                          (string-downcase rarm-motion-symbol)))
+            (action
+              (list (read-from-string action-name)
+                :move-robot move-robot :use-torso use-torso)))
+       (list action-name action)))
+    (t nil)))
+
+
 (defun execute-motion-symbols (motion-symbols &key (move-robot t) (use-torso 0.001))
   (let ((larm-motion-symbol-queue (car *motion-symbol-queue*))
         (rarm-motion-symbol-queue (cadr *motion-symbol-queue*))
@@ -105,41 +136,22 @@
                           (instance std_msgs::Float32 :init :data 1.0))
             (ros::publish *moving-visualize-topic-name*
                           (instance std_msgs::Float32 :init :data 1.0))))
-        (cond
-          ((and larm-motion-symbol rarm-motion-symbol
-                (equal larm-motion-symbol rarm-motion-symbol))
-           (let* ((action-name
-                    (format nil "dualarm-~A-action" (string-downcase larm-motion-symbol)))
-                  (action
-                    (list (read-from-string action-name)
-                         :move-robot move-robot :use-torso use-torso)))
-             (eval action)
-             (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol))
-             (setq *executed-actions*
-                   (append *executed-actions* (list (list action-name action))))))
-          (larm-motion-symbol
-           (let* ((action-name
-                    (format nil "larm-~A-action"
-                                 (string-downcase larm-motion-symbol)))
-                  (action
-                    (list (read-from-string action-name)
-                       :move-robot move-robot :use-torso use-torso)))
-             (eval action)
-             (setq execute-symbols (list larm-motion-symbol nil))
-             (setq *executed-actions*
-                   (append *executed-actions* (list (list action-name action))))))
-          (rarm-motion-symbol
-           (let* ((action-name
-                    (format nil "rarm-~A-action"
-                                (string-downcase rarm-motion-symbol)))
-                  (action
-                    (list (read-from-string action-name)
-                      :move-robot move-robot :use-torso use-torso)))
-             (eval action)
-             (setq execute-symbols (list nil rarm-motion-symbol))
-             (setq *executed-actions*
-                   (append *executed-actions* (list (list action-name action))))))
-          (t nil))))
+        (let* ((action-name-and-action
+                 (get-action-from-motion-symbol
+                   larm-motion-symbol rarm-motion-symbol
+                   :move-robot move-robot :use-torso use-torso))
+               (action-name (if action-name-and-action (car action-name-and-action)))
+               (action (if action-name-and-action (cadr action-name-and-action))))
+          (eval action)
+          (setq execute-symbols
+                (cond
+                  ((and larm-motion-symbol rarm-motion-symbol
+                        (equal larm-motion-symbol rarm-motion-symbol))
+                   (list larm-motion-symbol rarm-motion-symbol))
+                  (larm-motion-symbol (list larm-motion-symbol nil))
+                  (rarm-motion-symbol (list nil rarm-motion-symbol))
+                  (t nil)))
+          (update-executed-actions action-name action))))
     (if execute-symbols
       (dump-structure
         (format nil "~A/executed-actions.l" *training-data-path*)
@@ -153,7 +165,28 @@
      (setq *executed-actions* (read executed-actions-f)))))
 
 
+(defun update-executed-actions (action-name action)
+  (setq *executed-actions*
+        (append *executed-actions*
+                (list (list (read-from-string (format nil ":~A" action-name))
+                            action)))))
+
+
+(defun update-scene-states ()
+  (let ((larm-contact-state (car *object-contact-states*))
+        (rarm-contact-state (cadr *object-contact-states*))
+        (floor-contact-state (caddr *object-contact-states*))
+        (object-location-state *object-location-state*))
+    (setq *scene-states*
+          (append *scene-states*
+                  (list (list (list :larm-contact-state larm-contact-state)
+                              (list :rarm-contact-state rarm-contact-state)
+                              (list :floor-contact-state floor-contact-state)
+                              (list :object-location-state object-location-state)))))))
+
+
 (defun update-scene-state (motion-symbols)
+  (if (null *scene-states*) (update-scene-states))
   (unless motion-symbols (return-from update-scene-state nil))
   (let ((larm-motion-symbol (car motion-symbols))
         (rarm-motion-symbol (cadr motion-symbols))
@@ -175,7 +208,11 @@
           (eval (append '(cond) object-conditions '((t object-location-state)))))
     (setq *object-contact-states*
           (list larm-contact-state rarm-contact-state floor-contact-state))
-    (setq *object-location-state* object-location-state)))
+    (setq *object-location-state* object-location-state)
+    (update-scene-states)
+    (dump-structure
+      (format nil "~A/scene-states.l" *training-data-path*)
+      *scene-states*)))
 
 
 (provide :common-planners "common-planners.l")
