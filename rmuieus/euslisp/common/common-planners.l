@@ -96,7 +96,8 @@
     ;; execute motion symbols
     (let ((larm-conditions *larm-execute-motion-symbols-conditions*)
           (rarm-conditions *rarm-execute-motion-symbols-conditions*)
-          (dualarm-conditions *dualarm-execute-motion-symbols-conditions*))
+          (dualarm-conditions *dualarm-execute-motion-symbols-conditions*)
+          execute-symbols)
       (if (or larm-motion-symbol rarm-motion-symbol)
         (progn
           (if move-robot
@@ -105,12 +106,19 @@
                             (instance std_msgs::Float32 :init :data 1.0))
               (ros::publish *moving-visualize-topic-name*
                             (instance std_msgs::Float32 :init :data 1.0))))
-          (if (equal larm-motion-symbol rarm-motion-symbol)
-            (eval (append '(cond) dualarm-conditions '((t nil)))))
-          (if larm-motion-symbol
-            (eval (append '(cond) larm-conditions '((t nil)))))
-          (if rarm-motion-symbol
-            (eval (append '(cond) rarm-conditions '((t nil))))))))))
+          (cond
+            ((and larm-motion-symbol rarm-motion-symbol
+                  (equal larm-motion-symbol rarm-motion-symbol))
+             (eval (append '(cond) dualarm-conditions '((t nil))))
+             (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol)))
+            (larm-motion-symbol
+             (eval (append '(cond) larm-conditions '((t nil))))
+             (setq execute-symbols (list larm-motion-symbol nil)))
+            (rarm-motion-symbol
+             (eval (append '(cond) rarm-conditions '((t nil))))
+             (setq execute-symbols (list nil rarm-motion-symbol)))
+            (t nil))))
+      execute-symbols)))
 
 
 (defun update-scene-state (motion-symbols)
