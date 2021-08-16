@@ -228,9 +228,17 @@
   (let*
     ((prx-v (scale (/ 1.0 (norm prx-v)) prx-v))
      (diff-vs (mapcar #'(lambda (v) (norm (v- prx-v v))) prx-vectors))
-     (diff-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-vs)))
+     (diff-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-vs))
+     prx-index diff-v-min)
     (when (every #'null diff-p) (return-from get-prx-position nil))
-    (elt prx-positions (position t diff-p))))
+    (dotimes (diff-index (length prx-vectors))
+      (if (elt diff-p diff-index)
+        (if (or (null diff-v-min)
+                (> diff-v-min (elt diff-vs diff-index)))
+          (progn
+            (setq prx-index diff-index)
+            (setq diff-v-min (elt diff-vs diff-index))))))
+    (elt prx-positions prx-index)))
 
 
 (defun update-device-prx-vectors ()
