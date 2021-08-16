@@ -56,7 +56,7 @@
 
   (motion-init)
   (ros::ros-info "motion-init finished")
-  (exec-smach-with-spin (convert-smach *graph*) nil :hz 1.0))
+  (exec-state-machine (convert-smach *graph*) nil :hz 1.0))
 
 
 (provide :solve-dualarm-liftup "solve-dualarm-liftup.l")
