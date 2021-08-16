@@ -141,8 +141,9 @@
                    (append *executed-actions* (list (list action-name action))))))
           (t nil))))
     (if execute-symbols
-      (dump-structure (format nil "~A/executed-actions.l" *training-data-path*)
-                      *executed-actions*))
+      (dump-structure
+        (format nil "~A/executed-actions.l" *training-data-path*)
+        *executed-actions*))
     execute-symbols))
 
 
