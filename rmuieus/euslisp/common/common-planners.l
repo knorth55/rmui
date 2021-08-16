@@ -152,24 +152,34 @@
                   (rarm-motion-symbol (list nil rarm-motion-symbol))
                   (t nil)))
           (update-executed-actions action-name action))))
-    (if execute-symbols
-      (dump-structure
-        (format nil "~A/executed-actions.l" *training-data-path*)
-        *executed-actions*))
+    (if execute-symbols (dump-executed-actions))
     execute-symbols))
+
+
+(defun dump-executed-actions (&key (filename "executed-actions.l"))
+  (dump-structure (format nil "~A/~A" *training-data-path* filename) *executed-actions*))
 
 
 (defun load-executed-actions (&key (filename "executed-actions.l"))
   (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
     (with-open-file (executed-actions-f filepath)
-     (setq *executed-actions* (read executed-actions-f)))))
+      (setq *executed-actions* (read executed-actions-f)))))
+
+
+(defun dump-scene-states (&key (filename "scene-states.l"))
+  (dump-structure (format nil "~A/~A" *training-data-path* filename) *scene-states*))
+
+
+(defun load-scene-states (&key (filename "scene-states.l"))
+  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+    (with-open-file (scene-states-f filepath)
+      (setq *scene-states* (read scene-states-f)))))
 
 
 (defun update-executed-actions (action-name action)
   (setq *executed-actions*
         (append *executed-actions*
-                (list (list (read-from-string (format nil ":~A" action-name))
-                            action)))))
+                (list (list (read-from-string (format nil ":~A" action-name)) action)))))
 
 
 (defun update-scene-states ()
@@ -210,9 +220,7 @@
           (list larm-contact-state rarm-contact-state floor-contact-state))
     (setq *object-location-state* object-location-state)
     (update-scene-states)
-    (dump-structure
-      (format nil "~A/scene-states.l" *training-data-path*)
-      *scene-states*)))
+    (dump-scene-states)))
 
 
 (provide :common-planners "common-planners.l")
