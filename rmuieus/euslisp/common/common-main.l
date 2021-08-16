@@ -27,7 +27,9 @@
     (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
     ; (ros::ros-info (format nil "contact-positions     : ~A" contact-positions))
     (ros::ros-info (format nil "object-contact-states : ~A" *object-contact-states*))
-    (ros::ros-info (format nil "object-location-state : ~A" *object-location-state*))))
+    (ros::ros-info (format nil "object-location-state : ~A" *object-location-state*))
+    (ros::ros-info (format nil "executed-actions: ~A" (mapcar #'car *executed-actions*)))
+    ))
 
 
 (defun main ()

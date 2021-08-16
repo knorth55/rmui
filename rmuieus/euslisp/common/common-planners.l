@@ -22,6 +22,7 @@
 (setq *object-contact-states* (list :released :released :bottom-contact))
 (setq *object-location-state* :center)
 (setq *motion-symbol-queue* (list nil nil))
+(setq *executed-actions* nil)
 
 
 ;; functions
@@ -106,23 +107,38 @@
         (cond
           ((and larm-motion-symbol rarm-motion-symbol
                 (equal larm-motion-symbol rarm-motion-symbol))
-           (eval (list (read-from-string
-                         (format nil "dualarm-~A-action"
-                                 (string-downcase larm-motion-symbol)))
-                       :move-robot move-robot :use-torso use-torso))
-           (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol)))
+           (let* ((action-name
+                    (format nil "dualarm-~A-action" (string-downcase larm-motion-symbol)))
+                  (action
+                    (list (read-from-string action-name)
+                         :move-robot move-robot :use-torso use-torso)))
+             (eval action)
+             (setq execute-symbols (list larm-motion-symbol rarm-motion-symbol))
+             (setq *executed-actions*
+                   (append *executed-actions* (list (list action-name action))))
+             ))
           (larm-motion-symbol
-           (eval (list (read-from-string
-                         (format nil "larm-~A-action"
+           (let* ((action-name
+                    (format nil "larm-~A-action"
                                  (string-downcase larm-motion-symbol)))
-                       :move-robot move-robot :use-torso use-torso))
-           (setq execute-symbols (list larm-motion-symbol nil)))
+                  (action
+                    (list (read-from-string action-name)
+                       :move-robot move-robot :use-torso use-torso)))
+             (eval action)
+             (setq execute-symbols (list larm-motion-symbol nil))
+             (setq *executed-actions*
+                   (append *executed-actions* (list (list action-name action))))))
           (rarm-motion-symbol
-           (eval (list (read-from-string
-                         (format nil "rarm-~A-action"
-                                 (string-downcase rarm-motion-symbol)))
-                       :move-robot move-robot :use-torso use-torso))
-           (setq execute-symbols (list nil rarm-motion-symbol)))
+           (let* ((action-name
+                    (format nil "rarm-~A-action"
+                                (string-downcase rarm-motion-symbol)))
+                  (action
+                    (list (read-from-string action-name)
+                      :move-robot move-robot :use-torso use-torso)))
+             (eval action)
+             (setq execute-symbols (list nil rarm-motion-symbol))
+             (setq *executed-actions*
+                   (append *executed-actions* (list (list action-name action))))))
           (t nil))))
     execute-symbols))
 
