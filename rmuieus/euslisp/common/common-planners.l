@@ -1,3 +1,6 @@
+(require :pddl-result-graph "package://pddl_planner/src/pddl-result-graph.l")
+(require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
+
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
@@ -25,6 +28,7 @@
 (setq *motion-symbol-queue* (list nil nil))
 (setq *executed-actions* nil)
 (setq *scene-states* nil)
+(setq *pddl-graph* (instance pddl-graph :init))
 
 
 ;; functions
@@ -151,9 +155,7 @@
                   (larm-motion-symbol (list larm-motion-symbol nil))
                   (rarm-motion-symbol (list nil rarm-motion-symbol))
                   (t nil)))
-          (append-executed-actions action-name action))))
-    (if execute-symbols (dump-executed-actions))
-    execute-symbols))
+          (list execute-symbols action-name action))))))
 
 
 (defun dump-executed-actions (&key (filename "executed-actions.l"))
@@ -176,49 +178,65 @@
       (setq *scene-states* (read scene-states-f)))))
 
 
-(defun append-executed-actions (action-name action)
-  (let ((executed-action (list (read-from-string (format nil ":~A" action-name)) action)))
+(defun dump-pddl-graph (&key (filename "pddl-graph.l"))
+  (dump-structure (format nil "~A/~A" *training-data-path* filename) *pddl-graph*))
+
+
+(defun load-pddl-graph (&key (filename "pddl-graph.l"))
+  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+    (with-open-file (pddl-graph-f filepath)
+      (setq *pddl-graph* (read pddl-graph-f)))))
+
+
+(defun append-executed-actions (action-name action prev-scene-state scene-state)
+  (let ((executed-action (list (read-from-string (format nil ":~A" action-name)) action))
+        (prev-node (send *pddl-graph* :search-node-from-pddl-state prev-scene-state))
+        (node (send *pddl-graph* :search-node-from-pddl-state scene-state)))
+    (send *pddl-graph* :add-arc-from-to prev-node node (format nil "~A" action))
     (setq *executed-actions* (append *executed-actions* (list executed-action)))))
 
 
-(defun append-scene-states ()
-  (let ((larm-contact-state (car *object-contact-states*))
-        (rarm-contact-state (cadr *object-contact-states*))
-        (floor-contact-state (caddr *object-contact-states*))
-        (object-location-state *object-location-state*)
-        (scene-state (list (list :larm-contact-state larm-contact-state)
-                           (list :rarm-contact-state rarm-contact-state)
-                           (list :floor-contact-state floor-contact-state)
-                           (list :object-location-state object-location-state))))
-    (setq *scene-states* (append *scene-states* (list scene-state)))))
+(defun append-scene-states (scene-state)
+  (send *pddl-graph* :add-pddl-state-node scene-state :node-name :pprint)
+  (setq *scene-states* (append *scene-states* (list scene-state))))
 
 
-(defun update-scene-state (motion-symbols)
-  (if (null *scene-states*) (append-scene-states))
-  (unless motion-symbols (return-from update-scene-state nil))
-  (let ((larm-motion-symbol (car motion-symbols))
-        (rarm-motion-symbol (cadr motion-symbols))
-        (larm-contact-state (car *object-contact-states*))
-        (rarm-contact-state (cadr *object-contact-states*))
-        (floor-contact-state (caddr *object-contact-states*))
-        (object-location-state *object-location-state*)
-        (larm-conditions *larm-contact-state-conditions*)
-        (rarm-conditions *rarm-contact-state-conditions*)
-        (floor-conditions *floor-contact-state-conditions*)
-        (object-conditions *object-location-state-conditions*))
-    (setq larm-contact-state
-          (eval (append '(cond) larm-conditions '((t larm-contact-state)))))
-    (setq rarm-contact-state
-          (eval (append '(cond) rarm-conditions '((t rarm-contact-state)))))
-    (setq floor-contact-state
-          (eval (append '(cond) floor-conditions '((t floor-contact-state)))))
-    (setq object-location-state
-          (eval (append '(cond) object-conditions '((t object-location-state)))))
-    (setq *object-contact-states*
-          (list larm-contact-state rarm-contact-state floor-contact-state))
-    (setq *object-location-state* object-location-state)
-    (append-scene-states)
-    (dump-scene-states)))
+(defun update-scene-state (motion-symbols-and-actions)
+  (let* ((prev-larm-contact-state (car *object-contact-states*))
+         (prev-rarm-contact-state (cadr *object-contact-states*))
+         (prev-floor-contact-state (caddr *object-contact-states*))
+         (prev-object-location-state *object-location-state*)
+         (prev-scene-state (list (list :larm-contact-state prev-larm-contact-state)
+                                 (list :rarm-contact-state prev-rarm-contact-state)
+                                 (list :floor-contact-state prev-floor-contact-state)
+                                 (list :object-location-state prev-object-location-state))))
+    (if (null *scene-states*) (append-scene-states prev-scene-state))
+    (unless motion-symbols-and-actions (return-from update-scene-state nil))
+    (let* ((motion-symbols (car motion-symbols-and-actions))
+           (action-name (cadr motion-symbols-and-actions))
+           (action (caddr motion-symbols-and-actions))
+           (larm-motion-symbol (car motion-symbols))
+           (rarm-motion-symbol (cadr motion-symbols))
+           (larm-conditions *larm-contact-state-conditions*)
+           (rarm-conditions *rarm-contact-state-conditions*)
+           (floor-conditions *floor-contact-state-conditions*)
+           (object-conditions *object-location-state-conditions*)
+           (larm-contact-state (eval (append '(cond) larm-conditions '((t prev-larm-contact-state)))))
+           (rarm-contact-state (eval (append '(cond) rarm-conditions '((t prev-rarm-contact-state)))))
+           (floor-contact-state (eval (append '(cond) floor-conditions '((t prev-floor-contact-state)))))
+           (object-location-state (eval (append '(cond) object-conditions '((t prev-object-location-state)))))
+           (scene-state (list (list :larm-contact-state larm-contact-state)
+                              (list :rarm-contact-state rarm-contact-state)
+                              (list :floor-contact-state floor-contact-state)
+                              (list :object-location-state object-location-state))))
+      (setq *object-contact-states*
+            (list larm-contact-state rarm-contact-state floor-contact-state))
+      (setq *object-location-state* object-location-state)
+      (append-scene-states scene-state)
+      (append-executed-actions action-name action prev-scene-state scene-state)
+      (dump-scene-states)
+      (dump-executed-actions)
+      (dump-pddl-graph))))
 
 
 (provide :common-planners "common-planners.l")

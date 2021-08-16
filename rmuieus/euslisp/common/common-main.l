@@ -19,8 +19,9 @@
            (if update-p
              (get-contact-positions proximity *prx-threshold* *prx-position-threshold*)))
          (motion-symbols (get-motion-symbols contact-positions))
-         (execute-symbols (execute-motion-symbols motion-symbols))
-         (update-scene-p (update-scene-state execute-symbols)))
+         (execute-symbols-and-actions (execute-motion-symbols motion-symbols))
+         (update-scene-p (update-scene-state execute-symbols-and-actions))
+         (execute-symbols (car execute-symbols-and-actions)))
     (send *irtviewer* :draw-objects)
     (send *ri* :draw-objects)
     (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
