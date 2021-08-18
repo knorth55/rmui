@@ -1,0 +1,11 @@
+<launch>
+  <arg name="robot" default="pr2" />
+  <arg name="main" default="true" />
+
+  <node pkg="rmuieus" name="demo_rmui" type="$(arg robot)-trained-execute.l" if="$(arg main)"
+        args="&quot;(main)&quot;" output="screen">
+  </node>
+
+  <node pkg="smach_viewer" name="smach_viewer" type="smach_viewer.py" />
+
+</launch>
