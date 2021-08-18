@@ -29,9 +29,22 @@
 (setq *executed-actions* nil)
 (setq *scene-states* nil)
 (setq *pddl-graph* (instance pddl-graph :init))
+(setq *dump-dir* nil)
 
 
 ;; functions
+
+(defun get-iso-time ()
+  (let* ((localtime (unix::localtime))
+         (iso-time (format nil "~A-~0,2d-~0,2dT~0,2d:~0,2d:~0,2d"
+                       (+ (elt localtime 5) 1900)
+                       (+ (elt localtime 4) 1)
+                       (elt localtime 3)
+                       (elt localtime 2)
+                       (elt localtime 1)
+                       (elt localtime 0))))
+    iso-time))
+
 
 (defun get-motion-symbols (contact-positions)
   (let* ((larm-motion-symbols
@@ -158,32 +171,43 @@
           (list execute-symbols action-name action))))))
 
 
-(defun dump-executed-actions (&key (filename "executed-actions.l"))
-  (dump-structure (format nil "~A/~A" *training-data-path* filename) *executed-actions*))
+(defun create-dump-dir (&key (stamp (get-iso-time)))
+  (let ((dump-dir (format nil "~A/~A" *training-data-path* stamp))
+        (latest-dir (format nil "~A/latest" *training-data-path*)))
+    (unix::system (format nil "mkdir -p ~A" dump-dir))
+    (unix::system (format nil "ln -sf ~A ~A" dump-dir latest-dir))
+    dump-dir))
 
 
-(defun load-executed-actions (&key (filename "executed-actions.l"))
-  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+(defun dump-executed-actions (&key (stamp "latest") (filename "executed-actions.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+    (dump-structure filepath *executed-actions*)))
+
+
+(defun load-executed-actions (&key (stamp "latest") (filename "executed-actions.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (executed-actions-f filepath)
       (setq *executed-actions* (read executed-actions-f)))))
 
 
-(defun dump-scene-states (&key (filename "scene-states.l"))
-  (dump-structure (format nil "~A/~A" *training-data-path* filename) *scene-states*))
+(defun dump-scene-states (&key (stamp "latest") (filename "scene-states.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+    (dump-structure filepath *scene-states*)))
 
 
-(defun load-scene-states (&key (filename "scene-states.l"))
-  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+(defun load-scene-states (&key (stamp "latest") (filename "scene-states.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (scene-states-f filepath)
       (setq *scene-states* (read scene-states-f)))))
 
 
-(defun dump-pddl-graph (&key (filename "pddl-graph.l"))
-  (dump-structure (format nil "~A/~A" *training-data-path* filename) *pddl-graph*))
+(defun dump-pddl-graph (&key (stamp "latest") (filename "pddl-graph.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+    (dump-structure filepath *pddl-graph*)))
 
 
-(defun load-pddl-graph (&key (filename "pddl-graph.l"))
-  (let ((filepath (format nil "~A/~A" *training-data-path* filename)))
+(defun load-pddl-graph (&key (stamp "latest") (filename "pddl-graph.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (pddl-graph-f filepath)
       (setq *pddl-graph* (read pddl-graph-f)))))
 
@@ -246,6 +270,7 @@
       (append-scene-states scene-state)
       (append-executed-actions action-name action)
       (add-action-state-in-graph action prev-scene-state scene-state)
+      (if (null *dump-dir*) (setq *dump-dir* (create-dump-dir)))
       (dump-scene-states)
       (dump-executed-actions)
       (dump-pddl-graph))))
