@@ -2,7 +2,6 @@
 
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/knorth55/rmui/CI/master)](https://github.com/knorth55/rmui/actions)
 
-
 Robot Manipulation User Interface (RMUI)
 
 ## Information
