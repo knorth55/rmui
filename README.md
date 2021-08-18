@@ -4,6 +4,8 @@
 
 Robot Manipulation User Interface (RMUI)
 
+![MiniatureTangibleCube](./.readme/mtc.png)
+
 ## Information
 
 This package is the source code of the following paper:
