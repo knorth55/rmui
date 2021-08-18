@@ -188,17 +188,24 @@
       (setq *pddl-graph* (read pddl-graph-f)))))
 
 
-(defun append-executed-actions (action-name action prev-scene-state scene-state)
-  (let ((executed-action (list (read-from-string (format nil ":~A" action-name)) action))
-        (prev-node (send *pddl-graph* :search-node-from-pddl-state prev-scene-state))
-        (node (send *pddl-graph* :search-node-from-pddl-state scene-state)))
-    (send *pddl-graph* :add-arc-from-to prev-node node (format nil "~A" action))
+(defun append-executed-actions (action-name action)
+  (let ((executed-action
+          (list (read-from-string (format nil ":~A" action-name)) action)))
     (setq *executed-actions* (append *executed-actions* (list executed-action)))))
 
 
 (defun append-scene-states (scene-state)
-  (send *pddl-graph* :add-pddl-state-node scene-state :node-name :pprint)
   (setq *scene-states* (append *scene-states* (list scene-state))))
+
+
+(defun add-action-state-in-graph (action prev-scene-state scene-state)
+  (let ((prev-node (send *pddl-graph* :search-node-from-pddl-state prev-scene-state))
+        (node (send *pddl-graph* :search-node-from-pddl-state scene-state)))
+    (if (null prev-node)
+      (setq prev-node (send *pddl-graph* :add-pddl-state-node prev-scene-state :node-name :pprint)))
+    (if (null node)
+      (setq node (send *pddl-graph* :add-pddl-state-node scene-state :node-name :pprint)))
+    (send *pddl-graph* :add-arc-from-to prev-node node (format nil "~A" action))))
 
 
 (defun update-scene-state (motion-symbols-and-actions)
@@ -237,7 +244,8 @@
             (list larm-contact-state rarm-contact-state floor-contact-state))
       (setq *object-location-state* object-location-state)
       (append-scene-states scene-state)
-      (append-executed-actions action-name action prev-scene-state scene-state)
+      (append-executed-actions action-name action)
+      (add-action-state-in-graph action prev-scene-state scene-state)
       (dump-scene-states)
       (dump-executed-actions)
       (dump-pddl-graph))))
