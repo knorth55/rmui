@@ -1,6 +1,11 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
 
+(defun action-init ()
+  (motion-init)
+  t)
+
+
 ;; dualarm actions
 
 (defun dualarm-hold-up-action (&key (move-robot t) (use-torso t))
