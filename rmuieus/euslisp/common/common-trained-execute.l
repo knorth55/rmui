@@ -8,8 +8,8 @@
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 
-(defun main ()
-  (load-pddl-graph)
+(defun main (&key (stamp "latest"))
+  (load-pddl-graph :stamp stamp)
   (send *pddl-graph* :add-pddl-state-node '(:init) :node-name :pprint)
   (send *pddl-graph* :add-arc-from-to
         (send *pddl-graph* :search-node-from-pddl-state '(:init))

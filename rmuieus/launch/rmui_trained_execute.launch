@@ -1,9 +1,10 @@
 <launch>
   <arg name="robot" default="pr2" />
   <arg name="main" default="true" />
+  <arg name="stamp" default="latest" />
 
   <node pkg="rmuieus" name="demo_rmui" type="$(arg robot)-trained-execute.l" if="$(arg main)"
-        args="&quot;(main)&quot;" output="screen">
+        args="&quot;(main :stamp \&quot;$(arg stamp)\&quot;)&quot;" output="screen">
   </node>
 
   <node pkg="smach_viewer" name="smach_viewer" type="smach_viewer.py" />
