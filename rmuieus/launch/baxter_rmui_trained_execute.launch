@@ -1,10 +1,12 @@
 <launch>
   <arg name="main" default="true" />
+  <arg name="pdf" default="true" />
   <arg name="stamp" default="latest" />
 
   <include file="$(find rmuieus)/launch/rmui_trained_execute.launch">
     <arg name="robot" value="baxter" />
     <arg name="main" value="$(arg main)" />
+    <arg name="pdf" value="$(arg pdf)" />
     <arg name="stamp" value="$(arg stamp)" />
   </include>
 </launch>

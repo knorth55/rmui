@@ -8,7 +8,7 @@
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 
-(defun main (&key (stamp "latest"))
+(defun main (&key (pdf nil) (stamp "latest"))
   (load-pddl-graph :stamp stamp)
   (send *pddl-graph* :add-pddl-state-node '(:init) :node-name :pprint)
   (send *pddl-graph* :add-arc-from-to
@@ -16,8 +16,10 @@
         (send *pddl-graph* :search-node-from-pddl-state *initial-state*)
         "(action-init)")
   ; (setq *pddl-graph* (make-readable-graph *pddl-graph*))
-  (send *pddl-graph* :write-to-pdf "rmui.pdf")
-  (piped-fork "xdg-open rmui.pdf")
+  (if pdf
+    (progn
+      (send *pddl-graph* :write-to-pdf "rmui.pdf")
+      (piped-fork "xdg-open rmui.pdf")))
 
   (setq *sm* (convert-smach *pddl-graph* :use-userdata nil
                             :start-state "(action-init)"
