@@ -67,14 +67,6 @@
     rotated-rotation-symbol))
 
 
-(defun get-motion-symbols (contact-positions)
-  (let* ((larm-motion-symbols
-           (get-motion-symbol :larm contact-positions))
-         (rarm-motion-symbols
-           (get-motion-symbol :rarm contact-positions)))
-    (list larm-motion-symbols rarm-motion-symbols)))
-
-
 (defun get-motion-symbol (arm contact-positions)
   (let ((contact-surfaces (mapcar #'car contact-positions))
         (bottom-contact-positions
@@ -139,59 +131,6 @@
     (t nil)))
 
 
-(defun execute-motion-symbols (motion-symbols &key (move-robot t) (use-torso 0.001))
-  (let ((larm-motion-symbol-queue (car *motion-symbol-queue*))
-        (rarm-motion-symbol-queue (cadr *motion-symbol-queue*))
-        (larm-motion-symbol (car motion-symbols))
-        (rarm-motion-symbol (cadr motion-symbols))
-        (larm-contact-state (car *object-contact-states*))
-        (rarm-contact-state (cadr *object-contact-states*))
-        (floor-contact-state (caddr *object-contact-states*))
-        (execute-symbols nil)
-        larm-execute-p rarm-execute-p)
-    ;; check motion symbol queue
-    (if (or larm-motion-symbol rarm-motion-symbol)
-      (ros::publish *waiting-visualize-topic-name*
-                    (instance std_msgs::Float32 :init :data 1.0)))
-    (setq larm-motion-symbol-queue
-          (append-motion-symbol-queue larm-motion-symbol-queue larm-motion-symbol))
-    (setq rarm-motion-symbol-queue
-          (append-motion-symbol-queue rarm-motion-symbol-queue rarm-motion-symbol))
-    (setq larm-execute-p
-          (check-every-motion-queue larm-motion-symbol-queue larm-motion-symbol))
-    (setq rarm-execute-p
-          (check-every-motion-queue rarm-motion-symbol-queue rarm-motion-symbol))
-    (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
-    (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
-    (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
-
-    ;; execute motion symbols
-    (if (or larm-motion-symbol rarm-motion-symbol)
-      (progn
-        (if move-robot
-          (progn
-            (ros::publish *waiting-visualize-topic-name*
-                          (instance std_msgs::Float32 :init :data 1.0))
-            (ros::publish *moving-visualize-topic-name*
-                          (instance std_msgs::Float32 :init :data 1.0))))
-        (let* ((action-name-and-action
-                 (get-action-from-motion-symbol
-                   larm-motion-symbol rarm-motion-symbol
-                   :move-robot move-robot :use-torso use-torso))
-               (action-name (if action-name-and-action (car action-name-and-action)))
-               (action (if action-name-and-action (cadr action-name-and-action))))
-          (eval action)
-          (setq execute-symbols
-                (cond
-                  ((and larm-motion-symbol rarm-motion-symbol
-                        (equal larm-motion-symbol rarm-motion-symbol))
-                   (list larm-motion-symbol rarm-motion-symbol))
-                  (larm-motion-symbol (list larm-motion-symbol nil))
-                  (rarm-motion-symbol (list nil rarm-motion-symbol))
-                  (t nil)))
-          (list execute-symbols action-name action))))))
-
-
 (defun create-dump-dir (&key (stamp (get-iso-stamp)))
   (let ((dump-dir (format nil "~A/~A" *training-data-path* stamp))
         (latest-dir (format nil "~A/latest" *training-data-path*)))
@@ -252,6 +191,69 @@
     (if (null node)
       (setq node (send *pddl-graph* :add-pddl-state-node scene-state :node-name :pprint)))
     (send *pddl-graph* :add-arc-from-to prev-node node (format nil "~A" action))))
+
+
+;; main functions for planners
+
+(defun get-motion-symbols (contact-positions)
+  (let* ((larm-motion-symbols
+           (get-motion-symbol :larm contact-positions))
+         (rarm-motion-symbols
+           (get-motion-symbol :rarm contact-positions)))
+    (list larm-motion-symbols rarm-motion-symbols)))
+
+
+(defun execute-motion-symbols (motion-symbols &key (move-robot t) (use-torso 0.001))
+  (let ((larm-motion-symbol-queue (car *motion-symbol-queue*))
+        (rarm-motion-symbol-queue (cadr *motion-symbol-queue*))
+        (larm-motion-symbol (car motion-symbols))
+        (rarm-motion-symbol (cadr motion-symbols))
+        (larm-contact-state (car *object-contact-states*))
+        (rarm-contact-state (cadr *object-contact-states*))
+        (floor-contact-state (caddr *object-contact-states*))
+        (execute-symbols nil)
+        larm-execute-p rarm-execute-p)
+    ;; check motion symbol queue
+    (if (or larm-motion-symbol rarm-motion-symbol)
+      (ros::publish *waiting-visualize-topic-name*
+                    (instance std_msgs::Float32 :init :data 1.0)))
+    (setq larm-motion-symbol-queue
+          (append-motion-symbol-queue larm-motion-symbol-queue larm-motion-symbol))
+    (setq rarm-motion-symbol-queue
+          (append-motion-symbol-queue rarm-motion-symbol-queue rarm-motion-symbol))
+    (setq larm-execute-p
+          (check-every-motion-queue larm-motion-symbol-queue larm-motion-symbol))
+    (setq rarm-execute-p
+          (check-every-motion-queue rarm-motion-symbol-queue rarm-motion-symbol))
+    (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
+    (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
+    (setq *motion-symbol-queue* (list larm-motion-symbol-queue rarm-motion-symbol-queue))
+
+    ;; execute motion symbols
+    (if (or larm-motion-symbol rarm-motion-symbol)
+      (progn
+        (if move-robot
+          (progn
+            (ros::publish *waiting-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 1.0))
+            (ros::publish *moving-visualize-topic-name*
+                          (instance std_msgs::Float32 :init :data 1.0))))
+        (let* ((action-name-and-action
+                 (get-action-from-motion-symbol
+                   larm-motion-symbol rarm-motion-symbol
+                   :move-robot move-robot :use-torso use-torso))
+               (action-name (if action-name-and-action (car action-name-and-action)))
+               (action (if action-name-and-action (cadr action-name-and-action))))
+          (eval action)
+          (setq execute-symbols
+                (cond
+                  ((and larm-motion-symbol rarm-motion-symbol
+                        (equal larm-motion-symbol rarm-motion-symbol))
+                   (list larm-motion-symbol rarm-motion-symbol))
+                  (larm-motion-symbol (list larm-motion-symbol nil))
+                  (rarm-motion-symbol (list nil rarm-motion-symbol))
+                  (t nil)))
+          (list execute-symbols action-name action))))))
 
 
 (defun update-scene-state (motion-symbols-and-actions)
