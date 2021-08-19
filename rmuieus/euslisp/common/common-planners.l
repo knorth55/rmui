@@ -41,16 +41,16 @@
 
 ;; functions
 
-(defun get-iso-time ()
+(defun get-iso-stamp ()
   (let* ((localtime (unix::localtime))
-         (iso-time (format nil "~A-~0,2d-~0,2dT~0,2d:~0,2d:~0,2d"
+         (iso-stamp (format nil "~A-~0,2d-~0,2dT~0,2d:~0,2d:~0,2d"
                        (+ (elt localtime 5) 1900)
                        (+ (elt localtime 4) 1)
                        (elt localtime 3)
                        (elt localtime 2)
                        (elt localtime 1)
                        (elt localtime 0))))
-    iso-time))
+    iso-stamp))
 
 
 (defun rotate-rotation-symbol (rotation-symbol angle)
@@ -192,7 +192,7 @@
           (list execute-symbols action-name action))))))
 
 
-(defun create-dump-dir (&key (stamp (get-iso-time)))
+(defun create-dump-dir (&key (stamp (get-iso-stamp)))
   (let ((dump-dir (format nil "~A/~A" *training-data-path* stamp))
         (latest-dir (format nil "~A/latest" *training-data-path*)))
     (unix::system (format nil "mkdir -p ~A" dump-dir))
