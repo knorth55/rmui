@@ -25,6 +25,7 @@
 
 (setq *object-contact-states* (list :released :released :bottom-contact))
 (setq *object-location-state* :center)
+(setq *object-rotation-state* (list :x0 :y0 :z0))
 (setq *motion-symbol-queue* (list nil nil))
 (setq *executed-actions* nil)
 (setq *scene-states* nil)
@@ -44,6 +45,20 @@
                        (elt localtime 1)
                        (elt localtime 0))))
     iso-time))
+
+
+(defun rotate-rotation-symbol (rotation-symbol angle)
+  (let* ((rotation-symbol-string (string-downcase rotation-symbol))
+         (rotation-angle
+           (+ (read-from-string (subseq rotation-symbol-string 1)) angle))
+         (rotated-rotation-symbol
+           (read-from-string
+             (format nil ":~A~A"
+                     (subseq rotation-symbol-string 0 1)
+                     (cond ((> rotation-angle 180) (- rotation-angle 360))
+                           ((<= rotation-angle -180) (+ rotation-angle 360))
+                           (t rotation-angle))))))
+    rotated-rotation-symbol))
 
 
 (defun get-motion-symbols (contact-positions)
@@ -238,10 +253,15 @@
          (prev-rarm-contact-state (cadr *object-contact-states*))
          (prev-floor-contact-state (caddr *object-contact-states*))
          (prev-object-location-state *object-location-state*)
+         (prev-object-rotation-state *object-rotation-state*)
+         (prev-object-x-rotation-symbol (car *object-rotation-state*))
+         (prev-object-y-rotation-symbol (cadr *object-rotation-state*))
+         (prev-object-z-rotation-symbol (caddr *object-rotation-state*))
          (prev-scene-state (list (list :larm-contact-state prev-larm-contact-state)
                                  (list :rarm-contact-state prev-rarm-contact-state)
                                  (list :floor-contact-state prev-floor-contact-state)
-                                 (list :object-location-state prev-object-location-state))))
+                                 (list :object-location-state prev-object-location-state)
+                                 (list :object-rotation-state prev-object-rotation-state))))
     (if (null *scene-states*) (append-scene-states prev-scene-state))
     (unless motion-symbols-and-actions (return-from update-scene-state nil))
     (let* ((motion-symbols (car motion-symbols-and-actions))
@@ -252,7 +272,8 @@
            (larm-conditions *larm-contact-state-conditions*)
            (rarm-conditions *rarm-contact-state-conditions*)
            (floor-conditions *floor-contact-state-conditions*)
-           (object-conditions *object-location-state-conditions*)
+           (object-location-conditions *object-location-state-conditions*)
+           (object-rotation-conditions *object-rotation-state-conditions*)
            (larm-contact-state
              (eval (append '(cond) larm-conditions '((t prev-larm-contact-state)))))
            (rarm-contact-state
@@ -260,14 +281,20 @@
            (floor-contact-state
              (eval (append '(cond) floor-conditions '((t prev-floor-contact-state)))))
            (object-location-state
-             (eval (append '(cond) object-conditions '((t prev-object-location-state)))))
+             (eval (append '(cond) object-location-conditions
+                           '((t prev-object-location-state)))))
+           (object-rotation-state
+             (eval (append '(cond) object-rotation-conditions
+                           '((t prev-object-rotation-state)))))
            (scene-state (list (list :larm-contact-state larm-contact-state)
                               (list :rarm-contact-state rarm-contact-state)
                               (list :floor-contact-state floor-contact-state)
-                              (list :object-location-state object-location-state))))
+                              (list :object-location-state object-location-state)
+                              (list :object-rotation-state object-rotation-state))))
       (setq *object-contact-states*
             (list larm-contact-state rarm-contact-state floor-contact-state))
       (setq *object-location-state* object-location-state)
+      (setq *object-rotation-state* object-rotation-state)
       (append-scene-states scene-state)
       (append-executed-actions action-name action)
       (add-action-state-in-graph action prev-scene-state scene-state)

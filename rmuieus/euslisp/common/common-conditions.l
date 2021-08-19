@@ -41,5 +41,10 @@
     (format nil "~A/update_scene_state/object-location-state-conditions.l" *conditions-path*))
   (setq *object-location-state-conditions* (read object-location-state-conditions-f)))
 
+(with-open-file
+  (object-rotation-state-conditions-f
+    (format nil "~A/update_scene_state/object-rotation-state-conditions.l" *conditions-path*))
+  (setq *object-rotation-state-conditions* (read object-rotation-state-conditions-f)))
+
 
 (provide :common-conditions "common-conditions.l")
