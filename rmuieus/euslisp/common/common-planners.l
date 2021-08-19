@@ -26,6 +26,12 @@
 (setq *object-contact-states* (list :released :released :bottom-contact))
 (setq *object-location-state* :center)
 (setq *object-rotation-state* (list :x0 :y0 :z0))
+(setq *initial-state*
+      (list (list :larm-contact-state (car *object-contact-states*))
+            (list :rarm-contact-state (cadr *object-contact-states*))
+            (list :floor-contact-state (caddr *object-contact-states*))
+            (list :object-location-state *object-location-state*)
+            (list :object-rotation-state *object-rotation-state*)))
 (setq *motion-symbol-queue* (list nil nil))
 (setq *executed-actions* nil)
 (setq *scene-states* nil)

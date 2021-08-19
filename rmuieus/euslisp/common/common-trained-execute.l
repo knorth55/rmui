@@ -13,11 +13,7 @@
   (send *pddl-graph* :add-pddl-state-node '(:init) :node-name :pprint)
   (send *pddl-graph* :add-arc-from-to
         (send *pddl-graph* :search-node-from-pddl-state '(:init))
-        (send *pddl-graph* :search-node-from-pddl-state
-              '((:larm-contact-state :released)
-                (:rarm-contact-state :released)
-                (:floor-contact-state :bottom-contact)
-                (:object-location-state :center)))
+        (send *pddl-graph* :search-node-from-pddl-state *initial-state*)
         "(action-init)")
   ; (setq *pddl-graph* (make-readable-graph *pddl-graph*))
   (send *pddl-graph* :write-to-pdf "rmui.pdf")
