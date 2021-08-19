@@ -1,0 +1,5 @@
+# quit 
+- name: Quit 
+  service: '/rmui0/rmui_node/quit'
+  column: 0
+  service_type: 'Empty'

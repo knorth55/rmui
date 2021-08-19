@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import sys
 import tf2_ros
 
 from rmui_drivers.dummy_rmui import DummyRMUI
@@ -66,6 +67,11 @@ class DummyRMUINode(object):
                                 axis, direction, angle)))
         self.rotate_reset_service = rospy.Service(
             '~rotate_reset', Empty, self._rotate_reset_service_cb)
+
+        # quit
+        self.quit_service = rospy.Service(
+            '~quit', Empty, self._quit_service_cb)
+
         rospy.loginfo('dummy rmui node initialized')
         # contact to ground
         self.device.contact_board(0)
@@ -138,6 +144,10 @@ class DummyRMUINode(object):
         rospy.loginfo('all board rotation is resetted')
         self.device.reset_rotation()
         return EmptyResponse()
+
+    def _quit_service_cb(self, req):
+        rospy.loginfo('quit dummy node')
+        sys.exit(0)
 
 
 if __name__ == '__main__':
