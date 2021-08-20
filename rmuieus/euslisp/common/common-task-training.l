@@ -33,4 +33,4 @@
   )
 
 
-(provide :common-trained-execute "common-trained-execute.l")
+(provide :common-task-training "common-task-training.l")
