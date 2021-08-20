@@ -3,12 +3,20 @@
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 
 
+(defun convert-string-to-sym (name)
+  (remove '|n| (read-from-string name)))
+
+
 (defun convert-graph-to-smach (graph start-state)
   (let ((sm (instance state-machine :init))
         goals)
     (dolist (node (send graph :nodes))
-      (let ((name (send node :name))
-            (acts (send node :neighbor-action-alist)))
+      (let* ((state-sym (convert-string-to-sym (send node :name)))
+             (name (format nil "~A" state-sym))
+             (acts (send node :neighbor-action-alist)))
+        (pprint name)
+        (if (null (send sm :node name))
+          (send sm :add-node (instance state :init name #'(lambda (x) t))))
         (if (null acts)
           (setq goals (append goals (list (cons name (format nil "goal~A" (length goals)))))))
         (dolist (act acts)
@@ -17,27 +25,18 @@
                  (action-func
                    `(lambda-closure nil 0 0 (x)
                                     (apply #',(car action-sym) ',(cdr action-sym))))
-                 (node-name (format nil "~A\\n~A" name action-name))
+                 (node-name (format nil "~A" (list action-sym state-sym)))
                  (next-node (cdr act))
-                 (next-name (send next-node :name))
+                 (next-state-sym (convert-string-to-sym (send next-node :name)))
+                 (next-name (format nil "~A" next-state-sym))
                  (next-acts (send next-node :neighbor-action-alist)))
             (if (null (send sm :node node-name))
               (send sm :add-node (instance state :init node-name action-func)))
-            (if (and (null next-acts)
-                     (null (send sm :node next-name)))
-              (progn
-                (send sm :add-node (instance state :init next-name #'(lambda (x) t)))
-                (send sm :add-transition node-name next-name t)))
-            (dolist (next-act next-acts)
-              (let* ((next-action-name (car next-act))
-                     (next-action-sym (read-from-string next-action-name))
-                     (next-action-func
-                       `(lambda-closure nil 0 0 (x)
-                                        (apply #',(car next-action-sym) ',(cdr next-action-sym))))
-                     (next-node-name (format nil "~A\\n~A" next-name next-action-name)))
-                (if (null (send sm :node next-node-name))
-                  (send sm :add-node (instance state :init next-node-name next-action-func)))
-                (send sm :add-transition node-name next-node-name t)))))))
+            (send sm :add-transition name node-name t)
+            (if (null (send sm :node next-name))
+              (send sm :add-node (instance state :init next-name #'(lambda (x) t))))
+            (send sm :add-transition node-name next-name t)
+            ))))
     ;; start-state
     (send sm :start-state start-state)
     ;; goal-state

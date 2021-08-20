@@ -29,7 +29,7 @@
       (send *pddl-graph* :write-to-pdf "rmui.pdf")
       (piped-fork "xdg-open rmui.pdf")))
 
-  (setq *sm* (convert-graph-to-smach *pddl-graph* "(:init)\\n(action-init)"))
+  (setq *sm* (convert-graph-to-smach *pddl-graph* "(:init)"))
   (exec-state-machine *sm* nil :hz 1.0)
   )
 
