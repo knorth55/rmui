@@ -19,7 +19,9 @@
         (dolist (act acts)
           (let* ((action-name (car act))
                  (action-sym (read-from-string action-name))
-                 (action-func `(lambda-closure nil 0 0 (x) (apply #',(car action-sym) ',(cdr action-sym))))
+                 (action-func
+                   `(lambda-closure nil 0 0 (x)
+                                    (apply #',(car action-sym) ',(cdr action-sym))))
                  (node-name (format nil "~A\\n~A" name action-name))
                  (next-node (cdr act))
                  (next-name (send next-node :name))
@@ -34,7 +36,9 @@
             (dolist (next-act next-acts)
               (let* ((next-action-name (car next-act))
                      (next-action-sym (read-from-string next-action-name))
-                     (next-action-func `(lambda-closure nil 0 0 (x) (apply #',(car next-action-sym) ',(cdr next-action-sym))))
+                     (next-action-func
+                       `(lambda-closure nil 0 0 (x)
+                                        (apply #',(car next-action-sym) ',(cdr next-action-sym))))
                      (next-node-name (format nil "~A\\n~A" next-name next-action-name)))
                 (if (null (send sm :node next-node-name))
                   (send sm :add-node (instance state :init next-node-name next-action-func)))
