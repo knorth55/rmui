@@ -23,7 +23,6 @@
         (send *pddl-graph* :search-node-from-pddl-state '(:init))
         (send *pddl-graph* :search-node-from-pddl-state *initial-state*)
         "(action-init)")
-  ; (setq *pddl-graph* (make-readable-graph *pddl-graph*))
   (if pdf
     (progn
       (send *pddl-graph* :write-to-pdf "rmui.pdf")
