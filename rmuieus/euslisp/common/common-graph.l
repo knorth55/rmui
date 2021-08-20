@@ -14,7 +14,6 @@
       (let* ((state-sym (convert-string-to-sym (send node :name)))
              (name (format nil "~A" state-sym))
              (acts (send node :neighbor-action-alist)))
-        (pprint name)
         (if (null (send sm :node name))
           (send sm :add-node (instance state :init name #'(lambda (x) t))))
         (if (null acts)
