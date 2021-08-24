@@ -2,6 +2,8 @@
 (require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 
+(require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
+
 
 (defun convert-string-to-sym (name)
   (remove '|n| (read-from-string name)))

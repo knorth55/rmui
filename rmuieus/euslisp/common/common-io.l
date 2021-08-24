@@ -1,6 +1,8 @@
 (require :pddl-result-graph "package://pddl_planner/src/pddl-result-graph.l")
 (require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 
+(require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
+
 (defvar *training-data-path* (ros::resolve-ros-path "package://rmuieus/training_data"))
 
 
@@ -44,6 +46,17 @@
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (pddl-graph-f filepath)
       (setq *pddl-graph* (read pddl-graph-f)))))
+
+
+(defun dump-statenet-graph (&key (stamp "latest") (filename "statenet-graph.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+    (dump-structure filepath *statenet-graph*)))
+
+
+(defun load-statenet-graph (&key (stamp "latest") (filename "statenet-graph.l"))
+  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+    (with-open-file (statenet-graph-f filepath)
+      (setq *statenet-graph* (read statenet-graph-f)))))
 
 
 (provide :common-io "common-io.l")

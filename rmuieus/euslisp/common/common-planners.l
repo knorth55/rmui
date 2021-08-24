@@ -1,6 +1,7 @@
 (require :pddl-result-graph "package://pddl_planner/src/pddl-result-graph.l")
 (require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 
+(require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
@@ -36,6 +37,7 @@
 (setq *executed-actions* nil)
 (setq *scene-states* nil)
 (setq *pddl-graph* (instance pddl-graph :init))
+(setq *statenet-graph* (instance statenet-graph :init))
 (setq *dump-dir* nil)
 
 
@@ -141,14 +143,22 @@
   (setq *scene-states* (append *scene-states* (list scene-state))))
 
 
-(defun add-action-state-in-graph (action prev-scene-state scene-state)
-  (let ((prev-node (send *pddl-graph* :search-node-from-pddl-state prev-scene-state))
-        (node (send *pddl-graph* :search-node-from-pddl-state scene-state)))
+(defun add-action-state-in-graph (graph action prev-scene-state scene-state)
+  (let ((prev-node (send graph :search-node-from-pddl-state prev-scene-state))
+        (node (send graph :search-node-from-pddl-state scene-state)))
     (if (null prev-node)
-      (setq prev-node (send *pddl-graph* :add-pddl-state-node prev-scene-state :node-name :pprint)))
+      (setq prev-node (send graph :add-pddl-state-node prev-scene-state :node-name :pprint)))
     (if (null node)
-      (setq node (send *pddl-graph* :add-pddl-state-node scene-state :node-name :pprint)))
-    (send *pddl-graph* :add-arc-from-to prev-node node (format nil "~A" action))))
+      (setq node (send graph :add-pddl-state-node scene-state :node-name :pprint)))
+    (send graph :add-arc-from-to prev-node node (format nil "~A" action))))
+
+
+(defun add-action-state-in-pddl-graph (action prev-scene-state scene-state)
+  (add-action-state-in-graph *pddl-graph* action prev-scene-state scene-state))
+
+
+(defun add-action-state-in-statenet-graph (action prev-scene-state scene-state)
+  (add-action-state-in-graph *statenet-graph* action prev-scene-state scene-state))
 
 
 ;; main functions for planners
@@ -263,11 +273,13 @@
       (setq *object-rotation-state* object-rotation-state)
       (append-scene-states scene-state)
       (append-executed-actions action-name action)
-      (add-action-state-in-graph action prev-scene-state scene-state)
+      (add-action-state-in-pddl-graph action prev-scene-state scene-state)
+      (add-action-state-in-statenet-graph action prev-scene-state scene-state)
       (if (null *dump-dir*) (setq *dump-dir* (create-dump-dir)))
       (dump-scene-states)
       (dump-executed-actions)
-      (dump-pddl-graph))))
+      (dump-pddl-graph)
+      (dump-statenet-graph))))
 
 
 (provide :common-planners "common-planners.l")
