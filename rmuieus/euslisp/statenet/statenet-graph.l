@@ -9,6 +9,7 @@
 (defmethod statenet-graph
   (:init ()
     (send-super :init))
+  )
 
 
 (provide :statenet-graph "statenet-graph.l")
