@@ -3,6 +3,7 @@
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
+(require :common-io "package://rmuieus/euslisp/common/common-io.l")
 
 
 (defun convert-string-to-sym (name)
