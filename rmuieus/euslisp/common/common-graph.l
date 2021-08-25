@@ -9,10 +9,10 @@
   (remove '|n| (read-from-string name)))
 
 
-(defun convert-graph-to-smach (graph start-state)
+(defun convert-graph-to-smach (gr start-state)
   (let ((sm (instance state-machine :init))
         goals)
-    (dolist (node (send graph :nodes))
+    (dolist (node (send gr :nodes))
       (let* ((state-sym (convert-string-to-sym (send node :name)))
              (name (format nil "~A" state-sym))
              (acts (send node :neighbor-action-alist)))
