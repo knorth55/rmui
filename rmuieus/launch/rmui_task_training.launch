@@ -2,13 +2,12 @@
   <arg name="robot" default="pr2" />
   <arg name="main" default="true" />
   <arg name="pdf" default="true" />
-  <arg name="stamp" default="latest" />
 
   <arg name="pdf-flag" value="t" if="$(arg pdf)" />
   <arg name="pdf-flag" value="nil" unless="$(arg pdf)" />
 
   <node pkg="rmuieus" name="demo_rmui" type="$(arg robot)-task-training.l" if="$(arg main)"
-        args="&quot;(main :pdf $(arg pdf-flag) :stamp \&quot;$(arg stamp)\&quot;)&quot;" output="screen">
+        args="&quot;(main :pdf $(arg pdf-flag))&quot;" output="screen">
   </node>
 
   <node pkg="smach_viewer" name="smach_viewer" type="smach_viewer.py" />

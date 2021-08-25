@@ -3,6 +3,7 @@
 (require :state-machine-ros "package://roseus_smach/src/state-machine-ros.l")
 (require :state-machine-utils "package://roseus_smach/src/state-machine-utils.l")
 
+(require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
@@ -16,19 +17,19 @@
             (list :object-rotation-state (list :x0 :y0 :z0))))
 
 
-(defun main (&key (pdf nil) (stamp "latest"))
-  (setq *pddl-graph* (load-pddl-graph :stamp stamp))
-  (send *pddl-graph* :add-pddl-state-node '(:init) :node-name :pprint)
-  (send *pddl-graph* :add-arc-from-to
-        (send *pddl-graph* :search-node-from-pddl-state '(:init))
-        (send *pddl-graph* :search-node-from-pddl-state *initial-state*)
-        "(action-init)")
+(defun add-initial-state (gr)
+  (add-action-state-in-graph gr '(action-init) '(:init) *initial-state*))
+
+
+(defun main (&key (pdf nil))
+  (setq *statenet-graph* (merge-statenet-graphs (load-all-statenet-graph)))
+  (add-initial-state *statenet-graph*)
   (if pdf
     (progn
-      (send *pddl-graph* :write-to-pdf "rmui.pdf")
+      (send *statenet-graph* :write-to-pdf "rmui.pdf")
       (piped-fork "xdg-open rmui.pdf")))
 
-  (setq *sm* (convert-graph-to-smach *pddl-graph* "(:init)"))
+  (setq *sm* (convert-graph-to-smach *statenet-graph* "(:init)"))
   (exec-state-machine *sm* nil :hz 1.0)
   )
 
