@@ -21,9 +21,13 @@
   (add-action-state-in-graph gr '(action-init) '(:init) *initial-state*))
 
 
-(defun main (&key (pdf nil))
+(defun load-training-statenet-graph ()
   (setq *statenet-graph* (merge-statenet-graphs (load-all-statenet-graph)))
-  (add-initial-state *statenet-graph*)
+  (add-initial-state *statenet-graph*))
+
+
+(defun main (&key (pdf nil))
+  (load-training-statenet-graph)
   (if pdf
     (progn
       (send *statenet-graph* :write-to-pdf "rmui.pdf")
