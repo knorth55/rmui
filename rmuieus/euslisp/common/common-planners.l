@@ -3,6 +3,7 @@
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
+(require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
@@ -141,16 +142,6 @@
 
 (defun append-scene-states (scene-state)
   (setq *scene-states* (append *scene-states* (list scene-state))))
-
-
-(defun add-action-state-in-graph (graph action prev-scene-state scene-state)
-  (let ((prev-node (send graph :search-node-from-pddl-state prev-scene-state))
-        (node (send graph :search-node-from-pddl-state scene-state)))
-    (if (null prev-node)
-      (setq prev-node (send graph :add-pddl-state-node prev-scene-state :node-name :pprint)))
-    (if (null node)
-      (setq node (send graph :add-pddl-state-node scene-state :node-name :pprint)))
-    (send graph :add-arc-from-to prev-node node (format nil "~A" action))))
 
 
 (defun add-action-state-in-pddl-graph (action prev-scene-state scene-state)

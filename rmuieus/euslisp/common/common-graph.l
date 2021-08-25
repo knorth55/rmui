@@ -57,4 +57,15 @@
     sm))
 
 
+(defun add-action-state-in-graph (gr action prev-scene-state scene-state)
+  (let ((prev-node (send gr :search-node-from-pddl-state prev-scene-state))
+        (node (send gr :search-node-from-pddl-state scene-state)))
+    (if (null prev-node)
+      (setq prev-node (send gr :add-pddl-state-node prev-scene-state :node-name :pprint)))
+    (if (null node)
+      (setq node (send gr :add-pddl-state-node scene-state :node-name :pprint)))
+    ;; (ros::ros-info (format nil "add-arc-from-to: ~A  - ~A -> ~A" prev-scene-state action scene-state))
+    (send gr :add-arc-from-to prev-node node (format nil "~A" action))))
+
+
 (provide :common-graph "common-graph.l")
