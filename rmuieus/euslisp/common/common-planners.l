@@ -276,10 +276,10 @@
       (add-action-state-in-pddl-graph action prev-scene-state scene-state)
       (add-action-state-in-statenet-graph action prev-scene-state scene-state)
       (if (null *dump-dir*) (setq *dump-dir* (create-dump-dir)))
-      (dump-scene-states)
-      (dump-executed-actions)
-      (dump-pddl-graph)
-      (dump-statenet-graph))))
+      (dump-scene-states *scene-states*)
+      (dump-executed-actions *executed-actions*)
+      (dump-pddl-graph *pddl-graph*)
+      (dump-statenet-graph *statenet-graph*))))
 
 
 (provide :common-planners "common-planners.l")
