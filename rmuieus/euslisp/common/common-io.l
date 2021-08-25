@@ -20,6 +20,17 @@
     dump-dir))
 
 
+(defun get-dump-dir-list ()
+  (let* ((dump-dirnames
+           (remove-if-not #'(lambda (x) (equal (subseq x 0 2) "20"))
+                          (directory *training-data-path*)))
+         (dump-dirs
+           (remove-if-not #'directory-p
+                          (mapcar #'(lambda (x) (format nil "~A/~A" *training-data-path* x))
+                                  dump-dirnames))))
+    dump-dirs))
+
+
 (defun dump-executed-actions (&key (stamp "latest") (filename "executed-actions.l"))
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (dump-structure filepath *executed-actions*)))
