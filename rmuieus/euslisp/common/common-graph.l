@@ -69,4 +69,33 @@
     (send gr :add-arc-from-to prev-node node (format nil "~A" action))))
 
 
+(defun merge-statenet-graphs (graphs)
+  (merge-graphs graphs statenet-graph))
+
+
+(defun merge-pddl-graphs (graphs)
+  (merge-graphs graphs pddl-graph))
+
+
+(defun merge-graphs (graphs graphclass)
+  (let ((mgr (instance graphclass :init)))
+    (dolist (gr graphs)
+      (dolist (node (send gr :nodes))
+        (let* ((arcs (send node :arc-list))
+               (node-sym (convert-string-to-sym (send node :name)))
+               (mnode (send mgr :search-node-from-pddl-state node-sym)))
+          (if (null arcs)
+            (if (null mnode)
+              (send mgr :add-pddl-state-node node-sym :node-name :pprint))
+            (dolist (ac arcs)
+              (let ((from-sym (convert-string-to-sym (send (send ac :from) :name)))
+                    (to-sym (convert-string-to-sym (send (send ac :to) :name)))
+                    (action (read-from-string (send ac :name))))
+                (if (equal node-sym from-sym)
+                  (add-action-state-in-graph mgr action from-sym to-sym)
+                  (ros::ros-error (format nil "node and arc :from is not same: ~A != ~A"
+                                          node-sym from-sym)))))))))
+    mgr))
+
+
 (provide :common-graph "common-graph.l")
