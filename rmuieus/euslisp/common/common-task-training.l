@@ -17,6 +17,11 @@
             (list :object-rotation-state (list :x0 :y0 :z0))))
 
 
+(setq *solver* (instance depth-first-graph-search-solver :init))
+(setq *solution* nil)
+(setq *sm* nil)
+
+
 (defun add-initial-state (gr)
   (add-action-state-in-graph gr '(action-init) '(:init) *initial-state*))
 
@@ -26,6 +31,14 @@
   (add-initial-state *statenet-graph*))
 
 
+(defun solve-statenet-path (start-state goal-state)
+  (send *statenet-graph* :start-state
+        (send *statenet-graph* :search-node-from-pddl-state start-state))
+  (send *statenet-graph* :goal-state
+        (send *statenet-graph* :search-node-from-pddl-state goal-state))
+  (send *solver* :solve *statenet-graph*))
+
+
 (defun main (&key (pdf nil))
   (load-training-statenet-graph)
   (if pdf
@@ -33,8 +46,22 @@
       (send *statenet-graph* :write-to-pdf "rmui.pdf")
       (piped-fork "xdg-open rmui.pdf")))
 
-  (setq *sm* (convert-graph-to-smach *statenet-graph* "(:init)"))
-  (exec-state-machine *sm* nil :hz 1.0)
+  ;; TODO (knorth55): solve solution from user input
+  (setq *solution*
+        (solve-statenet-path
+          ;; start-state
+          '(:init)
+          ;; goal-state
+          '((:larm-contact-state :released)
+            (:rarm-contact-state :released)
+            (:floor-contact-state :bottom-contact)
+            (:object-location-state :center)
+            (:object-rotation-state (:x0 :y0 :z90)))))
+  ;; (setq *sm* (convert-graph-to-smach *statenet-graph* "(:init)"))
+  (if *solution*
+    (progn
+      (setq *sm* (convert-solution-to-smach *solution*))
+      (exec-state-machine *sm* nil :hz 1.0)))
   )
 
 
