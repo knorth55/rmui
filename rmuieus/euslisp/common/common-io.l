@@ -31,46 +31,46 @@
     dump-dirs))
 
 
-(defun dump-executed-actions (executed-actions &key (stamp "latest") (filename "executed-actions.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun dump-executed-actions (executed-actions &key (path nil) (stamp "latest") (filename "executed-actions.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (dump-structure filepath executed-actions)))
 
 
-(defun load-executed-actions (&key (stamp "latest") (filename "executed-actions.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun load-executed-actions (&key (path nil) (stamp "latest") (filename "executed-actions.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (with-open-file (executed-actions-f filepath)
       (read executed-actions-f))))
 
 
-(defun dump-scene-states (scene-states &key (stamp "latest") (filename "scene-states.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun dump-scene-states (scene-states &key (path nil) (stamp "latest") (filename "scene-states.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (dump-structure filepath scene-states)))
 
 
-(defun load-scene-states (&key (stamp "latest") (filename "scene-states.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun load-scene-states (&key (path nil) (stamp "latest") (filename "scene-states.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (with-open-file (scene-states-f filepath)
       (read scene-states-f))))
 
 
-(defun dump-pddl-graph (pddl-graph &key (stamp "latest") (filename "pddl-graph.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun dump-pddl-graph (pddl-graph &key (path nil) (stamp "latest") (filename "pddl-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (dump-structure filepath pddl-graph)))
 
 
-(defun load-pddl-graph (&key (stamp "latest") (filename "pddl-graph.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun load-pddl-graph (&key (path nil) (stamp "latest") (filename "pddl-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (with-open-file (pddl-graph-f filepath)
       (read pddl-graph-f))))
 
 
-(defun dump-statenet-graph (statenet-graph &key (stamp "latest") (filename "statenet-graph.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun dump-statenet-graph (statenet-graph &key (path nil) (stamp "latest") (filename "statenet-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (dump-structure filepath statenet-graph)))
 
 
-(defun load-statenet-graph (&key (stamp "latest") (filename "statenet-graph.l"))
-  (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
+(defun load-statenet-graph (&key (path nil) (stamp "latest") (filename "statenet-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A/~A" *training-data-path* stamp filename))))
     (with-open-file (statenet-graph-f filepath)
       (read statenet-graph-f))))
 
