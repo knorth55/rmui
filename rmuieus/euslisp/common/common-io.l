@@ -6,12 +6,17 @@
 (defvar *training-data-path* (ros::resolve-ros-path "package://rmuieus/training_data"))
 
 
-(defun create-dump-dir (&key (stamp (get-iso-stamp)))
-  (let ((dump-dir (format nil "~A/~A" *training-data-path* stamp))
-        (latest-dir (format nil "~A/latest" *training-data-path*)))
-    (unix::system (format nil "mkdir -p ~A" dump-dir))
+(defun link-latest-dump-dir (dump-dir)
+  (let ((latest-dir (format nil "~A/latest" *training-data-path*)))
     (unix::system (format nil "rm ~A" latest-dir))
-    (unix::system (format nil "ln -sf ~A ~A" dump-dir latest-dir))
+    (unix::system (format nil "ln -sf ~A ~A" dump-dir latest-dir)))
+  dump-dir)
+
+
+(defun create-dump-dir (&key (stamp (get-iso-stamp)))
+  (let ((dump-dir (format nil "~A/~A" *training-data-path* stamp)))
+    (unix::system (format nil "mkdir -p ~A" dump-dir))
+    (link-latest-dump-dir dump-dir)
     dump-dir))
 
 
