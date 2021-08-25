@@ -57,6 +57,58 @@
     sm))
 
 
+(defun convert-solution-to-smach (solution)
+  (let ((sm (instance state-machine :init))
+        (start-state "start")
+        (goal-state "goal"))
+    (dolist (solver-node solution)
+      (let ((ac (send solver-node :action)))
+        (if ac
+          (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
+                 (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
+                 (action-name (send ac :name))
+                 (action-sym (read-from-string action-name))
+                 (action-func
+                   `(lambda-closure nil 0 0 (x)
+                                    (apply #',(car action-sym) ',(cdr action-sym))))
+                 (node-name (format nil "~A" (list action-sym from-state-sym)))
+                 (from-name (format nil "~A" from-state-sym))
+                 (to-name (format nil "~A" to-state-sym)))
+            (if (null (send sm :node from-name))
+              (send sm :add-node (instance state :init from-name #'(lambda (x) t))))
+            (if (null (send sm :node node-name))
+              (send sm :add-node (instance state :init node-name action-func)))
+            (send sm :add-transition from-name node-name t)
+            (if (null (send sm :node to-name))
+              (send sm :add-node (instance state :init to-name #'(lambda (x) t))))
+            (send sm :add-transition node-name to-name t)))))
+    ;; start-state
+    (if (null (send sm :node start-state))
+      (send sm :add-node (instance state :init start-state #'(lambda (x) t))))
+    (send sm :start-state start-state)
+    ;; goal-state
+    (send sm :goal-state (list goal-state))
+    ;; start and goal
+    (let* ((first-state-sym (convert-string-to-sym (send (send (car solution) :state) :name)))
+           (last-state-sym (convert-string-to-sym (send (send (car (last solution)) :state) :name)))
+           (first-name (format nil "~A" first-state-sym))
+           (last-name (format nil "~A" last-state-sym)))
+      (if (null (send sm :node first-name))
+        (send sm :add-node (instance state :init first-name #'(lambda (x) t))))
+      (send sm :add-transition start-state first-name t)
+      (if (null (send sm :node goal-state))
+        (send sm :add-node (instance state :init goal-state #'(lambda (x) t))))
+      (if (null (send sm :node last-name))
+        (send sm :add-node (instance state :init last-name #'(lambda (x) t))))
+      (send sm :add-transition last-name goal-state t))
+    (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
+                           (send (send sm :start-state) :name)))
+    (ros::ros-info (format nil "convert-smach: smach goal-state are ~A."
+                           (send-all (send sm :goal-state) :name)))
+    (send sm :reset-state)
+    sm))
+
+
 (defun add-action-state-in-graph (gr action prev-scene-state scene-state)
   (let ((prev-node (send gr :search-node-from-pddl-state prev-scene-state))
         (node (send gr :search-node-from-pddl-state scene-state)))
