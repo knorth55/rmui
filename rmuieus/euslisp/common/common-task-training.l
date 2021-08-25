@@ -17,7 +17,7 @@
 
 
 (defun main (&key (pdf nil) (stamp "latest"))
-  (load-pddl-graph :stamp stamp)
+  (setq *pddl-graph* (load-pddl-graph :stamp stamp))
   (send *pddl-graph* :add-pddl-state-node '(:init) :node-name :pprint)
   (send *pddl-graph* :add-arc-from-to
         (send *pddl-graph* :search-node-from-pddl-state '(:init))

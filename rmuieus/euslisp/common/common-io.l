@@ -39,7 +39,7 @@
 (defun load-executed-actions (&key (stamp "latest") (filename "executed-actions.l"))
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (executed-actions-f filepath)
-      (setq *executed-actions* (read executed-actions-f)))))
+      (read executed-actions-f))))
 
 
 (defun dump-scene-states (&key (stamp "latest") (filename "scene-states.l"))
@@ -50,7 +50,7 @@
 (defun load-scene-states (&key (stamp "latest") (filename "scene-states.l"))
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (scene-states-f filepath)
-      (setq *scene-states* (read scene-states-f)))))
+      (read scene-states-f))))
 
 
 (defun dump-pddl-graph (&key (stamp "latest") (filename "pddl-graph.l"))
@@ -61,7 +61,7 @@
 (defun load-pddl-graph (&key (stamp "latest") (filename "pddl-graph.l"))
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (pddl-graph-f filepath)
-      (setq *pddl-graph* (read pddl-graph-f)))))
+      (read pddl-graph-f))))
 
 
 (defun dump-statenet-graph (&key (stamp "latest") (filename "statenet-graph.l"))
@@ -72,7 +72,7 @@
 (defun load-statenet-graph (&key (stamp "latest") (filename "statenet-graph.l"))
   (let ((filepath (format nil "~A/~A/~A" *training-data-path* stamp filename)))
     (with-open-file (statenet-graph-f filepath)
-      (setq *statenet-graph* (read statenet-graph-f)))))
+      (read statenet-graph-f))))
 
 
 (provide :common-io "common-io.l")
