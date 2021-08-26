@@ -8,13 +8,17 @@
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 
+(ros::roseus-add-msgs "rmui_msgs")
 
-(setq *initial-state*
-      (list (list :larm-contact-state :released)
-            (list :rarm-contact-state :released)
-            (list :floor-contact-state :bottom-contact)
-            (list :object-location-state :center)
-            (list :object-rotation-state (list :x0 :y0 :z0))))
+
+(setq *initial-state* '(:init))
+(setq *current-state* '(:init))
+(setq *reset-state*
+      '((:larm-contact-state :released)
+        (:rarm-contact-state :released)
+        (:floor-contact-state :bottom-contact)
+        (:object-location-state :center)
+        (:object-rotation-state (:x0 :y0 :z0))))
 
 
 (setq *solver* (instance depth-first-graph-search-solver :init))
@@ -22,7 +26,7 @@
 
 
 (defun add-initial-state (gr)
-  (add-action-state-in-graph gr '(action-init) '(:init) *initial-state*))
+  (add-action-state-in-graph gr '(action-init) '(:init) *reset-state*))
 
 
 (defun load-merged-statenet-graph ()
@@ -43,24 +47,66 @@
     (if solution (setq *sm* (convert-solution-to-smach solution)))))
 
 
+(defun execute-statenet-cb (server goal)
+  (let ((start-state
+          (if (> (length (send goal :goal :start_state)) 0)
+            (read-from-string (send goal :goal :start_state))
+            *current-state*))
+        (goal-state (read-from-string (send goal :goal :goal_state)))
+        (result (instance rmui_msgs::ExecuteStatenetActionResult :init)))
+    (ros::ros-info (format nil "start-state: ~A" start-state))
+    (ros::ros-info (format nil "goal-state: ~A" goal-state))
+    (if (null (equal *current-state* start-state))
+      (progn
+        (ros::ros-warn
+          (format nil "start-state and current-state are different: ~A != ~A"
+                  start-state *current-state*))
+        (if (null (send goal :goal :force_update_start_state))
+          (progn
+            (ros::ros-warn
+              "Aborting execution because start-state and current-state are different.")
+            (send result :result :success nil)
+            (send server :set-aborted result)
+            (return-from execute-statenet-cb nil)))))
+    (if (equal start-state goal-state)
+      (progn
+        (ros::ros-warn
+          (format nil "start-state and goal-state are same: ~A = ~A"
+                  start-state goal-state))
+        (ros::ros-warn "Skipping execution because start-state and goal-state are same")
+        (send result :result :success t)
+        (send server :set-succeeded result)
+        (return-from execute-statenet-cb t)))
+    (generate-smach-from-state start-state goal-state)
+    (if (null *sm*)
+      (progn
+        (send result :result :success nil)
+        (send server :set-aborted result)
+        (return-from execute-statenet-cb nil)))
+    (exec-state-machine *sm* nil :hz 1.0)
+    (setq *current-state* goal-state)
+    (ros::ros-info (format nil "current-state: ~A" *current-state*))
+    (send result :result :success t)
+    (send server :set-succeeded result)
+    t))
+
+
 (defun main (&key (pdf nil))
   (load-merged-statenet-graph)
   (if pdf
     (progn
       (send *statenet-graph* :write-to-pdf "rmui.pdf")
       (piped-fork "xdg-open rmui.pdf")))
-
-  ;; TODO (knorth55): solve solution from user input
-  (generate-smach-from-state
-    ;; start-state
-    '(:init)
-    ;; goal-state
-    '((:larm-contact-state :released)
-      (:rarm-contact-state :released)
-      (:floor-contact-state :bottom-contact)
-      (:object-location-state :center)
-      (:object-rotation-state (:x0 :y0 :z90))))
-  (if *sm* (exec-state-machine *sm* nil :hz 1.0)))
+  (setq *server* (instance ros::simple-action-server :init
+                           "~execute" rmui_msgs::ExecuteStatenetAction
+                           :execute-cb 'execute-statenet-cb))
+  (ros::rate 10)
+  (do-until-key
+    (send *server* :worker)
+    (send *server* :spin-once)
+    (if  (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+    (if  (boundp '*ri*) (send *ri* :draw-objects))
+    (ros::sleep)))
 
 
 (provide :common-statenet "common-statenet.l")
