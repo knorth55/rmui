@@ -3,6 +3,8 @@ project(rmui_msgs)
 
 find_package(catkin
   REQUIRED
+  actionlib
+  actionlib_msgs
   message_generation
   std_msgs
 )
@@ -13,8 +15,13 @@ add_message_files(
   ImuCalibStatus.msg
 )
 
+add_action_files(
+  DIRECTORY action
+  FILES ExecuteStatenet.action
+)
+
 generate_messages(
-  DEPENDENCIES std_msgs
+  DEPENDENCIES actionlib_msgs std_msgs
 )
 
 catkin_package(
