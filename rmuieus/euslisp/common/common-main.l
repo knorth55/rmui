@@ -1,7 +1,7 @@
 (require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
-(ros::load-ros-manifest "force_proximity_ros")
-(ros::load-ros-manifest "std_msgs")
+(ros::roseus-add-msgs "force_proximity_ros")
+(ros::roseus-add-msgs "std_msgs")
 
 
 ;; parameters

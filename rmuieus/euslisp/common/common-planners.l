@@ -9,7 +9,7 @@
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
-(ros::load-ros-manifest "std_msgs")
+(ros::roseus-add-msgs "std_msgs")
 
 
 ;; parameters
