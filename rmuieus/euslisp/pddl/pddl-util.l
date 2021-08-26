@@ -38,4 +38,4 @@
   (exec-state-machine (convert-smach *graph*) nil :hz 1.0))
 
 
-(provide :pddl-common "pddl-common.l")
+(provide :pddl-util "pddl-util.l")

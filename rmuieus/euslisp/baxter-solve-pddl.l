@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 
-(require :pddl-common "package://rmuieus/euslisp/pddl/pddl-common.l")
+(require :pddl-util "package://rmuieus/euslisp/pddl/pddl-util.l")
 
 (require :baxter-scenes "package://rmuieus/euslisp/baxter/baxter-scenes.l")
 (require :baxter-motions "package://rmuieus/euslisp/baxter/baxter-motions.l")
