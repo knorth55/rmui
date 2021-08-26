@@ -18,7 +18,6 @@
 
 
 (setq *solver* (instance depth-first-graph-search-solver :init))
-(setq *solution* nil)
 (setq *sm* nil)
 
 
@@ -39,6 +38,11 @@
   (send *solver* :solve *statenet-graph*))
 
 
+(defun generate-smach-from-state (start-state goal-state)
+  (let ((solution (solve-statenet-path start-state goal-state)))
+    (if solution (setq *sm* (convert-solution-to-smach solution)))))
+
+
 (defun main (&key (pdf nil))
   (load-merged-statenet-graph)
   (if pdf
@@ -47,21 +51,16 @@
       (piped-fork "xdg-open rmui.pdf")))
 
   ;; TODO (knorth55): solve solution from user input
-  (setq *solution*
-        (solve-statenet-path
-          ;; start-state
-          '(:init)
-          ;; goal-state
-          '((:larm-contact-state :released)
-            (:rarm-contact-state :released)
-            (:floor-contact-state :bottom-contact)
-            (:object-location-state :center)
-            (:object-rotation-state (:x0 :y0 :z90)))))
-  (if *solution*
-    (progn
-      (setq *sm* (convert-solution-to-smach *solution*))
-      (exec-state-machine *sm* nil :hz 1.0)))
-  )
+  (generate-smach-from-state
+    ;; start-state
+    '(:init)
+    ;; goal-state
+    '((:larm-contact-state :released)
+      (:rarm-contact-state :released)
+      (:floor-contact-state :bottom-contact)
+      (:object-location-state :center)
+      (:object-rotation-state (:x0 :y0 :z90))))
+  (if *sm* (exec-state-machine *sm* nil :hz 1.0)))
 
 
 (provide :common-statenet "common-statenet.l")
