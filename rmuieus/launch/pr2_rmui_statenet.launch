@@ -2,8 +2,8 @@
   <arg name="main" default="true" />
   <arg name="pdf" default="true" />
 
-  <include file="$(find rmuieus)/launch/rmui_task_training.launch">
-    <arg name="robot" value="baxter" />
+  <include file="$(find rmuieus)/launch/rmui_statenet.launch">
+    <arg name="robot" value="pr2" />
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
   </include>

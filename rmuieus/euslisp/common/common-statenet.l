@@ -26,7 +26,7 @@
   (add-action-state-in-graph gr '(action-init) '(:init) *initial-state*))
 
 
-(defun load-training-statenet-graph ()
+(defun load-merged-statenet-graph ()
   (setq *statenet-graph* (merge-statenet-graphs (load-all-statenet-graph)))
   (add-initial-state *statenet-graph*))
 
@@ -40,7 +40,7 @@
 
 
 (defun main (&key (pdf nil))
-  (load-training-statenet-graph)
+  (load-merged-statenet-graph)
   (if pdf
     (progn
       (send *statenet-graph* :write-to-pdf "rmui.pdf")
@@ -57,7 +57,6 @@
             (:floor-contact-state :bottom-contact)
             (:object-location-state :center)
             (:object-rotation-state (:x0 :y0 :z90)))))
-  ;; (setq *sm* (convert-graph-to-smach *statenet-graph* "(:init)"))
   (if *solution*
     (progn
       (setq *sm* (convert-solution-to-smach *solution*))
@@ -65,4 +64,4 @@
   )
 
 
-(provide :common-task-training "common-task-training.l")
+(provide :common-statenet "common-statenet.l")
