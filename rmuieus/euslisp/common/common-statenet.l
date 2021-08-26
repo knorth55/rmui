@@ -102,8 +102,8 @@
   (do-until-key
     (send *server* :worker)
     (send *server* :spin-once)
-    (if  (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
-    (if  (boundp '*ri*) (send *ri* :draw-objects))
+    (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+    (if (boundp '*ri*) (send *ri* :draw-objects))
     (ros::sleep)))
 
 
