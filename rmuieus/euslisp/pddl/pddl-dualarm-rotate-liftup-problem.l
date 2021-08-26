@@ -2,7 +2,7 @@
 (require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 
 
-(setq *problem* (instance pddl-problem :init :name 'dualarm_liftup :domain 'rmui))
+(setq *problem* (instance pddl-problem :init :name 'dualarm_rotate_liftup :domain 'rmui))
 
 
 (send *problem* :objects
