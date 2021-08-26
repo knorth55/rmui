@@ -1,5 +1,3 @@
-#!/usr/bin/env roseus
-
 (require :state-machine-ros "package://roseus_smach/src/state-machine-ros.l")
 (require :state-machine-utils "package://roseus_smach/src/state-machine-utils.l")
 
@@ -107,6 +105,19 @@
     (if  (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
     (if  (boundp '*ri*) (send *ri* :draw-objects))
     (ros::sleep)))
+
+
+(defun call-execute-statenet (start-state goal-state)
+  (let ((client
+          (instance ros::simple-action-client :init
+                    "/demo_rmui/execute" rmui_msgs::ExecuteStatenetAction))
+        (goal (instance rmui_msgs::ExecuteStatenetActionGoal :init)))
+    (send goal :goal :start_state (format nil "~A" start-state))
+    (send goal :goal :goal_state (format nil "~A" goal-state))
+    (send client :wait-for-server)
+    (send client :send-goal goal)
+    (send client :wait-for-result)
+    (send client :get-result)))
 
 
 (provide :common-statenet "common-statenet.l")
