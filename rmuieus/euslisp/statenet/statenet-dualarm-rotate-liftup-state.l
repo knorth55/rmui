@@ -1,0 +1,6 @@
+(setq *start-state* '(:init))
+(setq *goal-state* '((:larm-contact-state :left-contact)
+                     (:rarm-contact-state :right-contact)
+                     (:floor-contact-state :released)
+                     (:object-location-state :center)
+                     (:object-rotation-state (:x0 :y0 :z90))))
