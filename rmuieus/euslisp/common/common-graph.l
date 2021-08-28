@@ -70,8 +70,8 @@
 
 (defun convert-solution-to-smach (solution)
   (let ((sm (instance state-machine :init))
-        (start-state "start")
-        (goal-state "goal"))
+        (start-state "(:start)")
+        (goal-state "(:goal)"))
     (dolist (solver-node solution)
       (let ((ac (send solver-node :action)))
         (if ac
