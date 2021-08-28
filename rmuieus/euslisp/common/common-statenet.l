@@ -2,6 +2,7 @@
 (require :state-machine-utils "package://roseus_smach/src/state-machine-utils.l")
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
+(require :statenet-util "package://rmuieus/euslisp/statenet/statenet-util.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
