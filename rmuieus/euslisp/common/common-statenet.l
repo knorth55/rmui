@@ -95,7 +95,7 @@
         (return-from execute-statenet-cb nil)))
 
     ;; execute state machine
-    ;; (exec-state-machine *sm* nil :hz 1.0)
+    ;; modified from (exec-state-machine *sm* nil :hz 1.0)
     (let* ((root-name "SM_ROOT")
            (insp (instance state-machine-inspector :init *sm* :root-name root-name))
            (mydata nil)
