@@ -61,7 +61,7 @@
         (send server :set-succeeded result)
         (return-from execute-statenet-cb t)))
     ;; generate smach machine
-    (generate-smach-from-state *statenet-graph* *solver* start-state goal-state)
+    (setq *sm* (generate-smach-from-state *statenet-graph* *solver* start-state goal-state))
     (if (null *sm*)
       (progn
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
