@@ -91,7 +91,7 @@
             (add-state-node sm to-name #'(lambda (x) t))
             (send sm :add-transition node-name to-name t)))))
     ;; start-state
-    (add-state-node sm start-state #'(lambda (x) t))
+    (add-node sm start-state #'(lambda (x) t) nil)
     (send sm :start-state start-state)
     ;; goal-state
     (send sm :goal-state (list goal-state))
@@ -102,7 +102,7 @@
            (last-name (format nil "~A" last-state-sym)))
       (add-state-node sm first-name #'(lambda (x) t))
       (send sm :add-transition start-state first-name t)
-      (add-state-node sm goal-state #'(lambda (x) t))
+      (add-node sm goal-state #'(lambda (x) t) nil)
       (add-state-node sm last-name #'(lambda (x) t))
       (send sm :add-transition last-name goal-state t))
     (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
