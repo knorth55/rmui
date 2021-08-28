@@ -9,6 +9,15 @@
 (ros::roseus-add-msgs "rmui_msgs")
 
 
+;; solver and smach
+
+(setq *solver-class* depth-first-graph-search-solver)
+(setq *solver* (instance *solver-class* :init))
+(setq *sm* nil)
+
+
+;; state
+
 (setq *initial-state* '(:init))
 (setq *current-state* '(:init))
 (setq *reset-state*
@@ -19,9 +28,7 @@
         (:object-rotation-state (:x0 :y0 :z0))))
 
 
-(setq *solver* (instance depth-first-graph-search-solver :init))
-(setq *sm* nil)
-
+;; functions
 
 (defun add-initial-state (gr)
   (add-action-state-in-graph gr '(action-init) '(:init) *reset-state*))
