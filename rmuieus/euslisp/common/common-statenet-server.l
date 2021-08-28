@@ -26,10 +26,10 @@
 
 (defun execute-statenet-cb (server goal)
   (let ((start-state
-          (if (> (length (send goal :goal :start_state)) 0)
-            (read-from-string (send goal :goal :start_state))
+          (if (> (length (send goal :goal :start_state :state)) 0)
+            (read-from-string (send goal :goal :start_state :state))
             *current-state*))
-        (goal-state (read-from-string (send goal :goal :goal_state)))
+        (goal-state (read-from-string (send goal :goal :goal_state :state)))
         (result (instance rmui_msgs::ExecuteStatenetActionResult :init))
         (feedback (instance rmui_msgs::ExecuteStatenetActionFeedback :init))
         (start-stamp (ros::time-now)))

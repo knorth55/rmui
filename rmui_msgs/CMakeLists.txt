@@ -13,6 +13,8 @@ add_message_files(
   FILES
   LED.msg
   ImuCalibStatus.msg
+  StatenetState.msg
+  StatenetStateStamped.msg
 )
 
 add_action_files(

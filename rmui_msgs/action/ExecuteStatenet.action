@@ -1,5 +1,5 @@
-string start_state
-string goal_state
+rmui_msgs/StatenetState start_state
+rmui_msgs/StatenetState goal_state
 bool force_update_start_state
 ---
 bool success
