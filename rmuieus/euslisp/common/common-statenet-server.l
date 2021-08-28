@@ -128,7 +128,13 @@
     (ros::publish "~current_state" msg)))
 
 
+(defun visualize-update-cb (event)
+  (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+  (if (boundp '*ri*) (send *ri* :draw-objects)))
+
+
 (defun main (&key (pdf nil))
+  (ros::roseus "statenet_server")
   (setq *statenet-graph* (load-merged-statenet-graph))
   (if pdf
     (progn
@@ -139,13 +145,11 @@
                            :execute-cb 'execute-statenet-cb))
   (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
   (ros::create-timer 0.1 #'current-state-publish-timer-cb)
+  (ros::create-timer 0.1 #'(lambda (event) (send *server* :worker)))
+  (ros::create-timer 0.1 #'visualize-update-cb)
+
   (ros::rate 10)
-  (do-until-key
-    (send *server* :worker)
-    (send *server* :spin-once)
-    (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
-    (if (boundp '*ri*) (send *ri* :draw-objects))
-    (ros::sleep)))
+  (ros::spin))
 
 
 (provide :common-statenet-server "common-statenet-server.l")
