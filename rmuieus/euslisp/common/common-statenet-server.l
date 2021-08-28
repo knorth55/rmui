@@ -1,0 +1,144 @@
+(require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
+
+(ros::roseus-add-msgs "rmui_msgs")
+
+
+;; solver and smach
+
+(setq *solver-class* depth-first-graph-search-solver)
+(setq *solver* (instance *solver-class* :init))
+(setq *sm* nil)
+
+
+;; state
+
+(setq *initial-state* '(:init))
+(setq *reset-state*
+      '((:larm-contact-state :released)
+        (:rarm-contact-state :released)
+        (:floor-contact-state :bottom-contact)
+        (:object-location-state :center)
+        (:object-rotation-state (:x0 :y0 :z0))))
+(setq *current-state* '(:init))
+
+
+;; functions
+
+(defun execute-statenet-cb (server goal)
+  (let ((start-state
+          (if (> (length (send goal :goal :start_state)) 0)
+            (read-from-string (send goal :goal :start_state))
+            *current-state*))
+        (goal-state (read-from-string (send goal :goal :goal_state)))
+        (result (instance rmui_msgs::ExecuteStatenetActionResult :init))
+        (feedback (instance rmui_msgs::ExecuteStatenetActionFeedback :init))
+        (start-stamp (ros::time-now)))
+    (ros::ros-info (format nil "start-state: ~A" start-state))
+    (ros::ros-info (format nil "goal-state: ~A" goal-state))
+    ;; check current-state and start-state
+    (if (null (equal *current-state* start-state))
+      (progn
+        (ros::ros-warn
+          (format nil "start-state and current-state are different: ~A != ~A"
+                  start-state *current-state*))
+        (if (null (send goal :goal :force_update_start_state))
+          (progn
+            (ros::ros-warn
+              "Aborting execution because start-state and current-state are different.")
+            (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+            (send result :result :success nil)
+            (send server :set-aborted result)
+            (return-from execute-statenet-cb nil)))))
+    ;; check start-state and goal-state
+    (if (equal start-state goal-state)
+      (progn
+        (ros::ros-warn
+          (format nil "start-state and goal-state are same: ~A = ~A"
+                  start-state goal-state))
+        (ros::ros-warn "Skipping execution because start-state and goal-state are same")
+        (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+        (send result :result :success t)
+        (send server :set-succeeded result)
+        (return-from execute-statenet-cb t)))
+    ;; generate smach machine
+    (generate-smach-from-state *statenet-graph* *solver* start-state goal-state)
+    (if (null *sm*)
+      (progn
+        (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+        (send result :result :success nil)
+        (send server :set-aborted result)
+        (return-from execute-statenet-cb nil)))
+
+    ;; execute state machine
+    ;; modified from (exec-state-machine *sm* nil :hz 1.0)
+    (let* ((root-name "SM_ROOT")
+           (insp (instance state-machine-inspector :init *sm* :root-name root-name))
+           (mydata nil)
+           (hz 1.0))
+      (unix::usleep (round (* 1e6 0.5)))
+      (send *sm* :reset-state)
+      (send insp :publish-structure) ;; publish once and latch
+      (apply #'send *sm* :arg-keys
+             (union (send *sm* :arg-keys) (mapcar #'car mydata)))
+      (ros::rate hz)
+      (while (ros::ok)
+        (ros::spin-once)
+        (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
+        (let* ((active-state (send *sm* :active-state))
+               (node-type (get active-state :node-type))
+               (node-name (send active-state :name))
+               (node-sym (read-from-string node-name)))
+          (ros::ros-info (format nil "node-type: ~A" node-type))
+          (cond
+            ((equal node-type :state-node)
+             (setq *current-state* node-sym)
+             (ros::ros-info (format nil "current-state: ~A" *current-state*)))
+            ((equal node-type :action-node)
+             (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
+            (t nil))
+          (send insp :publish-status mydata)
+          (when (send *sm* :goal-reached) (return))
+          ;; cancel
+          (if (send server :is-preempt-requested)
+            (progn
+              (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+              (send result :result :success nil)
+              (send server :set-preempted result)
+              (return-from execute-statenet-cb nil)))
+          ;; execute
+          (send *sm* :execute mydata :step -1)
+          ;; feedback
+          (send feedback :feedback :stamp
+                (ros::time- (ros::time-now) start-stamp))
+          (send server :publish-feedback feedback)
+          (ros::sleep)))
+      (send *sm* :active-state))
+
+    ;; finish state-machine
+    (setq *current-state* goal-state)
+    (ros::ros-info (format nil "current-state: ~A" *current-state*))
+    (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+    (send result :result :success t)
+    (send server :set-succeeded result)
+    t))
+
+
+(defun main (&key (pdf nil))
+  (setq *statenet-graph* (load-merged-statenet-graph))
+  (if pdf
+    (progn
+      (send *statenet-graph* :write-to-pdf "rmui.pdf")
+      (piped-fork "xdg-open rmui.pdf")))
+  (setq *server* (instance ros::simple-action-server :init
+                           "~execute" rmui_msgs::ExecuteStatenetAction
+                           :execute-cb 'execute-statenet-cb))
+  (ros::rate 10)
+  (do-until-key
+    (send *server* :worker)
+    (send *server* :spin-once)
+    (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+    (if (boundp '*ri*) (send *ri* :draw-objects))
+    (ros::sleep)))
+
+
+(provide :common-statenet-server "common-statenet-server.l")

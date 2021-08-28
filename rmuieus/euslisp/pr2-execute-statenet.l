@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 
-(require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :statenet-util "package://rmuieus/euslisp/statenet/statenet-util.l")
+(require :common-statenet-client "package://rmuieus/euslisp/common/common-statenet-client.l")
 
 (ros::roseus-add-msgs "rmui_msgs")
 
