@@ -10,6 +10,11 @@
     current-state))
 
 
+(defun execute-reset-statenet ()
+  (let ((current-state (get-current-state)))
+    (call-execute-statenet current-state *reset-state*)))
+
+
 (defun call-execute-statenet (start-state goal-state &key (server-name "/statenet_server"))
   (let ((client
           (instance ros::simple-action-client :init
