@@ -13,12 +13,6 @@
 ;; state
 
 (setq *initial-state* '(:init))
-(setq *reset-state*
-      '((:larm-contact-state :released)
-        (:rarm-contact-state :released)
-        (:floor-contact-state :bottom-contact)
-        (:object-location-state :center)
-        (:object-rotation-state (:x0 :y0 :z0))))
 (setq *current-state* '(:init))
 
 

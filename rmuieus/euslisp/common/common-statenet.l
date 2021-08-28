@@ -8,6 +8,16 @@
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 
 
+;; state
+
+(defvar *reset-state*
+  '((:larm-contact-state :released)
+    (:rarm-contact-state :released)
+    (:floor-contact-state :bottom-contact)
+    (:object-location-state :center)
+    (:object-rotation-state (:x0 :y0 :z0))))
+
+
 (defun add-initial-state (gr)
   (add-action-state-in-graph gr '(action-init) '(:init) *reset-state*))
 
