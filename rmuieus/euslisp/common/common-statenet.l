@@ -63,6 +63,7 @@
         (result (instance rmui_msgs::ExecuteStatenetActionResult :init)))
     (ros::ros-info (format nil "start-state: ~A" start-state))
     (ros::ros-info (format nil "goal-state: ~A" goal-state))
+    ;; check current-state and start-state
     (if (null (equal *current-state* start-state))
       (progn
         (ros::ros-warn
@@ -75,6 +76,7 @@
             (send result :result :success nil)
             (send server :set-aborted result)
             (return-from execute-statenet-cb nil)))))
+    ;; check start-state and goal-state
     (if (equal start-state goal-state)
       (progn
         (ros::ros-warn
@@ -84,13 +86,35 @@
         (send result :result :success t)
         (send server :set-succeeded result)
         (return-from execute-statenet-cb t)))
+    ;; generate smach machine
     (generate-smach-from-state start-state goal-state)
     (if (null *sm*)
       (progn
         (send result :result :success nil)
         (send server :set-aborted result)
         (return-from execute-statenet-cb nil)))
-    (exec-state-machine *sm* nil :hz 1.0)
+
+    ;; execute state machine
+    ;; (exec-state-machine *sm* nil :hz 1.0)
+    (let* ((root-name "SM_ROOT")
+           (insp (instance state-machine-inspector :init *sm* :root-name root-name))
+           (mydata nil)
+           (hz 1.0))
+      (unix::sleep 2)
+      (send *sm* :reset-state)
+      (send insp :publish-structure) ;; publish once and latch
+      (apply #'send *sm* :arg-keys
+             (union (send *sm* :arg-keys) (mapcar #'car mydata)))
+      (while (ros::ok)
+        (ros::spin-once)
+        (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
+        (send insp :publish-status mydata)
+        (when (send *sm* :goal-reached) (return))
+        (send *sm* :execute mydata :step -1)
+        (unix::usleep (round (/ 1e6 hz))))
+      (send *sm* :active-state))
+
+    ;; finish state-machine
     (setq *current-state* goal-state)
     (ros::ros-info (format nil "current-state: ~A" *current-state*))
     (send result :result :success t)
