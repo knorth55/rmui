@@ -29,6 +29,8 @@
 
 (defun load-merged-statenet-graph ()
   (setq *statenet-graph* (merge-statenet-graphs (load-all-statenet-graph)))
+  (if (null *statenet-graph*) (setq *statenet-graph* (load-merged-statenet-graph)))
+  (dump-merged-statenet-graph *statenet-graph*)
   (add-initial-state *statenet-graph*))
 
 

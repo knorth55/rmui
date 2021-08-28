@@ -114,4 +114,15 @@
     statenet-graph-list))
 
 
+(defun dump-merged-statenet-graph (merged-statenet-graph &key (path nil) (filename "merged-statenet-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A" *training-data-path* filename))))
+    (dump-structure filepath merged-statenet-graph)))
+
+
+(defun load-merged-statenet-graph (&key (path nil) (filename "merged-statenet-graph.l"))
+  (let ((filepath (if path path (format nil "~A/~A" *training-data-path* filename))))
+    (with-open-file (merged-statenet-graph-f filepath)
+      (read merged-statenet-graph-f))))
+
+
 (provide :common-io "common-io.l")
