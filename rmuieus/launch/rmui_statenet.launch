@@ -6,7 +6,7 @@
   <arg name="pdf-flag" value="t" if="$(arg pdf)" />
   <arg name="pdf-flag" value="nil" unless="$(arg pdf)" />
 
-  <node pkg="rmuieus" name="demo_rmui" type="$(arg robot)-statenet.l" if="$(arg main)"
+  <node pkg="rmuieus" name="statenet_server" type="$(arg robot)-statenet-server.l" if="$(arg main)"
         args="&quot;(main :pdf $(arg pdf-flag))&quot;" output="screen">
   </node>
 

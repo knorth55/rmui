@@ -3,7 +3,7 @@
 (ros::roseus-add-msgs "rmui_msgs")
 
 
-(defun call-execute-statenet (start-state goal-state &key (server-name "/demo_rmui"))
+(defun call-execute-statenet (start-state goal-state &key (server-name "/statenet_server"))
   (let ((client
           (instance ros::simple-action-client :init
                     (format nil "~A/execute" server-name)
@@ -17,7 +17,7 @@
     (send client :get-result)))
 
 
-(defun cancel-execute-statenet (&key (server-name "/demo_rmui"))
+(defun cancel-execute-statenet (&key (server-name "/statenet_server"))
   (let ((client
           (instance ros::simple-action-client :init
                     (format nil "~A/execute" server-name)
