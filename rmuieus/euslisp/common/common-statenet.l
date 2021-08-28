@@ -109,10 +109,11 @@
     (ros::sleep)))
 
 
-(defun call-execute-statenet (start-state goal-state)
+(defun call-execute-statenet (start-state goal-state &key (server-name "/demo_rmui"))
   (let ((client
           (instance ros::simple-action-client :init
-                    "/demo_rmui/execute" rmui_msgs::ExecuteStatenetAction))
+                    (format nil "~A/execute" server-name)
+                    rmui_msgs::ExecuteStatenetAction))
         (goal (instance rmui_msgs::ExecuteStatenetActionGoal :init)))
     (send goal :goal :start_state (format nil "~A" start-state))
     (send goal :goal :goal_state (format nil "~A" goal-state))
