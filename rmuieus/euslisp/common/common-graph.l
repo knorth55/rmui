@@ -10,6 +10,21 @@
   (remove '|n| (read-from-string name)))
 
 
+(defun add-node (sm name func node-type)
+  (if (null (send sm :node name))
+    (let ((n (instance state :init name func)))
+      (setf (get n :node-type) node-type)
+      (send sm :add-node n))))
+
+
+(defun add-state-node (sm name &optional (state-func #'(lambda (x) t)))
+  (add-node sm name state-func :state-node))
+
+
+(defun add-action-node (sm name action-func)
+  (add-node sm name action-func :action-node))
+
+
 (defun convert-graph-to-smach (gr start-state)
   (let ((sm (instance state-machine :init))
         goals)
@@ -17,8 +32,7 @@
       (let* ((state-sym (convert-string-to-sym (send node :name)))
              (name (format nil "~A" state-sym))
              (acts (send node :neighbor-action-alist)))
-        (if (null (send sm :node name))
-          (send sm :add-node (instance state :init name #'(lambda (x) t))))
+        (add-state-node sm name #'(lambda (x) t))
         (if (null acts)
           (setq goals (append goals (list (cons name (format nil "goal~A" (length goals)))))))
         (dolist (act acts)
@@ -31,11 +45,9 @@
                  (next-node (cdr act))
                  (next-state-sym (convert-string-to-sym (send next-node :name)))
                  (next-name (format nil "~A" next-state-sym)))
-            (if (null (send sm :node node-name))
-              (send sm :add-node (instance state :init node-name action-func)))
+            (add-action-node sm node-name action-func)
             (send sm :add-transition name node-name t)
-            (if (null (send sm :node next-name))
-              (send sm :add-node (instance state :init next-name #'(lambda (x) t))))
+            (add-state-node sm next-name #'(lambda (x) t))
             (send sm :add-transition node-name next-name t)
             ))))
     ;; start-state
@@ -46,8 +58,7 @@
     (dolist (goal goals)
       (let ((name (car goal))
             (goal-name (cdr goal)))
-        (if (null (send sm :node name))
-          (send sm :add-node (instance state :init name #'(lambda (x) t))))
+        (add-state-node sm name #'(lambda (x) t))
         (send sm :add-transition name goal-name t)))
     (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
                            (send (send sm :start-state) :name)))
@@ -74,17 +85,13 @@
                  (node-name (format nil "~A" (list action-sym from-state-sym)))
                  (from-name (format nil "~A" from-state-sym))
                  (to-name (format nil "~A" to-state-sym)))
-            (if (null (send sm :node from-name))
-              (send sm :add-node (instance state :init from-name #'(lambda (x) t))))
-            (if (null (send sm :node node-name))
-              (send sm :add-node (instance state :init node-name action-func)))
+            (add-state-node sm from-name #'(lambda (x) t))
+            (add-action-node sm node-name action-func)
             (send sm :add-transition from-name node-name t)
-            (if (null (send sm :node to-name))
-              (send sm :add-node (instance state :init to-name #'(lambda (x) t))))
+            (add-state-node sm to-name #'(lambda (x) t))
             (send sm :add-transition node-name to-name t)))))
     ;; start-state
-    (if (null (send sm :node start-state))
-      (send sm :add-node (instance state :init start-state #'(lambda (x) t))))
+    (add-state-node sm start-state #'(lambda (x) t))
     (send sm :start-state start-state)
     ;; goal-state
     (send sm :goal-state (list goal-state))
@@ -93,13 +100,10 @@
            (last-state-sym (convert-string-to-sym (send (send (car (last solution)) :state) :name)))
            (first-name (format nil "~A" first-state-sym))
            (last-name (format nil "~A" last-state-sym)))
-      (if (null (send sm :node first-name))
-        (send sm :add-node (instance state :init first-name #'(lambda (x) t))))
+      (add-state-node sm first-name #'(lambda (x) t))
       (send sm :add-transition start-state first-name t)
-      (if (null (send sm :node goal-state))
-        (send sm :add-node (instance state :init goal-state #'(lambda (x) t))))
-      (if (null (send sm :node last-name))
-        (send sm :add-node (instance state :init last-name #'(lambda (x) t))))
+      (add-state-node sm goal-state #'(lambda (x) t))
+      (add-state-node sm last-name #'(lambda (x) t))
       (send sm :add-transition last-name goal-state t))
     (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
                            (send (send sm :start-state) :name)))
