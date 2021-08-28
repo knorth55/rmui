@@ -123,6 +123,17 @@
     t))
 
 
+(defun current-state-publish-timer-cb (event)
+  (publish-current-state))
+
+
+(defun publish-current-state ()
+  (let ((msg (instance rmui_msgs::StatenetStateStamped :init)))
+    (send msg :header :stamp (ros::time-now))
+    (send msg :state :state (format nil "~A" *current-state*))
+    (ros::publish "~current_state" msg)))
+
+
 (defun main (&key (pdf nil))
   (setq *statenet-graph* (load-merged-statenet-graph))
   (if pdf
@@ -132,6 +143,8 @@
   (setq *server* (instance ros::simple-action-server :init
                            "~execute" rmui_msgs::ExecuteStatenetAction
                            :execute-cb 'execute-statenet-cb))
+  (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
+  (ros::create-timer 0.1 #'current-state-publish-timer-cb)
   (ros::rate 10)
   (do-until-key
     (send *server* :worker)
