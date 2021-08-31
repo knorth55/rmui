@@ -38,9 +38,17 @@
   (send solver :solve statenet-graph))
 
 
+(defun statenet-state-func (userdate)
+  t)
+
+
 (defun generate-smach-from-state (statenet-graph solver start-state goal-state)
-  (let* ((solution (solve-statenet-path statenet-graph solver start-state goal-state))
-         (sm (if solution (convert-solution-to-smach solution))))
+  (let* ((solution
+           (solve-statenet-path
+             statenet-graph solver start-state goal-state))
+         (sm (if solution
+               (convert-solution-to-smach
+                 solution :state-func #'statenet-state-func))))
     sm))
 
 
