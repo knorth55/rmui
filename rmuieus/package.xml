@@ -8,6 +8,8 @@
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>rmui_msgs</build_depend>
+
   <exec_depend>ffha</exec_depend>
   <exec_depend>pddl_planner</exec_depend>
   <exec_depend>rmui_drivers</exec_depend>
