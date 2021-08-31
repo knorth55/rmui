@@ -41,6 +41,7 @@
               "Aborting execution because start-state and current-state are different.")
             (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
             (send result :result :success nil)
+            (send result :result :final_state :state (format nil "~A" *current-state*))
             (send server :set-aborted result)
             (return-from execute-statenet-cb nil)))))
     ;; check start-state and goal-state
@@ -52,6 +53,7 @@
         (ros::ros-warn "Skipping execution because start-state and goal-state are same")
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
         (send result :result :success t)
+        (send result :result :final_state :state (format nil "~A" *current-state*))
         (send server :set-succeeded result)
         (return-from execute-statenet-cb t)))
     ;; generate smach machine
@@ -60,6 +62,7 @@
       (progn
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
         (send result :result :success nil)
+        (send result :result :final_state :state (format nil "~A" *current-state*))
         (send server :set-aborted result)
         (return-from execute-statenet-cb nil)))
 
@@ -97,6 +100,7 @@
             (progn
               (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
               (send result :result :success nil)
+              (send result :result :final_state :state (format nil "~A" *current-state*))
               (send server :set-preempted result)
               (return-from execute-statenet-cb nil)))
           ;; execute
@@ -115,6 +119,7 @@
            (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
       (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
       (send result :result :success (and goalp (null abortp)))
+      (send result :result :final_state :state (format nil "~A" *current-state*))
       (send server :set-succeeded result))
     t))
 
