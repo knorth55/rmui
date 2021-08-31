@@ -23,29 +23,26 @@
 
 
 (defun load-merged-statenet-graph ()
-  (let ((statenet-graph (merge-statenet-graphs (load-all-statenet-graph))))
-    (if (null statenet-graph) (setq statenet-graph (load-merged-statenet-graph)))
-    (dump-merged-statenet-graph statenet-graph)
-    (add-initial-state statenet-graph)
-    statenet-graph))
+  (let ((gr (merge-statenet-graphs (load-all-statenet-graph))))
+    (if (null gr) (setq gr (load-merged-statenet-graph)))
+    (dump-merged-statenet-graph gr)
+    (add-initial-state gr)
+    gr))
 
 
-(defun solve-statenet-path (statenet-graph solver start-state goal-state)
-  (send statenet-graph :start-state
-        (send statenet-graph :search-node-from-pddl-state start-state))
-  (send statenet-graph :goal-state
-        (send statenet-graph :search-node-from-pddl-state goal-state))
-  (send solver :solve statenet-graph))
+(defun solve-statenet-path (gr solver start-state goal-state)
+  (send gr :start-state (send gr :search-node-from-pddl-state start-state))
+  (send gr :goal-state (send gr :search-node-from-pddl-state goal-state))
+  (send solver :solve gr))
 
 
 (defun statenet-state-func (userdate)
   t)
 
 
-(defun generate-smach-from-state (statenet-graph solver start-state goal-state)
+(defun generate-smach-from-state (gr solver start-state goal-state)
   (let* ((solution
-           (solve-statenet-path
-             statenet-graph solver start-state goal-state))
+           (solve-statenet-path gr solver start-state goal-state))
          (sm (if solution
                (convert-solution-to-smach
                  solution :state-func #'statenet-state-func))))
