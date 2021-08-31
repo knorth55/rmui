@@ -3,6 +3,7 @@ rmui_msgs/StatenetState goal_state
 bool force_update_start_state
 ---
 bool success
+rmui_msgs/StatenetState final_state
 time stamp
 ---
 time stamp
