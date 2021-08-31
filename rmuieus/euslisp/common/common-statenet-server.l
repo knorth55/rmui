@@ -109,11 +109,13 @@
       (send *sm* :active-state))
 
     ;; finish state-machine
-    (setq *current-state* goal-state)
     (ros::ros-info (format nil "current-state: ~A" *current-state*))
-    (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-    (send result :result :success t)
-    (send server :set-succeeded result)
+    (let* ((final-state (send (send *sm* :active-state) :name))
+           (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
+           (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
+      (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+      (send result :result :success (and goalp (null abortp)))
+      (send server :set-succeeded result))
     t))
 
 
