@@ -30,10 +30,37 @@
     gr))
 
 
-(defun solve-statenet-path (gr solver start-state goal-state)
-  (send gr :start-state (send gr :search-node-from-pddl-state start-state))
-  (send gr :goal-state (send gr :search-node-from-pddl-state goal-state))
-  (send solver :solve gr))
+(defun solve-statenet-path (gr slvr start-state goal-state &key (first-action nil))
+  (let ((start-node (send gr :search-node-from-pddl-state start-state))
+        (goal-node (send gr :search-node-from-pddl-state goal-state)))
+    (if first-action
+      (let* ((first-action-name (format nil "~A" first-action))
+             (acts (send start-node :neighbor-action-alist))
+             (second-node
+               (cdr (assoc first-action-name acts :test #'equal)))
+             (arc-alist
+               (mapcar #'(lambda (x) (cons (send x :name) x))
+                       (mapcar #'car (send start-node :successors))))
+             (first-arc
+               (cdr (assoc first-action-name arc-alist :test #'equal)))
+             (solution nil))
+        (send gr :start-state second-node)
+        (send gr :goal-state goal-node)
+        (setq solution (send slvr :solve gr))
+        (if solution
+          (let ((first-node
+                  (instance solver-node :init start-node :cost 0)))
+            (send (car solution) :parent first-node)
+            (send (car solution) :action first-arc)
+            (dolist (sn solution)
+              (send sn :cost (+ 1 (send sn :cost))))
+            (push first-node solution)
+            solution)))
+      (let ((solution nil))
+        (send gr :start-state start-node)
+        (send gr :goal-state goal-node)
+        (setq solution (send slvr :solve gr))
+        solution))))
 
 
 (defun ros-yes-or-no-p (ask-sentence &optional (default t))
@@ -109,8 +136,9 @@
                      (format nil "Which action do you choose ? (Default: ~A)"
                              default-index)
                      (length next-gr-actions) default-index))
-             ;; TODO (knorth55): implement replan
-             (if (equal default-index chosen-index) :next :replan)))
+             (if (equal default-index chosen-index)
+               (cons :next  (elt next-gr-actions chosen-index))
+               (cons :replan (elt next-gr-actions chosen-index)))))
           ((= (length next-gr-actions) 1)
            (if (find (car next-gr-actions) next-sm-actions :test #'equal)
              (let* ((next-action (car next-gr-actions))
@@ -131,32 +159,13 @@
     (yes-or-no-p ask-sentence)))
 
 
-(defun statenet-state-func (userdate)
-  (tagbody retry
-    (let ((user-decision (ask-user-decision)))
-      (cond
-        ((equal user-decision :next)
-         (return-from statenet-state-func t))
-        ((equal user-decision :abort)
-         (if (ask-user-abortion)
-           (return-from statenet-state-func nil)
-           (go retry)))
-        ;; TODO (knorth55): implement replan
-        ((equal user-decision :replan)
-         (ros::ros-error "replanning is not implmented yet")
-         (go retry))
-        ((equal user-decision nil)
-         (ros::ros-error "something is wrong.")
-         (return-from statenet-state-func nil))
-        (t (go retry))))))
-
-
-(defun generate-smach-from-state (gr solver start-state goal-state)
+(defun generate-smach-from-state (gr slvr start-state goal-state
+                                     &key (state-func #'(lambda (x) t)) (first-action nil))
   (let* ((solution
-           (solve-statenet-path gr solver start-state goal-state))
+           (solve-statenet-path gr slvr start-state goal-state
+                                :first-action first-action))
          (sm (if solution
-               (convert-solution-to-smach
-                 solution :state-func #'statenet-state-func))))
+               (convert-solution-to-smach solution :state-func state-func))))
     sm))
 
 

@@ -8,6 +8,7 @@
 (setq *solver-class* depth-first-graph-search-solver)
 (setq *solver* (instance *solver-class* :init))
 (setq *sm* nil)
+(setq *insp* nil)
 
 
 ;; state
@@ -17,6 +18,91 @@
 
 
 ;; functions
+
+
+(defun initialize-state-machine (userdata &key (root-name "SM_ROOT"))
+  (send *sm* :reset-state)
+  (setq *insp* (instance state-machine-inspector :init *sm* :root-name root-name))
+  (send *insp* :publish-structure) ;; publish once and latch
+  (apply #'send *sm* :arg-keys (union (send *sm* :arg-keys) (mapcar #'car userdata))))
+
+
+(defun set-active-state (&key ((:action a) nil) ((:state s) nil))
+  (if s
+    (let ((node-name (format nil "~A" (if a (list a s) s))))
+      (send *sm* :active-state (send *sm* :node node-name)))))
+
+
+(defun set-start-state (&key ((:action a) nil) ((:state s) nil))
+  (if s
+    (let ((node-name (format nil "~A" (if a (list a s) s))))
+      (send *sm* :start-state (send *sm* :node node-name)))))
+
+
+(defun replan-state-machine (current-state goal-state first-action)
+  (let ((sm (generate-smach-from-state
+              *statenet-graph* *solver*
+              current-state goal-state
+              ;; segmentation fault
+              ;: :state-func #'statenet-state-func
+              :state-func #'(lambda (userdata) (statenet-state-func userdata))
+              :first-action first-action)))
+    sm))
+
+
+(defun statenet-state-func (userdata)
+  (let* ((current-sm-node (send *sm* :active-state))
+         (current-state (read-from-string (send current-sm-node :name)))
+         (goal-state (cdr (assoc :goal-state userdata))))
+    (tagbody retry
+      (let ((user-decision (ask-user-decision :sm *sm* :gr *statenet-graph*)))
+        (cond
+          ((equal user-decision :next)
+           (return-from statenet-state-func t))
+          ((equal user-decision :abort)
+           (if (ask-user-abortion)
+             (return-from statenet-state-func nil)
+             (go retry)))
+          ((and (listp user-decision)
+                (equal (car user-decision) :replan))
+           (let ((sm))
+             (ros::ros-warn "replanning...")
+             (setq sm (replan-state-machine
+                        current-state goal-state (cdr user-decision)))
+             (if sm
+               (progn
+                 (ros::ros-info "replanning succeeded")
+                 (setq *sm* sm)
+                 (set-start-state :action (cdr user-decision)
+                                  :state current-state)
+                 (initialize-state-machine userdata)
+                 (return-from statenet-state-func t))
+               (progn
+                 (ros::ros-error "replanning failed...")
+                 (go retry)))))
+          ;; TODO (knorth55): for :next, replanning, it is not good.
+          ((and (listp user-decision)
+                (equal (car user-decision) :next))
+           (let ((sm))
+             (ros::ros-warn "replanning...")
+             (setq sm (replan-state-machine
+                        current-state goal-state (cdr user-decision)))
+             (if sm
+               (progn
+                 (ros::ros-info "replanning succeeded")
+                 (setq *sm* sm)
+                 (set-start-state :action (cdr user-decision)
+                                  :state current-state)
+                 (initialize-state-machine userdata)
+                 (return-from statenet-state-func t))
+               (progn
+                 (ros::ros-error "replanning failed...")
+                 (go retry)))))
+          ((equal user-decision nil)
+           (ros::ros-error "something is wrong.")
+           (return-from statenet-state-func nil))
+          (t (go retry)))))))
+
 
 (defun execute-statenet-cb (server goal)
   (let ((start-state
@@ -57,7 +143,11 @@
         (send server :set-succeeded result)
         (return-from execute-statenet-cb t)))
     ;; generate smach machine
-    (setq *sm* (generate-smach-from-state *statenet-graph* *solver* start-state goal-state))
+    (setq *sm* (generate-smach-from-state
+                 *statenet-graph* *solver* start-state goal-state
+                 ;; segmentation fault
+                 ;: :state-func #'statenet-state-func
+                 :state-func #'(lambda (userdata) (statenet-state-func userdata))))
     (if (null *sm*)
       (progn
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
@@ -68,24 +158,31 @@
 
     ;; execute state machine
     ;; modified from (exec-state-machine *sm* nil :hz 1.0)
-    (let* ((root-name "SM_ROOT")
-           (insp (instance state-machine-inspector :init *sm* :root-name root-name))
-           (mydata nil)
+    (let* ((userdata (list (cons :goal-state goal-state)))
            (hz 1.0))
       (unix::usleep (round (* 1e6 0.5)))
-      (send *sm* :reset-state)
-      (send insp :publish-structure) ;; publish once and latch
-      (apply #'send *sm* :arg-keys
-             (union (send *sm* :arg-keys) (mapcar #'car mydata)))
+      (initialize-state-machine userdata)
       (ros::rate hz)
       (while (ros::ok)
         (ros::spin-once)
         (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
+        ;; check if sm is not nil for replanning
+        (if (null *sm*)
+          (progn
+            (send result :result :stamp
+                  (ros::time- (ros::time-now) start-stamp))
+            (send result :result :success nil)
+            (send result :result :final_state :state
+                  (format nil "~A" *current-state*))
+            (send server :set-aborted result)
+            (return-from execute-statenet-cb nil)))
         (let* ((active-state (send *sm* :active-state))
                (node-type (get active-state :node-type))
                (node-name (send active-state :name))
                (node-sym (read-from-string node-name)))
-          (ros::ros-info (format nil "node-type: ~A" node-type))
+          ;; check node type
+          (ros::ros-info (format nil "active-state: ~A" node-name))
+          (ros::ros-info (format nil "node-type   : ~A" node-type))
           (cond
             ((equal node-type :state-node)
              (setq *current-state* node-sym)
@@ -93,7 +190,7 @@
             ((equal node-type :action-node)
              (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
             (t nil))
-          (send insp :publish-status mydata)
+          (send *insp* :publish-status userdata)
           (when (send *sm* :goal-reached) (return))
           ;; cancel
           (if (send server :is-preempt-requested)
@@ -104,13 +201,13 @@
               (send server :set-preempted result)
               (return-from execute-statenet-cb nil)))
           ;; execute
-          (send *sm* :execute mydata :step -1)
+          (send *sm* :execute userdata :step -1)
           ;; feedback
           (send feedback :feedback :stamp
                 (ros::time- (ros::time-now) start-stamp))
           (send server :publish-feedback feedback)
-          (ros::sleep)))
-      (send *sm* :active-state))
+          ;; sleep
+          (ros::sleep))))
 
     ;; finish state-machine
     (ros::ros-info (format nil "current-state: ~A" *current-state*))
