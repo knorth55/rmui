@@ -98,14 +98,14 @@
          (current-state (read-from-string (send current-sm-node :name)))
          (current-gr-node (send gr :search-node-from-pddl-state current-state))
          (gr-acts (send current-gr-node :neighbor-action-alist))
-         ;; TODO: fix default next-sm-actions
          (next-sm-actions
            (remove nil
              (mapcar #'(lambda (trans)
-                         (let ((action
-                                 (car (read-from-string
-                                        (send (send trans :to) :name)))))
-                           (if (listp action) action nil)))
+                         (if (equal (send trans :name) t)
+                           (let ((action
+                                   (car (read-from-string
+                                          (send (send trans :to) :name)))))
+                             (if (listp action) action nil))))
                      (send current-sm-node :arc-list)))))
     (if (and next-sm-actions gr-acts)
       (let* ((next-gr-actions
