@@ -25,6 +25,21 @@
   (add-node sm name action-func :action-node))
 
 
+(defun add-nodes-from-trans (sm trans &key (state-func #'(lambda (x) t))
+                                (smach-transition t)
+                                (add-t-transition nil))
+  (let ((from-name (cdr (assoc :from-name trans :test #'equal)))
+        (node-name (cdr (assoc :node-name trans :test #'equal)))
+        (action-func (cdr (assoc :action-func trans :test #'equal)))
+        (to-name (cdr (assoc :to-name trans :test #'equal))))
+    (add-state-node sm from-name state-func)
+    (add-action-node sm node-name action-func)
+    (send sm :add-transition from-name node-name smach-transition)
+    (if add-t-transition (send sm :add-transition from-name node-name t))
+    (add-state-node sm to-name state-func)
+    (send sm :add-transition node-name to-name t)))
+
+
 (defun convert-graph-to-smach (gr start-state &key (state-func #'(lambda (x) t)))
   (let ((sm (instance state-machine :init))
         (goals nil)
@@ -87,76 +102,67 @@
         (start-state "(:start)")
         (goal-state "(:goal)")
         (aborts nil)
-        (abort-index 0))
+        (abort-index 0)
+        (trans-alist nil))
+    (dolist (sn solution)
+      (let ((ac (send sn :action)))
+        (if ac
+          (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
+                 (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
+                 (action-name (send ac :name))
+                 (action-sym (read-from-string action-name))
+                 (action-func
+                   `(lambda-closure nil 0 0 (userdata)
+                                    (apply #',(car action-sym) ',(cdr action-sym))))
+                 (node-name (format nil "~A" (list action-sym from-state-sym)))
+                 (from-name (format nil "~A" from-state-sym))
+                 (to-name (format nil "~A" to-state-sym))
+                 (trans (list (cons :from-name from-name)
+                              (cons :node-name node-name)
+                              (cons :action-sym action-sym)
+                              (cons :action-func action-func)
+                              (cons :to-name to-name)
+                              (cons :to-state-sym to-state-sym))))
+            (setq trans-alist
+                  (append trans-alist (list (cons from-state-sym nil))))
+            (push trans (cdr (assoc from-state-sym trans-alist :test #'equal)))))))
     (if no-loop
-      (let ((trans-alist nil))
-        (dolist (sn solution)
-          (let ((ac (send sn :action)))
-            (if ac
-              (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
-                     (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
-                     (action-name (send ac :name))
-                     (action-sym (read-from-string action-name))
-                     (action-func
-                       `(lambda-closure nil 0 0 (userdata)
-                                        (apply #',(car action-sym) ',(cdr action-sym))))
-                     (node-name (format nil "~A" (list action-sym from-state-sym)))
-                     (from-name (format nil "~A" from-state-sym))
-                     (to-name (format nil "~A" to-state-sym))
-                     (trans (list (cons :from-name from-name)
-                                  (cons :node-name node-name)
-                                  (cons :action-func action-func)
-                                  (cons :to-name to-name)
-                                  (cons :to-state-sym to-state-sym))))
-                (if (assoc from-state-sym trans-alist :test #'equal)
-                  (setf (cdr (assoc from-state-sym trans-alist :test #'equal)) trans)
-                  (setq trans-alist
-                        (append trans-alist
-                                (list (cons from-state-sym trans)))))))))
-        (let ((current-state-sym
-                (convert-string-to-sym
-                  (send (send (car solution) :state) :name)))
-              (last-state-sym
-                (convert-string-to-sym
-                  (send (send (car (last solution)) :state) :name))))
-          (while (null (equal current-state-sym last-state-sym))
-            (let* ((trans (cdr (assoc current-state-sym trans-alist :test #'equal)))
-                   (from-name (cdr (assoc :from-name trans :test #'equal)))
-                   (node-name (cdr (assoc :node-name trans :test #'equal)))
-                   (action-func (cdr (assoc :action-func trans :test #'equal)))
-                   (to-name (cdr (assoc :to-name trans :test #'equal)))
-                   (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
-                   (abort-name (format nil "(:abort~A)" abort-index)))
-              (add-state-node sm from-name state-func)
-              (add-action-node sm node-name action-func)
-              (send sm :add-transition from-name node-name t)
-              (add-state-node sm to-name state-func)
-              (send sm :add-transition node-name to-name t)
-              (setq aborts (append aborts (list (cons from-name abort-name))))
-              (setq abort-index (+ abort-index 1))
-              (setq current-state-sym to-state-sym)))))
-      (dolist (solver-node solution)
-        (let ((ac (send solver-node :action)))
-          (if ac
-            (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
-                   (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
-                   (action-name (send ac :name))
-                   (action-sym (read-from-string action-name))
-                   (action-func
-                     `(lambda-closure nil 0 0 (x)
-                                      (apply #',(car action-sym) ',(cdr action-sym))))
-                   (node-name (format nil "~A" (list action-sym from-state-sym)))
-                   (from-name (format nil "~A" from-state-sym))
-                   (to-name (format nil "~A" to-state-sym))
-                   (abort-name (format nil "(:abort~A)" abort-index)))
-              (add-state-node sm from-name state-func)
-              (add-action-node sm node-name action-func)
-              (setq aborts (append aborts (list (cons from-name abort-name))))
-              (send sm :add-transition from-name node-name t)
-              (add-state-node sm to-name state-func)
-              (send sm :add-transition node-name to-name t)
-              (setq abort-index (+ abort-index 1)))))))
-    
+      (let ((current-state-sym
+              (convert-string-to-sym
+                (send (send (car solution) :state) :name)))
+            (last-state-sym
+              (convert-string-to-sym
+                (send (send (car (last solution)) :state) :name))))
+        (while (null (equal current-state-sym last-state-sym))
+          (let* ((trans-a (assoc current-state-sym trans-alist :test #'equal))
+                 (trans (car (cdr trans-a)))
+                 (from-state-sym (car trans-a))
+                 (from-name (format nil "~A" from-state-sym))
+                 (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
+                 (abort-name (format nil "(:abort~A)" abort-index)))
+            (add-nodes-from-trans
+              sm trans :state-func state-func
+              :smach-transition
+              (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
+              :add-t-transition t)
+            (setq aborts (append aborts (list (cons from-name abort-name))))
+            (setq abort-index (+ abort-index 1))
+            (setq current-state-sym to-state-sym))))
+      (dolist (trans-a trans-alist)
+        (let* ((trans-list (cdr trans-a))
+               (from-state-sym (car trans-a))
+               (from-name (format nil "~A" from-state-sym))
+               (abort-name (format nil "(:abort~A)" abort-index))
+               (trans-index 0))
+          (dolist (trans trans-list)
+            (add-nodes-from-trans
+              sm trans :state-func state-func
+              :smach-transition
+              (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
+              :add-t-transition (equal trans-index 0))
+            (setq trans-index (+ trans-index 1)))
+          (setq aborts (append aborts (list (cons from-name abort-name))))
+          (setq abort-index (+ abort-index 1)))))
     ;; start-state
     (add-node sm start-state #'(lambda (x) t) nil)
     (send sm :start-state start-state)

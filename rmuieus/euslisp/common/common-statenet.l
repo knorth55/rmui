@@ -148,9 +148,9 @@
                (ros::ros-info (format nil "current-state: ~A" current-state))
                (ros::ros-info (format nil "next-action  : ~A" next-action))
                (ros::ros-info (format nil "next-state   : ~A" next-state))
-               (if (ros-yes-or-no-p ask-sentence) :next :abort))))
+               (if (ros-yes-or-no-p ask-sentence) (cons :next next-action) :abort))))
           (t nil)))
-      :next)))
+      :pass)))
 
 
 (defun ask-user-abortion ()

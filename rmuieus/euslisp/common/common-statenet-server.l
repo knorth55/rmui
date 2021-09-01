@@ -58,7 +58,7 @@
     (tagbody retry
       (let ((user-decision (ask-user-decision :sm *sm* :gr *statenet-graph*)))
         (cond
-          ((equal user-decision :next)
+          ((equal user-decision :pass)
            (return-from statenet-state-func t))
           ((equal user-decision :abort)
            (if (ask-user-abortion)
@@ -77,28 +77,15 @@
                  (set-start-state :action (cdr user-decision)
                                   :state current-state)
                  (initialize-state-machine userdata)
+                 ;; replan, so this transition does not have any effect
                  (return-from statenet-state-func t))
                (progn
                  (ros::ros-error "replanning failed...")
                  (go retry)))))
-          ;; TODO (knorth55): for :next, replanning, it is not good.
           ((and (listp user-decision)
                 (equal (car user-decision) :next))
-           (let ((sm))
-             (ros::ros-warn "replanning...")
-             (setq sm (replan-state-machine
-                        current-state goal-state (cdr user-decision)))
-             (if sm
-               (progn
-                 (ros::ros-info "replanning succeeded")
-                 (setq *sm* sm)
-                 (set-start-state :action (cdr user-decision)
-                                  :state current-state)
-                 (initialize-state-machine userdata)
-                 (return-from statenet-state-func t))
-               (progn
-                 (ros::ros-error "replanning failed...")
-                 (go retry)))))
+           (return-from statenet-state-func
+                        (format nil "~A" (cdr user-decision))))
           ((equal user-decision nil)
            (ros::ros-error "something is wrong.")
            (return-from statenet-state-func nil))
