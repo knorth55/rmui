@@ -137,7 +137,7 @@
                              default-index)
                      (length next-gr-actions) default-index))
              (if (equal default-index chosen-index)
-               (cons :next  (elt next-gr-actions chosen-index))
+               (cons :next (elt next-gr-actions chosen-index))
                (cons :replan (elt next-gr-actions chosen-index)))))
           ((= (length next-gr-actions) 1)
            (if (find (car next-gr-actions) next-sm-actions :test #'equal)
