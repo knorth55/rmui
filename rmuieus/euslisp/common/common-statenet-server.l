@@ -46,7 +46,8 @@
               ;; segmentation fault
               ;: :state-func #'statenet-state-func
               :state-func #'(lambda (userdata) (statenet-state-func userdata))
-              :first-action first-action)))
+              :first-action first-action
+              :no-loop nil)))
     sm))
 
 
@@ -147,7 +148,8 @@
                  *statenet-graph* *solver* start-state goal-state
                  ;; segmentation fault
                  ;: :state-func #'statenet-state-func
-                 :state-func #'(lambda (userdata) (statenet-state-func userdata))))
+                 :state-func #'(lambda (userdata) (statenet-state-func userdata))
+                 :no-loop t))
     (if (null *sm*)
       (progn
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
