@@ -98,6 +98,7 @@
          (current-state (read-from-string (send current-sm-node :name)))
          (current-gr-node (send gr :search-node-from-pddl-state current-state))
          (gr-acts (send current-gr-node :neighbor-action-alist))
+         ;; TODO: fix default next-sm-actions
          (next-sm-actions
            (remove nil
              (mapcar #'(lambda (trans)
