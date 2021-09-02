@@ -114,46 +114,68 @@
                (mapcar #'(lambda (act)
                            (convert-string-to-sym (send (cdr act) :name)))
                        gr-acts)))
-        (cond
-          ((> (length next-gr-actions) 1)
-           (ros::ros-info (format nil "current-state: ~A" current-state))
-           (ros::ros-info "Action candidates:")
-           (let ((next-gr-index 0)
-                 (default-index 0)
-                 (chosen-index 0))
-             (while (> (length next-gr-actions) next-gr-index)
-               (let ((next-gr-action (elt next-gr-actions next-gr-index))
-                     (next-gr-state (elt next-gr-states next-gr-index)))
-                 (ros::ros-info "(~A) next-action: ~A" next-gr-index next-gr-action)
-                 (ros::ros-info "(~A) next-state: ~A" next-gr-index next-gr-state)
-                 (if (find next-gr-action next-sm-actions :test #'equal)
-                   (setq default-index next-gr-index))
-                 (setq next-gr-index (+ next-gr-index 1))))
-             (ros::ros-info "Default action: (~A) ~A"
-                            default-index (elt next-gr-actions default-index))
-             (setq chosen-index
-                   (ros-index-choose
-                     (format nil "Which action do you choose ? (Default: ~A)"
-                             default-index)
-                     (length next-gr-actions) default-index))
-             (if (equal default-index chosen-index)
-               (cons :next (elt next-gr-actions chosen-index))
-               (cons :replan (elt next-gr-actions chosen-index)))))
-          ((= (length next-gr-actions) 1)
-           (if (find (car next-gr-actions) next-sm-actions :test #'equal)
-             (let* ((next-action (car next-gr-actions))
-                    (next-state (car next-gr-states))
-                    (ask-sentence
-                      (format nil "Do you start next action ~A ? : " next-action)))
-               (ros::ros-info (format nil "current-state: ~A" current-state))
-               (ros::ros-info (format nil "next-action  : ~A" next-action))
-               (ros::ros-info (format nil "next-state   : ~A" next-state))
-               (if (ros-yes-or-no-p ask-sentence) (cons :next next-action) :abort))))
-          (t nil)))
+        (tagbody reask
+          (cond
+            ;; if next actions are multiples
+            ;; ask which action to execute -> ask if teach or not
+            ((> (length next-gr-actions) 1)
+             (ros::ros-info (format nil "current-state: ~A" current-state))
+             (ros::ros-info "Action candidates:")
+             (let ((next-gr-index 0)
+                   (default-index 0)
+                   (chosen-index 0))
+               (while (> (length next-gr-actions) next-gr-index)
+                 (let ((next-gr-action (elt next-gr-actions next-gr-index))
+                       (next-gr-state (elt next-gr-states next-gr-index)))
+                   (ros::ros-info
+                     (format nil "(~A) next-action: ~A"
+                             next-gr-index next-gr-action))
+                   (ros::ros-info
+                     (format nil "(~A) next-state: ~A"
+                             next-gr-index next-gr-state))
+                   (if (find next-gr-action next-sm-actions :test #'equal)
+                     (setq default-index next-gr-index))
+                   (setq next-gr-index (+ next-gr-index 1))))
+               ;; -1 index for teaching
+               (ros::ros-info "(-1) teach new action")
+               (ros::ros-info
+                 (format nil "Default action: (~A) ~A"
+                         default-index (elt next-gr-actions default-index)))
+               (setq chosen-index
+                     (ros-index-choose
+                       (format nil "Which action do you choose ? (Default: ~A)"
+                               default-index)
+                       (length next-gr-actions) default-index))
+               (if (>= chosen-index 0)
+                 (if (equal default-index chosen-index)
+                   (return-from ask-user-decision
+                                (cons :next (elt next-gr-actions chosen-index)))
+                   (return-from ask-user-decision
+                                (cons :replan (elt next-gr-actions chosen-index))))
+                 (if (ask-user-teaching)
+                   (return-from ask-user-decision :teach)
+                   (go reask)))))
+            ;; if next action is only one
+            ;; ask if execute or not -> ask if teach or not -> ask if abort or not
+            ((= (length next-gr-actions) 1)
+             (if (find (car next-gr-actions) next-sm-actions :test #'equal)
+               (let* ((next-action (car next-gr-actions))
+                      (next-state (car next-gr-states)))
+                 (ros::ros-info (format nil "current-state: ~A" current-state))
+                 (ros::ros-info (format nil "next-action  : ~A" next-action))
+                 (ros::ros-info (format nil "next-state   : ~A" next-state))
+                 (if (ask-user-next-action next-action)
+                   (return-from ask-user-decision (cons :next next-action))
+                   (if (ask-user-teaching)
+                     (return-from ask-user-decision :teach)
+                     (if (ask-user-abortion)
+                       (return-from ask-user-decision :abort)
+                       (go reask)))))))
+            (t nil))))
       :pass)))
 
 
-(defun ask-user-teaching (next-action)
+(defun ask-user-teaching ()
   (let ((ask-sentence
           (format nil "Do you want to teach a new action? : ")))
     (ros-yes-or-no-p ask-sentence)))
