@@ -63,7 +63,7 @@
         solution))))
 
 
-(defun ros-yes-or-no-p (ask-sentence &optional (default t))
+(defun ros-yes-or-no-p (ask-sentence &key (use-default t) (default t))
   (let ((response))
     (tagbody retry-yes-or-no
       (ros::ros-info ask-sentence)
@@ -72,18 +72,23 @@
       (cond
         ((string= response "YES") (return-from ros-yes-or-no-p t))
         ((string= response "NO") (return-from ros-yes-or-no-p nil))
-        ((string= response "") (return-from ros-yes-or-no-p default))
+        ((string= response "")
+         (if use-default
+           (return-from ros-yes-or-no-p default)
+           (go retry-yes-or-no)))
         (t (go retry-yes-or-no))))))
 
 
-(defun ros-index-choose (ask-sentence max-index &optional (default-index 0))
+(defun ros-index-choose (ask-sentence max-index &key (use-default t) (default-index 0))
   (let ((response))
     (tagbody retry-index-choose
       (ros::ros-info ask-sentence)
       (finish-output t)
       (setq response (read-line t))
       (if (string= response "")
-        (return-from ros-index-choose default-index)
+        (if use-default
+          (return-from ros-index-choose default-index)
+          (go retry-index-choose))
         (let ((resp-num (read-from-string response)))
           (if (and (integerp resp-num)
                    (>= resp-num -1)
@@ -145,7 +150,8 @@
                      (ros-index-choose
                        (format nil "Which action do you choose ? (Default: ~A)"
                                default-index)
-                       (length next-gr-actions) default-index))
+                       (length next-gr-actions)
+                       :defaulut-index default-index))
                (if (>= chosen-index 0)
                  (if (equal default-index chosen-index)
                    (return-from ask-user-decision
@@ -178,19 +184,19 @@
 (defun ask-user-teaching ()
   (let ((ask-sentence
           (format nil "Do you want to teach a new action? : ")))
-    (ros-yes-or-no-p ask-sentence)))
+    (ros-yes-or-no-p ask-sentence :use-default nil)))
 
 
 (defun ask-user-next-action (next-action)
   (let ((ask-sentence
           (format nil "Do you want to start next action ~A ? : " next-action)))
-    (ros-yes-or-no-p ask-sentence)))
+    (ros-yes-or-no-p ask-sentence :default t)))
 
 
 (defun ask-user-abortion ()
   (let ((ask-sentence
           (format nil "Are you sure to abort the execution ? : ")))
-    (ros-yes-or-no-p ask-sentence)))
+    (ros-yes-or-no-p ask-sentence :use-default nil)))
 
 
 (defun generate-smach-from-state (gr slvr start-state goal-state
