@@ -82,15 +82,14 @@
       (ros::ros-info ask-sentence)
       (finish-output t)
       (setq response (read-line t))
-      (cond
-        ((string= response "")
-         (return-from ros-index-choose default-index))
-        ((and (integerp (read-from-string response))
-              (>= (read-from-string response) 0)
-              (< (read-from-string response) max-index))
-         (return-from ros-index-choose
-                      (read-from-string response)))
-        (t (go retry))))))
+      (if (string= response "")
+        (return-from ros-index-choose default-index)
+        (let ((resp-num (read-from-string response)))
+          (if (and (integerp resp-num)
+                   (>= resp-num -1)
+                   (< resp-num max-index))
+            (return-from ros-index-choose resp-num)
+            (go retry)))))))
 
 
 (defun ask-user-decision (&key (gr *statenet-graph*) (sm *sm*))
