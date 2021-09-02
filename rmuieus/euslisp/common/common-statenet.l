@@ -143,15 +143,10 @@
                    (setq next-gr-index (+ next-gr-index 1))))
                ;; -1 index for teaching
                (ros::ros-info "(-1) teach new action")
-               (ros::ros-info
-                 (format nil "Default action: (~A) ~A"
-                         default-index (elt next-gr-actions default-index)))
                (setq chosen-index
-                     (ros-index-choose
-                       (format nil "Which action do you choose ? (Default: ~A)"
-                               default-index)
-                       (length next-gr-actions)
-                       :defaulut-index default-index))
+                     (ask-user-index-choose
+                       next-gr-actions :use-default t
+                       :default-index default-index))
                (if (>= chosen-index 0)
                  (if (equal default-index chosen-index)
                    (return-from ask-user-decision
@@ -179,6 +174,17 @@
                        (go retry-ask-user-decision)))))))
             (t nil))))
       :pass)))
+
+
+(defun ask-user-index-choose (actions &key (use-default t) (default-index 0))
+  (let ((info-sentence
+          (format nil "Default action: (~A) ~A"
+                         default-index (elt actions default-index)))
+        (ask-sentence
+          (format nil "Which action do you choose ? (Default: ~A)" default-index)))
+    (if use-default (ros::ros-info info-sentence))
+    (ros-index-choose ask-sentence (length actions)
+                      :use-default use-default :default-index default-index)))
 
 
 (defun ask-user-teaching ()
