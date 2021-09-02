@@ -153,6 +153,18 @@
       :pass)))
 
 
+(defun ask-user-teaching (next-action)
+  (let ((ask-sentence
+          (format nil "Do you want to teach a new action? : ")))
+    (ros-yes-or-no-p ask-sentence)))
+
+
+(defun ask-user-next-action (next-action)
+  (let ((ask-sentence
+          (format nil "Do you want to start next action ~A ? : " next-action)))
+    (ros-yes-or-no-p ask-sentence)))
+
+
 (defun ask-user-abortion ()
   (let ((ask-sentence
           (format nil "Are you sure to abort the execution ? : ")))
