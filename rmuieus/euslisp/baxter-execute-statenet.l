@@ -8,4 +8,7 @@
 (defun main (state)
   (ros::roseus "baxter_execute_statenet")
   (load-statenet-state state)
-  (call-execute-statenet *start-state* *goal-state*))
+  (setq *client*
+        (instance statenet-action-client :init
+                  :reset-state *reset-state*))
+  (send *client* :call-execute-statenet *start-state* *goal-state*))
