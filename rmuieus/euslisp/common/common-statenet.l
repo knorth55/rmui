@@ -156,7 +156,7 @@
 (defun ask-user-abortion ()
   (let ((ask-sentence
           (format nil "Are you sure to abort the execution ? : ")))
-    (yes-or-no-p ask-sentence)))
+    (ros-yes-or-no-p ask-sentence)))
 
 
 (defun generate-smach-from-state (gr slvr start-state goal-state
