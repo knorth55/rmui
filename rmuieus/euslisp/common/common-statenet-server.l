@@ -237,15 +237,4 @@
     (if (boundp '*ri*) (send *ri* :draw-objects))))
 
 
-(defun main (&key (pdf nil))
-  (ros::roseus "statenet_server")
-  (setq *server* (instance statenet-action-server :init))
-  (if pdf (send *server* :show-pdf))
-  (send *server* :init-timer)
-  (ros::rate 10)
-  (while (ros::ok)
-    (send *server* :execute-cb)
-    (send *server* :spin-once)))
-
-
 (provide :common-statenet-server "common-statenet-server.l")
