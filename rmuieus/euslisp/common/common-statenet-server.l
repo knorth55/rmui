@@ -55,7 +55,7 @@
   (let* ((current-sm-node (send *sm* :active-state))
          (current-state (read-from-string (send current-sm-node :name)))
          (goal-state (cdr (assoc :goal-state userdata))))
-    (tagbody retry
+    (tagbody retry-ask
       (let ((user-decision (ask-user-decision :sm *sm* :gr *statenet-graph*)))
         (cond
           ((equal user-decision :pass)
@@ -83,7 +83,7 @@
                  (return-from statenet-state-func t))
                (progn
                  (ros::ros-error "replanning failed...")
-                 (go retry)))))
+                 (go retry-ask)))))
           ((and (listp user-decision)
                 (equal (car user-decision) :next))
            (return-from statenet-state-func
@@ -91,7 +91,7 @@
           ((equal user-decision nil)
            (ros::ros-error "something is wrong.")
            (return-from statenet-state-func nil))
-          (t (go retry)))))))
+          (t (go retry-ask)))))))
 
 
 (defun execute-statenet-cb (server goal)

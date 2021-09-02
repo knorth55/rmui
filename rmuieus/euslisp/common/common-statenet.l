@@ -65,7 +65,7 @@
 
 (defun ros-yes-or-no-p (ask-sentence &optional (default t))
   (let ((response))
-    (tagbody retry
+    (tagbody retry-yes-or-no
       (ros::ros-info ask-sentence)
       (finish-output t)
       (setq response (string-upcase (read-line t)))
@@ -73,12 +73,12 @@
         ((string= response "YES") (return-from ros-yes-or-no-p t))
         ((string= response "NO") (return-from ros-yes-or-no-p nil))
         ((string= response "") (return-from ros-yes-or-no-p default))
-        (t (go retry))))))
+        (t (go retry-yes-or-no))))))
 
 
 (defun ros-index-choose (ask-sentence max-index &optional (default-index 0))
   (let ((response))
-    (tagbody retry
+    (tagbody retry-index-choose
       (ros::ros-info ask-sentence)
       (finish-output t)
       (setq response (read-line t))
@@ -89,7 +89,7 @@
                    (>= resp-num -1)
                    (< resp-num max-index))
             (return-from ros-index-choose resp-num)
-            (go retry)))))))
+            (go retry-index-choose)))))))
 
 
 (defun ask-user-decision (&key (gr *statenet-graph*) (sm *sm*))
@@ -114,7 +114,7 @@
                (mapcar #'(lambda (act)
                            (convert-string-to-sym (send (cdr act) :name)))
                        gr-acts)))
-        (tagbody reask
+        (tagbody retry-ask-user-decision
           (cond
             ;; if next actions are multiples
             ;; ask which action to execute -> ask if teach or not
@@ -154,7 +154,7 @@
                                 (cons :replan (elt next-gr-actions chosen-index))))
                  (if (ask-user-teaching)
                    (return-from ask-user-decision :teach)
-                   (go reask)))))
+                   (go retry-ask-user-decision)))))
             ;; if next action is only one
             ;; ask if execute or not -> ask if teach or not -> ask if abort or not
             ((= (length next-gr-actions) 1)
@@ -170,7 +170,7 @@
                      (return-from ask-user-decision :teach)
                      (if (ask-user-abortion)
                        (return-from ask-user-decision :abort)
-                       (go reask)))))))
+                       (go retry-ask-user-decision)))))))
             (t nil))))
       :pass)))
 
