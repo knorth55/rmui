@@ -70,16 +70,24 @@
       (finish-output t)
       (setq response (string-upcase (read-line t)))
       (cond
-        ((string= response "YES") (return-from ros-yes-or-no-p t))
-        ((string= response "NO") (return-from ros-yes-or-no-p nil))
+        ((or (string= response "YES")
+             (string= response "Y"))
+         (return-from ros-yes-or-no-p t))
+        ((or (string= response "NO")
+             (string= response "N"))
+         (return-from ros-yes-or-no-p nil))
         ((string= response "")
          (if use-default
            (return-from ros-yes-or-no-p default)
-           (go retry-yes-or-no)))
-        (t (go retry-yes-or-no))))))
+           (progn
+             (ros::ros-error "Please answer with yes or no.")
+             (go retry-yes-or-no))))
+        (t (ros::ros-error "Please answer with yes or no.")
+           (go retry-yes-or-no))))))
 
 
-(defun ros-index-choose (ask-sentence max-index &key (use-default t) (default-index 0))
+(defun ros-index-choose (ask-sentence min-index max-index
+                                      &key (use-default t) (default-index 0))
   (let ((response))
     (tagbody retry-index-choose
       (ros::ros-info ask-sentence)
@@ -88,13 +96,21 @@
       (if (string= response "")
         (if use-default
           (return-from ros-index-choose default-index)
-          (go retry-index-choose))
+          (progn
+            (ros::ros-error
+              (format nil "Please answer with a valid number: ~A to ~A"
+                      min-index max-index))
+            (go retry-index-choose)))
         (let ((resp-num (read-from-string response)))
           (if (and (integerp resp-num)
-                   (>= resp-num -1)
-                   (< resp-num max-index))
+                   (>= resp-num min-index)
+                   (<= resp-num max-index))
             (return-from ros-index-choose resp-num)
-            (go retry-index-choose)))))))
+            (progn
+              (ros::ros-error
+                (format nil "Please answer with a valid number: ~A to ~A"
+                        min-index max-index))
+              (go retry-index-choose))))))))
 
 
 (defun ask-user-decision (&key (gr *statenet-graph*) (sm *sm*))
@@ -183,7 +199,7 @@
         (ask-sentence
           (format nil "Which action do you choose ? (Default: ~A)" default-index)))
     (if use-default (ros::ros-info info-sentence))
-    (ros-index-choose ask-sentence (length actions)
+    (ros-index-choose ask-sentence -1 (- (length actions) 1)
                       :use-default use-default :default-index default-index)))
 
 
