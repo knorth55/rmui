@@ -101,13 +101,16 @@
       (tagbody retry-ask
         (let ((user-decision (ask-user-decision sm gr)))
           (cond
+            ;;pass
             ((equal user-decision :pass)
              (return-from :statenet-state-func t))
+            ;; abort
             ((equal user-decision :abort)
              (return-from :statenet-state-func nil))
             ;; teach
             ((equal user-decision :teach)
              (return-from :statenet-state-func :teach))
+            ;; replan
             ((and (listp user-decision)
                   (equal (car user-decision) :replan))
              (if (send self :replan-in-statenet-state-func
@@ -115,10 +118,12 @@
                ;; replan, so this transition does not have any effect
                (return-from :statenet-state-func t)
                (go retry-ask)))
+            ;; next
             ((and (listp user-decision)
                   (equal (car user-decision) :next))
              (return-from :statenet-state-func
                           (format nil "~A" (cdr user-decision))))
+            ;; something is wrong
             ((equal user-decision nil)
              (ros::ros-error "something is wrong.")
              (return-from :statenet-state-func nil))
