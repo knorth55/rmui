@@ -94,7 +94,7 @@
   (:statenet-teach-func (userdata)
    (let* ((current-sm-node (send sm :active-state))
           (current-sm-state (read-from-string (send current-sm-node :name)))
-          (before-state (cadr current-sm-node)))
+          (before-state (cadr current-sm-state)))
       (ros::ros-warn (format nil "teaching before state: ~A" before-state))
       (ros::ros-error "teaching is not implemented.")
       (return-from :statenet-teach-func t)))
