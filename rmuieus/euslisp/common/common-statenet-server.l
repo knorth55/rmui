@@ -8,7 +8,7 @@
 
 (defclass statenet-action-server
   :super ros::simple-action-server
-  :slots (solver
+  :slots (slvr
           sm
           insp
           gr
@@ -25,7 +25,7 @@
     (send-super* :init ns sp args)
     (setq reset-state rs)
     (setq gr (load-merged-statenet-graph reset-state))
-    (setq solver (instance *solver-class* :init))
+    (setq slvr (instance *solver-class* :init))
     ;; state
     (setq initial-state '(:init))
     (setq current-state '(:init))
@@ -61,7 +61,7 @@
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
     (let ((tmp-sm
             (generate-smach-from-state
-              gr solver start-state goal-state
+              gr slvr start-state goal-state
               ;; segmentation fault
               ;: :state-func #'statenet-state-func
               :state-func
