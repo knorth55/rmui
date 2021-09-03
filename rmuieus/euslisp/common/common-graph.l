@@ -25,19 +25,35 @@
   (add-node sm name action-func :action-node))
 
 
-(defun add-nodes-from-trans (sm trans &key (state-func #'(lambda (x) t))
-                                (smach-transition t)
-                                (add-t-transition nil))
+(defun add-abort-nodes (sm aborts state-func)
+  (dolist (ab aborts)
+    (let ((from-name (car ab))
+          (abort-name (cdr ab)))
+      (add-state-node sm from-name state-func)
+      (send sm :add-transition from-name abort-name nil))))
+
+
+(defun add-action-node-trans (sm from-name node-name to-name state-func action-func
+                                 &key (smach-transition t) (add-t-transition nil))
+  (add-state-node sm from-name state-func)
+  (add-action-node sm node-name action-func)
+  (send sm :add-transition from-name node-name smach-transition)
+  (if add-t-transition
+    (send sm :add-transition from-name node-name t))
+  (add-state-node sm to-name state-func)
+  (send sm :add-transition node-name to-name t))
+
+
+(defun add-nodes-from-trans
+  (sm trans &key (state-func #'(lambda (x) t))
+      (smach-transition t) (add-t-transition nil))
   (let ((from-name (cdr (assoc :from-name trans :test #'equal)))
         (node-name (cdr (assoc :node-name trans :test #'equal)))
         (action-func (cdr (assoc :action-func trans :test #'equal)))
         (to-name (cdr (assoc :to-name trans :test #'equal))))
-    (add-state-node sm from-name state-func)
-    (add-action-node sm node-name action-func)
-    (send sm :add-transition from-name node-name smach-transition)
-    (if add-t-transition (send sm :add-transition from-name node-name t))
-    (add-state-node sm to-name state-func)
-    (send sm :add-transition node-name to-name t)))
+    (add-action-node-trans sm from-name node-name to-name state-func action-func
+                           :smach-transition smach-transition
+                           :add-t-transition add-t-transition)))
 
 
 (defun convert-graph-to-smach (gr start-state &key (state-func #'(lambda (x) t)))
@@ -65,13 +81,10 @@
                  (to-state-sym (convert-string-to-sym (send to-node :name)))
                  (to-name (format nil "~A" to-state-sym))
                  (abort-name (format nil "(:abort~A)" abort-index)))
-            (add-action-node sm node-name action-func)
+            (add-action-node-trans sm from-name node-name to-name state-func action-func
+                                   :smach-transition t :add-t-transition nil)
             (setq aborts (append aborts (list (cons from-name abort-name))))
-            (send sm :add-transition from-name node-name t)
-            (add-state-node sm to-name state-func)
-            (send sm :add-transition node-name to-name t)
-            (setq abort-index (+ abort-index 1))
-            ))))
+            (setq abort-index (+ abort-index 1))))))
     ;; start-state
     (send sm :start-state start-state)
     ;; goal-state
@@ -83,15 +96,11 @@
         (add-state-node sm from-name state-func)
         (send sm :add-transition from-name goal-name t)))
     ;; aborts
-    (dolist (abort aborts)
-      (let ((from-name (car abort))
-            (abort-name (cdr abort)))
-        (add-state-node sm from-name state-func)
-        (send sm :add-transition from-name abort-name nil)))
+    (add-abort-nodes sm aborts state-func)
     ;; ros-info
-    (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
+    (ros::ros-info (format nil "convert-graph-to-smach: smach start-state is ~A."
                            (send (send sm :start-state) :name)))
-    (ros::ros-info (format nil "convert-smach: smach goal-state are ~A."
+    (ros::ros-info (format nil "convert-graph-to-smach: smach goal-state are ~A."
                            (send-all (send sm :goal-state) :name)))
     (send sm :reset-state)
     sm))
@@ -183,15 +192,11 @@
       (add-state-node sm last-name state-func)
       (send sm :add-transition last-name goal-state t))
     ;; aborts
-    (dolist (abort aborts)
-      (let ((from-name (car abort))
-            (abort-name (cdr abort)))
-        (add-state-node sm from-name state-func)
-        (send sm :add-transition from-name abort-name nil)))
+    (add-abort-nodes sm aborts state-func)
     ;; ros-info
-    (ros::ros-info (format nil "convert-smach: smach start-state is ~A."
+    (ros::ros-info (format nil "convert-solution-to-smach: smach start-state is ~A."
                            (send (send sm :start-state) :name)))
-    (ros::ros-info (format nil "convert-smach: smach goal-state are ~A."
+    (ros::ros-info (format nil "convert-solution-to-smach: smach goal-state are ~A."
                            (send-all (send sm :goal-state) :name)))
     (send sm :reset-state)
     sm))
