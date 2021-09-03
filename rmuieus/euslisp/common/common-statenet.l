@@ -113,7 +113,7 @@
               (go retry-index-choose))))))))
 
 
-(defun ask-user-decision (&key (gr *statenet-graph*) (sm *sm*))
+(defun ask-user-decision (sm gr)
   (let* ((current-sm-node (send sm :active-state))
          (current-state (read-from-string (send current-sm-node :name)))
          (current-gr-node (send gr :search-node-from-pddl-state current-state))

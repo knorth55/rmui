@@ -73,7 +73,7 @@
            (current-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
       (tagbody retry-ask
-        (let ((user-decision (ask-user-decision :sm sm :gr gr)))
+        (let ((user-decision (ask-user-decision sm gr)))
           (cond
             ((equal user-decision :pass)
              (return-from :statenet-state-func t))
