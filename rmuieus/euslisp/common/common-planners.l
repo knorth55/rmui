@@ -44,18 +44,6 @@
 
 ;; functions
 
-(defun get-iso-stamp ()
-  (let* ((localtime (unix::localtime))
-         (iso-stamp (format nil "~A-~0,2d-~0,2dT~0,2d:~0,2d:~0,2d"
-                       (+ (elt localtime 5) 1900)
-                       (+ (elt localtime 4) 1)
-                       (elt localtime 3)
-                       (elt localtime 2)
-                       (elt localtime 1)
-                       (elt localtime 0))))
-    iso-stamp))
-
-
 (defun rotate-rotation-symbol (rotation-symbol angle)
   (let* ((rotation-symbol-string (string-downcase rotation-symbol))
          (rotation-angle
