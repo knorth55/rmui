@@ -1,7 +1,8 @@
-(require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
+#!/usr/bin/env roseus
 
-(ros::roseus-add-msgs "force_proximity_ros")
-(ros::roseus-add-msgs "std_msgs")
+(require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
+(require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
 
 
 ;; parameters
@@ -16,7 +17,7 @@
 
 
 (defun main ()
-  (ros::roseus "rmuieus")
+  (ros::roseus "pr2_rmui_planning")
   (motion-init)
   (ros::ros-info "motion-init finished")
   (setq *planner*
@@ -31,6 +32,3 @@
   (ros::ros-info "initialization finished, starting")
   (ros::create-timer 0.1 #'send *planner* :planner-cb)
   (ros::spin))
-
-
-(provide :common-main "common-main.l")

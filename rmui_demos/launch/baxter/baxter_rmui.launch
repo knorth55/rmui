@@ -20,7 +20,7 @@
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
 
-  <node pkg="rmuieus" type="baxter-rmui-main.l" name="rmui_main"
+  <node pkg="rmuieus" type="baxter-rmui-planning.l" name="rmui_main"
         args="&quot;(main)&quot;" if="$(arg main)" required="true" output="screen" />
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_rosbag_record.launch"
