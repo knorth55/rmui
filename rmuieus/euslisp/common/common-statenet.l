@@ -18,15 +18,15 @@
     (:object-rotation-state (:x0 :y0 :z0))))
 
 
-(defun add-initial-state (gr)
-  (add-action-state-in-graph gr '(action-init) '(:init) *reset-state*))
+(defun add-initial-state (gr reset-state)
+  (add-action-state-in-graph gr '(action-init) '(:init) reset-state))
 
 
-(defun load-merged-statenet-graph ()
+(defun load-merged-statenet-graph (reset-state)
   (let ((gr (merge-statenet-graphs (load-all-statenet-graph))))
     (if (null gr) (setq gr (load-merged-statenet-graph)))
     (dump-merged-statenet-graph gr)
-    (add-initial-state gr)
+    (add-initial-state gr reset-state)
     gr))
 
 

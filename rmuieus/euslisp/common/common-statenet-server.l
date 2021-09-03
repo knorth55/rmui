@@ -13,15 +13,18 @@
           insp
           gr
           initial-state
-          current-state))
+          current-state
+          reset-state))
 
 
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
+               ((:reset-state rs) *reset-state*)
                &rest args)
     (send-super* :init ns sp args)
-    (setq gr (load-merged-statenet-graph))
+    (setq reset-state rs)
+    (setq gr (load-merged-statenet-graph reset-state))
     (setq solver (instance *solver-class* :init))
     ;; state
     (setq initial-state '(:init))
