@@ -71,6 +71,10 @@
                 :first-action first-action
                 :no-loop nil)))
       replan-sm))
+  ;; TODO (knorth55): implement teaching
+  (:statenet-teach-func (userdata)
+    (ros::ros-error "teaching is not implemented.")
+    (return-from :statenet-teach-func t))
   (:statenet-state-func (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (current-state (read-from-string (send current-sm-node :name)))
@@ -82,10 +86,9 @@
              (return-from :statenet-state-func t))
             ((equal user-decision :abort)
              (return-from :statenet-state-func nil))
-            ;; TODO (knorth55): implement teaching
+            ;; teach
             ((equal user-decision :teach)
-             (ros::ros-error "teaching is not implemented. aborting.")
-             (return-from :statenet-state-func nil))
+             (return-from :statenet-state-func :teach))
             ((and (listp user-decision)
                   (equal (car user-decision) :replan))
              (let ((replan-sm))
@@ -202,6 +205,8 @@
                  (ros::ros-info (format nil "current-state: ~A" current-state)))
                 ((equal node-type :action-node)
                  (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
+                ((equal node-type :teach-node)
+                 (ros::ros-info (format nil "teach-state: ~A" node-sym)))
                 (t nil))
               (send insp :publish-status userdata)
               (when (send sm :goal-reached) (return))
