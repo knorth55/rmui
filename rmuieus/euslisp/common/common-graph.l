@@ -25,12 +25,23 @@
   (add-node sm name action-func :action-node))
 
 
+(defun add-teach-node (sm name teach-func)
+  (add-node sm name teach-func :teach-node))
+
+
 (defun add-abort-nodes (sm aborts state-func)
   (dolist (ab aborts)
     (let ((from-name (car ab))
           (abort-name (cdr ab)))
       (add-state-node sm from-name state-func)
       (send sm :add-transition from-name abort-name nil))))
+
+
+(defun add-teach-node-trans (sm from-name teach-name state-func teach-func)
+   (add-state-node sm from-name state-func)
+   (add-teach-node sm teach-name teach-func)
+   (send sm :add-transition from-name teach-name :teach)
+   (send sm :add-transition teach-name from-name t))
 
 
 (defun add-action-node-trans (sm from-name node-name to-name state-func action-func
@@ -56,7 +67,8 @@
                            :add-t-transition add-t-transition)))
 
 
-(defun convert-graph-to-smach (gr start-state &key (state-func #'(lambda (x) t)))
+(defun convert-graph-to-smach
+  (gr start-state &key (state-func #'(lambda (x) t)) (teach-func nil))
   (let ((sm (instance state-machine :init))
         (goals nil)
         (aborts nil)
@@ -80,9 +92,12 @@
                  (to-node (cdr act))
                  (to-state-sym (convert-string-to-sym (send to-node :name)))
                  (to-name (format nil "~A" to-state-sym))
-                 (abort-name (format nil "(:abort~A)" abort-index)))
+                 (abort-name (format nil "(:abort~A)" abort-index))
+                 (teach-name (format nil "~A" (list :teach from-state-sym))))
             (add-action-node-trans sm from-name node-name to-name state-func action-func
                                    :smach-transition t :add-t-transition nil)
+            (if teach-func
+              (add-teach-node-trans sm from-name teach-name state-func teach-func))
             (setq aborts (append aborts (list (cons from-name abort-name))))
             (setq abort-index (+ abort-index 1))))))
     ;; start-state
@@ -106,7 +121,8 @@
     sm))
 
 
-(defun convert-solution-to-smach (solution &key (state-func #'(lambda (x) t)) (no-loop nil))
+(defun convert-solution-to-smach
+  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
   (let ((sm (instance state-machine :init))
         (start-state "(:start)")
         (goal-state "(:goal)")
@@ -148,12 +164,15 @@
                  (from-state-sym (car trans-a))
                  (from-name (format nil "~A" from-state-sym))
                  (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
-                 (abort-name (format nil "(:abort~A)" abort-index)))
+                 (abort-name (format nil "(:abort~A)" abort-index))
+                 (teach-name (format nil "~A" (list :teach from-state-sym))))
             (add-nodes-from-trans
               sm trans :state-func state-func
               :smach-transition
               (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
               :add-t-transition t)
+            (if teach-func
+              (add-teach-node-trans sm from-name teach-name state-func teach-func))
             (setq aborts (append aborts (list (cons from-name abort-name))))
             (setq abort-index (+ abort-index 1))
             (setq current-state-sym to-state-sym))))
@@ -162,6 +181,7 @@
                (from-state-sym (car trans-a))
                (from-name (format nil "~A" from-state-sym))
                (abort-name (format nil "(:abort~A)" abort-index))
+               (teach-name (format nil "~A" (list :teach from-state-sym)))
                (trans-index 0))
           (dolist (trans trans-list)
             (add-nodes-from-trans
@@ -170,6 +190,8 @@
               (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
               :add-t-transition (equal trans-index 0))
             (setq trans-index (+ trans-index 1)))
+          (if teach-func
+            (add-teach-node-trans sm from-name teach-name state-func teach-func))
           (setq aborts (append aborts (list (cons from-name abort-name))))
           (setq abort-index (+ abort-index 1)))))
     ;; start-state

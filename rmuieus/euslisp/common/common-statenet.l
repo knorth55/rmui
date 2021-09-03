@@ -63,15 +63,16 @@
         solution))))
 
 
-(defun generate-smach-from-state (gr slvr start-state goal-state
-                                     &key (state-func #'(lambda (x) t))
-                                     (first-action nil) (no-loop nil))
+(defun generate-smach-from-state
+  (gr slvr start-state goal-state
+      &key (state-func #'(lambda (x) t)) (teach-func nil) (first-action nil) (no-loop nil))
   (let* ((solution
            (solve-statenet-path gr slvr start-state goal-state
                                 :first-action first-action))
          (sm (if solution
                (convert-solution-to-smach solution
                                           :state-func state-func
+                                          :teach-func teach-func
                                           :no-loop no-loop))))
     sm))
 
