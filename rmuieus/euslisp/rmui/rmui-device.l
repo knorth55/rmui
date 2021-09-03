@@ -42,7 +42,7 @@
                ((:prx-x45-vectors prxx45vec) *prx-x45-vectors*)
                ((:prx-y45-vectors prxy45vec) *prx-y45-vectors*)
                ((:prx-z45-vectors prxz45vec) *prx-z45-vectors*))
-    (setq namespace ns)
+    (setq namespace (if ns ns ""))
     (setq tfl (instance ros::transform-listener :init))
     (setq device (make-cube 120 120 120))
     (setq prx-threshold prxthre)

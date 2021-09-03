@@ -41,10 +41,11 @@
 
 
 (defmethod rmui-planner
-  (:init (&key (namespace)
+  (:init (&key ((:namespace ns))
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
                ((:motion-symbol-length msym-length) 5))
+    (setq namespace (if ns ns ""))
     (setq waiting-visualize-topic-name
           (format nil "~A/output/status/waiting" namespace))
     (setq moving-visualize-topic-name
