@@ -63,6 +63,19 @@
         solution))))
 
 
+(defun generate-smach-from-state (gr slvr start-state goal-state
+                                     &key (state-func #'(lambda (x) t))
+                                     (first-action nil) (no-loop nil))
+  (let* ((solution
+           (solve-statenet-path gr slvr start-state goal-state
+                                :first-action first-action))
+         (sm (if solution
+               (convert-solution-to-smach solution
+                                          :state-func state-func
+                                          :no-loop no-loop))))
+    sm))
+
+
 (defun ros-yes-or-no-p (ask-sentence &key (use-default t) (default t))
   (let ((response))
     (tagbody retry-yes-or-no
@@ -219,19 +232,6 @@
   (let ((ask-sentence
           (format nil "Are you sure to abort the execution ? : ")))
     (ros-yes-or-no-p ask-sentence :use-default nil)))
-
-
-(defun generate-smach-from-state (gr slvr start-state goal-state
-                                     &key (state-func #'(lambda (x) t))
-                                     (first-action nil) (no-loop nil))
-  (let* ((solution
-           (solve-statenet-path gr slvr start-state goal-state
-                                :first-action first-action))
-         (sm (if solution
-               (convert-solution-to-smach solution
-                                          :state-func state-func
-                                          :no-loop no-loop))))
-    sm))
 
 
 (provide :common-statenet "common-statenet.l")
