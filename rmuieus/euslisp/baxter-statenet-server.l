@@ -12,5 +12,4 @@
   (send *server* :init-timer)
   (ros::rate 10)
   (while (ros::ok)
-    (send *server* :execute-cb)
     (send *server* :spin-once)))

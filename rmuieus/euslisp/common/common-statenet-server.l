@@ -35,7 +35,10 @@
    (send-super :execute-cb))
   (:init-timer ()
     (ros::create-timer 0.1 #'send self :current-state-publish-timer-cb)
-    (ros::create-timer 0.1 #'send self :visualize-update-cb))
+    (ros::create-timer 0.1 #'send self :visualize-update-cb)
+    (ros::create-timer 0.1
+                       `(lambda-closure nil 0 0 (event)
+                                        (send ,self :execute-cb))))
   (:show-pdf ()
     (send gr :write-to-pdf "rmui.pdf")
     (piped-fork "xdg-open rmui.pdf"))
@@ -171,7 +174,7 @@
           (send self :initialize-state-machine userdata)
           (ros::rate hz)
           (while (ros::ok)
-            (ros::spin-once)
+            (send self :spin-once)
             (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
             ;; check if sm is not nil for replanning
             (if (null sm)
