@@ -58,26 +58,45 @@
     (if s
       (let ((node-name (format nil "~A" (if a (list a s) s))))
         (send sm :start-state (send sm :node node-name)))))
-  (:replan-state-machine (current-state goal-state first-action)
-    (let ((replan-sm
+  (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
+    (let ((tmp-sm
             (generate-smach-from-state
-                gr solver
-                current-state goal-state
-                ;; segmentation fault
-                ;: :state-func #'statenet-state-func
-                :state-func
-                `(lambda-closure nil 0 0 (userdata)
-                                 (send ,self :statenet-state-func userdata))
-                :first-action first-action
-                :no-loop nil)))
-      replan-sm))
+              gr solver start-state goal-state
+              ;; segmentation fault
+              ;: :state-func #'statenet-state-func
+              :state-func
+              `(lambda-closure nil 0 0 (userdata)
+                               (send ,self :statenet-state-func userdata))
+              :teach-func
+              `(lambda-closure nil 0 0 (userdata)
+                               (send ,self :statenet-teach-func userdata))
+              :first-action first-action
+              :no-loop no-loop)))
+      tmp-sm))
+  (:replan-in-statenet-state-func (userdata start-state goal-state first-action)
+    (ros::ros-warn "replanning...")
+    (let ((replan-sm
+            (send self :plan-state-machine start-state goal-state
+                  :first-action first-action :no-loop nil)))
+      (if replan-sm
+        (progn
+          (ros::ros-info "replanning succeeded")
+          (setq sm replan-sm)
+          (send self :set-start-state :action first-action
+                :state start-state)
+          (send self :initialize-state-machine userdata)
+          (return-from :replan-in-statenet-state-func t))
+        (progn
+          (ros::ros-error "replanning failed...")
+          (ros::ros-error "cannot find a valid path to the goal-state")
+          (return-from :replan-in-statenet-state-func nil)))))
   ;; TODO (knorth55): implement teaching
   (:statenet-teach-func (userdata)
     (ros::ros-error "teaching is not implemented.")
     (return-from :statenet-teach-func t))
   (:statenet-state-func (userdata)
     (let* ((current-sm-node (send sm :active-state))
-           (current-state (read-from-string (send current-sm-node :name)))
+           (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
       (tagbody retry-ask
         (let ((user-decision (ask-user-decision sm gr)))
@@ -91,23 +110,11 @@
              (return-from :statenet-state-func :teach))
             ((and (listp user-decision)
                   (equal (car user-decision) :replan))
-             (let ((replan-sm))
-               (ros::ros-warn "replanning...")
-               (setq replan-sm
-                     (send self :replan-state-machine
-                           current-state goal-state (cdr user-decision)))
-               (if replan-sm
-                 (progn
-                   (ros::ros-info "replanning succeeded")
-                   (setq sm replan-sm)
-                   (send self :set-start-state :action (cdr user-decision)
-                         :state current-state)
-                   (send self :initialize-state-machine userdata)
-                   ;; replan, so this transition does not have any effect
-                   (return-from :statenet-state-func t))
-                 (progn
-                   (ros::ros-error "replanning failed...")
-                   (go retry-ask)))))
+             (if (send self :replan-in-statenet-state-func
+                       userdata current-sm-state goal-state (cdr user-decision))
+               ;; replan, so this transition does not have any effect
+               (return-from :statenet-state-func t)
+               (go retry-ask)))
             ((and (listp user-decision)
                   (equal (car user-decision) :next))
              (return-from :statenet-state-func
@@ -155,15 +162,8 @@
             (send self :set-succeeded result)
             (return-from :execute-statenet-cb t)))
         ;; generate smach machine
-        (setq sm (generate-smach-from-state
-                   gr solver start-state goal-state
-                   ;; segmentation fault
-                   ;: :state-func #'statenet-state-func
-                   :state-func
-                   `(lambda-closure nil 0 0 (userdata)
-                                    (send ,self :statenet-state-func userdata))
-                   ; :state-func #'send self :statenet-state-func
-                   :no-loop t))
+        (setq sm (send self :plan-state-machine start-state goal-state
+                       :first-action nil :no-loop t))
         (if (null sm)
           (progn
             (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
