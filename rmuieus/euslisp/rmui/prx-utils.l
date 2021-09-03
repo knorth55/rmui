@@ -220,87 +220,8 @@
           *prx-initial-vectors*))
 
 
-(defvar *device-prx-vectors*
-  (mapcar #'(lambda (prx-v) (copy-seq prx-v)) *prx-initial-vectors*))
-
-
-(defun get-prx-position (prx-v prx-position-threshold prx-vectors prx-positions)
-  (let*
-    ((prx-v (scale (/ 1.0 (norm prx-v)) prx-v))
-     (diff-vs (mapcar #'(lambda (v) (norm (v- prx-v v))) prx-vectors))
-     (diff-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-vs))
-     diff-v-min prx-index)
-    (when (every #'null diff-p) (return-from get-prx-position nil))
-    ;; get diff-p t and smallest diff-v position
-    (dotimes (diff-index (length prx-vectors))
-      (if (and (elt diff-p diff-index)
-               (or (null diff-v-min)
-                   (> diff-v-min (elt diff-vs diff-index))))
-        (setq prx-index diff-index
-              diff-v-min (elt diff-vs diff-index))))
-    (if prx-index (elt prx-positions prx-index))))
-
-
-(defun update-device-prx-vectors ()
-  (unless (boundp '*device*) (return-from update-device-prx-vectors nil))
-  (let ((device-rot (send *device* :copy-rot)))
-    (setq *device-prx-vectors*
-          (mapcar #'(lambda (prx-v) (let ((v (copy-seq prx-v))) (transform device-rot v)))
-                  *prx-initial-vectors*))
-    t))
-
-
-(defun select-prx-vectors-and-positions (prx-position-threshold)
-  (let* ((device-center-vectors
-           (list (elt *device-prx-vectors* 4) (elt *device-prx-vectors* 9)
-                 (elt *device-prx-vectors* 14) (elt *device-prx-vectors* 19)
-                 (elt *device-prx-vectors* 24) (elt *device-prx-vectors* 29)))
-         (diff-x-vs
-           (mapcar #'(lambda (v) (norm (v- (float-vector 1.0 0 0) v))) device-center-vectors))
-         (diff-x-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-x-vs))
-         (x-p (not (every #'null diff-x-p)))
-         (diff-y-vs
-           (mapcar #'(lambda (v) (norm (v- (float-vector 0 1.0 0) v))) device-center-vectors))
-         (diff-y-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-y-vs))
-         (y-p (not (every #'null diff-y-p)))
-         (diff-z-vs
-           (mapcar #'(lambda (v) (norm (v- (float-vector 0 0 1.0) v))) device-center-vectors))
-         (diff-z-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-z-vs))
-         (z-p (not (every #'null diff-z-p))))
-    (cond
-      ((and x-p y-p z-p)
-       (list *prx-initial-vectors* *prx-initial-positions*))
-      (x-p (list *prx-x45-vectors* *prx-x45-positions*))
-      (y-p (list *prx-y45-vectors* *prx-y45-positions*))
-      (z-p (list *prx-z45-vectors* *prx-z45-positions*))
-      (t (list nil nil)))))
-
-
-(defun get-device-prx-positions (prx-position-threshold)
-  (if (update-device-prx-vectors)
-    (let* ((prx-vectors-and-positions
-             (select-prx-vectors-and-positions prx-position-threshold))
-           (prx-vectors (car prx-vectors-and-positions))
-           (prx-positions (cadr prx-vectors-and-positions)))
-      (if (and prx-vectors prx-positions)
-        (mapcar #'(lambda (prx-v)
-                    (get-prx-position prx-v prx-position-threshold
-                                      prx-vectors prx-positions))
-                *device-prx-vectors*)))))
-
-
-(defun get-contact-positions (proximity prx-threshold prx-position-threshold)
-  (let ((prx-positions (get-device-prx-positions prx-position-threshold))
-        (prx-index 0)
-        (contact-positions nil))
-    (if prx-positions
-      (dolist (prx proximity)
-        (when (> prx prx-threshold)
-          (setq contact-positions
-                (append contact-positions
-                        (list (elt prx-positions prx-index)))))
-        (setq prx-index (+ prx-index 1))))
-    contact-positions))
+(defun copy-prx-vectors (prx-vectors)
+  (mapcar #'(lambda (prx-v) (copy-seq prx-v)) prx-vectors))
 
 
 (provide :prx-utils "prx-utils.l")
