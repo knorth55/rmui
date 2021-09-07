@@ -1,6 +1,7 @@
 # rmui
 
-[![GitHub Workflow Status (branch)](https://github.com/knorth55/rmui/actions/workflows/main.yml/badge.svg)](https://github.com/knorth55/rmui/actions)
+[![GitHub Workflow Status (branch)](https://github.com/knorth55/rmui/actions/workflows/main.yml/badge.svg)](https://github.com/knorth55/rmui/actions/workflows/main.yml)
+[![GitHub Workflow Status (branch)](https://github.com/knorth55/rmui/actions/workflows/linter.yaml/badge.svg)](https://github.com/knorth55/rmui/actions/workflows/linter.yaml)
 
 Robot Manipulation User Interface (RMUI)
 
