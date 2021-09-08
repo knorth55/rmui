@@ -9,7 +9,6 @@
   (ros::roseus "pr2_statenet_server")
   (setq *server* (instance statenet-action-server :init))
   (if pdf (send *server* :show-pdf))
-  (send *server* :init-timer)
   (ros::rate 10)
   (while (ros::ok)
     (send *server* :spin-once)))

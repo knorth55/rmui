@@ -30,6 +30,7 @@
     (setq initial-state '(:init))
     (setq current-state '(:init))
     (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
+    (send self :init-timer)
     (ros::ros-info "init finished")
     self)
   (:execute-cb ()
@@ -132,120 +133,120 @@
              (ros::ros-error "something is wrong.")
              (return-from :statenet-state-func nil))
             (t (go retry-ask)))))))
-    (:execute-statenet-cb (goal)
-      (let ((start-state
-              (if (> (length (send goal :goal :start_state :state)) 0)
-                (read-from-string (send goal :goal :start_state :state))
-                current-state))
-            (goal-state (read-from-string (send goal :goal :goal_state :state)))
-            (result (instance rmui_msgs::ExecuteStatenetActionResult :init))
-            (feedback (instance rmui_msgs::ExecuteStatenetActionFeedback :init))
-            (start-stamp (ros::time-now)))
-        (ros::ros-info (format nil "start-state: ~A" start-state))
-        (ros::ros-info (format nil "goal-state: ~A" goal-state))
-        ;; check current-state and start-state
-        (if (null (equal current-state start-state))
-          (progn
-            (ros::ros-warn
-              (format nil "start-state and current-state are different: ~A != ~A"
-                      start-state current-state))
-            (if (null (send goal :goal :force_update_start_state))
+  (:execute-statenet-cb (goal)
+    (let ((start-state
+            (if (> (length (send goal :goal :start_state :state)) 0)
+              (read-from-string (send goal :goal :start_state :state))
+              current-state))
+          (goal-state (read-from-string (send goal :goal :goal_state :state)))
+          (result (instance rmui_msgs::ExecuteStatenetActionResult :init))
+          (feedback (instance rmui_msgs::ExecuteStatenetActionFeedback :init))
+          (start-stamp (ros::time-now)))
+      (ros::ros-info (format nil "start-state: ~A" start-state))
+      (ros::ros-info (format nil "goal-state: ~A" goal-state))
+      ;; check current-state and start-state
+      (if (null (equal current-state start-state))
+        (progn
+          (ros::ros-warn
+            (format nil "start-state and current-state are different: ~A != ~A"
+                    start-state current-state))
+          (if (null (send goal :goal :force_update_start_state))
+            (progn
+              (ros::ros-warn
+                "Aborting execution because start-state and current-state are different.")
+              (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+              (send result :result :success nil)
+              (send result :result :final_state :state (format nil "~A" current-state))
+              (send self :set-aborted result)
+              (return-from :execute-statenet-cb nil)))))
+      ;; check start-state and goal-state
+      (if (equal start-state goal-state)
+        (progn
+          (ros::ros-warn
+            (format nil "start-state and goal-state are same: ~A = ~A"
+                    start-state goal-state))
+          (ros::ros-warn "Skipping execution because start-state and goal-state are same")
+          (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+          (send result :result :success t)
+          (send result :result :final_state :state (format nil "~A" current-state))
+          (send self :set-succeeded result)
+          (return-from :execute-statenet-cb t)))
+      ;; generate smach machine
+      (setq sm (send self :plan-state-machine start-state goal-state
+                     :first-action nil :no-loop t))
+      (if (null sm)
+        (progn
+          (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+          (send result :result :success nil)
+          (send result :result :final_state :state (format nil "~A" current-state))
+          (send self :set-aborted result)
+          (return-from :execute-statenet-cb nil)))
+
+      ;; execute state machine
+      ;; modified from (exec-state-machine *sm* nil :hz 1.0)
+      (let* ((userdata (list (cons :goal-state goal-state)))
+             (hz 1.0))
+        (unix::usleep (round (* 1e6 0.5)))
+        (send self :initialize-state-machine userdata)
+        (ros::rate hz)
+        (while (ros::ok)
+          (send self :spin-once)
+          (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
+          ;; check if sm is not nil for replanning
+          (if (null sm)
+            (progn
+              (send result :result :stamp
+                    (ros::time- (ros::time-now) start-stamp))
+              (send result :result :success nil)
+              (send result :result :final_state :state
+                    (format nil "~A" current-state))
+              (send self :set-aborted result)
+              (return-from :execute-statenet-cb nil)))
+          (let* ((active-state (send sm :active-state))
+                 (node-type (get active-state :node-type))
+                 (node-name (send active-state :name))
+                 (node-sym (read-from-string node-name)))
+            ;; check node type
+            (ros::ros-info (format nil "active-state: ~A" node-name))
+            (ros::ros-info (format nil "node-type   : ~A" node-type))
+            (cond
+              ((equal node-type :state-node)
+               (setq current-state node-sym)
+               (ros::ros-info (format nil "current-state: ~A" current-state)))
+              ((equal node-type :action-node)
+               (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
+              ((equal node-type :teach-node)
+               (ros::ros-info (format nil "teach-state: ~A" node-sym)))
+              (t nil))
+            (send insp :publish-status userdata)
+            (when (send sm :goal-reached) (return))
+            ;; cancel
+            (if (send self :is-preempt-requested)
               (progn
-                (ros::ros-warn
-                  "Aborting execution because start-state and current-state are different.")
                 (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
                 (send result :result :success nil)
                 (send result :result :final_state :state (format nil "~A" current-state))
-                (send self :set-aborted result)
-                (return-from :execute-statenet-cb nil)))))
-        ;; check start-state and goal-state
-        (if (equal start-state goal-state)
-          (progn
-            (ros::ros-warn
-              (format nil "start-state and goal-state are same: ~A = ~A"
-                      start-state goal-state))
-            (ros::ros-warn "Skipping execution because start-state and goal-state are same")
-            (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-            (send result :result :success t)
-            (send result :result :final_state :state (format nil "~A" current-state))
-            (send self :set-succeeded result)
-            (return-from :execute-statenet-cb t)))
-        ;; generate smach machine
-        (setq sm (send self :plan-state-machine start-state goal-state
-                       :first-action nil :no-loop t))
-        (if (null sm)
-          (progn
-            (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-            (send result :result :success nil)
-            (send result :result :final_state :state (format nil "~A" current-state))
-            (send self :set-aborted result)
-            (return-from :execute-statenet-cb nil)))
-
-        ;; execute state machine
-        ;; modified from (exec-state-machine *sm* nil :hz 1.0)
-        (let* ((userdata (list (cons :goal-state goal-state)))
-               (hz 1.0))
-          (unix::usleep (round (* 1e6 0.5)))
-          (send self :initialize-state-machine userdata)
-          (ros::rate hz)
-          (while (ros::ok)
-            (send self :spin-once)
-            (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
-            ;; check if sm is not nil for replanning
-            (if (null sm)
-              (progn
-                (send result :result :stamp
-                      (ros::time- (ros::time-now) start-stamp))
-                (send result :result :success nil)
-                (send result :result :final_state :state
-                      (format nil "~A" current-state))
-                (send self :set-aborted result)
+                (send self :set-preempted result)
                 (return-from :execute-statenet-cb nil)))
-            (let* ((active-state (send sm :active-state))
-                   (node-type (get active-state :node-type))
-                   (node-name (send active-state :name))
-                   (node-sym (read-from-string node-name)))
-              ;; check node type
-              (ros::ros-info (format nil "active-state: ~A" node-name))
-              (ros::ros-info (format nil "node-type   : ~A" node-type))
-              (cond
-                ((equal node-type :state-node)
-                 (setq current-state node-sym)
-                 (ros::ros-info (format nil "current-state: ~A" current-state)))
-                ((equal node-type :action-node)
-                 (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
-                ((equal node-type :teach-node)
-                 (ros::ros-info (format nil "teach-state: ~A" node-sym)))
-                (t nil))
-              (send insp :publish-status userdata)
-              (when (send sm :goal-reached) (return))
-              ;; cancel
-              (if (send self :is-preempt-requested)
-                (progn
-                  (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-                  (send result :result :success nil)
-                  (send result :result :final_state :state (format nil "~A" current-state))
-                  (send self :set-preempted result)
-                  (return-from :execute-statenet-cb nil)))
-              ;; execute
-              (send sm :execute userdata :step -1)
-              ;; feedback
-              (send feedback :feedback :stamp
-                    (ros::time- (ros::time-now) start-stamp))
-              (send self :publish-feedback feedback)
-              ;; sleep
-              (ros::sleep))))
+            ;; execute
+            (send sm :execute userdata :step -1)
+            ;; feedback
+            (send feedback :feedback :stamp
+                  (ros::time- (ros::time-now) start-stamp))
+            (send self :publish-feedback feedback)
+            ;; sleep
+            (ros::sleep))))
 
-        ;; finish state-machine
-        (ros::ros-info (format nil "current-state: ~A" current-state))
-        (let* ((final-state (send (send sm :active-state) :name))
-               (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
-               (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
-          (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-          (send result :result :success (and goalp (null abortp)))
-          (send result :result :final_state :state (format nil "~A" current-state))
-          (send self :set-succeeded result))
-        t))
+      ;; finish state-machine
+      (ros::ros-info (format nil "current-state: ~A" current-state))
+      (let* ((final-state (send (send sm :active-state) :name))
+             (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
+             (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
+        (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+        (send result :result :success (and goalp (null abortp)))
+        (send result :result :final_state :state (format nil "~A" current-state))
+        (send self :set-succeeded result))
+      t))
   (:current-state-publish-timer-cb (event) (send self :publish-current-state))
   (:publish-current-state ()
     (let ((msg (instance rmui_msgs::StatenetStateStamped :init)))
