@@ -10,6 +10,7 @@
   :super propertied-object
   :slots (tfl
           namespace
+          groupname
           prx-threshold
           prx-position-threshold
           device-frame-id
@@ -25,7 +26,6 @@
           prx-x45-vectors
           prx-y45-vectors
           prx-z45-vectors
-          groupname
           ))
 
 

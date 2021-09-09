@@ -19,11 +19,11 @@
 (defclass rmui-server
   :super propertied-object
   :slots (namespace
+          groupname
           device
           planner
           executor
           updater
-          groupname
           ))
 
 
