@@ -1,4 +1,6 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
+(require :common-statenet-planner
+         "package://rmuieus/euslisp/common/common-statenet-planner.l")
 
 (ros::roseus-add-msgs "rmui_msgs")
 
@@ -12,6 +14,7 @@
           sm
           insp
           gr
+          planner
           initial-state
           current-state
           reset-state))
@@ -26,6 +29,14 @@
     (setq reset-state rs)
     (setq gr (load-merged-statenet-graph reset-state))
     (setq slvr (instance *solver-class* :init))
+    (setq planner (instance statenet-planner :init
+                            :graph gr :solver slvr
+                            :state-func
+                            `(lambda-closure nil 0 0 (userdata)
+                                             (send ,self :statenet-state-func userdata))
+                            :teach-func
+                            `(lambda-closure nil 0 0 (userdata)
+                                             (send ,self :statenet-teach-func userdata))))
     ;; state
     (setq initial-state '(:init))
     (setq current-state '(:init))
@@ -33,6 +44,9 @@
     (send self :init-timer)
     (ros::ros-info "init finished")
     self)
+  (:graph () gr)
+  (:solver () slvr)
+  (:planner () planner)
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
@@ -60,20 +74,10 @@
       (let ((node-name (format nil "~A" (if a (list a s) s))))
         (send sm :start-state (send sm :node node-name)))))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
-    (let ((tmp-sm
-            (generate-smach-from-state
-              gr slvr start-state goal-state
-              ;; segmentation fault
-              ;: :state-func #'statenet-state-func
-              :state-func
-              `(lambda-closure nil 0 0 (userdata)
-                               (send ,self :statenet-state-func userdata))
-              :teach-func
-              `(lambda-closure nil 0 0 (userdata)
-                               (send ,self :statenet-teach-func userdata))
-              :first-action first-action
-              :no-loop no-loop)))
-      tmp-sm))
+    (send planner :generate-smach-from-state
+          start-state goal-state
+          :first-action first-action
+          :no-loop no-loop))
   (:replan-in-statenet-state-func (userdata start-state goal-state first-action)
     (ros::ros-warn "replanning...")
     (let ((replan-sm

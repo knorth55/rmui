@@ -30,53 +30,6 @@
     gr))
 
 
-(defun solve-statenet-path (gr slvr start-state goal-state &key (first-action nil))
-  (let ((start-node (send gr :search-node-from-pddl-state start-state))
-        (goal-node (send gr :search-node-from-pddl-state goal-state)))
-    (if first-action
-      (let* ((first-action-name (format nil "~A" first-action))
-             (acts (send start-node :neighbor-action-alist))
-             (second-node
-               (cdr (assoc first-action-name acts :test #'equal)))
-             (arc-alist
-               (mapcar #'(lambda (x) (cons (send x :name) x))
-                       (mapcar #'car (send start-node :successors))))
-             (first-arc
-               (cdr (assoc first-action-name arc-alist :test #'equal)))
-             (solution nil))
-        (send gr :start-state second-node)
-        (send gr :goal-state goal-node)
-        (setq solution (send slvr :solve gr))
-        (if solution
-          (let ((first-node
-                  (instance solver-node :init start-node :cost 0)))
-            (send (car solution) :parent first-node)
-            (send (car solution) :action first-arc)
-            (dolist (sn solution)
-              (send sn :cost (+ 1 (send sn :cost))))
-            (push first-node solution)
-            solution)))
-      (let ((solution nil))
-        (send gr :start-state start-node)
-        (send gr :goal-state goal-node)
-        (setq solution (send slvr :solve gr))
-        solution))))
-
-
-(defun generate-smach-from-state
-  (gr slvr start-state goal-state
-      &key (state-func #'(lambda (x) t)) (teach-func nil) (first-action nil) (no-loop nil))
-  (let* ((solution
-           (solve-statenet-path gr slvr start-state goal-state
-                                :first-action first-action))
-         (sm (if solution
-               (convert-solution-to-smach solution
-                                          :state-func state-func
-                                          :teach-func teach-func
-                                          :no-loop no-loop))))
-    sm))
-
-
 (defun ros-yes-or-no-p (ask-sentence &key (use-default t) (default t))
   (let ((response))
     (tagbody retry-yes-or-no
