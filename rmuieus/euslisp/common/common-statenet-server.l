@@ -284,7 +284,11 @@
       (ros::publish "~current_state" msg)))
   (:visualize-update-cb (event)
     (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
-    (if (boundp '*ri*) (send *ri* :draw-objects))))
+    (if (boundp '*ri*) (send *ri* :draw-objects)))
+  (:spin-once (&rest args)
+    (if device-groupname (ros::spin-once device-groupname))
+    (send-super* :spin-once args))
+  )
 
 
 (provide :common-statenet-server "common-statenet-server.l")
