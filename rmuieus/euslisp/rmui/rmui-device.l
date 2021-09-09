@@ -153,7 +153,11 @@
                      (> diff-v-min (elt diff-vs diff-index))))
           (setq prx-index diff-index
                 diff-v-min (elt diff-vs diff-index))))
-      (if prx-index (elt prx-positions prx-index)))))
+      (if prx-index (elt prx-positions prx-index))))
+  (:spin-once ()
+    (if groupname
+      (ros::spin-once groupname)
+      (ros::spin-once))))
 
 
 (provide :rmui-device "rmui-device.l")
