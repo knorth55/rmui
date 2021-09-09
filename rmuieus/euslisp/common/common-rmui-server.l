@@ -150,17 +150,14 @@
              (if update-p (send rmui-device :get-contact-positions)))
            (motion-symbols
              (send planner :get-motion-symbols contact-positions
-                   :scene-state (car (last scene-states))
-                   ))
+                   :scene-state (car (last scene-states))))
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols motion-symbols
-                   :scene-state (car (last scene-states))
-                   ))
+                   :scene-state (car (last scene-states))))
            (update-scene-p (send self :update-scene-state execute-symbols-and-actions))
            (dump-p (send self :dump-files))
            (execute-symbols (car execute-symbols-and-actions))
-           (last-scene-state (car (last scene-states)))
-           )
+           (last-scene-state (car (last scene-states))))
       (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
       (if (boundp '*ri*) (send *ri* :draw-objects))
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
