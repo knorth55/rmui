@@ -2,7 +2,7 @@
 
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
-(require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
+(require :common-rmui-server "package://rmuieus/euslisp/common/common-rmui-server.l")
 
 
 ;; parameters
@@ -20,8 +20,8 @@
   (ros::roseus "pr2_rmui_planning")
   (motion-init)
   (ros::ros-info "motion-init finished")
-  (setq *planner*
-        (instance rmui-planner :init
+  (setq *server*
+        (instance rmui-server :init
                   :namespace *namespace*
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
@@ -30,5 +30,5 @@
                   :motion-symbol-length *motion-symbol-length*))
   (ros::rate 10)
   (ros::ros-info "initialization finished, starting")
-  (ros::create-timer 0.1 #'send *planner* :planner-cb)
+  (ros::create-timer 0.1 #'send *server* :server-cb)
   (ros::spin))
