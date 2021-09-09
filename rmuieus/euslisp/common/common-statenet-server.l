@@ -296,7 +296,7 @@
     (if (boundp '*ri*) (send *ri* :draw-objects)))
   (:spin-once ()
     (if device-groupname (ros::spin-once device-groupname))
-    (send-super* :spin-once))
+    (send-super :spin-once))
   )
 
 
