@@ -1,6 +1,8 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :common-statenet-planner
          "package://rmuieus/euslisp/common/common-statenet-planner.l")
+(require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
+(require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 
 (ros::roseus-add-msgs "rmui_msgs")
 
@@ -14,29 +16,52 @@
           sm
           insp
           gr
-          planner
+          stplanner
           initial-state
           current-state
-          reset-state))
+          reset-state
+          device-namespace
+          device
+          rmplanner
+          ))
 
 
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
+               ((:device-namespace devns))
+               ((:device-groupname devgpn))
+               (prx-threshold) (prx-position-threshold)
+               (device-frame-id) (world-frame-id)
                &rest args)
     (send-super* :init ns sp args)
     (setq reset-state rs)
+    (setq device-namespace devns)
+    (setq device-groupname devgpn)
+
+    ;; instances
     (setq gr (load-merged-statenet-graph-with-reset reset-state))
     (setq slvr (instance *solver-class* :init))
-    (setq planner (instance statenet-planner :init
-                            :graph gr :solver slvr
-                            :state-func
-                            `(lambda-closure nil 0 0 (userdata)
-                                             (send ,self :statenet-state-func userdata))
-                            :teach-func
-                            `(lambda-closure nil 0 0 (userdata)
-                                             (send ,self :statenet-teach-func userdata))))
+    (setq stplanner
+          (instance statenet-planner :init
+                    :graph gr :solver slvr
+                    :state-func
+                    `(lambda-closure nil 0 0 (userdata)
+                                     (send ,self :statenet-state-func userdata))
+                    :teach-func
+                    `(lambda-closure nil 0 0 (userdata)
+                                     (send ,self :statenet-teach-func userdata))))
+    (setq device
+          (instance rmui-device :init
+                    :namespace device-namespace
+                    :prx-threshold prx-threshold
+                    :prx-position-threshold prx-position-threshold
+                    :device-frame-id device-frame-id
+                    :world-frame-id world-frame-id
+                    :groupname device-groupname))
+    (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
+
     ;; state
     (setq initial-state '(:init))
     (setq current-state '(:init))
@@ -46,7 +71,7 @@
     self)
   (:graph () gr)
   (:solver () slvr)
-  (:planner () planner)
+  (:statenet-planner () stplanner)
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
@@ -74,7 +99,7 @@
       (let ((node-name (format nil "~A" (if a (list a s) s))))
         (send sm :start-state (send sm :node node-name)))))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
-    (send planner :generate-smach-from-state
+    (send stplanner :generate-smach-from-state
           start-state goal-state
           :first-action first-action
           :no-loop no-loop))
