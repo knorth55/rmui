@@ -25,6 +25,7 @@
           prx-x45-vectors
           prx-y45-vectors
           prx-z45-vectors
+          groupname
           ))
 
 
@@ -41,7 +42,8 @@
                ((:prx-initial-vectors prxinitvec) *prx-initial-vectors*)
                ((:prx-x45-vectors prxx45vec) *prx-x45-vectors*)
                ((:prx-y45-vectors prxy45vec) *prx-y45-vectors*)
-               ((:prx-z45-vectors prxz45vec) *prx-z45-vectors*))
+               ((:prx-z45-vectors prxz45vec) *prx-z45-vectors*)
+               ((:groupname gpn)))
     (setq namespace (if ns ns ""))
     (setq tfl (instance ros::transform-listener :init))
     (setq device (make-cube 120 120 120))
@@ -58,9 +60,16 @@
     (setq prx-y45-vectors prxy45vec)
     (setq prx-z45-vectors prxz45vec)
     (setq device-prx-vectors (copy-prx-vectors prx-initial-vectors))
-    (ros::subscribe (format nil "~A/output/proximities" namespace)
-                    force_proximity_ros::ProximityArray
-                    #'send self :proximity-cb)
+    (setq groupname (if gpn gpn))
+    (if groupname (ros::create-nodehandle groupname))
+    (if groupname
+      (ros::subscribe (format nil "~A/output/proximities" namespace)
+                      force_proximity_ros::ProximityArray
+                      #'send self :proximity-cb
+                      :groupname groupname)
+      (ros::subscribe (format nil "~A/output/proximities" namespace)
+                      force_proximity_ros::ProximityArray
+                      #'send self :proximity-cb))
     self)
   (:device-prx-vectors () device-prx-vectors)
   (:proximity () proximity)
