@@ -25,5 +25,4 @@
                   :world-frame-id *world-frame-id*))
   (if pdf (send *server* :show-pdf))
   (ros::rate 10)
-  (while (ros::ok)
-    (send *server* :spin-once)))
+  (while (ros::ok) (send *server* :spin-once)))

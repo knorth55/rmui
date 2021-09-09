@@ -30,5 +30,4 @@
                   :motion-symbol-length *motion-symbol-length*))
   (ros::rate 10)
   (ros::ros-info "initialization finished, starting")
-  (ros::create-timer 0.1 #'send *server* :server-cb)
-  (ros::spin))
+  (while (ros::ok) (send *server* :spin-once)))
