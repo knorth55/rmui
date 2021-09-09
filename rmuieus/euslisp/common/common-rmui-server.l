@@ -166,17 +166,18 @@
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
       (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
       ; (ros::ros-info (format nil "contact-positions     : ~A" contact-positions))
-      (ros::ros-info (format nil "larm-contact-state : ~A"
+      (ros::ros-info (format nil "larm-contact-state    : ~A"
                              (cadr (assoc :larm-contact-state last-scene-state))))
-      (ros::ros-info (format nil "rarm-contact-state : ~A"
+      (ros::ros-info (format nil "rarm-contact-state    : ~A"
                              (cadr (assoc :rarm-contact-state last-scene-state))))
-      (ros::ros-info (format nil "floor-contact-state : ~A"
+      (ros::ros-info (format nil "floor-contact-state   : ~A"
                              (cadr (assoc :floor-contact-state last-scene-state))))
       (ros::ros-info (format nil "object-location-state : ~A"
                              (cadr (assoc :object-location-state last-scene-state))))
       (ros::ros-info (format nil "object-rotation-state : ~A"
                              (cadr (assoc :object-rotation-state last-scene-state))))
-      (ros::ros-info (format nil "executed-actions: ~A" (mapcar #'car executed-actions)))))
+      (ros::ros-info (format nil "executed-actions      : ~A"
+                             (mapcar #'car executed-actions)))))
   )
 
 
