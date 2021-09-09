@@ -12,22 +12,29 @@
 
 (defclass statenet-action-server
   :super ros::simple-action-server
-  :slots (slvr
+  :slots (namespace
+          groupname
+          ;; statenet
+          slvr
           sm
           insp
           gr
           stplanner
+          ;; rmui
+          device
+          device-namespace
+          device-groupname
+          rmplanner
+          ;; state
           initial-state
           current-state
           reset-state
-          device-namespace
-          device
-          rmplanner
           ))
 
 
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
+               ((:groupname gpn))
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
                ((:device-namespace devns))
@@ -35,10 +42,12 @@
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
                &rest args)
-    (send-super* :init ns sp args)
-    (setq reset-state rs)
+    (send-super* :init ns sp :groupname gpn args)
+    (setq namespace ns)
+    (setq groupname gpn)
     (setq device-namespace devns)
     (setq device-groupname devgpn)
+    (setq reset-state rs)
 
     ;; instances
     (setq gr (load-merged-statenet-graph-with-reset reset-state))
@@ -285,9 +294,9 @@
   (:visualize-update-cb (event)
     (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
     (if (boundp '*ri*) (send *ri* :draw-objects)))
-  (:spin-once (&rest args)
+  (:spin-once ()
     (if device-groupname (ros::spin-once device-groupname))
-    (send-super* :spin-once args))
+    (send-super* :spin-once))
   )
 
 
