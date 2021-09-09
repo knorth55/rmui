@@ -41,35 +41,35 @@
           (load-dualarm-get-motion-symbols-conditions))
     self)
   (:get-motion-symbols
-    (contact-positions
-         &key (object-contact-states) (object-location-state) (object-rotation-state))
+    (contact-positions &key (scene-state))
     (let* ((larm-motion-symbols
              (send self :get-motion-symbol :larm contact-positions
-                   :object-contact-states object-contact-states
-                   :object-location-state object-location-state
-                   :object-rotation-state object-rotation-state))
+                   :scene-state scene-state))
            (rarm-motion-symbols
              (send self :get-motion-symbol :rarm contact-positions
-                   :object-contact-states object-contact-states
-                   :object-location-state object-location-state
-                   :object-rotation-state object-rotation-state)))
+                   :scene-state scene-state)))
       (list larm-motion-symbols rarm-motion-symbols)))
   (:get-motion-symbol
-    (arm contact-positions
-         &key (object-contact-states) (object-location-state) (object-rotation-state))
-    (let ((contact-surfaces (mapcar #'car contact-positions))
-          (bottom-contact-positions
-            (remove-if #'null
-                       (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
-                               contact-positions)))
-          (larm-contact-state (car object-contact-states))
-          (rarm-contact-state (cadr object-contact-states))
-          (floor-contact-state (caddr object-contact-states))
-          (object-location-state object-location-state)
-          (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbols-conditions)
-                                ((equal arm :rarm) rarm-get-motion-symbols-conditions)
-                                (t nil)))
-          (dualarm-conditions dualarm-get-motion-symbols-conditions))
+    (arm contact-positions &key (scene-state))
+    (let* ((larm-contact-state
+             (cadr (assoc :larm-contact-state scene-state)))
+           (rarm-contact-state
+             (cadr (assoc :rarm-contact-state scene-state)))
+           (floor-contact-state
+             (cadr (assoc :floor-contact-state scene-state)))
+           (object-location-state
+             (cadr (assoc :object-location-state scene-state)))
+           (object-rotation-state
+             (cadr (assoc :object-rotation-state scene-state)))
+           (contact-surfaces (mapcar #'car contact-positions))
+           (bottom-contact-positions
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
+                                contact-positions)))
+           (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbols-conditions)
+                                 ((equal arm :rarm) rarm-get-motion-symbols-conditions)
+                                 (t nil)))
+           (dualarm-conditions dualarm-get-motion-symbols-conditions))
       (ros::publish waiting-visualize-topic-name
                     (instance std_msgs::Float32 :init :data 0.0))
       (ros::publish moving-visualize-topic-name

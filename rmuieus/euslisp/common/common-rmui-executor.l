@@ -74,18 +74,23 @@
          (list action-name action)))
       (t nil)))
   (:execute-motion-symbols
-    (motion-symbols
-      &key (object-contact-states) (object-location-state) (object-rotation-state)
-      (move-robot t) (use-torso 0.001))
-    (let ((larm-motion-symbol-queue (car motion-symbol-queue))
-          (rarm-motion-symbol-queue (cadr motion-symbol-queue))
-          (larm-motion-symbol (car motion-symbols))
-          (rarm-motion-symbol (cadr motion-symbols))
-          (larm-contact-state (car object-contact-states))
-          (rarm-contact-state (cadr object-contact-states))
-          (floor-contact-state (caddr object-contact-states))
-          (execute-symbols nil)
-          larm-execute-p rarm-execute-p)
+    (motion-symbols &key (scene-state) (move-robot t) (use-torso 0.001))
+    (let* ((larm-contact-state
+             (cadr (assoc :larm-contact-state scene-state)))
+           (rarm-contact-state
+             (cadr (assoc :rarm-contact-state scene-state)))
+           (floor-contact-state
+             (cadr (assoc :floor-contact-state scene-state)))
+           (object-location-state
+             (cadr (assoc :object-location-state scene-state)))
+           (object-rotation-state
+             (cadr (assoc :object-rotation-state scene-state)))
+           (larm-motion-symbol-queue (car motion-symbol-queue))
+           (rarm-motion-symbol-queue (cadr motion-symbol-queue))
+           (larm-motion-symbol (car motion-symbols))
+           (rarm-motion-symbol (cadr motion-symbols))
+           (execute-symbols nil)
+           larm-execute-p rarm-execute-p)
       ;; check motion symbol queue
       (if (or larm-motion-symbol rarm-motion-symbol)
         (ros::publish waiting-visualize-topic-name
