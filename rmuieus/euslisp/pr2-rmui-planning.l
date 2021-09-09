@@ -2,7 +2,7 @@
 
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
-(require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
+(require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
 
 
 ;; parameters

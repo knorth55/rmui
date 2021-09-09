@@ -287,4 +287,4 @@
   )
 
 
-(provide :common-planners "common-planners.l")
+(provide :common-rmui-planner "common-rmui-planner.l")

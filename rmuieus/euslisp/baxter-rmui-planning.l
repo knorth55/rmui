@@ -2,7 +2,7 @@
 
 (require :baxter-scenes "package://rmuieus/euslisp/baxter/baxter-scenes.l")
 (require :baxter-motions "package://rmuieus/euslisp/baxter/baxter-motions.l")
-(require :common-planners "package://rmuieus/euslisp/common/common-planners.l")
+(require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
 
 
 ;; parameters
