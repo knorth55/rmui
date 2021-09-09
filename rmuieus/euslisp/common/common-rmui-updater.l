@@ -88,7 +88,7 @@
            (prev-object-y-rotation-symbol (cadr prev-object-rotation-state))
            (prev-object-z-rotation-symbol (caddr prev-object-rotation-state)))
       (if (null scene-states) (send self :append-scene-states prev-scene-state))
-      (unless motion-symbols-and-actions (return-from :update-scene-state nil))
+      (if (null motion-symbols-and-actions) (return-from :update-scene-state nil))
       (let* ((motion-symbols (car motion-symbols-and-actions))
              (action-name (cadr motion-symbols-and-actions))
              (action (caddr motion-symbols-and-actions))
