@@ -27,7 +27,7 @@
                &rest args)
     (send-super* :init ns sp args)
     (setq reset-state rs)
-    (setq gr (load-merged-statenet-graph reset-state))
+    (setq gr (load-merged-statenet-graph-with-reset reset-state))
     (setq slvr (instance *solver-class* :init))
     (setq planner (instance statenet-planner :init
                             :graph gr :solver slvr
