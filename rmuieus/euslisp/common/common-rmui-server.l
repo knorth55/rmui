@@ -23,11 +23,13 @@
           planner
           executor
           updater
+          groupname
           ))
 
 
 (defmethod rmui-server
   (:init (&key ((:namespace ns))
+               ((:groupname gpn))
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
                ((:motion-symbol-length msym-length) 5))
@@ -45,7 +47,14 @@
                              :namespace namespace
                              :motion-symbol-length msym-length))
     (setq updater (instance rmui-updater :init :namespace namespace))
+    (setq groupname (if gpn gpn))
+    (if groupname (ros::create-nodehandle groupname))
+    (send self :init-timer)
     self)
+  (:init-timer ()
+    (if groupname
+      (ros::create-timer 0.1 #'send self :server-cb :groupname groupname)
+      (ros::create-timer 0.1 #'send self :server-cb)))
   (:server-cb (&rest args)
     (let* ((update-p (send device :update-device-orientation))
            (contact-positions
@@ -78,6 +87,10 @@
                              (cadr (assoc :object-rotation-state last-scene-state))))
       (ros::ros-info (format nil "executed-actions      : ~A"
                              (mapcar #'car executed-actions)))))
+  (:spin-once ()
+    (if groupname
+      (ros::spin-once groupname)
+      (ros::spin-once)))
   )
 
 
