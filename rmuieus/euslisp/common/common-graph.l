@@ -12,8 +12,8 @@
 
 (defun add-node (sm name func node-type)
   (let ((node-func
-          (if (derivedp func state-machine)
-            (copy-object func) func)))
+          (if (equal 'lambda-closure (car func))
+            func (eval func))))
     (if (null (send sm :node name))
       (let ((n (instance state :init name node-func)))
         (setf (get n :node-type) node-type)
