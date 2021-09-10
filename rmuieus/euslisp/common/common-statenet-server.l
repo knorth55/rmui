@@ -14,6 +14,7 @@
   :super ros::simple-action-server
   :slots (namespace
           groupname
+          show-pdf
           ;; statenet
           slvr
           sm
@@ -39,6 +40,7 @@
                ((:reset-state rs) *reset-state*)
                ((:device-namespace devns))
                ((:device-groupname devgpn))
+               ((:show-pdf shpdf) nil)
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
                &rest args)
@@ -48,6 +50,7 @@
     (setq device-namespace devns)
     (setq device-groupname devgpn)
     (setq reset-state rs)
+    (setq show-pdf shpdf)
 
     ;; instances
     (setq gr (load-merged-statenet-graph-with-reset reset-state))
@@ -76,6 +79,7 @@
     (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
     (send self :init-timer)
     (ros::ros-info "init finished")
+    (if show-pdf (send self :show-statenet-pdf))
     self)
   (:graph () gr)
   (:solver () slvr)
@@ -91,15 +95,18 @@
     (ros::create-timer 0.1
                        `(lambda-closure nil 0 0 (event)
                                         (send ,self :execute-cb))))
-  (:show-pdf ()
-    (send gr :write-to-pdf "rmui.pdf")
-    (piped-fork "xdg-open rmui.pdf"))
+  (:show-statenet-pdf ()
+    (send gr :write-to-pdf "rmui_statenet.pdf")
+    (piped-fork "xdg-open rmui_statenet.pdf"))
+  (:show-smach-pdf ()
+    (send sm :write-to-pdf "rmui_smach.pdf")
+    (piped-fork "xdg-open rmui_smach.pdf"))
   (:initialize-state-machine (userdata &key (root-name "SM_ROOT"))
     (send sm :reset-state)
     (setq insp (instance state-machine-inspector :init sm :root-name root-name))
     (apply #'send sm :arg-keys (union (send sm :arg-keys) (mapcar #'car userdata)))
     (send insp :publish-structure) ;; publish once and latch
-    )
+    (if show-pdf (send self :show-smach-pdf)))
   (:set-active-state (&key ((:action a) nil) ((:state s) nil))
     (if s
       (let ((node-name (format nil "~A" (if a (list a s) s))))

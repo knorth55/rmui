@@ -22,7 +22,7 @@
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
                   :device-frame-id *device-frame-id*
-                  :world-frame-id *world-frame-id*))
-  (if pdf (send *server* :show-pdf))
+                  :world-frame-id *world-frame-id*
+                  :show-pdf pdf))
   (ros::rate 10)
   (while (ros::ok) (send *server* :spin-once)))
