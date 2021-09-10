@@ -114,7 +114,7 @@
           start-state goal-state
           :first-action first-action
           :no-loop no-loop))
-  (:replan-in-statenet-state-func (userdata)
+  (:replan-in-statenet-state (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :replan-start-state userdata)))
            (goal-state (cdr (assoc :goal-state userdata)))
@@ -129,11 +129,11 @@
           (send self :set-start-state :action first-action
                 :state start-state)
           (send self :initialize-state-machine userdata)
-          (return-from :replan-in-statenet-state-func t))
+          (return-from :replan-in-statenet-state t))
         (progn
           (ros::ros-error "replanning failed...")
           (ros::ros-error "cannot find a valid path to the goal-state")
-          (return-from :replan-in-statenet-state-func nil)))))
+          (return-from :replan-in-statenet-state nil)))))
   (:ask-user-decision (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
@@ -162,7 +162,7 @@
                                        (send ,self :ask-user-decision userdata)))
       (add-state-node sub-sm replan-node-name
                       `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :replan-in-statenet-state-func userdata)))
+                                       (send ,self :replan-in-statenet-state userdata)))
       (add-state-node sub-sm pass-node-name
                       `(lambda-closure nil 0 0 (userdata) t))
       (add-state-node sub-sm abort-node-name
