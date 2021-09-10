@@ -47,13 +47,27 @@
    (send sm :add-transition teach-name from-name t))
 
 
+(defun add-smach-transition (sm from-name node-name
+                                &key (smach-transition t) (add-t-transition nil))
+  (let ((sub-sm (send (send sm :node from-name) :submachine)))
+    (if sub-sm
+      (progn
+        (if (null (equal smach-transition t))
+          (send sub-sm :goal-state
+                (append (mapcar #'(lambda (x) (send x :name))
+                                (send sub-sm :goal-state))
+                        (list smach-transition))))
+        (send sub-sm :add-transition "(:next)" smach-transition t))))
+  (send sm :add-transition from-name node-name smach-transition)
+  (if add-t-transition (send sm :add-transition from-name node-name t)))
+
 (defun add-action-node-trans (sm from-name node-name to-name state-func action-func
                                  &key (smach-transition t) (add-t-transition nil))
   (add-state-node sm from-name state-func)
   (add-action-node sm node-name action-func)
-  (send sm :add-transition from-name node-name smach-transition)
-  (if add-t-transition
-    (send sm :add-transition from-name node-name t))
+  (add-smach-transition sm from-name node-name
+                        :smach-transition smach-transition
+                        :add-t-transition add-t-transition)
   (add-state-node sm to-name state-func)
   (send sm :add-transition node-name to-name t))
 
