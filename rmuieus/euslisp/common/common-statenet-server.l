@@ -99,8 +99,9 @@
   (:initialize-state-machine (userdata &key (root-name "SM_ROOT"))
     (send sm :reset-state)
     (setq insp (instance state-machine-inspector :init sm :root-name root-name))
+    (apply #'send sm :arg-keys (union (send sm :arg-keys) (mapcar #'car userdata)))
     (send insp :publish-structure) ;; publish once and latch
-    (apply #'send sm :arg-keys (union (send sm :arg-keys) (mapcar #'car userdata))))
+    )
   (:set-active-state (&key ((:action a) nil) ((:state s) nil))
     (if s
       (let ((node-name (format nil "~A" (if a (list a s) s))))
@@ -277,6 +278,7 @@
             (send feedback :feedback :stamp
                   (ros::time- (ros::time-now) start-stamp))
             (send self :publish-feedback feedback)
+            (send insp :publish-structure)
             ;; sleep
             (ros::sleep))))
 
