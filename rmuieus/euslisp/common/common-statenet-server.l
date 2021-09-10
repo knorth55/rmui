@@ -82,6 +82,7 @@
   (:graph () gr)
   (:solver () slvr)
   (:statenet-planner () stplanner)
+  (:state-machine () sm)
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
