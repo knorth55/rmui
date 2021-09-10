@@ -6,6 +6,14 @@
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 
 
+(defmethod state-machine
+  (:append-goal-state (gs)
+    (if (atom gs) (setq gs (list gs)))
+    (setq gs (mapcar #'(lambda(g) (instance state :init g nil)) gs))
+    (dolist (n gs) (send self :add-node n))
+    (send-super :goal-state (append goal-state gs))))
+
+
 (defun convert-string-to-sym (name)
   (remove '|n| (read-from-string name)))
 
@@ -51,13 +59,14 @@
                                 &key (smach-transition t) (add-t-transition nil))
   (let ((sub-sm (send (send sm :node from-name) :submachine)))
     (if sub-sm
-      (progn
-        (if (null (equal smach-transition t))
-          (send sub-sm :goal-state
-                (append (mapcar #'(lambda (x) (send x :name))
-                                (send sub-sm :goal-state))
-                        (list smach-transition))))
-        (send sub-sm :add-transition "(:next)" smach-transition t))))
+      (let ((goal-state-names
+              (mapcar #'(lambda (x) (send x :name)) (send sub-sm :goal-state))))
+        (if (null (find smach-transition goal-state-names :test #'equal))
+          (progn
+            (if (null (equal smach-transition t))
+              (send sub-sm :append-goal-state smach-transition))
+            (send sub-sm :add-transition "(:next)" smach-transition t)
+            )))))
   (send sm :add-transition from-name node-name smach-transition)
   (if add-t-transition (send sm :add-transition from-name node-name t)))
 
