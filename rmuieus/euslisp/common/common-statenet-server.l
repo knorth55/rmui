@@ -145,16 +145,19 @@
         (let ((user-decision (ask-user-decision sm gr)))
           (cond
             ;;pass
-            ((equal user-decision :pass)
+            ((and (consp user-decision)
+                  (equal (car user-decision) :pass))
              (return-from :statenet-state-func t))
             ;; abort
-            ((equal user-decision :abort)
+            ((and (consp user-decision)
+                  (equal (car user-decision) :abort))
              (return-from :statenet-state-func nil))
             ;; teach
-            ((equal user-decision :teach)
+            ((and (consp user-decision)
+                  (equal (car user-decision) :teach))
              (return-from :statenet-state-func :teach))
             ;; replan
-            ((and (listp user-decision)
+            ((and (consp user-decision)
                   (equal (car user-decision) :replan))
              (if (send self :replan-in-statenet-state-func
                        userdata current-sm-state goal-state (cdr user-decision))
@@ -162,7 +165,7 @@
                (return-from :statenet-state-func t)
                (go retry-ask)))
             ;; next
-            ((and (listp user-decision)
+            ((and (consp user-decision)
                   (equal (car user-decision) :next))
              (return-from :statenet-state-func
                           (format nil "~A" (cdr user-decision))))

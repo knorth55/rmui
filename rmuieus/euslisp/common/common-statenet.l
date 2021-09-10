@@ -137,7 +137,7 @@
                    (return-from ask-user-decision
                                 (cons :replan (elt next-gr-actions chosen-index))))
                  (if (ask-user-teaching)
-                   (return-from ask-user-decision :teach)
+                   (return-from ask-user-decision (cons :teach nil))
                    (go retry-ask-user-decision)))))
             ;; if next action is only one
             ;; ask if execute or not -> ask if teach or not -> ask if abort or not
@@ -153,10 +153,10 @@
                    (if (ask-user-teaching)
                      (return-from ask-user-decision :teach)
                      (if (ask-user-abortion)
-                       (return-from ask-user-decision :abort)
+                       (return-from ask-user-decision (cons :abort nil))
                        (go retry-ask-user-decision)))))))
             (t nil))))
-      :pass)))
+      (cons :pass nil))))
 
 
 (defun ask-user-index-choose (actions &key (use-default t) (default-index 0))
