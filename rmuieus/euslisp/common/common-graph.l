@@ -11,10 +11,13 @@
 
 
 (defun add-node (sm name func node-type)
-  (if (null (send sm :node name))
-    (let ((n (instance state :init name func)))
-      (setf (get n :node-type) node-type)
-      (send sm :add-node n))))
+  (let ((node-func
+          (if (derivedp func state-machine)
+            (copy-object func) func)))
+    (if (null (send sm :node name))
+      (let ((n (instance state :init name node-func)))
+        (setf (get n :node-type) node-type)
+        (send sm :add-node n)))))
 
 
 (defun add-state-node (sm name &optional (state-func #'(lambda (x) t)))
