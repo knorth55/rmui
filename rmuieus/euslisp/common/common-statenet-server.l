@@ -115,11 +115,14 @@
           start-state goal-state
           :first-action first-action
           :no-loop no-loop))
-  (:replan-in-statenet-state-func (userdata start-state goal-state first-action)
+  (:replan-in-statenet-state-func (userdata)
     (ros::ros-warn "replanning...")
-    (let ((replan-sm
-            (send self :plan-state-machine start-state goal-state
-                  :first-action first-action :no-loop nil)))
+    (let* ((start-state (cdr (assoc :replan-start-state userdata)))
+           (goal-state (cdr (assoc :goal-state userdata)))
+           (first-action (cdr (cdr (assoc :user-decision userdata))))
+           (replan-sm
+             (send self :plan-state-machine start-state goal-state
+                   :first-action first-action :no-loop nil)))
       (if replan-sm
         (progn
           (ros::ros-info "replanning succeeded")
@@ -141,42 +144,48 @@
       (ros::ros-error "teaching is not implemented.")
       (return-from :statenet-teach-func t)))
   (:statenet-state-func (userdata)
+    (tagbody retry-ask
+      (let* ((next-state (send self :ask-user-decision userdata))
+             (next-action (cdr (cdr (assoc :user-decision userdata)))))
+        (cond
+          ;; pass
+          ((equal next-state :pass)
+           (return-from :statenet-state-func t))
+          ;; abort
+          ((equal next-state :abort)
+           (return-from :statenet-state-func nil))
+          ;; teach
+          ((equal next-state :teach)
+           (return-from :statenet-state-func :teach))
+          ;; replan
+          ((equal next-state :teach)
+           (if (send self :replan-in-statenet-state-func userdata)
+             ;; replan, so this transition does not have any effect
+             (return-from :statenet-state-func t)
+             (go retry-ask)))
+          ;; next
+          ((equal next-state :next)
+           (return-from :statenet-state-func (format nil "~A" next-action)))
+          ;; something is wrong
+          ((equal user-decision nil)
+           (return-from :statenet-state-func nil))
+          (t (go retry-ask))))))
+  (:ask-user-decision (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
-      (tagbody retry-ask
         (let ((user-decision (ask-user-decision sm gr)))
+          (setf (cdr (assoc :user-decision userdata)) user-decision)
           (cond
-            ;;pass
-            ((and (consp user-decision)
-                  (equal (car user-decision) :pass))
-             (return-from :statenet-state-func t))
-            ;; abort
-            ((and (consp user-decision)
-                  (equal (car user-decision) :abort))
-             (return-from :statenet-state-func nil))
-            ;; teach
-            ((and (consp user-decision)
-                  (equal (car user-decision) :teach))
-             (return-from :statenet-state-func :teach))
             ;; replan
             ((and (consp user-decision)
                   (equal (car user-decision) :replan))
-             (if (send self :replan-in-statenet-state-func
-                       userdata current-sm-state goal-state (cdr user-decision))
-               ;; replan, so this transition does not have any effect
-               (return-from :statenet-state-func t)
-               (go retry-ask)))
-            ;; next
-            ((and (consp user-decision)
-                  (equal (car user-decision) :next))
-             (return-from :statenet-state-func
-                          (format nil "~A" (cdr user-decision))))
+             (setf (cdr (assoc :replan-start-state userdata)) current-sm-state))
             ;; something is wrong
             ((equal user-decision nil)
-             (ros::ros-error "something is wrong.")
-             (return-from :statenet-state-func nil))
-            (t (go retry-ask)))))))
+             (ros::ros-error "something is wrong."))
+            (t nil))
+          (return-from :ask-user-decision (car user-decision)))))
   (:execute-statenet-cb (goal)
     (let ((start-state
             (if (> (length (send goal :goal :start_state :state)) 0)
@@ -228,7 +237,10 @@
 
       ;; execute state machine
       ;; modified from (exec-state-machine *sm* nil :hz 1.0)
-      (let* ((userdata (list (cons :goal-state goal-state)))
+      (let* ((userdata (list (cons :start-state start-state)
+                             (cons :goal-state goal-state)
+                             (cons :user-decision nil)
+                             (cons :replan-start-state nil)))
              (hz 1.0))
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
