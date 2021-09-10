@@ -58,8 +58,7 @@
                     :state-func
                     `(send ,self :get-statenet-state-submachine)
                     :teach-func
-                    `(lambda-closure nil 0 0 (userdata)
-                                     (send ,self :statenet-teach-func userdata))
+                    `(send ,self :get-statenet-teach-submachine)
                     ))
     (setq device
           (instance rmui-device :init
@@ -184,13 +183,71 @@
       (send sub-sm :add-transition next-node-name t t)
       sub-sm))
   ;; TODO (knorth55): implement teaching
-  (:statenet-teach-func (userdata)
-   (let* ((current-sm-node (send sm :active-state))
-          (current-sm-state (read-from-string (send current-sm-node :name)))
-          (before-state (cadr current-sm-state)))
-      (ros::ros-warn (format nil "teaching before state: ~A" before-state))
-      (ros::ros-error "teaching is not implemented.")
-      (return-from :statenet-teach-func t)))
+  (:wait-ready-for-teach (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:check-teach-scene-state (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:confirm-user-teach-action (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:search-teach-action (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:update-teach-action (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:ask-user-finish-teach (userdata)
+    t)
+  ;; TODO (knorth55): implement teaching
+  (:replan-in-statenet-teach (userdata)
+    t)
+  (:get-statenet-teach-submachine ()
+    (let ((sub-sm (instance state-machine :init))
+          (wait-ready-node-name "(:wait-ready-for-teach)")
+          (check-node-name "(:check-teach-scene-state)")
+          (confirm-node-name "(:confirm-user-teach-action)")
+          (search-node-name "(:search-teach-action)")
+          (update-node-name "(:update-teach-action)")
+          (ask-finish-node-name "(:ask-finish)")
+          (replan-node-name "(:replan-in-statenet-teach)"))
+      (add-teach-node sub-sm wait-ready-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :wait-ready-for-teach userdata)))
+      (add-teach-node sub-sm check-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :check-teach-scene-state userdata)))
+      (add-teach-node sub-sm confirm-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :confirm-user-teach-action userdata)))
+      (add-teach-node sub-sm search-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :search-teach-action userdata)))
+      (add-teach-node sub-sm update-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :update-teach-action userdata)))
+      (add-teach-node sub-sm ask-finish-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :ask-user-finish-teach userdata)))
+      (add-teach-node sub-sm replan-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :replan-in-statenet-teach userdata)))
+      (send sub-sm :start-state wait-ready-node-name)
+      (send sub-sm :goal-state '(t))
+      (send sub-sm :add-transition wait-ready-node-name check-node-name t)
+      (send sub-sm :add-transition wait-ready-node-name t nil)
+      (send sub-sm :add-transition check-node-name confirm-node-name t)
+      (send sub-sm :add-transition check-node-name check-node-name nil)
+      (send sub-sm :add-transition confirm-node-name search-node-name t)
+      (send sub-sm :add-transition confirm-node-name check-node-name nil)
+      (send sub-sm :add-transition search-node-name update-node-name t)
+      (send sub-sm :add-transition search-node-name check-node-name nil)
+      (send sub-sm :add-transition update-node-name ask-finish-node-name t)
+      (send sub-sm :add-transition ask-finish-node-name replan-node-name t)
+      (send sub-sm :add-transition ask-finish-node-name check-node-name nil)
+      (send sub-sm :add-transition replan-node-name t t)
+      sub-sm))
   (:execute-statenet-cb (goal)
     (let ((start-state
             (if (> (length (send goal :goal :start_state :state)) 0)
