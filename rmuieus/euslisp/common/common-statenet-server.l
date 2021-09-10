@@ -56,8 +56,7 @@
           (instance statenet-planner :init
                     :graph gr :solver slvr
                     :state-func
-                    `(lambda-closure nil 0 0 (userdata)
-                                     (send ,self :statenet-state-func userdata))
+                    `(send ,self :get-statenet-state-submachine)
                     :teach-func
                     `(lambda-closure nil 0 0 (userdata)
                                      (send ,self :statenet-teach-func userdata))
@@ -135,41 +134,6 @@
           (ros::ros-error "replanning failed...")
           (ros::ros-error "cannot find a valid path to the goal-state")
           (return-from :replan-in-statenet-state-func nil)))))
-  ;; TODO (knorth55): implement teaching
-  (:statenet-teach-func (userdata)
-   (let* ((current-sm-node (send sm :active-state))
-          (current-sm-state (read-from-string (send current-sm-node :name)))
-          (before-state (cadr current-sm-state)))
-      (ros::ros-warn (format nil "teaching before state: ~A" before-state))
-      (ros::ros-error "teaching is not implemented.")
-      (return-from :statenet-teach-func t)))
-  (:statenet-state-func (userdata)
-    (tagbody retry-ask
-      (let* ((next-state (send self :ask-user-decision userdata))
-             (next-action (cdr (cdr (assoc :user-decision userdata)))))
-        (cond
-          ;; pass
-          ((equal next-state :pass)
-           (return-from :statenet-state-func t))
-          ;; abort
-          ((equal next-state :abort)
-           (return-from :statenet-state-func nil))
-          ;; teach
-          ((equal next-state :teach)
-           (return-from :statenet-state-func :teach))
-          ;; replan
-          ((equal next-state :teach)
-           (if (send self :replan-in-statenet-state-func userdata)
-             ;; replan, so this transition does not have any effect
-             (return-from :statenet-state-func t)
-             (go retry-ask)))
-          ;; next
-          ((equal next-state :next)
-           (return-from :statenet-state-func (format nil "~A" next-action)))
-          ;; something is wrong
-          ((equal user-decision nil)
-           (return-from :statenet-state-func nil))
-          (t (go retry-ask))))))
   (:ask-user-decision (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
@@ -186,6 +150,47 @@
              (ros::ros-error "something is wrong."))
             (t nil))
           (return-from :ask-user-decision (car user-decision)))))
+  (:get-statenet-state-submachine ()
+    (let ((sub-sm (instance state-machine :init))
+          (ask-node-name "(:ask)")
+          (replan-node-name "(:replan)")
+          (pass-node-name "(:pass)")
+          (abort-node-name "(:abort)")
+          (next-node-name "(:next)"))
+      (add-state-node sub-sm ask-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :ask-user-decision userdata)))
+      (add-state-node sub-sm replan-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :replan-in-statenet-state-func userdata)))
+      (add-state-node sub-sm pass-node-name
+                      `(lambda-closure nil 0 0 (userdata) t))
+      (add-state-node sub-sm abort-node-name
+                      `(lambda-closure nil 0 0 (userdata) t))
+      (add-state-node sub-sm next-node-name
+                      `(lambda-closure nil 0 0 (userdata) t))
+      (send sub-sm :start-state ask-node-name)
+      (send sub-sm :goal-state '(t nil :teach))
+      (send sub-sm :add-transition ask-node-name replan-node-name :replan)
+      (send sub-sm :add-transition ask-node-name pass-node-name :pass)
+      (send sub-sm :add-transition ask-node-name abort-node-name :abort)
+      (send sub-sm :add-transition ask-node-name next-node-name :next)
+      (send sub-sm :add-transition ask-node-name :teach :teach)
+      (send sub-sm :add-transition ask-node-name ask-node-name nil)
+      (send sub-sm :add-transition replan-node-name t t)
+      (send sub-sm :add-transition replan-node-name ask-node-name nil)
+      (send sub-sm :add-transition pass-node-name t t)
+      (send sub-sm :add-transition abort-node-name nil t)
+      (send sub-sm :add-transition next-node-name t t)
+      sub-sm))
+  ;; TODO (knorth55): implement teaching
+  (:statenet-teach-func (userdata)
+   (let* ((current-sm-node (send sm :active-state))
+          (current-sm-state (read-from-string (send current-sm-node :name)))
+          (before-state (cadr current-sm-state)))
+      (ros::ros-warn (format nil "teaching before state: ~A" before-state))
+      (ros::ros-error "teaching is not implemented.")
+      (return-from :statenet-teach-func t)))
   (:execute-statenet-cb (goal)
     (let ((start-state
             (if (> (length (send goal :goal :start_state :state)) 0)
