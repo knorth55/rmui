@@ -60,7 +60,8 @@
                                      (send ,self :statenet-state-func userdata))
                     :teach-func
                     `(lambda-closure nil 0 0 (userdata)
-                                     (send ,self :statenet-teach-func userdata))))
+                                     (send ,self :statenet-teach-func userdata))
+                    ))
     (setq device
           (instance rmui-device :init
                     :namespace device-namespace
