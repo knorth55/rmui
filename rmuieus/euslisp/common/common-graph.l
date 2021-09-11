@@ -27,6 +27,11 @@
         (setf (get n :node-type) node-type)
         (send sm :add-node n)))))
 
+(defun add-transition (sm from-name to-name arc-key)
+  (let ((arc-list (send (send sm :node from-name) :arc-list)))
+    (if (null (find arc-key arc-list :test #'equal))
+      (send sm :add-transition from-name to-name arc-key))))
+
 
 (defun add-state-node (sm name &optional (state-func #'(lambda (x) t)))
   (add-node sm name state-func :state-node))
@@ -45,14 +50,14 @@
     (let ((from-name (car ab))
           (abort-name (cdr ab)))
       (add-state-node sm from-name state-func)
-      (send sm :add-transition from-name abort-name nil))))
+      (add-transition sm from-name abort-name nil))))
 
 
 (defun add-teach-node-trans (sm from-name teach-name state-func teach-func)
-   (add-state-node sm from-name state-func)
-   (add-teach-node sm teach-name teach-func)
-   (send sm :add-transition from-name teach-name :teach)
-   (send sm :add-transition teach-name from-name t))
+  (add-state-node sm from-name state-func)
+  (add-teach-node sm teach-name teach-func)
+  (add-transition sm from-name teach-name :teach)
+  (add-transition sm teach-name from-name t))
 
 
 (defun add-smach-transition (sm from-name node-name
@@ -65,10 +70,10 @@
           (progn
             (if (null (equal smach-transition t))
               (send sub-sm :append-goal-state smach-transition))
-            (send sub-sm :add-transition "(:next)" smach-transition t)
+            (add-transition sub-sm "(:next)" smach-transition t)
             )))))
-  (send sm :add-transition from-name node-name smach-transition)
-  (if add-t-transition (send sm :add-transition from-name node-name t)))
+  (add-transition sm from-name node-name smach-transition)
+  (if add-t-transition (add-transition sm from-name node-name t)))
 
 (defun add-action-node-trans (sm from-name node-name to-name state-func action-func
                                  &key (smach-transition t) (add-t-transition nil))
@@ -78,7 +83,7 @@
                         :smach-transition smach-transition
                         :add-t-transition add-t-transition)
   (add-state-node sm to-name state-func)
-  (send sm :add-transition node-name to-name t))
+  (add-transition sm node-name to-name t))
 
 
 (defun add-nodes-from-trans
@@ -135,7 +140,7 @@
       (let ((from-name (car goal))
             (goal-name (cdr goal)))
         (add-state-node sm from-name state-func)
-        (send sm :add-transition from-name goal-name t)))
+        (add-transition sm from-name goal-name t)))
     ;; aborts
     (add-abort-nodes sm aborts state-func)
     ;; ros-info
@@ -235,10 +240,10 @@
            (first-name (format nil "~A" first-state-sym))
            (last-name (format nil "~A" last-state-sym)))
       (add-state-node sm first-name state-func)
-      (send sm :add-transition start-state first-name t)
+      (add-transition sm start-state first-name t)
       (add-node sm goal-state #'(lambda (x) t) nil)
       (add-state-node sm last-name state-func)
-      (send sm :add-transition last-name goal-state t))
+      (add-transition sm last-name goal-state t))
     ;; aborts
     (add-abort-nodes sm aborts state-func)
     ;; ros-info
