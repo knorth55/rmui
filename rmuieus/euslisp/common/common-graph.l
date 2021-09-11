@@ -27,6 +27,7 @@
         (setf (get n :node-type) node-type)
         (send sm :add-node n)))))
 
+
 (defun add-transition (sm from-name to-name arc-key)
   (let ((arc-list (send (send sm :node from-name) :arc-list)))
     (if (null (find arc-key arc-list :test #'equal))
@@ -70,7 +71,7 @@
           (progn
             (if (null (equal smach-transition t))
               (send sub-sm :append-goal-state smach-transition))
-            (add-transition sub-sm "(:next)" smach-transition t)
+            (add-transition sub-sm "(:next)" smach-transition smach-transition)
             )))))
   (add-transition sm from-name node-name smach-transition)
   (if add-t-transition (add-transition sm from-name node-name t)))

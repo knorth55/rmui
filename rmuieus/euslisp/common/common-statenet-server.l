@@ -120,6 +120,9 @@
           start-state goal-state
           :first-action first-action
           :no-loop no-loop))
+  (:next-in-statenet-state (userdata)
+    (let* ((first-action (cdr (cdr (assoc :user-decision userdata)))))
+      (return-from :next-in-statenet-state (format nil "~A" first-action))))
   (:replan-in-statenet-state (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :replan-start-state userdata)))
@@ -174,7 +177,8 @@
       (add-state-node sub-sm abort-node-name
                       `(lambda-closure nil 0 0 (userdata) t))
       (add-state-node sub-sm next-node-name
-                      `(lambda-closure nil 0 0 (userdata) t))
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :next-in-statenet-state userdata)))
       (send sub-sm :start-state ask-node-name)
       (send sub-sm :goal-state '(t nil :teach :replan))
       (add-transition sub-sm ask-node-name replan-node-name :replan)
