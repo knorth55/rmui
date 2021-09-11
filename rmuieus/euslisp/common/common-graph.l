@@ -29,8 +29,10 @@
 
 
 (defun add-transition (sm from-name to-name arc-key)
-  (let ((arc-list (send (send sm :node from-name) :arc-list)))
-    (if (null (find arc-key arc-list :test #'equal))
+  (let* ((arc-names
+           (mapcar #'(lambda (x) (send x :name))
+                   (send (send sm :node from-name) :arc-list))))
+    (if (null (find arc-key arc-names :test #'equal))
       (send sm :add-transition from-name to-name arc-key))))
 
 
