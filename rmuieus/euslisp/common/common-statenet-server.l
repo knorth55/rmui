@@ -391,7 +391,8 @@
     (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
     (if (boundp '*ri*) (send *ri* :draw-objects)))
   (:spin-once ()
-    (if device-groupname (ros::spin-once device-groupname))
+    (if device-groupname
+      (ros::spin-once device-groupname))
     (send-super :spin-once))
   )
 
