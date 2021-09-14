@@ -154,6 +154,10 @@
             ((and (consp user-decision)
                   (equal (car user-decision) :replan))
              (setf (cdr (assoc :replan-start-state userdata)) current-sm-state))
+            ;; teach
+            ((and (consp user-decision)
+                  (equal (car user-decision) :teach))
+             (setf (cdr (assoc :teach-start-state userdata)) current-sm-state))
             ;; something is wrong
             ((equal user-decision nil)
              (ros::ros-error "something is wrong."))
