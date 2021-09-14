@@ -25,7 +25,9 @@
           device
           device-namespace
           device-groupname
-          rmplanner
+          object-state-estimator
+          robot-state-estimator
+          ; rmplanner
           ;; state
           initial-state
           current-state
@@ -71,7 +73,7 @@
                     :device-frame-id device-frame-id
                     :world-frame-id world-frame-id
                     :groupname device-groupname))
-    (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
+    ; (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
 
     ;; state
     (setq initial-state '(:init))
@@ -197,9 +199,28 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
-  ;; TODO (knorth55): implement teaching
   (:wait-ready-for-teach (userdata)
-    t)
+    (let* ((start-state (cdr (assoc :teach-start-state userdata)))
+           (user-input-state nil))
+      ; (ros::rate 0.1)
+      ; (while  (not (equal start-state user-input-state))
+      ;   (let* ((update-p (send device :update-device-orientation))
+      ;          (contact-positions
+      ;            (if update-p (send device :get-contact-positions)))
+      ;          ;; TODO: implement object-state-estimator
+      ;          ; (object-state
+      ;          ;   (send object-state-estimator :get-object-state contact-positions))
+      ;          )
+      ;     ;; TODO: implement robot-stte-estimator
+      ;     ; (user-input-state
+      ;     ;   (send robot-state-estimator :get-robot-state object-state))
+      ;     (ros::ros-info "teach start state: ~A" start-state)
+      ;     (ros::ros-info "user input state : ~A" user-input-state)
+      ;     (if device-groupname
+      ;       (ros::spin-once device-groupname))
+      ;     (ros::sleep)))
+      ; (ros::ros-info "user input state: ~A" user-input-state)
+      t))
   ;; TODO (knorth55): implement teaching
   (:check-teach-scene-state (userdata)
     t)
