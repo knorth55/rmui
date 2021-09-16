@@ -1,6 +1,6 @@
-*/executed-actions.l
-*/scene-states.l
-*/pddl-graph.l
-*/statenet-graph.l
-latest
-merged-statenet-graph.l
+object_statenet/*/executed-actions.l
+object_statenet/*/scene-states.l
+object_statenet/*/pddl-graph.l
+object_statenet/*/statenet-graph.l
+object_statenet/latest
+object_statenet/merged-statenet-graph.l

@@ -3,7 +3,10 @@
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 
-(defvar *training-data-path* (ros::resolve-ros-path "package://rmuieus/training_data"))
+(defvar *training-data-path*
+  (ros::resolve-ros-path "package://rmuieus/training_data"))
+(defvar *training-object-statenet-path*
+  (format nil "~A/object_statenet" *training-data-path*))
 
 
 (defun get-iso-stamp ()
