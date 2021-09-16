@@ -1,6 +1,11 @@
+# object_statenet
 object_statenet/*/executed-actions.l
 object_statenet/*/scene-states.l
 object_statenet/*/pddl-graph.l
 object_statenet/*/statenet-graph.l
 object_statenet/latest
 object_statenet/merged-statenet-graph.l
+# collabo_statenet
+collabo_statenet/*/statenet-graph.l
+collabo_statenet/latest
+collabo_statenet/merged-statenet-graph.l
