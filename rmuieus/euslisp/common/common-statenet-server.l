@@ -15,6 +15,7 @@
   :slots (namespace
           groupname
           show-pdf
+          data-dir
           ;; statenet
           slvr
           sm
@@ -43,6 +44,8 @@
                ((:device-namespace devns))
                ((:device-groupname devgpn))
                ((:show-pdf shpdf) nil)
+               ((:data-dir ddir)
+                *training-object-statenet-path*)
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
                &rest args)
@@ -53,9 +56,12 @@
     (setq device-groupname devgpn)
     (setq reset-state rs)
     (setq show-pdf shpdf)
+    (setq data-dir ddir)
 
     ;; instances
-    (setq gr (load-merged-statenet-graph-with-reset reset-state))
+    (setq gr
+          (load-merged-statenet-graph-with-reset
+            reset-state :data-dir data-dir))
     (setq slvr (instance *solver-class* :init))
     (setq stplanner
           (instance statenet-planner :init

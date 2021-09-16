@@ -22,10 +22,14 @@
   (add-action-state-in-graph gr '(action-init) '(:init) reset-state))
 
 
-(defun load-merged-statenet-graph-with-reset (reset-state)
-  (let ((gr (merge-statenet-graphs (load-all-statenet-graph))))
-    (if (null gr) (setq gr (load-merged-statenet-graph)))
-    (dump-merged-statenet-graph gr)
+(defun load-merged-statenet-graph-with-reset
+  (reset-state
+    &key (data-dir *training-data-path*))
+  (let ((gr (merge-statenet-graphs
+              (load-all-statenet-graph :data-dir data-dir))))
+    (if (null gr)
+      (setq gr (load-merged-statenet-graph :data-dir data-dir)))
+    (dump-merged-statenet-graph gr :data-dir data-dir)
     (add-initial-state gr reset-state)
     gr))
 

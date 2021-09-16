@@ -22,6 +22,7 @@
           executed-actions
           pddl-gr
           statenet-gr
+          data-dir
           dump-dir
           larm-contact-state-conditions
           rarm-contact-state-conditions
@@ -32,13 +33,16 @@
 
 
 (defmethod rmui-updater
-  (:init (&key ((:namespace ns)))
+  (:init (&key ((:namespace ns))
+               ((:data-dir ddir)
+                *training-object-statenet-path*))
     (setq namespace (if ns ns ""))
 
     ;; initialize
     (setq executed-actions nil)
     (setq pddl-gr (instance pddl-graph :init))
     (setq statenet-gr (instance statenet-graph :init))
+    (setq data-dir ddir)
     (setq dump-dir nil)
 
     ;; initial conditions
@@ -123,11 +127,11 @@
         (send self :add-action-state-in-statenet-graph action prev-scene-state scene-state)
         t)))
   (:dump-files ()
-    (if (null dump-dir) (setq dump-dir (create-dump-dir)))
-    (dump-scene-states scene-states)
-    (dump-executed-actions executed-actions)
-    (dump-pddl-graph pddl-gr)
-    (dump-statenet-graph statenet-gr)))
+    (if (null dump-dir) (setq dump-dir (create-dump-dir data-dir)))
+    (dump-scene-states scene-states :data-dir data-dir)
+    (dump-executed-actions executed-actions :data-dir data-dir)
+    (dump-pddl-graph pddl-gr :data-dir data-dir)
+    (dump-statenet-graph statenet-gr :data-dir data-dir)))
 
 
 (provide :common-rmui-updater "common-rmui-updater.l")
