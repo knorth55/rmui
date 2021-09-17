@@ -17,6 +17,7 @@
           show-pdf
           object-statenet-dir
           collabo-statenet-dir
+          dump-dir
           ;; statenet
           slvr
           sm
@@ -61,6 +62,7 @@
     (setq show-pdf shpdf)
     (setq object-statenet-dir objnet-dir)
     (setq collabo-statenet-dir clbnet-dir)
+    (setq dump-dir nil)
 
     ;; instances
     (setq gr
@@ -91,12 +93,17 @@
     (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
     (send self :init-timer)
     (ros::ros-info "init finished")
+    (send self :dump-files)
     (if show-pdf (send self :show-statenet-pdf))
     self)
   (:graph () gr)
   (:solver () slvr)
   (:statenet-planner () stplanner)
   (:state-machine () sm)
+  (:dump-files ()
+    (if (null dump-dir)
+      (setq dump-dir (create-dump-dir collabo-statenet-dir)))
+    (dump-statenet-graph gr :data-dir collabo-statenet-dir))
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
@@ -359,6 +366,7 @@
           ;; check if sm is not nil for replanning
           (if (null sm)
             (progn
+              (send self :dump-files)
               (send result :result :stamp
                     (ros::time- (ros::time-now) start-stamp))
               (send result :result :success nil)
@@ -387,6 +395,7 @@
             ;; cancel
             (if (send self :is-preempt-requested)
               (progn
+                (send self :dump-files)
                 (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
                 (send result :result :success nil)
                 (send result :result :final_state :state (format nil "~A" current-state))
@@ -407,6 +416,7 @@
       (let* ((final-state (send (send sm :active-state) :name))
              (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
              (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
+        (send self :dump-files)
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
         (send result :result :success (and goalp (null abortp)))
         (send result :result :final_state :state (format nil "~A" current-state))
