@@ -7,6 +7,8 @@
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 
+(ros::roseus-add-msgs "std_msgs")
+
 
 ;; state
 
@@ -34,12 +36,30 @@
     gr))
 
 
-(defun ros-yes-or-no-p (ask-sentence &key (use-default t) (default t))
+(defun get-user-response (&key (mode :ros) (timeout nil) (namespace nil))
+  (cond
+    ;; timeout is not valid for read-line
+    ((equal mode :read-line)
+     (read-line t))
+    ((equal mode :ros)
+     (one-shot-subscribe
+       (if namespace (format nil "~A/user_response" namespace) "/user_response")
+       std_msgs::String :timeout timeout))
+    (t nil)))
+
+
+(defun ros-yes-or-no-p
+  (ask-sentence
+    &key (use-default t) (default t) (mode :ros) (timeout nil) (namespace nil))
   (let ((response))
     (tagbody retry-yes-or-no
       (ros::ros-info ask-sentence)
       (finish-output t)
-      (setq response (string-upcase (read-line t)))
+      (setq response
+            (string-upcase
+              (get-user-response
+                :mode mode :timeout timeout
+                :namespace namespace)))
       (cond
         ((or (string= response "YES")
              (string= response "Y"))
@@ -57,13 +77,18 @@
            (go retry-yes-or-no))))))
 
 
-(defun ros-index-choose (ask-sentence min-index max-index
-                                      &key (use-default t) (default-index 0))
+(defun ros-index-choose
+  (ask-sentence min-index max-index
+    &key (use-default t) (default-index 0)
+    (mode :ros) (timeout nil) (namespace nil))
   (let ((response))
     (tagbody retry-index-choose
       (ros::ros-info ask-sentence)
       (finish-output t)
-      (setq response (read-line t))
+      (setq response
+            (get-user-response
+              :mode :ros :timeout timeout
+              :namespace namespace))
       (if (string= response "")
         (if use-default
           (return-from ros-index-choose default-index)
@@ -84,7 +109,43 @@
               (go retry-index-choose))))))))
 
 
-(defun ask-user-decision (sm gr)
+(defun ask-user-index-choose
+  (actions &key (use-default t) (default-index 0) (mode :ros) (timeout nil) (namespace nil))
+  (let ((info-sentence
+          (format nil "Default action: (~A) ~A"
+                         default-index (elt actions default-index)))
+        (ask-sentence
+          (format nil "Which action do you choose ? (Default: ~A)" default-index)))
+    (if use-default (ros::ros-info info-sentence))
+    (ros-index-choose ask-sentence -1 (- (length actions) 1)
+                      :use-default use-default :default-index default-index
+                      :mode mode :timeout timeout :namespace namespace)))
+
+
+(defun ask-user-teaching (&key (mode :ros) (timeout nil) (namespace nil))
+  (let ((ask-sentence
+          (format nil "Do you want to teach a new action? : ")))
+    (ros-yes-or-no-p ask-sentence :use-default nil
+                     :mode mode :timeout timeout :namespace namespace)))
+
+
+(defun ask-user-next-action (next-action &key (mode :ros) (timeout nil) (namespace nil))
+  (let ((ask-sentence
+          (format nil "Do you want to start next action ~A ? : " next-action)))
+    (ros-yes-or-no-p ask-sentence :use-default t :default t
+                     :mode mode :timeout timeout :namespace namespace)))
+
+
+(defun ask-user-abortion (&key (mode :ros) (timeout nil) (namespace nil))
+  (let ((ask-sentence
+          (format nil "Are you sure to abort the execution ? : ")))
+    (ros-yes-or-no-p ask-sentence :use-default nil
+                     :mode mode :timeout timeout :namespace namespace)))
+
+
+(defun ask-user-decision
+  (sm gr
+    &key (mode :ros) (timeout nil) (namespace nil))
   (let* ((current-sm-node (send sm :active-state))
          (current-state (read-from-string (send current-sm-node :name)))
          (current-gr-node (send gr :search-node-from-pddl-state current-state))
@@ -133,14 +194,16 @@
                (setq chosen-index
                      (ask-user-index-choose
                        next-gr-actions :use-default t
-                       :default-index default-index))
+                       :default-index default-index
+                       :mode mode :timeout timeout :namespace namespace))
                (if (>= chosen-index 0)
                  (if (equal default-index chosen-index)
                    (return-from ask-user-decision
                                 (cons :next (elt next-gr-actions chosen-index)))
                    (return-from ask-user-decision
                                 (cons :replan (elt next-gr-actions chosen-index))))
-                 (if (ask-user-teaching)
+                 (if (ask-user-teaching
+                       :mode mode :timeout timeout :namespace namespace)
                    (return-from ask-user-decision (cons :teach nil))
                    (go retry-ask-user-decision)))))
             ;; if next action is only one
@@ -152,44 +215,19 @@
                  (ros::ros-info (format nil "current-state: ~A" current-state))
                  (ros::ros-info (format nil "next-action  : ~A" next-action))
                  (ros::ros-info (format nil "next-state   : ~A" next-state))
-                 (if (ask-user-next-action next-action)
+                 (if (ask-user-next-action
+                       next-action
+                       :mode mode :timeout timeout :namespace namespace)
                    (return-from ask-user-decision (cons :next next-action))
-                   (if (ask-user-teaching)
+                   (if (ask-user-teaching
+                         :mode mode :timeout timeout :namespace namespace)
                      (return-from ask-user-decision :teach)
-                     (if (ask-user-abortion)
+                     (if (ask-user-abortion
+                           :mode mode :timeout timeout :namespace namespace)
                        (return-from ask-user-decision (cons :abort nil))
                        (go retry-ask-user-decision)))))))
             (t nil))))
       (cons :pass nil))))
-
-
-(defun ask-user-index-choose (actions &key (use-default t) (default-index 0))
-  (let ((info-sentence
-          (format nil "Default action: (~A) ~A"
-                         default-index (elt actions default-index)))
-        (ask-sentence
-          (format nil "Which action do you choose ? (Default: ~A)" default-index)))
-    (if use-default (ros::ros-info info-sentence))
-    (ros-index-choose ask-sentence -1 (- (length actions) 1)
-                      :use-default use-default :default-index default-index)))
-
-
-(defun ask-user-teaching ()
-  (let ((ask-sentence
-          (format nil "Do you want to teach a new action? : ")))
-    (ros-yes-or-no-p ask-sentence :use-default nil)))
-
-
-(defun ask-user-next-action (next-action)
-  (let ((ask-sentence
-          (format nil "Do you want to start next action ~A ? : " next-action)))
-    (ros-yes-or-no-p ask-sentence :default t)))
-
-
-(defun ask-user-abortion ()
-  (let ((ask-sentence
-          (format nil "Are you sure to abort the execution ? : ")))
-    (ros-yes-or-no-p ask-sentence :use-default nil)))
 
 
 (provide :common-statenet "common-statenet.l")

@@ -13,6 +13,7 @@
 (defclass statenet-action-server
   :super ros::simple-action-server
   :slots (namespace
+          server-namespace
           groupname
           show-pdf
           object-statenet-dir
@@ -42,6 +43,8 @@
 
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
+               ((:server-namespace srvns)
+                "/statenet_action_server")
                ((:groupname gpn))
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
@@ -57,6 +60,7 @@
                &rest args)
     (send-super* :init ns sp :groupname gpn args)
     (setq namespace ns)
+    (setq server-namespace srvns)
     (setq groupname gpn)
     (setq device-namespace devns)
     (setq device-groupname devgpn)
@@ -179,7 +183,10 @@
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
-        (let ((user-decision (ask-user-decision sm gr)))
+        (let ((user-decision
+                (ask-user-decision sm gr
+                                   :mode :read-line :timeout nil
+                                   :namespace server-namespace)))
           (setf (cdr (assoc :user-decision userdata)) user-decision)
           (cond
             ;; replan
