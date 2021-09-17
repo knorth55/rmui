@@ -26,7 +26,8 @@
 
 (defun link-latest-dump-dir (data-dir dump-dir)
   (let ((latest-dir (format nil "~A/latest" data-dir)))
-    (unix::system (format nil "rm ~A" latest-dir))
+    (if (probe-file latest-dir)
+      (unix::system (format nil "rm ~A" latest-dir)))
     (unix::system (format nil "ln -sf ~A ~A" dump-dir latest-dir)))
   dump-dir)
 
