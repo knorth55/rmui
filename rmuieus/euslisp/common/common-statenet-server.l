@@ -239,7 +239,7 @@
   (:wait-ready-for-teach (userdata)
     (let* ((start-state (cdr (assoc :teach-start-state userdata)))
            (user-input-state nil))
-      ; (ros::rate 0.1)
+      ; (ros::rate 10)
       ; (while  (not (equal start-state user-input-state))
       ;   (let* ((update-p (send device :update-device-orientation))
       ;          (contact-positions
@@ -376,7 +376,7 @@
                              (cons :goal-state goal-state)
                              (cons :user-decision nil)
                              (cons :replan-start-state nil)))
-             (hz 1.0)
+             (hz 5.0)
              (execute-stamp (get-iso-stamp)))
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
