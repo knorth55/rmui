@@ -108,13 +108,14 @@
       (setq dump-statenet-dir
             (create-dump-dir collabo-statenet-dir)))
     (dump-statenet-graph gr :data-dir collabo-statenet-dir))
-  (:dump-executed-state-actions ()
+  (:dump-executed-state-actions (execute-stamp)
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
             (create-dump-dir collabo-statenet-dir)))
     (if executed-state-actions
       (dump-executed-state-actions executed-state-actions
-                                   :data-dir collabo-statenet-dir)))
+                                   :data-dir collabo-statenet-dir
+                                   :execute-stamp execute-stamp)))
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
@@ -368,7 +369,8 @@
                              (cons :goal-state goal-state)
                              (cons :user-decision nil)
                              (cons :replan-start-state nil)))
-             (hz 1.0))
+             (hz 1.0)
+             (execute-stamp (get-iso-stamp)))
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
         (ros::rate hz)
@@ -443,7 +445,7 @@
                                    (list :state-action node-sym)
                                    (list :start-stamp relative-execute-start-sec)
                                    (list :end-stamp relative-execute-end-sec)))))
-                   (send self :dump-executed-state-actions)
+                   (send self :dump-executed-state-actions execute-stamp)
                    (ros::ros-info (format nil "current-state: ~A" current-state)))
                   ((equal node-type :action-node)
                    (setq executed-state-actions
@@ -454,7 +456,7 @@
                                    (list :state-action (car node-sym))
                                    (list :start-stamp relative-execute-start-sec)
                                    (list :end-stamp relative-execute-end-sec)))))
-                   (send self :dump-executed-state-actions)
+                   (send self :dump-executed-state-actions execute-stamp)
                    (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
                   ((equal node-type :teach-node)
                    (ros::ros-info (format nil "teach-state: ~A" node-sym)))
