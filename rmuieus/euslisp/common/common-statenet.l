@@ -93,10 +93,10 @@
            (remove nil
              (mapcar #'(lambda (trans)
                          (if (equal (send trans :name) t)
-                           (let ((action
-                                   (car (read-from-string
-                                          (send (send trans :to) :name)))))
-                             (if (listp action) action nil))))
+                           (let* ((to-name-sym
+                                    (read-from-string (send (send trans :to) :name)))
+                                  (action (if (listp to-name-sym) (car to-name-sym))))
+                             (if (and action (listp action)) action nil))))
                      (send current-sm-node :arc-list)))))
     (if (and next-sm-actions gr-acts)
       (let* ((next-gr-actions
