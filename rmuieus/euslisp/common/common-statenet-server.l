@@ -157,6 +157,7 @@
           (send self :set-start-state :action first-action
                 :state start-state)
           (send self :initialize-state-machine userdata)
+          (send self :dump-files)
           (return-from :replan-in-statenet-state t))
         (progn
           (ros::ros-error "replanning failed...")
