@@ -171,4 +171,16 @@
       (read merged-statenet-graph-f))))
 
 
+(defun dump-executed-state-actions
+  (executed-state-actions
+    &key (data-dir *training-data-path*)
+    (path nil) (stamp "latest") (filename "executed-state-actions.l"))
+  (let* ((currentpath
+           (format nil "~A/~A/~A" data-dir stamp (get-iso-stamp)))
+         (filepath
+           (if path path (format nil "~A/~A" currentpath filename))))
+    (unix::system (format nil "mkdir -p ~A" currentpath))
+    (dump-structure filepath executed-state-actions)))
+
+
 (provide :common-io "common-io.l")

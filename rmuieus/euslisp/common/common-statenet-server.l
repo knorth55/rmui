@@ -17,7 +17,9 @@
           show-pdf
           object-statenet-dir
           collabo-statenet-dir
-          dump-dir
+          dump-statenet-dir
+          ;; execution
+          executed-state-actions
           ;; statenet
           slvr
           sm
@@ -46,12 +48,12 @@
                ((:device-namespace devns))
                ((:device-groupname devgpn))
                ((:show-pdf shpdf) nil)
-               ((:object-statenet-dir objnet-dir)
-                *training-object-statenet-path*)
-               ((:collabo-statenet-dir clbnet-dir)
-                *training-collabo-statenet-path*)
-               (prx-threshold) (prx-position-threshold)
-               (device-frame-id) (world-frame-id)
+               ((:object-statenet-dir objnet-dir) *training-object-statenet-path*)
+               ((:collabo-statenet-dir clbnet-dir) *training-collabo-statenet-path*)
+               (prx-threshold)
+               (prx-position-threshold)
+               (device-frame-id)
+               (world-frame-id)
                &rest args)
     (send-super* :init ns sp :groupname gpn args)
     (setq namespace ns)
@@ -62,7 +64,8 @@
     (setq show-pdf shpdf)
     (setq object-statenet-dir objnet-dir)
     (setq collabo-statenet-dir clbnet-dir)
-    (setq dump-dir nil)
+    (setq dump-statenet-dir nil)
+    (setq executed-state-actions nil)
 
     ;; instances
     (setq gr
@@ -93,17 +96,25 @@
     (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
     (send self :init-timer)
     (ros::ros-info "init finished")
-    (send self :dump-files)
+    (send self :dump-collabo-statenet)
     (if show-pdf (send self :show-statenet-pdf))
     self)
   (:graph () gr)
   (:solver () slvr)
   (:statenet-planner () stplanner)
   (:state-machine () sm)
-  (:dump-files ()
-    (if (null dump-dir)
-      (setq dump-dir (create-dump-dir collabo-statenet-dir)))
+  (:dump-collabo-statenet ()
+    (if (null dump-statenet-dir)
+      (setq dump-statenet-dir
+            (create-dump-dir collabo-statenet-dir)))
     (dump-statenet-graph gr :data-dir collabo-statenet-dir))
+  (:dump-executed-state-actions ()
+    (if (null dump-statenet-dir)
+      (setq dump-statenet-dir
+            (create-dump-dir collabo-statenet-dir)))
+    (if executed-state-actions
+      (dump-executed-state-actions executed-state-actions
+                                   :data-dir collabo-statenet-dir)))
   (:execute-cb ()
    (if (send self :goal)
      (send self :execute-statenet-cb (send self :goal)))
@@ -157,7 +168,7 @@
           (send self :set-start-state :action first-action
                 :state start-state)
           (send self :initialize-state-machine userdata)
-          (send self :dump-files)
+          (send self :dump-collabo-statenet)
           (return-from :replan-in-statenet-state t))
         (progn
           (ros::ros-error "replanning failed...")
@@ -361,13 +372,14 @@
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
         (ros::rate hz)
+        (setq executed-state-actions nil)
         (while (ros::ok)
           (send self :spin-once)
           (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
           ;; check if sm is not nil for replanning
           (if (null sm)
             (progn
-              (send self :dump-files)
+              (send self :dump-collabo-statenet)
               (send result :result :stamp
                     (ros::time- (ros::time-now) start-stamp))
               (send result :result :success nil)
@@ -382,11 +394,22 @@
             ;; check node type
             (ros::ros-info (format nil "active-state: ~A" node-name))
             (ros::ros-info (format nil "node-type   : ~A" node-type))
+            ;; append executed paths
             (cond
               ((equal node-type :state-node)
                (setq current-state node-sym)
+               (let ((state-action (list node-type current-state)))
+                 (if (null (equal (car (last executed-state-actions))
+                                  state-action))
+                   (setq executed-state-actions
+                         (append executed-state-actions (list state-action)))))
                (ros::ros-info (format nil "current-state: ~A" current-state)))
               ((equal node-type :action-node)
+               (let ((state-action (list node-type (car node-sym))))
+                 (if (null (equal (car (last executed-state-actions))
+                                  state-action))
+                   (setq executed-state-actions
+                         (append executed-state-actions (list state-action)))))
                (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
               ((equal node-type :teach-node)
                (ros::ros-info (format nil "teach-state: ~A" node-sym)))
@@ -396,7 +419,7 @@
             ;; cancel
             (if (send self :is-preempt-requested)
               (progn
-                (send self :dump-files)
+                (send self :dump-collabo-statenet)
                 (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
                 (send result :result :success nil)
                 (send result :result :final_state :state (format nil "~A" current-state))
@@ -404,6 +427,7 @@
                 (return-from :execute-statenet-cb nil)))
             ;; execute
             (send sm :execute userdata :step -1)
+            (send self :dump-executed-state-actions)
             ;; feedback
             (send feedback :feedback :stamp
                   (ros::time- (ros::time-now) start-stamp))
@@ -417,7 +441,7 @@
       (let* ((final-state (send (send sm :active-state) :name))
              (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
              (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
-        (send self :dump-files)
+        (send self :dump-collabo-statenet)
         (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
         (send result :result :success (and goalp (null abortp)))
         (send result :result :final_state :state (format nil "~A" current-state))
