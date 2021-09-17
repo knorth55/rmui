@@ -30,7 +30,7 @@
           device-groupname
           object-state-estimator
           robot-state-estimator
-          ; rmplanner
+          ;; rmplanner
           ;; state
           initial-state
           current-state
