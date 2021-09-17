@@ -112,9 +112,9 @@
 (defun convert-graph-to-smach
   (gr start-state &key (state-func #'(lambda (x) t)) (teach-func nil))
   (let ((sm (instance state-machine :init))
+        (abort-name ":abort")
         (goals nil)
-        (aborts nil)
-        (abort-index 0))
+        (aborts nil))
     (dolist (node (send gr :nodes))
       (let* ((from-state-sym (convert-string-to-sym (send node :name)))
              (from-name (format nil "~A" from-state-sym))
@@ -122,8 +122,9 @@
         (add-state-node sm from-name state-func)
         (if (null acts)
           (setq goals
-                (append goals (list (cons from-name
-                                          (format nil "(:goal~A)" (length goals)))))))
+                (append goals
+                        (list (cons from-name
+                                    (format nil ":goal~A" (length goals)))))))
         (dolist (act acts)
           (let* ((action-name (car act))
                  (action-sym (read-from-string action-name))
@@ -134,18 +135,16 @@
                  (to-node (cdr act))
                  (to-state-sym (convert-string-to-sym (send to-node :name)))
                  (to-name (format nil "~A" to-state-sym))
-                 (abort-name (format nil "(:abort~A)" abort-index))
                  (teach-name (format nil "~A" (list :teach from-state-sym))))
             (add-action-node-trans sm from-name node-name to-name state-func action-func
                                    :smach-transition t :add-t-transition nil)
             (if teach-func
               (add-teach-node-trans sm from-name teach-name state-func teach-func))
-            (setq aborts (append aborts (list (cons from-name abort-name))))
-            (setq abort-index (+ abort-index 1))))))
+            (setq aborts (append aborts (list (cons from-name abort-name))))))))
     ;; start-state
     (send sm :start-state start-state)
     ;; goal-state
-    (send sm :goal-state (append (mapcar #'cdr goals) (mapcar #'cdr aborts)))
+    (send sm :goal-state (append (mapcar #'cdr goals) (list abort-name)))
     ;; goals
     (add-goal-nodes sm goals state-func)
     ;; aborts
@@ -162,10 +161,10 @@
 (defun convert-solution-to-smach
   (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
   (let ((sm (instance state-machine :init))
-        (start-state "(:start)")
-        (goal-state "(:goal)")
+        (start-state ":start")
+        (goal-state ":goal")
+        (abort-name ":abort")
         (aborts nil)
-        (abort-index 0)
         (trans-alist nil))
     (dolist (sn solution)
       (let ((ac (send sn :action)))
@@ -202,7 +201,6 @@
                  (from-state-sym (car trans-a))
                  (from-name (format nil "~A" from-state-sym))
                  (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
-                 (abort-name (format nil "(:abort~A)" abort-index))
                  (teach-name (format nil "~A" (list :teach from-state-sym))))
             (add-nodes-from-trans
               sm trans :state-func state-func
@@ -212,13 +210,11 @@
             (if teach-func
               (add-teach-node-trans sm from-name teach-name state-func teach-func))
             (setq aborts (append aborts (list (cons from-name abort-name))))
-            (setq abort-index (+ abort-index 1))
             (setq current-state-sym to-state-sym))))
       (dolist (trans-a trans-alist)
         (let* ((trans-list (cdr trans-a))
                (from-state-sym (car trans-a))
                (from-name (format nil "~A" from-state-sym))
-               (abort-name (format nil "(:abort~A)" abort-index))
                (teach-name (format nil "~A" (list :teach from-state-sym)))
                (trans-index 0))
           (dolist (trans trans-list)
@@ -231,12 +227,12 @@
           (if teach-func
             (add-teach-node-trans sm from-name teach-name state-func teach-func))
           (setq aborts (append aborts (list (cons from-name abort-name))))
-          (setq abort-index (+ abort-index 1)))))
+          )))
     ;; start-state
     (add-node sm start-state #'(lambda (x) t) nil)
     (send sm :start-state start-state)
     ;; goal-state
-    (send sm :goal-state (append (list goal-state) (mapcar #'cdr aborts)))
+    (send sm :goal-state (list goal-state abort-name))
     ;; start and goal
     (let* ((first-state-sym
              (convert-string-to-sym
