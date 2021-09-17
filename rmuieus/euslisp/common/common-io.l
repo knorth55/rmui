@@ -174,12 +174,15 @@
 (defun dump-executed-state-actions
   (executed-state-actions
     &key (data-dir *training-data-path*)
-    (path nil) (stamp "latest") (filename "executed-state-actions.l"))
+    (path nil) (stamp "latest")
+    (execute-stamp (get-iso-stamp))
+    (filename "executed-state-actions.l"))
   (let* ((currentpath
-           (format nil "~A/~A/~A" data-dir stamp (get-iso-stamp)))
+           (format nil "~A/~A/~A" data-dir stamp execute-stamp))
          (filepath
            (if path path (format nil "~A/~A" currentpath filename))))
-    (unix::system (format nil "mkdir -p ~A" currentpath))
+    (if (null (probe-file currentpath))
+      (unix::system (format nil "mkdir -p ~A" currentpath)))
     (dump-structure filepath executed-state-actions)))
 
 
