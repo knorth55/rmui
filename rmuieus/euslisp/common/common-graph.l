@@ -56,6 +56,14 @@
       (add-transition sm from-name abort-name nil))))
 
 
+(defun add-goal-nodes (sm goals state-func)
+  (dolist (gl goals)
+    (let ((from-name (car gl))
+          (goal-name (cdr gl)))
+      (add-state-node sm from-name state-func)
+      (add-transition sm from-name goal-name t))))
+
+
 (defun add-teach-node-trans (sm from-name teach-name state-func teach-func)
   (add-state-node sm from-name state-func)
   (add-teach-node sm teach-name teach-func)
@@ -139,11 +147,7 @@
     ;; goal-state
     (send sm :goal-state (append (mapcar #'cdr goals) (mapcar #'cdr aborts)))
     ;; goals
-    (dolist (goal goals)
-      (let ((from-name (car goal))
-            (goal-name (cdr goal)))
-        (add-state-node sm from-name state-func)
-        (add-transition sm from-name goal-name t)))
+    (add-goal-nodes sm goals state-func)
     ;; aborts
     (add-abort-nodes sm aborts state-func)
     ;; ros-info
