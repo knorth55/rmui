@@ -1,0 +1,8 @@
+publish_interval: 100
+settings:
+  /statenet_server/user_response/data:
+    is_repeat: false
+    max: 0
+    min: 0
+texts:
+- /statenet_server/user_response/data
