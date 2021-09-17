@@ -6,11 +6,12 @@
   <arg name="pdf-flag" value="t" if="$(arg pdf)" />
   <arg name="pdf-flag" value="nil" unless="$(arg pdf)" />
 
-  <node pkg="rmuieus" name="statenet_server" type="$(arg robot)-statenet-server.l" if="$(arg main)"
-        args="&quot;(main :pdf $(arg pdf-flag))&quot;" output="screen">
+  <node name="statenet_server" pkg="rmuieus" type="$(arg robot)-statenet-server.l"
+        args="&quot;(main :pdf $(arg pdf-flag))&quot;" output="screen"
+        if="$(arg main)">
   </node>
 
-  <node pkg="smach_viewer" name="smach_viewer" type="smach_viewer.py" />
+  <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" />
 
   <node name="rqt_ez_publisher" pkg="rqt_ez_publisher" type="rqt_ez_publisher"
         args="--slider-file $(find rmuieus)/resource/rqt_ez_publisher.yaml" />
