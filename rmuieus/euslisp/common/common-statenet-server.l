@@ -1,6 +1,8 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :common-statenet-planner
          "package://rmuieus/euslisp/common/common-statenet-planner.l")
+(require :common-statenet-interactor
+         "package://rmuieus/euslisp/common/common-statenet-interactor.l")
 (require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 
@@ -14,6 +16,7 @@
   :super ros::simple-action-server
   :slots (namespace
           server-namespace
+          server-groupname
           groupname
           show-pdf
           object-statenet-dir
@@ -27,6 +30,7 @@
           insp
           gr
           stplanner
+          stinteractor
           ;; rmui
           device
           device-namespace
@@ -43,8 +47,9 @@
 
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
-               ((:server-namespace srvns)
-                "/statenet_action_server")
+               ((:server-namespace srvns) "/statenet_server")
+               ((:server-groupname srvgpn)
+                "statenet_server")
                ((:groupname gpn))
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
@@ -61,6 +66,7 @@
     (send-super* :init ns sp :groupname gpn args)
     (setq namespace ns)
     (setq server-namespace srvns)
+    (setq server-groupname srvgpn)
     (setq groupname gpn)
     (setq device-namespace devns)
     (setq device-groupname devgpn)
@@ -84,6 +90,11 @@
                     :teach-func
                     `(send ,self :get-statenet-teach-submachine)
                     ))
+    (setq stinteractor
+          (instance statenet-interactor :init
+                    :namespace server-namespace
+                    :groupname server-groupname
+                    :mode :ros))
     (setq device
           (instance rmui-device :init
                     :namespace device-namespace
@@ -184,9 +195,7 @@
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
         (let ((user-decision
-                (ask-user-decision sm gr
-                                   :mode :read-line :timeout nil
-                                   :namespace server-namespace)))
+                (send stinteractor :ask-user-decision sm gr :timeout nil)))
           (setf (cdr (assoc :user-decision userdata)) user-decision)
           (cond
             ;; replan
@@ -500,6 +509,8 @@
   (:spin-once ()
     (if device-groupname
       (ros::spin-once device-groupname))
+    (if server-groupname
+      (ros::spin-once server-groupname))
     (send-super :spin-once))
   )
 
