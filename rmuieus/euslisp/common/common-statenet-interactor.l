@@ -33,13 +33,17 @@
       ;; timeout is not valid for read-line
       ((equal mode :read-line)
        (read-line t))
-      ;; TODO: implement timeout
       ((equal mode :ros)
        (let ((start-stamp (ros::time-now)))
          (ros::rate 10)
          (while (null response)
            (if (and timeout
-                    (> (send (ros::time- (ros::time-now) (start-stamp)) :to-sec) timeout))
+                    (> (send
+                         (ros::time-
+                           (ros::time-now)
+                           (start-stamp))
+                         :to-nsec)
+                       (* timeout 1e9)))
              (return))
            (ros::spin-once groupname))
          (let ((tmp-response (copy-seq response)))
