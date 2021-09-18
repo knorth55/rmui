@@ -171,19 +171,44 @@
       (read merged-statenet-graph-f))))
 
 
-(defun dump-executed-state-actions
-  (executed-state-actions
+(defun dump-executed-collabo-path
+  (executed-collabo-path
     &key (data-dir *training-collabo-statenet-path*)
     (path nil) (stamp "latest")
     (execute-stamp (get-iso-stamp))
-    (filename "executed-state-actions.l"))
+    (filename "executed-collabo-path.l"))
   (let* ((currentpath
            (format nil "~A/~A/~A" data-dir stamp execute-stamp))
          (filepath
            (if path path (format nil "~A/~A" currentpath filename))))
     (if (null (probe-file currentpath))
       (unix::system (format nil "mkdir -p ~A" currentpath)))
-    (dump-structure filepath executed-state-actions)))
+    (dump-structure filepath executed-collabo-path)))
+
+
+(defun load-executed-collabo-path
+  (&key (data-dir *training-collabo-statenet-path*)
+        (path nil) (stamp "latest") (filename "executed-collabo-path.l"))
+  (let ((executed-collabo-path nil)
+        (dumppath (if path path (format nil "~A/~A" data-dir stamp))))
+    (dolist (dump-dirname (get-dump-dirnames dumppath))
+      (let ((filepath (format nil "~A/~A/~A" dumppath dump-dirname filename)))
+        (with-open-file (executed-collabo-path-f filepath)
+          (setq executed-collabo-path
+                (append executed-collabo-path
+                        (list (read executed-collabo-path-f) ))))))
+    executed-collabo-path))
+
+
+(defun load-all-executed-collabo-path
+  (&key (data-dir *training-collabo-statenet-path*))
+  (let ((executed-collabo-path nil))
+    (dolist (dump-dirname (get-dump-dirnames data-dir))
+      (setq executed-collabo-path
+            (append executed-collabo-path
+                    (load-executed-collabo-path :data-dir data-dir
+                                                 :stamp dump-dirname))))
+    executed-collabo-path))
 
 
 (provide :common-io "common-io.l")
