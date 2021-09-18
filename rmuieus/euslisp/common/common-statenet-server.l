@@ -330,11 +330,63 @@
       (add-transition sub-sm ask-finish-node-name check-node-name nil)
       (add-transition sub-sm replan-node-name t t)
       sub-sm))
+  (:simplify-trained-collabo-path (collabo-path)
+    (let ((simple-collabo-path (list (car collabo-path)))
+          (prev-node-type)
+          (prev-state-action nil)
+          (start-stamp-list nil)
+          (end-stamp-list nil)
+          (current-n))
+      (dolist (n (cdr collabo-path))
+        (let ((node-type (cadr (assoc :node-type n)))
+              (state-action (cadr (assoc :state-action n)))
+              (start-stamp (cadr (assoc :start-stamp n)))
+              (end-stamp (cadr (assoc :end-stamp n))))
+          (cond
+            ;; initial
+            ((and (null prev-node-type)
+                  (null prev-state-action))
+             (setq start-stamp-list (list start-stamp))
+             (setq end-stamp-list (list end-stamp))
+             (setq current-n
+                   (mapcar
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
+             )
+            ;; continue
+            ((and (equal prev-node-type node-type)
+                  (equal prev-state-action state-action))
+             (setq start-stamp-list
+                   (append start-stamp-list (list start-stamp)))
+             (setq end-stamp-list
+                   (append end-stamp-list (list end-stamp))))
+            ;; diff
+            (t
+             (setf (cadr (assoc :start-stamp current-n))
+                   (reduce #'min start-stamp-list))
+             (setf (cadr (assoc :end-stamp current-n))
+                   (reduce #'max end-stamp-list))
+             (setq simple-collabo-path
+                   (append simple-collabo-path (list current-n)))
+             (setq start-stamp-list (list start-stamp))
+             (setq end-stamp-list (list end-stamp))
+             (setq current-n
+                   (mapcar
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
+             ))
+          (setq prev-node-type node-type)
+          (setq prev-state-action state-action)))
+      simple-collabo-path))
+  (:simplify-trained-collabo-paths (collabo-paths)
+    (mapcar #'(lambda (collabo-path)
+                (send self :simplify-trained-collabo-path
+                      collabo-path))
+            collabo-paths))
   (:load-trained-collabo-paths (start-state goal-state)
     (let ((trained-collabo-paths
-            (load-all-executed-collabo-path
-              :data-dir collabo-statenet-dir
-              :sort-predicate #'string>)))
+            (send self :simplify-trained-collabo-paths
+                  (load-all-executed-collabo-path
+                    :data-dir collabo-statenet-dir
+                    :sort-predicate #'string>))))
       (remove-if-not
         #'(lambda (collabo-path)
             (let* ((task-data (cdr (assoc :task collabo-path)))
