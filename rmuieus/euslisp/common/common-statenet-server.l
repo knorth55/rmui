@@ -23,7 +23,7 @@
           collabo-statenet-dir
           dump-statenet-dir
           ;; execution
-          executed-state-actions
+          executed-collabo-path
           ;; statenet
           slvr
           sm
@@ -74,7 +74,7 @@
     (setq object-statenet-dir objnet-dir)
     (setq collabo-statenet-dir clbnet-dir)
     (setq dump-statenet-dir nil)
-    (setq executed-state-actions nil)
+    (setq executed-collabo-path nil)
 
     ;; instances
     (setq gr
@@ -122,12 +122,12 @@
       (setq dump-statenet-dir
             (create-dump-dir collabo-statenet-dir)))
     (dump-statenet-graph gr :data-dir collabo-statenet-dir))
-  (:dump-executed-state-actions (execute-stamp)
+  (:dump-executed-collabo-path (execute-stamp)
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
             (create-dump-dir collabo-statenet-dir)))
-    (if executed-state-actions
-      (dump-executed-state-actions executed-state-actions
+    (if executed-collabo-path
+      (dump-executed-collabo-path executed-collabo-path
                                    :data-dir collabo-statenet-dir
                                    :execute-stamp execute-stamp)))
   (:execute-cb ()
@@ -389,10 +389,13 @@
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
         (ros::rate hz)
-        (setq executed-state-actions
+        (setq executed-collabo-path
               (list
-                (list (list :start-state start-state)
-                      (list :goal-state goal-state))))
+                (list
+                  :task
+                  (list :start-state start-state)
+                  (list :goal-state goal-state)
+                  (list :result nil))))
         (while (ros::ok)
           (send self :spin-once)
           (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
@@ -400,7 +403,7 @@
           (if (null sm)
             (progn
               (send self :dump-collabo-statenet)
-              (setq executed-state-actions nil)
+              (setq executed-collabo-path nil)
               (send result :result :stamp
                     (ros::time- (ros::time-now) start-stamp))
               (send result :result :success nil)
@@ -430,7 +433,7 @@
             (if (send self :is-preempt-requested)
               (progn
                 (send self :dump-collabo-statenet)
-                (setq executed-state-actions nil)
+                (setq executed-collabo-path nil)
                 (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
                 (send result :result :success nil)
                 (send result :result :final_state :state (format nil "~A" current-state))
@@ -445,33 +448,37 @@
               (setq execute-end-stamp (ros::time-now))
 
               ;; append executed state actions
-              (let ((last-executed-state-action (car (last executed-state-actions)))
+              (let ((last-executed-state-action (car (last executed-collabo-path)))
                     (relative-execute-start-sec
                       (send (ros::time- execute-start-stamp start-stamp) :to-sec))
                     (relative-execute-end-sec
                       (send (ros::time- execute-end-stamp start-stamp) :to-sec)))
                 (cond
                   ((equal node-type :state-node)
-                   (setq executed-state-actions
+                   (setq executed-collabo-path
                          (append
-                           executed-state-actions
+                           executed-collabo-path
                            (list
-                             (list (list :node-type node-type)
-                                   (list :state-action node-sym)
-                                   (list :start-stamp relative-execute-start-sec)
-                                   (list :end-stamp relative-execute-end-sec)))))
-                   (send self :dump-executed-state-actions execute-stamp)
+                             (list 
+                               :state
+                               (list :node-type node-type)
+                               (list :state-action node-sym)
+                               (list :start-stamp relative-execute-start-sec)
+                               (list :end-stamp relative-execute-end-sec)))))
+                   (send self :dump-executed-collabo-path execute-stamp)
                    (ros::ros-info (format nil "current-state: ~A" current-state)))
                   ((equal node-type :action-node)
-                   (setq executed-state-actions
+                   (setq executed-collabo-path
                          (append
-                           executed-state-actions
+                           executed-collabo-path
                            (list
-                             (list (list :node-type node-type)
-                                   (list :state-action (car node-sym))
-                                   (list :start-stamp relative-execute-start-sec)
-                                   (list :end-stamp relative-execute-end-sec)))))
-                   (send self :dump-executed-state-actions execute-stamp)
+                             (list
+                               :action
+                               (list :node-type node-type)
+                               (list :state-action (car node-sym))
+                               (list :start-stamp relative-execute-start-sec)
+                               (list :end-stamp relative-execute-end-sec)))))
+                   (send self :dump-executed-collabo-path execute-stamp)
                    (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
                   ((equal node-type :teach-node)
                    (ros::ros-info (format nil "teach-state: ~A" node-sym)))
@@ -482,19 +489,21 @@
             (send self :publish-feedback feedback)
             (send insp :publish-structure)
             ;; sleep
-            (ros::sleep))))
-
-      ;; finish state-machine
-      (ros::ros-info (format nil "current-state: ~A" current-state))
-      (let* ((final-state (send (send sm :active-state) :name))
-             (abortp (equal (read-from-string (subseq final-state 1 7)) :abort))
-             (goalp (equal (read-from-string (subseq final-state 1 6)) :goal)))
-        (send self :dump-collabo-statenet)
-        (setq executed-state-actions nil)
-        (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-        (send result :result :success (and goalp (null abortp)))
-        (send result :result :final_state :state (format nil "~A" current-state))
-        (send self :set-succeeded result))
+            (ros::sleep)))
+        ;; finish state-machine
+        (ros::ros-info (format nil "current-state: ~A" current-state))
+        (let* ((final-state (send (send sm :active-state) :name))
+               (abortp (equal (read-from-string (subseq final-state 0 6)) :abort))
+               (goalp (equal (read-from-string (subseq final-state 0 5)) :goal))
+               (successp (and goalp (null abortp))))
+          (setf (cadr (assoc :result (cdr (assoc :task executed-collabo-path)))) successp)
+          (send self :dump-collabo-statenet)
+          (send self :dump-executed-collabo-path execute-stamp)
+          (setq executed-collabo-path nil)
+          (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+          (send result :result :success successp)
+          (send result :result :final_state :state (format nil "~A" current-state))
+          (send self :set-succeeded result)))
       t))
   (:current-state-publish-timer-cb (event) (send self :publish-current-state))
   (:publish-current-state ()
