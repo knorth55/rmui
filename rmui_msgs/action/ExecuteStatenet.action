@@ -1,6 +1,6 @@
 rmui_msgs/StatenetState start_state
 rmui_msgs/StatenetState goal_state
-bool force_update_start_state
+bool allow_update_start_state
 ---
 bool success
 rmui_msgs/StatenetState final_state
