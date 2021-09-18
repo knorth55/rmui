@@ -502,7 +502,7 @@
                (end-stamp (ros::time-now)))
           (setf (cadr (assoc :result (cdr (assoc :task executed-collabo-path))))
                 successp)
-          (setf (cadr (assoc :end-stamp (cdr assoc :task executed-collabo-path)))
+          (setf (cadr (assoc :end-stamp (cdr (assoc :task executed-collabo-path))))
                 (send end-stamp :to-sec))
           (send self :dump-collabo-statenet)
           (send self :dump-executed-collabo-path execute-stamp)
