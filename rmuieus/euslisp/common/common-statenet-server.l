@@ -387,16 +387,49 @@
                   (load-all-executed-collabo-path
                     :data-dir collabo-statenet-dir
                     :sort-predicate #'string>))))
-      (remove-if-not
-        #'(lambda (collabo-path)
-            (let* ((task-data (cdr (assoc :task collabo-path)))
-                   (successp (cadr (assoc :result task-data)))
-                   (sstate (cadr (assoc :start-state task-data)))
-                   (gstate (cadr (assoc :goal-state task-data))))
-              (and (equal sstate start-state)
-                   (equal gstate goal-state)
-                   successp)))
-        trained-collabo-paths)))
+      (if (equal start-state '(:init))
+        ;; start-state is (:init)
+        (remove
+          nil
+          (mapcar
+            #'(lambda (collabo-path)
+                (let* ((task-data (cdr (assoc :task collabo-path)))
+                       (successp (cadr (assoc :result task-data)))
+                       (sstate (cadr (assoc :start-state task-data)))
+                       (gstate (cadr (assoc :goal-state task-data))))
+                  (if (and (equal sstate start-state)
+                           (equal gstate goal-state)
+                           successp)
+                    collabo-path)))
+            trained-collabo-paths))
+        (remove
+          nil
+          (mapcar
+            #'(lambda (collabo-path)
+                (let* ((task-data (cdr (assoc :task collabo-path)))
+                       (successp (cadr (assoc :result task-data)))
+                       (sstate (cadr (assoc :start-state task-data)))
+                       (gstate (cadr (assoc :goal-state task-data))))
+                  (if (and (equal sstate '(:init))
+                           (> (length collabo-path) 3))
+                    ;; if sstate is (:init) and state-state is not (:init)
+                    (let ((task-info (car collabo-path))
+                          (sn (elt collabo-path 3)))
+                      (if (and (equal (cadr (assoc :state-action sn)) start-state)
+                               (equal gstate goal-state)
+                               successp)
+                        (progn
+                          (setf (cadr (assoc :start-state task-info))
+                                (cadr (assoc :state-action sn)))
+                          (setf (cadr (assoc :start-stamp task-info))
+                                (cadr (assoc :start-stamp sn)))
+                          (append (list task-info) (subseq collabo-path 3)))))
+                    ;; if sstate is not (:init) and state-state is not (:init)
+                    (if (and (equal sstate start-state)
+                             (equal gstate goal-state)
+                             successp)
+                      collabo-path))))
+            trained-collabo-paths)))))
   (:execute-statenet-cb (goal)
     (let ((start-state
             (if (> (length (send goal :goal :start_state :state)) 0)
