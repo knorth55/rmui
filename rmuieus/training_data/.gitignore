@@ -7,6 +7,6 @@ object_statenet/latest
 object_statenet/merged-statenet-graph.l
 # collabo_statenet
 collabo_statenet/*/statenet-graph.l
-collabo_statenet/*/*/executed-state-actions.l
+collabo_statenet/*/*/executed-collabo-path.l
 collabo_statenet/latest
 collabo_statenet/merged-statenet-graph.l
