@@ -71,7 +71,7 @@
              (go retry-yes-or-no))))))
   (:ros-index-choose
     (ask-sentence min-index max-index
-                  &key (use-default t) (default-index 0) (timeout nil))
+      &key (use-default t) (default-index 0) (timeout nil))
     (let ((response))
       (tagbody retry-index-choose
         (ros::ros-info ask-sentence)
