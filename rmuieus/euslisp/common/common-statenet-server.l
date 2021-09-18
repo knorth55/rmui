@@ -384,11 +384,10 @@
                              (cons :goal-state goal-state)
                              (cons :user-decision nil)
                              (cons :replan-start-state nil)))
-             (hz 5.0)
+             (hz 10.0)
              (execute-stamp (get-iso-stamp)))
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
-        (ros::rate hz)
         (setq executed-collabo-path
               (list
                 (list
@@ -396,7 +395,8 @@
                   (list :start-state start-state)
                   (list :goal-state goal-state)
                   (list :result nil))))
-        (while (ros::ok)
+       (while (ros::ok)
+          (ros::rate hz)
           (send self :spin-once)
           (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
           ;; check if sm is not nil for replanning
