@@ -7,6 +7,9 @@
 
 (defvar *device-namespace* "/rmui0/rmui_node")
 (defvar *device-groupname* "rmui_device")
+;; 60 seconds for duration threshold
+(defvar *duration-threshold* 60)
+(defvar *interrupt-timeout* 10)
 (defvar *prx-threshold* 800)
 (defvar *prx-position-threshold* 0.5)
 (defvar *device-frame-id* "rmui_link")
@@ -19,6 +22,8 @@
         (instance statenet-action-server :init
                   :device-namespace *device-namespace*
                   :device-groupname *device-groupname*
+                  :duration-threshold *duration-threshold*
+                  :interrupt-timeout *interrupt-timeout*
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
                   :device-frame-id *device-frame-id*

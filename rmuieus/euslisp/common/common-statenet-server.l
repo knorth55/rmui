@@ -22,6 +22,8 @@
           object-statenet-dir
           collabo-statenet-dir
           dump-statenet-dir
+          duration-threshold
+          interrupt-timeout
           ;; statenet
           slvr
           sm
@@ -55,6 +57,8 @@
                ((:show-pdf shpdf) nil)
                ((:object-statenet-dir objnet-dir) *training-object-statenet-path*)
                ((:collabo-statenet-dir clbnet-dir) *training-collabo-statenet-path*)
+               ((:duration-threshold drthld))
+               ((:interrupt-timeout itrtmt))
                (prx-threshold)
                (prx-position-threshold)
                (device-frame-id)
@@ -69,6 +73,8 @@
     (setq device-groupname devgpn)
     (setq reset-state rs)
     (setq show-pdf shpdf)
+    (setq duration-threshold drthld)
+    (setq interrupt-timeout itrtmt)
     (setq object-statenet-dir objnet-dir)
     (setq collabo-statenet-dir clbnet-dir)
     (setq dump-statenet-dir nil)
@@ -189,6 +195,18 @@
           (ros::ros-error "replanning failed...")
           (ros::ros-error "cannot find a valid path to the goal-state")
           (return-from :replan-in-statenet-state nil)))))
+  (:interrupt-wait (userdata)
+    (let* ((current-sm-node (send sm :active-state))
+           (duration (get current-sm-node :duration))
+           (interrupt-p nil))
+      ;; first time node, move to ask user input
+      (if (null duration) (return-from :interrupt-wait t))
+      ;; duration is long, move to ask user input
+      (if (> duration duration-threshold) (return-from :interrupt-wait t))
+      (ros::ros-info "Duration: ~A" duration)
+      (setq interrupt-p
+            (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
+      (return-from :interrupt-wait interrupt-p)))
   (:ask-user-decision (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
@@ -212,11 +230,15 @@
           (return-from :ask-user-decision (car user-decision)))))
   (:get-statenet-state-submachine ()
     (let ((sub-sm (instance state-machine :init))
+          (interrupt-wait-node-name "(interrupt-wait)")
           (ask-node-name "(ask)")
           (replan-node-name "(replan)")
           (pass-node-name "(pass)")
           (abort-node-name "(abort)")
           (next-node-name "(next)"))
+      (add-state-node sub-sm interrupt-wait-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :interrupt-wait userdata)))
       (add-state-node sub-sm ask-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :ask-user-decision userdata)))
@@ -230,8 +252,10 @@
       (add-state-node sub-sm next-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :next-in-statenet-state userdata)))
-      (send sub-sm :start-state ask-node-name)
+      (send sub-sm :start-state interrupt-wait-node-name)
       (send sub-sm :goal-state '(t nil :teach :replan))
+      (add-transition sub-sm interrupt-wait-node-name ask-node-name t)
+      (add-transition sub-sm interrupt-wait-node-name pass-node-name nil)
       (add-transition sub-sm ask-node-name replan-node-name :replan)
       (add-transition sub-sm ask-node-name pass-node-name :pass)
       (add-transition sub-sm ask-node-name abort-node-name :abort)
