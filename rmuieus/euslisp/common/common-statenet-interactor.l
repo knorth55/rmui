@@ -48,6 +48,14 @@
            (setq response nil)
            tmp-response)))
       (t nil)))
+  (:ros-wait-user-interrupt (ask-sentence &key (timeout nil))
+    (let ((user-response))
+      (ros::ros-info ask-sentence)
+      ; (finish-output t)
+      (setq user-response
+            (send self :get-user-response :timeout timeout))
+      (return-from :ros-wait-user-interrupt
+                   (null (equal user-response :timeout)))))
   (:ros-yes-or-no-p (ask-sentence &key (use-default t) (default t) (timeout nil))
     (let ((user-response))
       (tagbody retry-yes-or-no
@@ -112,6 +120,11 @@
             -1 (- (length actions) 1)
             :use-default use-default
             :default-index default-index
+            :timeout timeout)))
+  (:ask-user-interrupt (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Waiting for user interuption: ~A seconds" timeout)))
+      (send self :ros-wait-user-interrupt ask-sentence
             :timeout timeout)))
   (:ask-user-teaching (&key (timeout nil))
     (let ((ask-sentence
