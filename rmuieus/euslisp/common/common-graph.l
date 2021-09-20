@@ -18,13 +18,14 @@
   (remove '|n| (read-from-string name)))
 
 
-(defun add-node (sm name func node-type)
+(defun add-node (sm name func node-type &optional (duration nil))
   (let ((node-func
           (if (equal 'lambda-closure (car func))
             func (eval func))))
     (if (null (send sm :node name))
       (let ((n (instance state :init name node-func)))
         (setf (get n :node-type) node-type)
+        (if duration (setf (get n :duration) duration))
         (send sm :add-node n)))))
 
 
@@ -36,8 +37,8 @@
       (send sm :add-transition from-name to-name arc-key))))
 
 
-(defun add-state-node (sm name &optional (state-func #'(lambda (x) t)))
-  (add-node sm name state-func :state-node))
+(defun add-state-node (sm name &optional (state-func #'(lambda (x) t)) (duration nil))
+  (add-node sm name state-func :state-node duration))
 
 
 (defun add-action-node (sm name action-func)
@@ -88,13 +89,14 @@
 
 
 (defun add-action-node-trans (sm from-name node-name to-name state-func action-func
-                                 &key (smach-transition t) (add-t-transition nil))
-  (add-state-node sm from-name state-func)
+                                 &key (smach-transition t) (add-t-transition nil)
+                                 (from-duration nil) (to-duration nil))
+  (add-state-node sm from-name state-func from-duration)
   (add-action-node sm node-name action-func)
   (add-smach-transition sm from-name node-name
                         :smach-transition smach-transition
                         :add-t-transition add-t-transition)
-  (add-state-node sm to-name state-func)
+  (add-state-node sm to-name state-func to-duration)
   (add-transition sm node-name to-name t))
 
 
@@ -102,12 +104,17 @@
   (sm trans &key (state-func #'(lambda (x) t))
       (smach-transition t) (add-t-transition nil))
   (let ((from-name (cdr (assoc :from-name trans :test #'equal)))
+        (from-duration (cdr (assoc :from-duration trans :test #'equal)))
         (node-name (cdr (assoc :node-name trans :test #'equal)))
         (action-func (cdr (assoc :action-func trans :test #'equal)))
-        (to-name (cdr (assoc :to-name trans :test #'equal))))
+        (to-name (cdr (assoc :to-name trans :test #'equal)))
+        (to-duration (cdr (assoc :to-duration trans :test #'equal))))
     (add-action-node-trans sm from-name node-name to-name state-func action-func
                            :smach-transition smach-transition
-                           :add-t-transition add-t-transition)))
+                           :add-t-transition add-t-transition
+                           :from-duration from-duration
+                           :to-duration to-duration
+                           )))
 
 
 (defun convert-graph-to-smach
