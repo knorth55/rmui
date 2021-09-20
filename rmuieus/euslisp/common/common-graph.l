@@ -86,6 +86,7 @@
   (add-transition sm from-name node-name smach-transition)
   (if add-t-transition (add-transition sm from-name node-name t)))
 
+
 (defun add-action-node-trans (sm from-name node-name to-name state-func action-func
                                  &key (smach-transition t) (add-t-transition nil))
   (add-state-node sm from-name state-func)
