@@ -159,43 +159,16 @@
     sm))
 
 
-(defun convert-solution-to-smach
-  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+(defun convert-trans-alist-to-smach
+  (trans-alist first-state-sym last-state-sym
+    &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
   (let ((sm (instance state-machine :init))
         (start-state ":start")
         (goal-state ":goal")
         (abort-name ":abort")
-        (aborts nil)
-        (trans-alist nil))
-    (dolist (sn solution)
-      (let ((ac (send sn :action)))
-        (if ac
-          (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
-                 (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
-                 (action-name (send ac :name))
-                 (action-sym (read-from-string action-name))
-                 (action-func
-                   `(lambda-closure nil 0 0 (userdata)
-                                    (apply #',(car action-sym) ',(cdr action-sym))))
-                 (node-name (format nil "~A" (list action-sym from-state-sym)))
-                 (from-name (format nil "~A" from-state-sym))
-                 (to-name (format nil "~A" to-state-sym))
-                 (trans (list (cons :from-name from-name)
-                              (cons :node-name node-name)
-                              (cons :action-sym action-sym)
-                              (cons :action-func action-func)
-                              (cons :to-name to-name)
-                              (cons :to-state-sym to-state-sym))))
-            (setq trans-alist
-                  (append trans-alist (list (cons from-state-sym nil))))
-            (push trans (cdr (assoc from-state-sym trans-alist :test #'equal)))))))
+        (aborts nil))
     (if no-loop
-      (let ((current-state-sym
-              (convert-string-to-sym
-                (send (send (car solution) :state) :name)))
-            (last-state-sym
-              (convert-string-to-sym
-                (send (send (car (last solution)) :state) :name))))
+      (let ((current-state-sym (copy-seq first-state-sym)))
         (while (null (equal current-state-sym last-state-sym))
           (let* ((trans-a (assoc current-state-sym trans-alist :test #'equal))
                  (trans (car (cdr trans-a)))
@@ -235,13 +208,7 @@
     ;; goal-state
     (send sm :goal-state (list goal-state abort-name))
     ;; start and goal
-    (let* ((first-state-sym
-             (convert-string-to-sym
-               (send (send (car solution) :state) :name)))
-           (last-state-sym
-             (convert-string-to-sym
-               (send (send (car (last solution)) :state) :name)))
-           (first-name (format nil "~A" first-state-sym))
+    (let* ((first-name (format nil "~A" first-state-sym))
            (last-name (format nil "~A" last-state-sym)))
       (add-state-node sm first-name state-func)
       (add-transition sm start-state first-name t)
@@ -250,11 +217,60 @@
       (add-transition sm last-name goal-state t))
     ;; aborts
     (add-abort-nodes sm aborts state-func)
+    sm))
+
+
+(defun convert-solution-to-trans-alist (solution)
+  (let ((trans-alist nil))
+    ;; create trans-alist from solution
+    (dolist (sn solution)
+      (let ((ac (send sn :action)))
+        (if ac
+          (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
+                 (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
+                 (action-name (send ac :name))
+                 (action-sym (read-from-string action-name))
+                 (action-func
+                   `(lambda-closure nil 0 0 (userdata)
+                                    (apply #',(car action-sym) ',(cdr action-sym))))
+                 (node-name (format nil "~A" (list action-sym from-state-sym)))
+                 (from-name (format nil "~A" from-state-sym))
+                 (to-name (format nil "~A" to-state-sym))
+                 (trans (list (cons :from-name from-name)
+                              (cons :from-state-sym from-state-sym)
+                              (cons :from-duration nil)
+                              (cons :node-name node-name)
+                              (cons :action-sym action-sym)
+                              (cons :action-func action-func)
+                              (cons :to-name to-name)
+                              (cons :to-state-sym to-state-sym)
+                              (cons :to-duration nil)
+                              )))
+            (setq trans-alist
+                  (append trans-alist (list (cons from-state-sym nil))))
+            (push trans (cdr (assoc from-state-sym trans-alist :test #'equal)))))))
+    trans-alist))
+
+
+(defun convert-solution-to-smach
+  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+  (let* ((first-state-sym
+           (convert-string-to-sym (send (send (car solution) :state) :name)))
+         (last-state-sym
+           (convert-string-to-sym (send (send (car (last solution)) :state) :name)))
+         (trans-alist (convert-solution-to-trans-alist solution))
+         (sm
+           (convert-trans-alist-to-smach
+             trans-alist first-state-sym last-state-sym
+             :state-func state-func :teach-func teach-func
+             :no-loop no-loop)))
     ;; ros-info
-    (ros::ros-info (format nil "convert-solution-to-smach: smach start-state is ~A."
-                           (send (send sm :start-state) :name)))
-    (ros::ros-info (format nil "convert-solution-to-smach: smach goal-state are ~A."
-                           (send-all (send sm :goal-state) :name)))
+    (ros::ros-info
+      (format nil "convert-solution-to-smach: smach start-state is ~A."
+              (send (send sm :start-state) :name)))
+    (ros::ros-info
+      (format nil "convert-solution-to-smach: smach goal-state are ~A."
+              (send-all (send sm :goal-state) :name)))
     (send sm :reset-state)
     sm))
 
