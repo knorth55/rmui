@@ -39,9 +39,7 @@
          (while (null response)
            (if (and timeout
                     (> (send
-                         (ros::time-
-                           (ros::time-now)
-                           (start-stamp))
+                         (ros::time- (ros::time-now) start-stamp)
                          :to-nsec)
                        (* timeout 1e9)))
              (return))
