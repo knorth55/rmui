@@ -52,16 +52,16 @@
           (send gr :goal-state goal-node)
           (setq solution (send slvr :solve gr))
           solution))))
+  (:convert-solution-to-state-machine (solution &key (no-loop nil))
+    (convert-solution-to-smach
+      solution :state-func state-func :teach-func teach-func :no-loop no-loop))
   (:generate-smach-from-state (start-state goal-state &key (first-action nil) (no-loop nil))
     (let* ((solution
              (send self :solve-statenet-path
                    start-state goal-state :first-action first-action))
            (sm (if solution
-                 (convert-solution-to-smach
-                   solution
-                   :state-func state-func
-                   :teach-func teach-func
-                   :no-loop no-loop))))
+                 (send self :convert-solution-to-state-machine
+                       solution :no-loop no-loop))))
       sm)))
 
 
