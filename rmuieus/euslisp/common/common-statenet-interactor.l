@@ -49,22 +49,22 @@
            tmp-response)))
       (t nil)))
   (:ros-yes-or-no-p (ask-sentence &key (use-default t) (default t) (timeout nil))
-    (let ((response))
+    (let ((user-response))
       (tagbody retry-yes-or-no
         (ros::ros-info ask-sentence)
-        (finish-output t)
-        (setq response
+        ; (finish-output t)
+        (setq user-response
               (string-upcase
                 (send self :get-user-response :timeout timeout)))
         (cond
-          ((or (string= response "YES")
-               (string= response "Y"))
+          ((or (string= user-response "YES")
+               (string= user-response "Y"))
            (return-from :ros-yes-or-no-p t))
-          ((or (string= response "NO")
-               (string= response "N"))
+          ((or (string= user-response "NO")
+               (string= user-response "N"))
            (return-from :ros-yes-or-no-p nil))
-          ((or (string= response "")
-               (equal response :timeout))
+          ((or (string= user-response "")
+               (equal user-response :timeout))
            (if use-default
              (return-from :ros-yes-or-no-p default)
              (progn
@@ -75,14 +75,14 @@
   (:ros-index-choose
     (ask-sentence min-index max-index
       &key (use-default t) (default-index 0) (timeout nil))
-    (let ((response))
+    (let ((user-response))
       (tagbody retry-index-choose
         (ros::ros-info ask-sentence)
-        (finish-output t)
-        (setq response
+        ; (finish-output t)
+        (setq user-response
               (send self :get-user-response :timeout timeout))
-        (if (or (string= response "")
-                (equal response :timeout))
+        (if (or (string= user-response "")
+                (equal user-response :timeout))
           (if use-default
             (return-from :ros-index-choose default-index)
             (progn
@@ -90,7 +90,7 @@
                 (format nil "Please answer with a valid number: ~A to ~A"
                         min-index max-index))
               (go retry-index-choose)))
-          (let ((resp-num (read-from-string response)))
+          (let ((resp-num (read-from-string user-response)))
             (if (and (integerp resp-num)
                      (>= resp-num min-index)
                      (<= resp-num max-index))
