@@ -163,9 +163,8 @@
           start-state goal-state
           :first-action first-action
           :no-loop no-loop))
-  ;; TODO: implement :convert-collabo-path-tostate-machine
   (:convert-collabo-path-to-state-machine (collabo-path)
-    )
+    (send stplanner :convert-collabo-path-to-state-machine collabo-path))
   (:next-in-statenet-state (userdata)
     (let* ((first-action (cdr (cdr (assoc :user-decision userdata)))))
       (return-from :next-in-statenet-state (format nil "~A" first-action))))

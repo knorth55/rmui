@@ -55,6 +55,11 @@
   (:convert-solution-to-state-machine (solution &key (no-loop nil))
     (convert-solution-to-smach
       solution :state-func state-func :teach-func teach-func :no-loop no-loop))
+  (:convert-collabo-path-to-state-machine (collabo-path &key (no-loop))
+    (convert-collabo-path-to-smach
+      (if (equal :task (car (car collabo-path)))
+        (cdr collabo-path) collabo-path)
+      :state-func state-func :teach-func teach-func :no-loop no-loop))
   (:generate-smach-from-state (start-state goal-state &key (first-action nil) (no-loop nil))
     (let* ((solution
              (send self :solve-statenet-path

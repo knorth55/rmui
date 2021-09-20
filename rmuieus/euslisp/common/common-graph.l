@@ -252,6 +252,59 @@
     trans-alist))
 
 
+(defun convert-collabo-path-to-trans-alist (collabo-path)
+  (let ((trans-alist nil)
+        (collabo-nodes (copy-seq collabo-path)))
+    (while (> (length collabo-nodes) 1)
+      (let* ((from-node (car collabo-nodes))
+             (from-node-type (cadr (assoc :node-type from-node)))
+             (from-state-sym (cadr (assoc :state-action from-node)))
+             (from-start-stamp (cadr (assoc :start-stamp from-node)))
+             (from-end-stamp (cadr (assoc :end-stamp from-node)))
+             (from-duration
+               (if (and from-start-stamp from-end-stamp)
+                 (- from-end-stamp from-start-stamp)))
+             (from-name (format nil "~A" from-state-sym))
+             (action-node (cadr collabo-nodes))
+             (action-node-type (cadr (assoc :node-type action-node)))
+             (action-sym (cadr (assoc :state-action action-node)))
+             (action-func
+               `(lambda-closure nil 0 0 (userdata)
+                                (apply #',(car action-sym) ',(cdr action-sym))))
+             (node-name (format nil "~A" (list action-sym from-state-sym)))
+             (to-node (caddr collabo-nodes))
+             (to-node-type (cadr (assoc :node-type to-node)))
+             (to-state-sym (cadr (assoc :state-action to-node)))
+             (to-start-stamp (cadr (assoc :start-stamp to-node)))
+             (to-end-stamp (cadr (assoc :end-stamp to-node)))
+             (to-duration
+               (if (and to-start-stamp to-end-stamp)
+                 (- to-end-stamp to-start-stamp)))
+             (to-name (format nil "~A" to-state-sym))
+             (trans (list (cons :from-name from-name)
+                          (cons :from-duration from-duration)
+                          (cons :node-name node-name)
+                          (cons :action-sym action-sym)
+                          (cons :action-func action-func)
+                          (cons :to-name to-name)
+                          (cons :to-state-sym to-state-sym)
+                          (cons :to-duration to-duration))))
+        (cond
+          ((and (equal from-node-type :state-node)
+                (equal action-node-type :action-node)
+                (equal to-node-type :state-node))
+           (setq trans-alist (append trans-alist (list (cons from-state-sym nil))))
+           (push trans (cdr (assoc from-state-sym trans-alist :test #'equal))))
+          (t
+           (ros::ros-error "something is wrong in collabo-path")
+           (ros::ros-error "from-node  : ~A" from-node)
+           (ros::ros-error "action-node: ~A" action-node)
+           (ros::ros-error "to-node    : ~A" to-node)))
+        ;; state0, action0, state1, action1... -> state1, action1...
+        (setq collabo-nodes (if (> (length collabo-nodes) 2) (subseq collabo-nodes 2)))))
+  trans-alist))
+
+
 (defun convert-solution-to-smach
   (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
   (let* ((first-state-sym
@@ -271,6 +324,28 @@
     (ros::ros-info
       (format nil "convert-solution-to-smach: smach goal-state are ~A."
               (send-all (send sm :goal-state) :name)))
+    (send sm :reset-state)
+    sm))
+
+
+(defun convert-collabo-path-to-smach
+  (collabo-path &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+  (let* ((collabo-nodes
+           (if (equal :task (car (car collabo-path)))
+             (cdr collabo-path) collabo-path))
+         (first-state-sym
+           (cadr (assoc :state-action (car collabo-nodes))))
+         (last-state-sym
+           (cadr (assoc :state-action (car (last collabo-nodes)))))
+         (trans-alist (convert-collabo-path-to-trans-alist collabo-nodes))
+         (sm (convert-trans-alist-to-smach
+               trans-alist first-state-sym last-state-sym
+               :state-func state-func :teach-func teach-func
+               :no-loop no-loop)))
+    (ros::ros-info (format nil "convert-collabo-path-to-smach: smach start-state is ~A."
+                           (send (send sm :start-state) :name)))
+    (ros::ros-info (format nil "convert-collabo-path-to-smach: smach goal-state are ~A."
+                           (send-all (send sm :goal-state) :name)))
     (send sm :reset-state)
     sm))
 
