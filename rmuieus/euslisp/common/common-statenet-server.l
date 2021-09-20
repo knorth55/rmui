@@ -336,7 +336,8 @@
           (prev-state-action nil)
           (start-stamp-list nil)
           (end-stamp-list nil)
-          (current-n))
+          (current-n)
+          (last-n (car (last collabo-path))))
       (dolist (n (cdr collabo-path))
         (let ((node-type (cadr (assoc :node-type n)))
               (state-action (cadr (assoc :state-action n)))
@@ -350,15 +351,32 @@
              (setq end-stamp-list (list end-stamp))
              (setq current-n
                    (mapcar
-                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
-             )
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
             ;; continue
-            ((and (equal prev-node-type node-type)
+            ((and (null (equal n last-n))
+                  (equal prev-node-type node-type)
                   (equal prev-state-action state-action))
              (setq start-stamp-list
                    (append start-stamp-list (list start-stamp)))
              (setq end-stamp-list
                    (append end-stamp-list (list end-stamp))))
+            ;; last
+            ((equal n last-n)
+             (setq start-stamp-list
+                   (append start-stamp-list (list start-stamp)))
+             (setq end-stamp-list
+                   (append end-stamp-list (list end-stamp)))
+             (setf (cadr (assoc :start-stamp current-n))
+                   (reduce #'min start-stamp-list))
+             (setf (cadr (assoc :end-stamp current-n))
+                   (reduce #'max end-stamp-list))
+             (setq simple-collabo-path
+                   (append simple-collabo-path (list current-n)))
+             (setq start-stamp-list (list start-stamp))
+             (setq end-stamp-list (list end-stamp))
+             (setq current-n
+                   (mapcar
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
             ;; diff
             (t
              (setf (cadr (assoc :start-stamp current-n))
@@ -371,8 +389,8 @@
              (setq end-stamp-list (list end-stamp))
              (setq current-n
                    (mapcar
-                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
-             ))
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
+            )
           (setq prev-node-type node-type)
           (setq prev-state-action state-action)))
       simple-collabo-path))
