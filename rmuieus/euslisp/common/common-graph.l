@@ -312,11 +312,10 @@
          (last-state-sym
            (convert-string-to-sym (send (send (car (last solution)) :state) :name)))
          (trans-alist (convert-solution-to-trans-alist solution))
-         (sm
-           (convert-trans-alist-to-smach
-             trans-alist first-state-sym last-state-sym
-             :state-func state-func :teach-func teach-func
-             :no-loop no-loop)))
+         (sm (convert-trans-alist-to-smach
+               trans-alist first-state-sym last-state-sym
+               :state-func state-func :teach-func teach-func
+               :no-loop no-loop)))
     ;; ros-info
     (ros::ros-info
       (format nil "convert-solution-to-smach: smach start-state is ~A."
