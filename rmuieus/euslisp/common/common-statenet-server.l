@@ -498,6 +498,8 @@
                              (cons :replan-start-state nil)))
              (hz 10.0)
              (execute-stamp (get-iso-stamp))
+             (trained-executed-collabo-paths
+               (send self :load-trained-collabo-paths start-state goal-state))
              (executed-collabo-path
                (list
                  (list
@@ -510,9 +512,9 @@
                                  (ros::time-now)
                                  start-stamp)
                                :to-sec))
-                   (list :end-stamp nil))))
-             (trained-executed-collabo-paths
-               (send self :load-trained-collabo-paths start-state goal-state)))
+                   (list :end-stamp nil)
+                   (list :first-time
+                         (if trained-executed-collabo-paths t nil))))))
         (if trained-executed-collabo-paths
           ;; generate sm from latest successful path
           (setq sm (send self :convert-collabo-path-to-state-machine
