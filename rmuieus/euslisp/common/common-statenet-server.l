@@ -516,13 +516,21 @@
                    (list :first-time
                          (if trained-executed-collabo-paths t nil))))))
         (if trained-executed-collabo-paths
-          ;; generate sm from latest successful path
-          (setq sm (send self :convert-collabo-path-to-state-machine
-                         (car trained-executed-collabo-paths)))
+          (progn
+            (ros::ros-warn "This is a trained task.")
+            (ros::ros-warn "Loading the trained path.")
+            ;; generate sm from latest successful path
+            (setq sm (send self :convert-collabo-path-to-state-machine
+                           (car trained-executed-collabo-paths)))
+            )
           ;; first time for this task, so planning.
           ;; generate smach machine
-          (setq sm (send self :plan-state-machine start-state goal-state
-                         :first-action nil :no-loop t)))
+          (progn
+            (ros::ros-warn "This is a new task.")
+            (ros::ros-warn "Planning the path")
+            (setq sm (send self :plan-state-machine start-state goal-state
+                           :first-action nil :no-loop t))
+            ))
 
         ;; check if sm is nil
         (if (null sm)
