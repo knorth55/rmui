@@ -42,7 +42,7 @@
                          (ros::time- (ros::time-now) start-stamp)
                          :to-nsec)
                        (* timeout 1e9)))
-             (return))
+             (return-from :get-user-response :timeout))
            (ros::spin-once groupname))
          (let ((tmp-response (copy-seq response)))
            (setq response nil)
@@ -63,7 +63,8 @@
           ((or (string= response "NO")
                (string= response "N"))
            (return-from :ros-yes-or-no-p nil))
-          ((string= response "")
+          ((or (string= response "")
+               (equal response :timeout))
            (if use-default
              (return-from :ros-yes-or-no-p default)
              (progn
@@ -80,7 +81,8 @@
         (finish-output t)
         (setq response
               (send self :get-user-response :timeout timeout))
-        (if (string= response "")
+        (if (or (string= response "")
+                (equal response :timeout))
           (if use-default
             (return-from :ros-index-choose default-index)
             (progn
