@@ -6,7 +6,7 @@ from rpi_ws281x import PixelStrip
 
 # LED strip configuration:
 # Number of LED pixels.
-LED_COUNT = 1
+LED_COUNT = 6
 # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_PIN = 10
 # LED signal frequency in hertz (usually 800khz)
@@ -37,9 +37,27 @@ def main():
 
     try:
         while True:
+            colorWipe(strip, Color(100, 0, 0), 0.5)
+            colorWipe(strip, Color(200, 0, 0), 0.5)
             colorWipe(strip, Color(255, 0, 0), 0.5)  # Red wipe
+            colorWipe(strip, Color(0, 100, 0), 0.5)
+            colorWipe(strip, Color(0, 200, 0), 0.5)
             colorWipe(strip, Color(0, 255, 0), 0.5)  # Blue wipe
+            colorWipe(strip, Color(0, 0, 100), 0.5)
+            colorWipe(strip, Color(0, 0, 200), 0.5)
             colorWipe(strip, Color(0, 0, 255), 0.5)  # Green wipe
+            colorWipe(strip, Color(100, 100, 0), 0.5)
+            colorWipe(strip, Color(200, 200, 0), 0.5)
+            colorWipe(strip, Color(255, 255, 0), 0.5)  # yellow wipe
+            colorWipe(strip, Color(0, 100, 100), 0.5)
+            colorWipe(strip, Color(0, 200, 200), 0.5)
+            colorWipe(strip, Color(0, 255, 255), 0.5)  # sky wipe
+            colorWipe(strip, Color(100, 0, 100), 0.5)
+            colorWipe(strip, Color(200, 0, 200), 0.5)
+            colorWipe(strip, Color(255, 0, 255), 0.5)  # pink wipe
+            colorWipe(strip, Color(100, 100, 100), 0.5)
+            colorWipe(strip, Color(200, 200, 200), 0.5)
+            colorWipe(strip, Color(255, 255, 255), 0.5)  # white wipe
     except KeyboardInterrupt:
         colorWipe(strip, Color(0, 0, 0), 0.01)
 
