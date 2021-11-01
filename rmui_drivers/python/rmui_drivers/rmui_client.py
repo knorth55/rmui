@@ -167,7 +167,8 @@ class RMUIClient(object):
                 z=sensor_pos[2])
             sensor_direction = self.sensor_directions[prx_id // 5]
             arrow_scale = min(
-                2000.0, proximity.proximity - self.touch_prx_threshold) / 2000.0
+                2000.0, proximity.proximity - self.touch_prx_threshold
+            ) / 2000.0
             cm_scale = int((0.4 * (1.0 - arrow_scale) + 0.1) * 255)
             if sensor_direction[0] == '-':
                 arrow_scale = arrow_scale * -1
