@@ -1,0 +1,10 @@
+[Unit]
+Description=Shutdown by GPIO switch
+
+[Service]
+ExecStart=/home/pi/rpi_scripts/shutdownd.py
+Restart=always
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
