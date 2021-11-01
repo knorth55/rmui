@@ -28,6 +28,8 @@ class RMUINode(object):
         duration = rospy.get_param('~duration', 0.1)
         ea = rospy.get_param('~ea', 0.3)
         sensitivity = rospy.get_param('~sensitivity', 50)
+        touch_prx_threshold = rospy.get_param(
+            '~touch_prx_threshold', 1000)
         n_board = rospy.get_param('~n_board', None)
         if n_board is not None:
             multiplexa_addresses = multiplexa_addresses[:n_board]
@@ -45,7 +47,10 @@ class RMUINode(object):
             sensor_boards.append(sensor_board)
         led = WS281x(led_pin, len(multiplexa_addresses), led_brightness)
 
-        self.device = RMUI(imu, sensor_boards, led, frame_id=frame_id)
+        self.device = RMUI(
+            imu, sensor_boards, led,
+            frame_id=frame_id,
+            touch_prx_threshold=touch_prx_threshold)
         self.device.init_device()
 
         self.pub_imu = rospy.Publisher(

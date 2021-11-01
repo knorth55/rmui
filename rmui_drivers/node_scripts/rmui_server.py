@@ -19,9 +19,9 @@ class RMUIServer(object):
         super(RMUIServer, self).__init__()
         self.node_names = []
         self.node_ids = []
+        touch_prx_threshold = rospy.get_param('~touch_prx_threshold', 500)
         queue_size = rospy.get_param('~queue_size')
         approximate_sync = rospy.get_param('~approximate_sync')
-        sensitivity = rospy.get_param('~sensitivity', 500)
 
         params = rospy.get_param(rospy.get_name(), [])
         for name, value in params.items():
@@ -36,7 +36,7 @@ class RMUIServer(object):
         self.subs = []
         self.nodes = []
         for node_id, node_name in zip(self.node_ids, self.node_names):
-            node = RMUIClient(node_id, node_name, sensitivity)
+            node = RMUIClient(node_id, node_name, touch_prx_threshold)
             sub_prx = message_filters.Subscriber(
                 '{}/output/proximities'.format(node_name),
                 ProximityArray)

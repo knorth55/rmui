@@ -63,11 +63,11 @@ class RMUIClient(object):
         '-z', 'x', 'y', '-x', '-y', 'z',
     )
 
-    def __init__(self, node_id, node_name, sensitivity=500):
+    def __init__(self, node_id, node_name, touch_prx_threshold=500):
         super(RMUIClient, self).__init__()
         self.node_id = node_id
         self.node_name = node_name
-        self.sensitivity = sensitivity
+        self.touch_prx_threshold = touch_prx_threshold
         self.sys_calib = False
         self.gyr_calib = False
         self.acc_calib = False
@@ -144,7 +144,7 @@ class RMUIClient(object):
         prx_markers = MarkerArray()
         for prx_id, (proximity, sensor_pos) in enumerate(
                 zip(prx_msg.proximities, self.sensor_positions)):
-            if proximity.proximity < self.sensitivity:
+            if proximity.proximity < self.touch_prx_threshold:
                 continue
             arrow_marker = Marker()
             arrow_marker.header = header
@@ -167,7 +167,7 @@ class RMUIClient(object):
                 z=sensor_pos[2])
             sensor_direction = self.sensor_directions[prx_id // 5]
             arrow_scale = min(
-                2000.0, proximity.proximity - self.sensitivity) / 2000.0
+                2000.0, proximity.proximity - self.touch_prx_threshold) / 2000.0
             cm_scale = int((0.4 * (1.0 - arrow_scale) + 0.1) * 255)
             if sensor_direction[0] == '-':
                 arrow_scale = arrow_scale * -1

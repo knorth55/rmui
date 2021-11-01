@@ -9,7 +9,8 @@ from rmui_msgs.msg import ImuCalibStatus
 
 class RMUI(object):
     def __init__(
-            self, imu, sensor_boards, led, frame_id='rmui', sensitivity=500
+            self, imu, sensor_boards, led, frame_id='rmui',
+            touch_prx_threshold=500
     ):
         super(RMUI, self).__init__()
         self.imu = imu
@@ -18,7 +19,7 @@ class RMUI(object):
             sensor_board.multiplexa.stop()
         self.led = led
         self.frame_id = frame_id
-        self.sensitivity = sensitivity
+        self.touch_prx_threshold = touch_prx_threshold
 
     def init_device(self):
         imu_calibrated = self.imu.init_sensor()
@@ -70,7 +71,7 @@ class RMUI(object):
         touch_prx_dict = {}
         for sensor_id, prx_data in enumerate(prx_msg.proximities):
             led_id = sensor_id // len(self.sensor_boards[0].sensors)
-            if prx_data.proximity >= self.sensitivity:
+            if prx_data.proximity >= self.touch_prx_threshold:
                 if led_id not in touch_prx_dict:
                     touch_prx_dict[led_id] = [prx_data.proximity]
                 else:
@@ -81,7 +82,7 @@ class RMUI(object):
                 prx_data = touch_prx_dict[led_id]
                 prx_average = sum(prx_data) / float(len(prx_data))
                 r, g, b = led_utils.prx_to_rgb(
-                    prx_average, min_prx=self.sensitivity,
+                    prx_average, min_prx=self.touch_prx_threshold,
                     max_prx=2000, max_rgb=200)
                 self.led.set_color(led_id, r, g, b)
             else:

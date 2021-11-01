@@ -2,6 +2,7 @@
   <arg name="machine" default="rmui" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
+  <arg name="touch_prx_threshold" default="500" />
   <arg name="gui" default="true" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
@@ -18,6 +19,7 @@
         <rosparam subst_value="true">
           n_board: $(arg n_board)
           duration: $(arg duration)
+          touch_prx_threshold: $(arg touch_prx_threshold)
         </rosparam>
       </node>
       <node name="rmui_node" pkg="rmui_drivers" type="dummy_rmui_node.py"
@@ -35,6 +37,7 @@
   <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
         output="screen">
     <rosparam>
+      touch_prx_threshold: $(arg touch_prx_threshold)
       approximate_sync: true 
       queue_size: 10
       node_0: /rmui0/rmui_node
