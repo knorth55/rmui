@@ -1,8 +1,8 @@
 <launch>
-  <arg name="group_name" default="rmui0" />
+  <arg name="group_name" default="rmui1" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
-  <arg name="touch_prx_threshold" default="500" />
+  <arg name="touch_prx_threshold" default="1000" />
 
   <group ns="$(arg group_name)">
     <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
