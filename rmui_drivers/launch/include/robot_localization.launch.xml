@@ -1,8 +1,9 @@
 <launch>
+  <arg name="group_name" />
 
   <!-- robot localization ukf -->
   <node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true">
-    <rosparam file="$(find rmui_drivers)/config/robot_localization.yaml" command="load" />
+    <rosparam file="$(find rmui_drivers)/config/$(arg group_name)/robot_localization.yaml" command="load" />
   </node>
 
 </launch>

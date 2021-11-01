@@ -60,13 +60,13 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        rmui_link:
+        rmui1_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
       Name: RobotModel
-      Robot Description: /rmui0/robot_description
+      Robot Description: /rmui1/robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
@@ -87,10 +87,10 @@ Visualization Manager:
       Value: false
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /rmui0/rmui_node/output/proximities/markers
+      Marker Topic: /rmui1/rmui_node/output/proximities/markers
       Name: MarkerArray
       Namespaces:
-        /rmui0/rmui_node: true
+        /rmui1/rmui_node: true
       Queue Size: 101
       Value: true
     - Class: jsk_rviz_plugin/RvizScenePublisher
@@ -101,7 +101,7 @@ Visualization Manager:
     - Class: jsk_rviz_plugin/PieChart
       Enabled: true
       Name: Moving
-      Topic: /rmui0/rmui_node/output/status/moving
+      Topic: /rmui1/rmui_node/output/status/moving
       Value: true
       auto color change: true
       background color: 0; 0; 0
@@ -121,7 +121,7 @@ Visualization Manager:
     - Class: jsk_rviz_plugin/PieChart
       Enabled: true
       Name: Waiting
-      Topic: /rmui0/rmui_node/output/status/waiting
+      Topic: /rmui1/rmui_node/output/status/waiting
       Value: true
       auto color change: true
       background color: 0; 0; 0

@@ -1,0 +1,48 @@
+# top
+- name: |
+    Contact board 5
+    (initial top)
+  service: '/rmui1/rmui_node/board5/contact'
+  column: 0
+  service_type: 'SetBool'
+# bottom
+- name: |
+    Contact board 0
+    (initial buttom)
+  service: '/rmui1/rmui_node/board0/contact'
+  column: 0
+  service_type: 'SetBool'
+  default_value: true
+# front
+- name: |
+    Contact board 1
+    (initial front)
+  service: '/rmui1/rmui_node/board1/contact'
+  column: 1
+  service_type: 'SetBool'
+# back
+- name: |
+    Contact board 3
+    (initial back)
+  service: '/rmui1/rmui_node/board3/contact'
+  column: 1
+  service_type: 'SetBool'
+# left
+- name: |
+    Contact board 2
+    (initial left)
+  service: '/rmui1/rmui_node/board2/contact'
+  column: 2
+  service_type: 'SetBool'
+# right
+- name: |
+    Contact board 4
+    (initial right)
+  service: '/rmui1/rmui_node/board4/contact'
+  column: 2
+  service_type: 'SetBool'
+# reset
+- name: 'Reset button'
+  service: '/rmui1/rmui_node/contact_reset'
+  column: 3
+  service_type: 'Empty'

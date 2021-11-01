@@ -1,0 +1,62 @@
+<launch>
+  <arg name="machine" />
+  <arg name="group_name" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="touch_prx_threshold" default="500" />
+  <arg name="gui" default="true" />
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <include file="$(find rmui_drivers)/launch/machine/rmui.machine" />
+  <machine name="localhost" address="localhost" />
+
+  <group ns="$(arg group_name)">
+    <param name="robot_description"
+           command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
+    <group if="$(arg launch_device)">
+      <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
+            output="screen" machine="$(arg machine)" unless="$(arg dummy)">
+        <rosparam subst_value="true">
+          n_board: $(arg n_board)
+          duration: $(arg duration)
+          touch_prx_threshold: $(arg touch_prx_threshold)
+          frame_id: $(arg group_name)_link
+        </rosparam>
+      </node>
+      <node name="rmui_node" pkg="rmui_drivers" type="dummy_rmui_node.py"
+            output="screen" if="$(arg dummy)">
+        <rosparam subst_value="true">
+          n_board: $(arg n_board)
+          duration: $(arg duration)
+          frame_id: $(arg group_name)_link
+        </rosparam>
+      </node>
+    </group>
+    <include file="$(find rmui_drivers)/launch/include/robot_localization.launch.xml"
+             unless="$(arg dummy)">
+      <arg name="group_name" value="$(arg group_name)" />
+    </include>
+  </group>
+
+  <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
+        output="screen">
+    <rosparam subst_value="true">
+      touch_prx_threshold: $(arg touch_prx_threshold)
+      approximate_sync: true 
+      queue_size: 10
+      node_0: /$(arg group_name)/rmui_node
+    </rosparam>
+  </node>
+
+  <group if="$(arg gui)">
+    <node name="$(anon rviz)" pkg="rviz" type="rviz"
+          args="-d $(find rmui_drivers)/rvizconfig/$(arg group_name).rviz" />
+    <node name="$(anon reset_button)"
+          pkg="jsk_rqt_plugins" type="rqt_tabbed_buttons" output="screen" clear_params="true">
+      <rosparam command="load" file="$(find rmui_drivers)/resource/$(arg group_name)/rmui_tabbed_layout.yaml" />
+    </node>
+  </group>
+
+</launch>

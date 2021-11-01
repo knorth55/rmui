@@ -4,9 +4,9 @@ publish_tf: true
 publish_acceleration: false
 odom_frame: world
 world_frame: world
-base_link_frame: rmui_link
+base_link_frame: rmui1_link
 # imu
-imu0: /rmui0/rmui_node/output/imu_calibrated
+imu0: /rmui1/rmui_node/output/imu_calibrated
 imu0_config: [false, false, false,
               true, true, true,
               false, false, false,
