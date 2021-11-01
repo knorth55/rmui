@@ -14,7 +14,7 @@
 
   <group ns="$(arg group_name)">
     <param name="robot_description"
-           command="$(find xacro)/xacro.py $(find rmui_description)/urdf/rmui.urdf" />
+           command="$(find xacro)/xacro.py $(find rmui_description)/urdf/$(arg group_name).urdf" />
     <group if="$(arg launch_device)">
       <node name="rmui_node" pkg="rmui_drivers" type="rmui_node.py"
             output="screen" machine="$(arg machine)" unless="$(arg dummy)">

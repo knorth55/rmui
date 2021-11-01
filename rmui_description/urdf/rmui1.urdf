@@ -1,5 +1,5 @@
-<robot name="rmui">
-  <link name="rmui_link">
+<robot name="rmui1">
+  <link name="rmui1_link">
     <inertial>
       <origin xyz="0 0 0.1" rpy="0 0 0" />
       <mass value="0.5" />
