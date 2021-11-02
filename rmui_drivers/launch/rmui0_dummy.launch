@@ -2,11 +2,14 @@
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+  <arg name="launch_device" default="true" />
 
-  <include file="$(find rmui_drivers)/launch/rmui.launch">
+  <include file="$(find rmui_drivers)/launch/rmui0.launch">
+    <arg name="machine" value="localhost" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="dummy" value="true" />
+    <arg name="launch_device" value="$(arg launch_device)" />
   </include>
 </launch>
