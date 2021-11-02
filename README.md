@@ -55,6 +55,25 @@ cd ..
 catkin build
 ```
 
+## Device setup
+
+### Install LED setup
+
+```bash
+sudo pip install rpi_ws281x
+```
+
+### LED setup
+
+Follow [jgarff/rpi_ws281x#spi][https://github.com/jgarff/rpi_ws281x#spi]
+
+For melodic, please do the following, too.
+
+```bash
+sudo apt install sysfsutils
+sudo echo devices/system/cpu/cpu0/cpufreq/scaling_min_freq = 1000000 > /etc/sysfs.d/99-cpu-min.conf
+```
+
 ## Demo launch
 
 ### PR2 + RMUI
