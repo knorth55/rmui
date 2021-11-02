@@ -22,7 +22,7 @@
   (ros::ros-info "motion-init finished")
   (setq *server*
         (instance rmui-server :init
-                  :namespace *namespace*
+                  :namespace *device-namespace*
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
                   :device-frame-id *device-frame-id*

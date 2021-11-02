@@ -14,7 +14,7 @@ class RMUIPosePublisher(object):
         self.parent_frame_id = rospy.get_param(
             '~parent_frame_id', 'world')
         self.rmui_frame_id = rospy.get_param(
-            '~rmui_frame_id', 'rmui_link')
+            '~rmui_frame_id', 'rmui0_link')
         self.update_rate = rospy.Duration(
             rospy.get_param('~update_rate', 0.1))
         self.pub = rospy.Publisher('~output', PoseStamped, queue_size=1)

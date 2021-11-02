@@ -1,4 +1,5 @@
 <launch>
+  <arg name="rmui_name" default="rmui0" />
   <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
@@ -24,7 +25,9 @@
   </include>
 
   <include file="$(find rmuieus)/launch/pr2_rmui_statenet_server.launch"
-           if="$(arg main)"/>
+           if="$(arg main)">
+    <arg name="rmui_name" value="$(arg rmui_name)" />
+  </include>
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
            if="$(arg marker)" />
@@ -32,6 +35,7 @@
   <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch"
            if="$(arg record)">
     <arg name="compress" value="$(arg compress)" />
+    <arg name="rmui_name" value="$(arg rmui_name)" />
   </include>
 
   <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"

@@ -1,4 +1,5 @@
 <launch>
+  <arg name="rmui_name" default="rmui0" />
   <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
 
@@ -24,5 +25,6 @@
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="rmui_name" value="$(arg rmui_name)" />
   </include>
 </launch>

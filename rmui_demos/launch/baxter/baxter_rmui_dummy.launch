@@ -1,4 +1,5 @@
 <launch>
+  <arg name="rmui_name" default="rmui0" />
   <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
 
@@ -19,5 +20,6 @@
     <arg name="record" value="$(arg record)" />
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="rmui_name" value="$(arg rmui_name)" />
   </include>
 </launch>
