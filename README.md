@@ -55,28 +55,6 @@ cd ..
 catkin build
 ```
 
-## Device setup
-
-### Install LED setup
-
-```bash
-sudo pip install rpi_ws281x
-```
-
-### LED setup
-
-Follow [jgarff/rpi_ws281x#spi](https://github.com/jgarff/rpi_ws281x#spi)
-
-
-### additional LED setup for melodic
-
-For melodic, please do the following, too.
-
-```bash
-sudo apt install sysfsutils
-sudo echo devices/system/cpu/cpu0/cpufreq/scaling_min_freq = 1000000 > /etc/sysfs.d/99-cpu-min.conf
-```
-
 ## Demo launch
 
 ### PR2 + RMUI
@@ -111,6 +89,49 @@ roslaunch eus_vive baxter_moveit_remote.launch
 
 ```bash
 roslaunch rmui_demos baxter_rmui_dummy.launch
+```
+
+## Device setup
+
+### SD card backup
+
+Please follow [here](https://www.pragmaticlinux.com/2020/12/how-to-clone-your-raspberry-pi-sd-card-in-linux/)
+
+```bash
+cd ~/Downloads
+sudo dd bs=4M if=/dev/sde of=20211102_mtc2_melodic.img conv=fsync
+wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+chmod +x pishrink.sh
+sudo ./pishrink.sh 20211102_mtc2_melodic.img
+sudo chown $USER: 20211102_mtc2_melodic.img
+tar czf 20211102_mtc2_melodic.img.tar.gz 20211102_mtc2_melodic.img
+```
+
+### SD card restore
+
+```bash
+tar xzf 20211102_mtc2_melodic.img.tar.gz
+sudo dd bs=4M if=20211102_mtc2_melodic.img of=/dev/sde conv=fsync
+```
+
+### Install LED setup
+
+```bash
+sudo pip install rpi_ws281x
+```
+
+### LED setup
+
+Follow [jgarff/rpi_ws281x#spi](https://github.com/jgarff/rpi_ws281x#spi)
+
+
+### additional LED setup for melodic
+
+For melodic, please do the following, too.
+
+```bash
+sudo apt install sysfsutils
+sudo echo devices/system/cpu/cpu0/cpufreq/scaling_min_freq = 1000000 > /etc/sysfs.d/99-cpu-min.conf
 ```
 
 ## RMUI device
