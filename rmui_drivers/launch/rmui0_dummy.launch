@@ -4,7 +4,7 @@
   <arg name="gui" default="true" />
   <arg name="launch_device" default="true" />
 
-  <include file="$(find rmui_drivers)/launch/rmui_dummy.launch">
+  <include file="$(find rmui_drivers)/launch/rmui/rmui_dummy.launch">
     <arg name="group_name" value="rmui0" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />

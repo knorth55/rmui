@@ -6,7 +6,7 @@
   <arg name="gui" default="true" />
   <arg name="launch_device" default="true" />
 
-  <include file="$(find rmui_drivers)/launch/rmui_base.launch">
+  <include file="$(find rmui_drivers)/launch/rmui/rmui_base.launch">
     <arg name="machine" value="localhost" />
     <arg name="group_name" value="$(arg group_name)" />
     <arg name="n_board" value="$(arg n_board)" />
