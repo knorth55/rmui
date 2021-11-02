@@ -99,11 +99,12 @@ Please follow [here](https://www.pragmaticlinux.com/2020/12/how-to-clone-your-ra
 
 ```bash
 cd ~/Downloads
-sudo dd bs=4M if=/dev/sde of=20211102_mtc2_melodic.img conv=fsync
+sudo dd bs=4M if=/dev/sde of=20211102_mtc2_melodic.img
+sudo chown $USER: 20211102_mtc2_melodic.img
+
 wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
 chmod +x pishrink.sh
-sudo ./pishrink.sh 20211102_mtc2_melodic.img
-sudo chown $USER: 20211102_mtc2_melodic.img
+LANG=en_US.UTF-8 sudo ./pishrink.sh 20211102_mtc2_melodic.img 20211102_mtc2_melodic_shrinked.img
 tar czf 20211102_mtc2_melodic.img.tar.gz 20211102_mtc2_melodic.img
 ```
 
@@ -111,7 +112,7 @@ tar czf 20211102_mtc2_melodic.img.tar.gz 20211102_mtc2_melodic.img
 
 ```bash
 tar xzf 20211102_mtc2_melodic.img.tar.gz
-sudo dd bs=4M if=20211102_mtc2_melodic.img of=/dev/sde conv=fsync
+sudo dd bs=4M if=20211102_mtc2_melodic_shrinked.img of=/dev/sde
 ```
 
 ### Install LED setup
