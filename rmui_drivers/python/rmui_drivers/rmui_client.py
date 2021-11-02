@@ -142,9 +142,9 @@ class RMUIClient(object):
 
         header = prx_msg.header
         prx_markers = MarkerArray()
-        for prx_id, (proximity, sensor_pos) in enumerate(
+        for prx_id, (prx_data, sensor_pos) in enumerate(
                 zip(prx_msg.proximities, self.sensor_positions)):
-            if proximity.proximity < self.touch_prx_threshold:
+            if prx_data.average < self.touch_prx_threshold:
                 continue
             arrow_marker = Marker()
             arrow_marker.header = header
@@ -167,7 +167,7 @@ class RMUIClient(object):
                 z=sensor_pos[2])
             sensor_direction = self.sensor_directions[prx_id // 5]
             arrow_scale = min(
-                2000.0, proximity.proximity - self.touch_prx_threshold
+                2000.0, prx_data.average - self.touch_prx_threshold
             ) / 2000.0
             cm_scale = int((0.4 * (1.0 - arrow_scale) + 0.1) * 255)
             if sensor_direction[0] == '-':

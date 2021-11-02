@@ -19,5 +19,6 @@ def scale_to_rgb(val, max_value=255):
 
 
 def prx_to_rgb(prx, min_prx=500, max_prx=2000, max_rgb=255):
-    scale = min(max_prx - min_prx, prx - min_prx) / (max_prx - min_prx)
+    scale = min(max_prx - min_prx, prx - min_prx) / float(max_prx - min_prx)
+    scale = min(1.0, max(scale, 0.0))
     return scale_to_rgb(scale, max_value=max_rgb)

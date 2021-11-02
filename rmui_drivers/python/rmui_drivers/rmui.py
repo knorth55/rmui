@@ -71,11 +71,11 @@ class RMUI(object):
         touch_prx_dict = {}
         for sensor_id, prx_data in enumerate(prx_msg.proximities):
             led_id = sensor_id // len(self.sensor_boards[0].sensors)
-            if prx_data.proximity >= self.touch_prx_threshold:
+            if prx_data.average >= self.touch_prx_threshold:
                 if led_id not in touch_prx_dict:
-                    touch_prx_dict[led_id] = [prx_data.proximity]
+                    touch_prx_dict[led_id] = [prx_data.average]
                 else:
-                    touch_prx_dict[led_id].append(prx_data.proximity)
+                    touch_prx_dict[led_id].append(prx_data.average)
 
         for led_id in range(self.led.n_led):
             if led_id in touch_prx_dict:
