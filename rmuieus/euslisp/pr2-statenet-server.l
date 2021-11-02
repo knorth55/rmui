@@ -3,21 +3,20 @@
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
 (require :common-statenet-server "package://rmuieus/euslisp/common/common-statenet-server.l")
+(require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 
 
-(defvar *device-namespace* "/rmui0/rmui_node")
-(defvar *device-groupname* "rmui_device")
 ;; 60 seconds for duration threshold
 (defvar *duration-threshold* 60)
 (defvar *interrupt-timeout* 10)
 (defvar *prx-threshold* 800)
 (defvar *prx-position-threshold* 0.5)
-(defvar *device-frame-id* "rmui_link")
 (defvar *world-frame-id* "world")
 
 
-(defun main (&key (pdf nil))
+(defun main (&key (pdf nil) (rmui-name "rmui0"))
   (ros::roseus "pr2_statenet_server")
+  (set-rmui-parameters rmui-name)
   (setq *server*
         (instance statenet-action-server :init
                   :device-namespace *device-namespace*

@@ -3,21 +3,21 @@
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
 (require :common-rmui-server "package://rmuieus/euslisp/common/common-rmui-server.l")
+(require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 
 
 ;; parameters
 
-(defvar *namespace* "/rmui0/rmui_node")
 (defvar *prx-threshold* 800)
 (defvar *prx-position-threshold* 0.5)
-(defvar *device-frame-id* "rmui_link")
 (defvar *world-frame-id* "world")
 ;; (defvar *motion-symbol-length* 10)
 (defvar *motion-symbol-length* 5)
 
 
-(defun main ()
+(defun main (&key (rmui-name "rmui0"))
   (ros::roseus "pr2_rmui_planning")
+  (set-rmui-parameters rmui-name)
   (motion-init)
   (ros::ros-info "motion-init finished")
   (setq *server*
