@@ -65,7 +65,10 @@ sudo pip install rpi_ws281x
 
 ### LED setup
 
-Follow [jgarff/rpi_ws281x#spi][https://github.com/jgarff/rpi_ws281x#spi]
+Follow [jgarff/rpi_ws281x#spi](https://github.com/jgarff/rpi_ws281x#spi)
+
+
+### additional LED setup for melodic
 
 For melodic, please do the following, too.
 
