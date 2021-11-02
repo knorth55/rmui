@@ -19,7 +19,7 @@ from rmui_msgs.msg import ImuCalibStatus
 class DummyRMUINode(object):
 
     def __init__(self):
-        frame_id = rospy.get_param('~frame_id', 'rmui_link')
+        frame_id = rospy.get_param('~frame_id', 'rmui0_link')
         duration = rospy.get_param('~duration', 0.1)
         self.n_board = rospy.get_param('~n_board', 6)
         self.n_sensor = rospy.get_param('~n_sensor', 5)
