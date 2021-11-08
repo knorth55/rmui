@@ -4,4 +4,6 @@
            env-loader="/home/pi/env-loader.sh" />
   <machine name="mtc2" user="pi" address="mtc2" timeout="100"
            env-loader="/home/pi/env-loader.sh" />
+  <machine name="mtc3" user="pi" address="mtc3" timeout="100"
+           env-loader="/home/pi/env-loader.sh" />
 </launch>
