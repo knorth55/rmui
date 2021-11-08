@@ -40,6 +40,6 @@
             /$(arg rmui_name)/rmui_pose_publisher/output
             /rmui_rviz/image/compressed
             -q $(arg compress_flag) -b 0
-            --output-prefix $(arg home_dir)/.ros/rmui/rosbag/pr2_rmui"
+            --output-prefix $(arg home_dir)/.ros/rmui/rosbag/pr2_$(arg rmui_name)"
       output="screen" />
 </launch>
