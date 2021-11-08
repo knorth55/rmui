@@ -1,0 +1,39 @@
+<launch>
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="gui" default="true" />
+
+  <!-- rmui0 -->
+  <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
+    <arg name="rmui_name" value="rmui0" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+  </include>
+
+  <!-- rmui1 -->
+  <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
+    <arg name="rmui_name" value="rmui1" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+  </include>
+
+  <!-- rmui2 -->
+  <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
+    <arg name="rmui_name" value="rmui2" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+  </include>
+
+</launch>
