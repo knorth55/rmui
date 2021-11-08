@@ -37,12 +37,15 @@ class DummyRMUI(object):
 
     def __init__(
             self, n_board=6, n_sensor=5,
-            ea=0.3, prx_threshold=500, frame_id='rmui'
+            ea=0.3, prx_threshold=500,
+            frame_id='rmui0_link',
+            world_frame_id='rmui0_world'
     ):
         super(DummyRMUI, self).__init__()
         self.n_board = n_board
         self.n_sensor = n_sensor
         self.frame_id = frame_id
+        self.world_frame_id = world_frame_id
         self.ea = ea
         self.prx_threshold = prx_threshold
         self.fa2s = [0] * (self.n_board * self.n_sensor)
@@ -96,7 +99,7 @@ class DummyRMUI(object):
     def get_transform_stamped_msg(self):
         msg = TransformStamped()
         msg.header.stamp = rospy.Time.now()
-        msg.header.frame_id = 'world'
+        msg.header.frame_id = self.world_frame_id
         msg.child_frame_id = self.frame_id
         msg.transform.rotation.x = self.q[0]
         msg.transform.rotation.y = self.q[1]

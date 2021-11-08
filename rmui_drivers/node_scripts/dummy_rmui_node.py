@@ -20,6 +20,7 @@ class DummyRMUINode(object):
 
     def __init__(self):
         frame_id = rospy.get_param('~frame_id', 'rmui0_link')
+        world_frame_id = rospy.get_param('~world_frame_id', 'rmui0_world')
         duration = rospy.get_param('~duration', 0.1)
         self.n_board = rospy.get_param('~n_board', 6)
         self.n_sensor = rospy.get_param('~n_sensor', 5)
@@ -27,7 +28,8 @@ class DummyRMUINode(object):
         prx_threshold = rospy.get_param('~prx_threshold', 500)
 
         self.device = DummyRMUI(
-            self.n_board, self.n_sensor, ea, prx_threshold, frame_id)
+            self.n_board, self.n_sensor, ea, prx_threshold,
+            frame_id=frame_id, world_frame_id=world_frame_id)
 
         self.pub_imu = rospy.Publisher(
             '~output/imu', Imu, queue_size=1)

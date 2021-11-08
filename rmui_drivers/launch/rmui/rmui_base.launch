@@ -31,6 +31,7 @@
           n_board: $(arg n_board)
           duration: $(arg duration)
           frame_id: $(arg group_name)_link
+          world_frame_id: $(arg group_name)_world
         </rosparam>
       </node>
     </group>

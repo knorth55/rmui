@@ -12,7 +12,7 @@ class RMUIPosePublisher(object):
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
         self.parent_frame_id = rospy.get_param(
-            '~parent_frame_id', 'world')
+            '~parent_frame_id', 'rmui0_world')
         self.rmui_frame_id = rospy.get_param(
             '~rmui_frame_id', 'rmui0_link')
         self.update_rate = rospy.Duration(

@@ -10,7 +10,6 @@
 
 (defvar *prx-threshold* 800)
 (defvar *prx-position-threshold* 0.5)
-(defvar *world-frame-id* "world")
 ;; (defvar *motion-symbol-length* 10)
 (defvar *motion-symbol-length* 5)
 

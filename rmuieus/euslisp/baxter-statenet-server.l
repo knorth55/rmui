@@ -11,7 +11,6 @@
 (defvar *interrupt-timeout* 10)
 (defvar *prx-threshold* 800)
 (defvar *prx-position-threshold* 0.5)
-(defvar *world-frame-id* "world")
 
 
 (defun main (&key (pdf nil) (rmui-name "rmui0"))

@@ -2,8 +2,8 @@ frequency: 50
 sensor_timeout: 1.0
 publish_tf: true
 publish_acceleration: false
-odom_frame: world
-world_frame: world
+odom_frame: rmui2_world
+world_frame: rmui2_world
 base_link_frame: rmui2_link
 # imu
 imu0: /rmui2/rmui_node/output/imu_calibrated
