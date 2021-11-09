@@ -110,6 +110,8 @@ tar czf 20211102_mtc2_melodic.img.tar.gz 20211102_mtc2_melodic.img
 
 ### SD card restore
 
+Download [img file](https://drive.google.com/file/d/1eyhFw4hnbocyGisy8QOxdZNZSb30SXRO/view?usp=sharing).
+
 ```bash
 tar xzf 20211102_mtc2_melodic.img.tar.gz
 sudo dd bs=4M if=20211102_mtc2_melodic_shrinked.img of=/dev/sde
