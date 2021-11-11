@@ -1,0 +1,49 @@
+<launch>
+  <arg name="rmui" default="true" />
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="gui" default="true" />
+
+  <arg name="marker" default="false" />
+  <arg name="marker_frame_id" default="ar_marker_1" />
+
+  <arg name="record" default="true" />
+  <arg name="compress" default="false" doc="whether compress rosbag or not." />
+
+  <arg name="main" default="true" />
+
+  <include file="$(find rmui_demos)/launch/common/common_multi_rmui.launch" if="$(arg rmui)">
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+  </include>
+
+  <!-- TODO: multi planning-->
+  <!--
+  <include file="$(find rmuieus)/launch/pr2_multi_rmui_planning.launch"
+           if="$(arg main)">
+  </include>
+  -->
+
+  <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
+           if="$(arg marker)" />
+
+  <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch"
+           if="$(arg record)">
+    <arg name="compress" value="$(arg compress)" />
+  </include>
+
+  <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
+        respawn="true" output="screen" if="$(arg marker)">
+    <rosparam subst_value="true">
+      marker_frame_id: $(arg marker_frame_id)
+    </rosparam>
+  </node>
+
+
+</launch>
