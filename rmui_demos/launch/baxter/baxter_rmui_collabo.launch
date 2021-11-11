@@ -30,6 +30,5 @@
   <include file="$(find rmui_demos)/launch/baxter/baxter_rosbag_record.launch"
            if="$(arg record)">
     <arg name="compress" value="$(arg compress)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
   </include>
 </launch>

@@ -35,7 +35,6 @@
   <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch"
            if="$(arg record)">
     <arg name="compress" value="$(arg compress)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
   </include>
 
   <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"

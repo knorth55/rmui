@@ -1,7 +1,6 @@
 <launch>
   <arg name="home_dir" default="$(env HOME)" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
-  <arg name="rmui_name" default="rmui0" />
 
   <arg if="$(arg compress)" name="compress_flag" value="--bz2" />
   <arg unless="$(arg compress)" name="compress_flag" value="" />
@@ -33,13 +32,25 @@
             /kinect_head/depth_registered/throttled/camera_info
             /kinect_head/rgb/throttled/image_rect_color/compressed
             /kinect_head/depth_registered/throttled/image_rect/compressedDepth
-            /$(arg rmui_name)/rmui_node/output/imu
-            /$(arg rmui_name)/rmui_node/output/imu/calib_status
-            /$(arg rmui_name)/rmui_node/output/imu_calibrated
-            /$(arg rmui_name)/rmui_node/output/proximities
-            /$(arg rmui_name)/rmui_pose_publisher/output
-            /rmui_rviz/image/compressed
+            /rmui0/rmui_node/output/imu
+            /rmui0/rmui_node/output/imu/calib_status
+            /rmui0/rmui_node/output/imu_calibrated
+            /rmui0/rmui_node/output/proximities
+            /rmui0/rmui_pose_publisher/output
+            /rmui0/rmui_rviz/image/compressed
+            /rmui1/rmui_node/output/imu
+            /rmui1/rmui_node/output/imu/calib_status
+            /rmui1/rmui_node/output/imu_calibrated
+            /rmui1/rmui_node/output/proximities
+            /rmui1/rmui_pose_publisher/output
+            /rmui1/rmui_rviz/image/compressed
+            /rmui2/rmui_node/output/imu
+            /rmui2/rmui_node/output/imu/calib_status
+            /rmui2/rmui_node/output/imu_calibrated
+            /rmui2/rmui_node/output/proximities
+            /rmui2/rmui_pose_publisher/output
+            /rmui2/rmui_rviz/image/compressed
             -q $(arg compress_flag) -b 0
-            --output-prefix $(arg home_dir)/.ros/rmui/rosbag/pr2_$(arg rmui_name)"
+            --output-prefix $(arg home_dir)/.ros/rmui/rosbag/pr2_rmui"
       output="screen" />
 </launch>
