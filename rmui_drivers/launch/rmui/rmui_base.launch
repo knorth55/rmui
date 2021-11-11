@@ -39,17 +39,16 @@
              unless="$(arg dummy)">
       <arg name="group_name" value="$(arg group_name)" />
     </include>
+    <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
+          output="screen">
+      <rosparam subst_value="true">
+        touch_prx_threshold: $(arg touch_prx_threshold)
+        approximate_sync: true 
+        queue_size: 10
+        node_0: /$(arg group_name)/rmui_node
+      </rosparam>
+    </node>
   </group>
-
-  <node name="rmui_server" pkg="rmui_drivers" type="rmui_server.py"
-        output="screen">
-    <rosparam subst_value="true">
-      touch_prx_threshold: $(arg touch_prx_threshold)
-      approximate_sync: true 
-      queue_size: 10
-      node_0: /$(arg group_name)/rmui_node
-    </rosparam>
-  </node>
 
   <group if="$(arg gui)">
     <node name="$(anon rviz)" pkg="rviz" type="rviz"

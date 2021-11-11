@@ -24,7 +24,7 @@
     </include>
   </group>
 
-  <group ns="$(arg group_name)">
+  <group ns="$(arg rmui_name)">
     <node pkg="rmui_demos" name="rmui_pose_publisher" type="rmui_pose_publisher.py"
           respawn="true" output="screen">
       <rosparam subst_value="true">
