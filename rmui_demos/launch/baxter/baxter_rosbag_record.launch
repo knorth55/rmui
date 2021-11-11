@@ -29,6 +29,7 @@
             /rmui2/rmui_node/output/proximities
             /rmui2/rmui_pose_publisher/output
             /rmui2/rmui_rviz/image/compressed
+            /multi_rmui/rmui_rviz/image/compressed
             -q $(arg compress_flag) -b 0
             --output-prefix $(arg home_dir)/.ros/rmui/rosbag/baxter_rmui"
       output="screen" />
