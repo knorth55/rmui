@@ -1,16 +1,16 @@
 tabbed_layout:
-  tab_list: 
-    - rmui0_imu 
+  tab_list:
+    - rmui0_imu
     - rmui0_contact
     - rmui0_rotate
     - rmui0_bottom_contact
     - rmui0_system
-    - rmui1_imu 
+    - rmui1_imu
     - rmui1_contact
     - rmui1_rotate
     - rmui1_bottom_contact
     - rmui1_system
-    - rmui2_imu 
+    - rmui2_imu
     - rmui2_contact
     - rmui2_rotate
     - rmui2_bottom_contact

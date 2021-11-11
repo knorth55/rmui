@@ -22,9 +22,8 @@
 
   <!-- TODO: multi planning-->
   <!--
-  <include file="$(find rmuieus)/launch/baxter_rmui_planning.launch"
+  <include file="$(find rmuieus)/launch/baxter_multi_rmui_planning.launch"
            if="$(arg main)">
-    <arg name="rmui_name" value="rmui0" />
   </include>
   -->
 
