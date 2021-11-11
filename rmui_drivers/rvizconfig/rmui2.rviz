@@ -97,7 +97,7 @@ Visualization Manager:
       Enabled: true
       Name: RvizScenePublisher
       Value: true
-      topic_name: /rmui_rviz/image
+      topic_name: /rmui2/rmui_rviz/image
     - Class: jsk_rviz_plugin/PieChart
       Enabled: true
       Name: Moving
