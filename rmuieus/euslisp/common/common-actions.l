@@ -8,89 +8,129 @@
 
 ;; common arm actions
 
-(defun front-push-action (arm &key (move-robot t) (use-torso t) &rest args)
+(defun front-push-action (arm &key (move-robot t) (use-torso t)
+                              (robot *robot*) (ri *ri*)
+                              &rest args)
   (push-motion arm :move-robot move-robot :use-torso use-torso
                :push-axes (list :x)
                :push-positions (list :center)
                :push-directions (list :front)
                :approach-directions (list (if (eq arm :larm) :left :right))
-               :approach-arm arm)
+               :approach-arm arm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun back-push-action (arm &key (move-robot t) (use-torso t) &rest args)
+(defun back-push-action (arm &key (move-robot t) (use-torso t)
+                             (robot *robot*) (ri *ri*)
+                             &rest args)
   (push-motion arm :move-robot move-robot :use-torso use-torso
                :push-axes (list :x)
                :push-positions (list :center)
                :push-directions (list :back)
                :approach-directions (list (if (eq arm :larm) :left :right))
-               :approach-arm arm)
+               :approach-arm arm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun top-push-action (arm &key (move-robot t) (use-torso t) &rest args)
+(defun top-push-action (arm &key (move-robot t) (use-torso t)
+                            (robot *robot*) (ri *ri*)
+                            &rest args)
   (push-motion arm :move-robot move-robot :use-torso use-torso
                :push-axes (list :z)
                :push-positions (list :center)
                :push-directions (list :top)
                :approach-directions (list (if (eq arm :larm) :left :right))
-               :approach-arm arm)
+               :approach-arm arm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun move-push-action (arm &key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube arm)
+(defun move-push-action (arm &key (move-robot t) (use-torso t)
+                             (robot *robot*) (ri *ri*)
+                             &rest args)
+  (assoc-cube arm :ri ri)
   (push-move-motion arm :move-robot move-robot :use-torso use-torso
                     :push-axis :y
-                    :move-distance (if (eq arm :larm) -200.0 200.0))
-  (dissoc-cube arm)
+                    :move-distance (if (eq arm :larm) -200.0 200.0)
+                    :robot robot
+                    :ri ri)
+  (dissoc-cube arm :ri ri)
   t)
 
 
-(defun push-release-action (arm &key (move-robot t) (use-torso t) &rest args)
-  (push-release-motion arm :move-robot move-robot :use-torso use-torso)
-  (reset-cube-manip-motion arm :move-robot move-robot)
+(defun push-release-action (arm &key (move-robot t) (use-torso t)
+                                (robot *robot*) (ri *ri*)
+                                &rest args)
+  (push-release-motion arm :move-robot move-robot :use-torso use-torso
+                       :robot robot :ri ri)
+  (reset-cube-manip-motion arm :move-robot move-robot
+                           :robot robot :ri ri)
   t)
 
 
 ;; dualarm actions
 
-(defun dualarm-hold-up-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
-  (hold-lift-up-motion :lift-height 200 :move-robot move-robot :use-torso use-torso)
-  (dissoc-cube :arms)
+(defun dualarm-hold-up-action (&key (move-robot t) (use-torso t)
+                                    (robot *robot*) (ri *ri*)
+                                    &rest args)
+  (assoc-cube :arms :ri ri)
+  (hold-lift-up-motion :lift-height 200 :move-robot move-robot :use-torso use-torso
+                       :robot robot :ri ri)
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-hold-up-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-push-hold-up-action (&key (move-robot t) (use-torso t)
+                                         (robot *robot*) (ri *ri*)
+                                         &rest args)
+  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso
+                          :robot robot :ri ri)
   t)
 
 
-(defun dualarm-support-hold-up-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-support-hold-up-action (&key (move-robot t) (use-torso t)
+                                            (robot *robot*) (ri *ri*)
+                                            &rest args)
+  (dualarm-hold-up-action :move-robot move-robot :use-torso use-torso
+                          :robot robot :ri ri)
   t)
 
 
-(defun dualarm-hold-down-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
-  (hold-lift-down-motion :move-robot move-robot :use-torso use-torso)
-  (dissoc-cube :arms)
+(defun dualarm-hold-down-action (&key (move-robot t) (use-torso t)
+                                      (robot *robot*) (ri *ri*)
+                                      &rest args)
+  (assoc-cube :arms :ri ri)
+  (hold-lift-down-motion :move-robot move-robot :use-torso use-torso
+                         :robot robot :ri ri)
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-hold-down-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-push-hold-down-action (&key (move-robot t) (use-torso t)
+                                           (robot *robot*) (ri *ri*)
+                                           &rest args)
+  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso
+                            :robot robot :ri ri)
   t)
 
 
-(defun dualarm-support-hold-down-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-support-hold-down-action (&key (move-robot t) (use-torso t)
+                                              (robot *robot*) (ri *ri*)
+                                              &rest args)
+  (dualarm-hold-down-action :move-robot move-robot :use-torso use-torso
+                            :robot robot :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-ccw-x45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-ccw-x45-action (&key (move-robot t) (use-torso t)
+                                                (robot *robot*) (ri *ri*)
+                                                &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :bottom-left-contact)
                     (equal rarm-contact-state :top-right-contact))
@@ -105,13 +145,17 @@
                         :cube-width cube-width
                         :cube-depth cube-depth
                         :move-robot move-robot
-                        :use-torso use-torso))
-  (dissoc-cube :arms)
+                        :use-torso use-torso
+                        :robot robot
+                        :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-cw-x45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-cw-x45-action (&key (move-robot t) (use-torso t)
+                                               (robot *robot*) (ri *ri*)
+                                               &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :bottom-right-contact))
@@ -126,13 +170,17 @@
                         :cube-width cube-width
                         :cube-depth cube-depth
                         :move-robot move-robot
-                        :use-torso use-torso))
-  (dissoc-cube :arms)
+                        :use-torso use-torso
+                        :robot robot
+                        :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t)
+                                                (robot *robot*) (ri *ri*)
+                                                &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle 0)
          (cube-rpy (float-vector 0 0 initial-rotate-angle))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
@@ -144,23 +192,33 @@
                         :cube-width cube-width
                         :cube-depth cube-depth
                         :move-robot move-robot
-                        :use-torso use-torso))
-  (dissoc-cube :arms)
+                        :use-torso use-torso
+                        :robot robot
+                        :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-lift-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-lift-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t)
+                                                     (robot *robot*) (ri *ri*)
+                                                     &rest args)
+  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso
+                                      :robot robot :ri ri)
   t)
 
 
-(defun dualarm-side-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-side-push-rotate-ccw-x90-action (&key (move-robot t) (use-torso t)
+                                                     (robot *robot*) (ri *ri*)
+                                                     &rest args)
+  (dualarm-push-rotate-ccw-x90-action :move-robot move-robot :use-torso use-torso
+                                      :robot robot :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t)
+                                               (robot *robot*) (ri *ri*)
+                                               &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle 0)
          (cube-rpy (float-vector 0 0 initial-rotate-angle))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
@@ -172,39 +230,53 @@
                         :cube-width cube-width
                         :cube-depth cube-depth
                         :move-robot move-robot
-                        :use-torso use-torso))
-  (dissoc-cube :arms)
+                        :use-torso use-torso
+                        :robot robot
+                        :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-lift-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-lift-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t)
+                                                    (robot *robot*) (ri *ri*) &rest args)
+  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso
+                                     :robot robot :ri ri)
   t)
 
 
-(defun dualarm-side-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t) &rest args)
-  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso)
+(defun dualarm-side-push-rotate-cw-x90-action (&key (move-robot t) (use-torso t)
+                                                    (robot *robot*) (ri *ri*) &rest args)
+  (dualarm-push-rotate-cw-x90-action :move-robot move-robot :use-torso use-torso
+                                     :robot robot :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-ccw-z45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-ccw-z45-action (&key (move-robot t) (use-torso t)
+                                                (robot *robot*) (ri *ri*)
+                                                &rest args)
+  (assoc-cube :arms :ri ri)
   (push-rotate-motion :rotate-angle (/ pi 4.0) :rotate-axis :z
-                      :move-robot move-robot :use-torso use-torso)
-  (dissoc-cube :arms)
+                      :move-robot move-robot :use-torso use-torso
+                      :robot robot :ri ri)
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-rotate-cw-z45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-push-rotate-cw-z45-action (&key (move-robot t) (use-torso t)
+                                               (robot *robot*) (ri *ri*)
+                                               &rest args)
+  (assoc-cube :arms :ri ri)
   (push-rotate-motion :rotate-angle (/ -pi 4.0) :rotate-axis :z
-                      :move-robot move-robot :use-torso use-torso)
-  (dissoc-cube :arms)
+                      :move-robot move-robot :use-torso use-torso
+                      :robot robot :ri ri)
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-support-rotate-ccw-x45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-support-rotate-ccw-x45-action (&key (move-robot t) (use-torso t)
+                                                   (robot *robot*) (ri *ri*)
+                                                   &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :top-right-contact))
@@ -219,13 +291,17 @@
                            :cube-width cube-width
                            :cube-depth cube-depth
                            :move-robot move-robot
-                           :use-torso use-torso))
-  (dissoc-cube :arms)
+                           :use-torso use-torso
+                           :robot robot
+                           :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-support-rotate-cw-x45-action (&key (move-robot t) (use-torso t) &rest args)
-  (assoc-cube :arms)
+(defun dualarm-support-rotate-cw-x45-action (&key (move-robot t) (use-torso t)
+                                                  (robot *robot*) (ri *ri*)
+                                                  &rest args)
+  (assoc-cube :arms :ri ri)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :top-right-contact))
@@ -240,41 +316,62 @@
                            :cube-width cube-width
                            :cube-depth cube-depth
                            :move-robot move-robot
-                           :use-torso use-torso))
-  (dissoc-cube :arms)
+                           :use-torso use-torso
+                           :robot robot
+                           :ri ri))
+  (dissoc-cube :arms :ri ri)
   t)
 
 
-(defun dualarm-push-release-action (&key (move-robot t) (use-torso t) &rest args)
-  (push-release-action :larm :move-robot nil :use-torso use-torso)
-  (push-release-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun dualarm-push-release-action (&key (move-robot t) (use-torso t)
+                                         (robot *robot*) (ri *ri*)
+                                         &rest args)
+  (push-release-action :larm :move-robot nil :use-torso use-torso
+                       :robot robot :ri ri)
+  (push-release-action :rarm :move-robot move-robot :use-torso use-torso
+                       :robot robot :ri ri))
 
 
 ;; larm actions
 
-(defun larm-left-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-left-push-action (&key (move-robot t) (use-torso t)
+                                   (robot *robot*) (ri *ri*)
+                                   &rest args)
   (push-motion :larm :move-robot move-robot :use-torso use-torso
                :push-axes (list :y)
                :push-positions (list :center)
                :push-directions (list :left)
                :approach-directions (list :back)
-               :approach-arm :larm)
+               :approach-arm :larm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun larm-front-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (front-push-action :larm :move-robot move-robot :use-torso use-torso))
+(defun larm-front-push-action (&key (move-robot t) (use-torso t)
+                                    (robot *robot*) (ri *ri*)
+                                    &rest args)
+  (front-push-action :larm :move-robot move-robot :use-torso use-torso
+                     :robot robot :ri ri))
 
 
-(defun larm-back-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (back-push-action :larm :move-robot move-robot :use-torso use-torso))
+(defun larm-back-push-action (&key (move-robot t) (use-torso t)
+                                   (robot *robot*) (ri *ri*)
+                                   &rest args)
+  (back-push-action :larm :move-robot move-robot :use-torso use-torso
+                    :robot robot :ri ri))
 
 
-(defun larm-top-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (top-push-action :larm :move-robot move-robot :use-torso use-torso))
+(defun larm-top-push-action (&key (move-robot t) (use-torso t)
+                                  (robot *robot*) (ri *ri*)
+                                  &rest args)
+  (top-push-action :larm :move-robot move-robot :use-torso use-torso
+                   :robot robot :ri ri))
 
 
-(defun larm-top-left-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-top-left-push-action (&key (move-robot t) (use-torso t)
+                                       (robot *robot*) (ri *ri*)
+                                       &rest args)
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -288,11 +385,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :larm))
+                 :approach-arm :larm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun larm-bottom-left-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-bottom-left-push-action (&key (move-robot t) (use-torso t)
+                                          (robot *robot*) (ri *ri*)
+                                          &rest args)
   (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -306,11 +407,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :larm))
+                 :approach-arm :larm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun larm-front-left-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-front-left-push-action (&key (move-robot t) (use-torso t)
+                                         (robot *robot*) (ri *ri*)
+                                         &rest args)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -324,11 +429,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :larm))
+                 :approach-arm :larm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun larm-back-left-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-back-left-push-action (&key (move-robot t) (use-torso t)
+                                        (robot *robot*) (ri *ri*)
+                                        &rest args)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -342,15 +451,22 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :larm))
+                 :approach-arm :larm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun larm-left-move-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (move-push-action :larm :move-robot move-robot :use-torso use-torso))
+(defun larm-left-move-push-action (&key (move-robot t) (use-torso t)
+                                        (robot *robot*) (ri *ri*)
+                                        &rest args)
+  (move-push-action :larm :move-robot move-robot :use-torso use-torso
+                    :robot robot :ri ri))
 
 
-(defun larm-bottom-left-side-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-bottom-left-side-push-action (&key (move-robot t) (use-torso t)
+                                               (robot *robot*) (ri *ri*)
+                                               &rest args)
   (push-motion :larm :move-robot move-robot :use-torso use-torso
                :push-axes (list :z)
                :push-positions (list :left)
@@ -358,49 +474,72 @@
                :approach-directions (list :back)
                :hold-type :tight
                ;; :hold-type 100
-               :approach-arm :larm)
+               :approach-arm :larm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun larm-top-right-side-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun larm-top-right-side-push-action (&key (move-robot t) (use-torso t)
+                                             (robot *robot*) (ri *ri*)
+                                             &rest args)
   (push-motion :larm :move-robot move-robot :use-torso use-torso
                :push-axes (list :z)
                :push-positions (list :right)
                :push-directions (list :top)
                :approach-directions (list :back)
-               :approach-arm :larm)
+               :approach-arm :larm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun larm-push-release-action (&key (move-robot t) (use-torso t) &rest args)
-  (push-release-action :larm :move-robot move-robot :use-torso use-torso))
+(defun larm-push-release-action (&key (move-robot t) (use-torso t)
+                                      (robot *robot*) (ri *ri*)
+                                      &rest args)
+  (push-release-action :larm :move-robot move-robot :use-torso use-torso
+                       :robot robot :ri ri))
 
 
 ;; rarm actions
 
-(defun rarm-right-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-right-push-action (&key (move-robot t) (use-torso t)
+                                    (robot *robot*) (ri *ri*)
+                                    &rest args)
   (push-motion :rarm :move-robot move-robot :use-torso use-torso
                :push-axes (list :y)
                :push-positions (list :center)
                :push-directions (list :right)
                :approach-directions (list :back)
-               :approach-arm :rarm)
+               :approach-arm :rarm
+               :robot robot :ri ri)
   t)
 
 
-(defun rarm-front-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (front-push-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun rarm-front-push-action (&key (move-robot t) (use-torso t)
+                                    (robot *robot*) (ri *ri*)
+                                    &rest args)
+  (front-push-action :rarm :move-robot move-robot :use-torso use-torso
+                     :robot robot :ri ri))
 
 
-(defun rarm-back-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (back-push-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun rarm-back-push-action (&key (move-robot t) (use-torso t)
+                                   (robot *robot*) (ri *ri*)
+                                   &rest args)
+  (back-push-action :rarm :move-robot move-robot :use-torso use-torso
+                    :robot robot :ri ri))
 
 
-(defun rarm-top-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (top-push-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun rarm-top-push-action (&key (move-robot t) (use-torso t)
+                                  (robot *robot*) (ri *ri*)
+                                  &rest args)
+  (top-push-action :rarm :move-robot move-robot :use-torso use-torso
+                   :robot robot :ri ri))
 
 
-(defun rarm-top-right-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-top-right-push-action (&key (move-robot t) (use-torso t)
+                                        (robot *robot*) (ri *ri*)
+                                        &rest args)
   (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -414,11 +553,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :rarm))
+                 :approach-arm :rarm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun rarm-bottom-right-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-bottom-right-push-action (&key (move-robot t) (use-torso t)
+                                           (robot *robot*) (ri *ri*)
+                                           &rest args)
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -432,11 +575,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :rarm))
+                 :approach-arm :rarm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun rarm-front-right-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-front-right-push-action (&key (move-robot t) (use-torso t)
+                                          (robot *robot*) (ri *ri*)
+                                          &rest args)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -450,11 +597,15 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :rarm))
+                 :approach-arm :rarm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun rarm-back-right-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-back-right-push-action (&key (move-robot t) (use-torso t)
+                                         (robot *robot*) (ri *ri*)
+                                         &rest args)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy))
          (cube-width (get-cube-width :cube-rpy cube-rpy))
@@ -468,15 +619,22 @@
                  :cube-width cube-width
                  :cube-depth cube-depth
                  :cube-rpy cube-rpy
-                 :approach-arm :rarm))
+                 :approach-arm :rarm
+                 :robot robot
+                 :ri ri))
   t)
 
 
-(defun rarm-right-move-push-action (&key (move-robot t) (use-torso t) &rest args)
-  (move-push-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun rarm-right-move-push-action (&key (move-robot t) (use-torso t)
+                                         (robot *robot*) (ri *ri*)
+                                         &rest args)
+  (move-push-action :rarm :move-robot move-robot :use-torso use-torso
+                    :robot robot :ri ri))
 
 
-(defun rarm-bottom-right-side-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-bottom-right-side-push-action (&key (move-robot t) (use-torso t)
+                                                (robot *robot*) (ri *ri*)
+                                                &rest args)
   (push-motion :rarm :move-robot move-robot :use-torso use-torso
                :push-axes (list :z)
                :push-positions (list :right)
@@ -484,22 +642,31 @@
                :approach-directions (list :back)
                :hold-type :tight
                ;; :hold-type 100
-               :approach-arm :rarm)
+               :approach-arm :rarm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun rarm-top-left-side-push-action (&key (move-robot t) (use-torso t) &rest args)
+(defun rarm-top-left-side-push-action (&key (move-robot t) (use-torso t)
+                                            (robot *robot*) (ri *ri*)
+                                            &rest args)
   (push-motion :rarm :move-robot move-robot :use-torso use-torso
                :push-axes (list :z)
                :push-positions (list :left)
                :push-directions (list :top)
                :approach-directions (list :back)
-               :approach-arm :rarm)
+               :approach-arm :rarm
+               :robot robot
+               :ri ri)
   t)
 
 
-(defun rarm-push-release-action (&key (move-robot t) (use-torso t) &rest args)
-  (push-release-action :rarm :move-robot move-robot :use-torso use-torso))
+(defun rarm-push-release-action (&key (move-robot t) (use-torso t)
+                                      (robot *robot*) (ri *ri*)
+                                      &rest args)
+  (push-release-action :rarm :move-robot move-robot :use-torso use-torso
+                       :robot robot :ri ri))
 
 
 (provide :common-actions "common-actions.l")

@@ -7,7 +7,7 @@
 (defun motion-init (&key (cube-pos-y 0))
   (scene-init :cube-pos-y cube-pos-y)
   (add-cube-coords)
-  (reset-motion))
+  (reset-motion :robot *robot* :ri *ri*))
 
 
 (defun get-contact-coords (arm &key (robot *robot*))
@@ -59,26 +59,26 @@
     (send *cube* :put coords-name nil)))
 
 
-(defun assoc-cube (arm)
+(defun assoc-cube (arm &key (ri *ri*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (assoc-cube-step a)))
+    (assoc-cube-step a :ri ri)))
 
 
-(defun assoc-cube-step (arm)
-  (if (send *ri* :simulation-modep)
-    (send (get-contact-coords arm :robot (send *ri* :robot))
-          :assoc (car (send *ri* :find-object *cube-id*)))))
+(defun assoc-cube-step (arm &key (ri *ri*))
+  (if (send ri :simulation-modep)
+    (send (get-contact-coords arm :robot (send ri :robot))
+          :assoc (car (send ri :find-object *cube-id*)))))
 
 
-(defun dissoc-cube (arm)
+(defun dissoc-cube (arm &key (ri *ri*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (dissoc-cube-step a)))
+    (dissoc-cube-step a :ri ri)))
 
 
-(defun dissoc-cube-step (arm)
-  (if (send *ri* :simulation-modep)
-    (send (get-contact-coords arm :robot (send *ri* :robot))
-          :dissoc (car (send *ri* :find-object *cube-id*)))))
+(defun dissoc-cube-step (arm &key (ri *ri*))
+  (if (send ri :simulation-modep)
+    (send (get-contact-coords arm :robot (send ri :robot))
+          :dissoc (car (send ri :find-object *cube-id*)))))
 
 
 (defun add-cube-coords ()
@@ -386,7 +386,9 @@
             (cube-rpy (float-vector 0 0 0))
             (cube-height (get-cube-height))
             (cube-width (get-cube-width))
-            (cube-depth (get-cube-depth)))
+            (cube-depth (get-cube-depth))
+            (robot *robot*)
+            (ri *ri*))
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion-step nil))
@@ -423,10 +425,10 @@
           (ros::ros-error "larm target coords is invalid: ~A" larm-target-coords)
           (ros::ros-error "rarm target coords is invalid: ~A" rarm-target-coords)
           (return-from push-motion-step nil))
-        (setq av (send* *robot* :inverse-kinematics (list larm-target-coords rarm-target-coords)
+        (setq av (send* robot :inverse-kinematics (list larm-target-coords rarm-target-coords)
                         (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
         (unless av
-          (setq av (send* *robot* :inverse-kinematics (list larm-target-coords rarm-target-coords)
+          (setq av (send* robot :inverse-kinematics (list larm-target-coords rarm-target-coords)
                          (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso)))))
       (let ((target-coords
               (get-push-target-coords
@@ -443,14 +445,14 @@
                 :cube-depth cube-depth)))
         (unless target-coords
           (return-from push-motion-step nil))
-        (setq av (send* *robot* :inverse-kinematics (list target-coords)
+        (setq av (send* robot :inverse-kinematics (list target-coords)
                         (get-contact-ik-args arm :rotation-axis t :use-torso use-torso)))
         (unless av
-          (setq av (send* *robot* :inverse-kinematics (list target-coords)
+          (setq av (send* robot :inverse-kinematics (list target-coords)
                           (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))))
     (when (and av move-robot)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
+      (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+      (send ri :wait-interpolation))
     (send *irtviewer* :draw-objects)
     (list av tm)))
 
@@ -470,7 +472,9 @@
             (cube-rpy (float-vector 0 0 0))
             (cube-height (get-cube-height))
             (cube-width (get-cube-width))
-            (cube-depth (get-cube-depth)))
+            (cube-depth (get-cube-depth))
+            (robot *robot*)
+            (ri *ri*))
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-motion nil))
@@ -517,7 +521,9 @@
             :cube-rpy cube-rpy
             :cube-height cube-height
             :cube-width cube-width
-            :cube-depth cube-depth))
+            :cube-depth cube-depth
+            :robot robot
+            :ri ri))
     (when approached
       (setq pushed
             (push-motion-step
@@ -535,7 +541,9 @@
               :cube-rpy cube-rpy
               :cube-height cube-height
               :cube-width cube-width
-              :cube-depth cube-depth)))
+              :cube-depth cube-depth
+              :robot robot
+              :ri ri)))
     (when pushed
       (contact-cube arm)
       (list (list (car approached) (car pushed))
@@ -550,7 +558,8 @@
     target-coords))
 
 
-(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001))
+(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001) 
+                                (robot *robot*) (ri *ri*))
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
@@ -558,20 +567,20 @@
     (if (eq arm :arms)
       (let ((larm-target-coords (get-push-release-target-coords :larm))
             (rarm-target-coords (get-push-release-target-coords :rarm)))
-        (setq av (send* *robot* :inverse-kinematics (list larm-target-coords rarm-target-coords)
+        (setq av (send* robot :inverse-kinematics (list larm-target-coords rarm-target-coords)
                         (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
         (unless av
-          (setq av (send* *robot* :inverse-kinematics (list larm-target-coords rarm-target-coords)
+          (setq av (send* robot :inverse-kinematics (list larm-target-coords rarm-target-coords)
                           (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso)))))
       (let ((target-coords (get-push-release-target-coords arm)))
-        (setq av (send* *robot* :inverse-kinematics (list target-coords)
+        (setq av (send* robot :inverse-kinematics (list target-coords)
                         (get-contact-ik-args arm :rotation-axis t :use-torso use-torso)))
         (unless av
-          (setq av (send* *robot* :inverse-kinematics (list target-coords)
+          (setq av (send* robot :inverse-kinematics (list target-coords)
                           (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))))
     (when (and av move-robot)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
+      (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+      (send ri :wait-interpolation))
     (send *irtviewer* :draw-objects)
     (when av
       (discontact-cube arm)
@@ -594,7 +603,9 @@
         (cube-rpy (float-vector 0 0 0))
         (cube-height (get-cube-height))
         (cube-width (get-cube-width))
-        (cube-depth (get-cube-depth)))
+        (cube-depth (get-cube-depth))
+        (robot *robot*)
+        (ri *ri*))
   (unless (or (eq top-arm :larm) (eq top-arm :rarm) (null top-arm))
     (ros::ros-error (format nil "top-arm is invalid: ~A" top-arm))
     (return-from push-hold-motion nil))
@@ -637,7 +648,9 @@
             :cube-rpy cube-rpy
             :cube-height cube-height
             :cube-width cube-width
-            :cube-depth cube-depth))
+            :cube-depth cube-depth
+            :robot robot
+            :ri ri))
     push-holded))
 
 
@@ -648,9 +661,11 @@
             (move-distance 200.0)
             (move-robot t)
             (tm 3000)
-            (use-torso 0.001))
+            (use-torso 0.001)
+            (robot *robot*)
+            (ri *ri*))
   (let ((av)
-        (prev-av (send *robot* :angle-vector))
+        (prev-av (send robot :angle-vector))
         (prev-cube-coords (send *cube* :copy-worldcoords))
         (cube-move-vector
           (cond ((eq push-axis :x) (float-vector move-distance 0 0))
@@ -658,19 +673,19 @@
                 ((eq push-axis :z) (float-vector 0 0 move-distance))
                 (t (float-vector 0 0 0)))))
     (send *cube* :translate cube-move-vector :world)
-    (setq av (send* *robot* :inverse-kinematics
+    (setq av (send* robot :inverse-kinematics
                     (list (send (get-contact-cube-coords arm) :copy-worldcoords))
                     (get-contact-ik-args arm :rotation-axis t :use-torso use-torso)))
     (unless av
-      (setq av (send* *robot* :inverse-kinematics
+      (setq av (send* robot :inverse-kinematics
                       (list (send (get-contact-cube-coords arm) :copy-worldcoords))
                       (get-contact-ik-args arm :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-        (send *ri* :wait-interpolation))
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
       (progn
-        (send *robot* :angle-vector prev-av)
+        (send robot :angle-vector prev-av)
         (send *cube* :newcoords prev-cube-coords)
         (send *cube* :worldcoords)))
     (send *irtviewer* :draw-objects)
@@ -695,7 +710,9 @@
         (cube-rpy (float-vector 0 0 0))
         (cube-height (get-cube-height))
         (cube-width (get-cube-width))
-        (cube-depth (get-cube-depth)))
+        (cube-depth (get-cube-depth))
+        (robot *robot*)
+        (ri *ri*))
   (unless (or (eq top-arm :larm) (eq top-arm :rarm))
     (ros::ros-error (format nil "top-arm is invalid: ~A" top-arm))
     (return-from support-hold-motion nil))
@@ -767,48 +784,54 @@
             :cube-rpy cube-rpy
             :cube-height cube-height
             :cube-width cube-width
-            :cube-depth cube-depth))
+            :cube-depth cube-depth
+            :robot robot
+            :ri ri))
     support-holded))
 
 
 ;; hold release motion
 
-(defun hold-release-motion (&key (arm :arms) (move-robot t) (tm 5000) (use-torso 0.001))
-  (push-release-motion arm :move-robot move-robot :tm tm :use-torso use-torso))
+(defun hold-release-motion (&key (arm :arms) (move-robot t) (tm 5000) (use-torso 0.001)
+                                 (robot *robot*) (ri *ri*))
+  (push-release-motion arm :move-robot move-robot :tm tm :use-torso use-torso
+                       :robot robot :ri ri))
 
 
 ;; hold lift up & down motion
 
-(defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000) (use-torso 0.001))
+(defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000) (use-torso 0.001)
+                                 (robot *robot*) (ri *ri*))
   (let ((av)
-        (prev-av (send *robot* :angle-vector))
+        (prev-av (send robot :angle-vector))
         (prev-cube-coords (send *cube* :copy-worldcoords)))
     ;; lift up
     (send *cube* :translate (float-vector 0 0 lift-height) :world)
-    (setq av (send* *robot* :inverse-kinematics
+    (setq av (send* robot :inverse-kinematics
                     (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                           (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                     (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
     (unless av
-      (setq av (send* *robot* :inverse-kinematics
+      (setq av (send* robot :inverse-kinematics
                       (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                             (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                       (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-        (send *ri* :wait-interpolation))
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
       (progn
-        (send *robot* :angle-vector prev-av)
+        (send robot :angle-vector prev-av)
         (send *cube* :newcoords prev-cube-coords)
         (send *cube* :worldcoords)))
     (send *irtviewer* :draw-objects)
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-lift-down-motion (&key (lift-height nil) (move-robot t) (tm 5000) (use-torso 0.001))
+(defun hold-lift-down-motion (&key (lift-height nil) (move-robot t) (tm 5000) (use-torso 0.001)
+                                   (robot *robot*) (ri *ri*))
   (let* ((av)
-         (prev-av (send *robot* :angle-vector))
+         (prev-av (send robot :angle-vector))
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (cube-z (elt (send prev-cube-coords :pos) 2))
          (cube-height (get-cube-height)))
@@ -816,21 +839,21 @@
     (unless lift-height
       (setq lift-height (- (- cube-z (/ cube-height 2.0)) (+ *table-z* *table-height*))))
     (send *cube* :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
-    (setq av (send* *robot* :inverse-kinematics
+    (setq av (send* robot :inverse-kinematics
                     (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                           (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                     (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
     (unless av
-      (setq av (send* *robot* :inverse-kinematics
+      (setq av (send* robot :inverse-kinematics
                       (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                             (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                       (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-        (send *ri* :wait-interpolation))
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
       (progn
-        (send *robot* :angle-vector prev-av)
+        (send robot :angle-vector prev-av)
         (send *cube* :newcoords prev-cube-coords)
         (send *cube* :worldcoords)))
     (send *irtviewer* :draw-objects)
@@ -862,7 +885,9 @@
         (use-torso 0.001)
         (cube-height (get-cube-height))
         (cube-depth (get-cube-depth))
-        (cube-width (get-cube-width)))
+        (cube-width (get-cube-width))
+        (robot *robot*)
+        (ri *ri*))
   (unless (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
     (return-from rotate-motion nil))
@@ -891,7 +916,7 @@
                        (t 0)))))
          (current-angle 0)
          (current-z (elt (send *cube* :worldpos) 2))
-         (prev-av (send *robot* :angle-vector))
+         (prev-av (send robot :angle-vector))
          (prev-cube-coords (send *cube* :copy-worldcoords))
          (rotate-avs nil)
          (rotate-tms nil))
@@ -918,12 +943,12 @@
                 (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
           (setq current-z (+ current-z (- rotate-height prev-rotate-height)))
           (setq prev-rotate-height rotate-height))
-        (setq av (send* *robot* :inverse-kinematics
+        (setq av (send* robot :inverse-kinematics
                         (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                               (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                         (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
         (unless av
-          (setq av (send* *robot* :inverse-kinematics
+          (setq av (send* robot :inverse-kinematics
                           (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                                 (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                           (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
@@ -947,12 +972,12 @@
         (send *cube* :translate
               (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
         (setq current-z (+ current-z (- rotate-height prev-rotate-height))))
-      (setq av (send* *robot* :inverse-kinematics
+      (setq av (send* robot :inverse-kinematics
                       (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                             (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                       (get-contact-ik-args :arms :rotation-axis t :use-torso use-torso)))
       (unless av
-        (setq av (send* *robot* :inverse-kinematics
+        (setq av (send* robot :inverse-kinematics
                         (list (send (get-contact-cube-coords :larm) :copy-worldcoords)
                               (send (get-contact-cube-coords :rarm) :copy-worldcoords))
                         (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso))))
@@ -962,10 +987,10 @@
         (setq rotate-tms (append rotate-tms (list tm)))))
     (if av
       (when move-robot
-        (send *ri* :angle-vector-sequence rotate-avs rotate-tms nil 0)
-        (send *ri* :wait-interpolation))
+        (send ri :angle-vector-sequence rotate-avs rotate-tms nil 0)
+        (send ri :wait-interpolation))
       (progn
-        (send *robot* :angle-vector prev-av)
+        (send robot :angle-vector prev-av)
         (send *cube* :newcoords prev-cube-coords)
         (send *cube* :worldcoords)))
     (send *irtviewer* :draw-objects)
@@ -997,20 +1022,22 @@
 
 ;; reset-motion
 
-(defun reset-motion (&key (move-robot t) (tm 5000))
-  (let ((av (send *robot* :reset-cube-manip-pose)))
+(defun reset-motion (&key (move-robot t) (tm 5000)
+                          (robot *robot*) (ri *ri*))
+  (let ((av (send robot :reset-cube-manip-pose)))
     (send *irtviewer* :draw-objects)
     (when move-robot
       ;; (stop-grasp :arms)
       (start-grasp :arms)
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
+      (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+      (send ri :wait-interpolation))
     (list (list av) (list tm))))
 
 
-(defun reset-cube-manip-motion (arm &key (move-robot t) (tm 5000))
-  (let ((av (send *robot* :angle-vector))
-        (reset-av (send *robot* :reset-cube-manip-pose)))
+(defun reset-cube-manip-motion (arm &key (move-robot t) (tm 5000)
+                                    (robot *robot*) (ri *ri*))
+  (let ((av (send robot :angle-vector))
+        (reset-av (send robot :reset-cube-manip-pose)))
     (setq av
           (cond
             ((eq arm :arms)
@@ -1029,10 +1056,10 @@
                           (subseq reset-av 8 15)
                           (subseq av 15 17)))
             (t nil)))
-    (send *robot* :angle-vector av)
+    (send robot :angle-vector av)
     (when move-robot
-      (send *ri* :angle-vector (send *robot* :angle-vector) tm nil 0)
-      (send *ri* :wait-interpolation))
+      (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+      (send ri :wait-interpolation))
     (list (list av) (list tm))))
 
 
