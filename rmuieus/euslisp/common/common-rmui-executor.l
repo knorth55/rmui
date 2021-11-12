@@ -121,6 +121,7 @@
                         :robot *robot* :ri *ri* :cube *box*
                         :vw *irtviewer*))
             ;; pilot
+            ;; TODO: pilot IK is wrong
             (eval (list action
                         :move-robot nil
                         :use-torso nil
