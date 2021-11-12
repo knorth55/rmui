@@ -592,7 +592,7 @@
     target-coords))
 
 
-(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001) 
+(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001)
                                 (robot *robot*) (ri *ri*) (cube *box*)
                                 &rest args &allow-other-keys)
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
