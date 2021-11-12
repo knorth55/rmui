@@ -1,4 +1,4 @@
-(load "models/room73b2-askul-1200x700-desk-0-object.l")
+(require :room73b2-askul-1200x700-desk-0 "models/room73b2-askul-1200x700-desk-0-object.l")
 
 
 ;; parameters
