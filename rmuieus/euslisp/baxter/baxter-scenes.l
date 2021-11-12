@@ -70,4 +70,4 @@
   (objects (list *baxter* *cube* *desk*)))
 
 
-(provide :baxter-scene "baxter-scene.l")
+(provide :baxter-scenes "baxter-scenes.l")
