@@ -19,7 +19,7 @@
 (defun main (&key (rmui-name "rmui0"))
   (ros::roseus "pr2_rmui_planning")
   (set-rmui-parameters rmui-name)
-  (scene-init :cube-pos-y 0)
+  (scene-init :box-pos-y 0)
   (pilot-scene-init)
   (motion-init :robot *robot* :ri *ri*)
   (ros::ros-info "motion-init finished")

@@ -33,7 +33,7 @@
   (setq *move-robot* move-robot)
   (setq *use-torso* use-torso)
 
-  (scene-init :cube-pos-y 0)
+  (scene-init :box-pos-y 0)
   (motion-init :robot *robot* :ri *ri*)
   (ros::ros-info "motion-init finished")
   (exec-state-machine (convert-smach *graph*) nil :hz 1.0))
