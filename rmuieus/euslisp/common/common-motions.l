@@ -4,9 +4,10 @@
 
 ;; init
 
-(defun motion-init (&key (robot *robot*) (ri *ri*) (cube *box*))
+(defun motion-init (&key (move-robot t)
+                         (robot *robot*) (ri *ri*) (cube *box*) (vw *irtviewer*))
   (add-cube-coords :cube cube)
-  (reset-motion :robot robot :ri ri))
+  (reset-motion :robot robot :ri ri :move-robot move-robot :vw vw))
 
 
 (defun get-contact-coords (arm &key (robot *robot*))
@@ -403,7 +404,8 @@
             (cube-depth nil)
             (robot *robot*)
             (ri *ri*)
-            (cube *box*))
+            (cube *box*)
+            (vw *irtviewer*))
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
@@ -479,7 +481,7 @@
     (when (and av move-robot)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (list av tm)))
 
 
@@ -502,6 +504,7 @@
             (robot *robot*)
             (ri *ri*)
             (cube *box*)
+            (vw *irtviewer*)
             &rest args &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
@@ -554,9 +557,7 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth
-            :robot robot
-            :ri ri
-            :cube cube))
+            :robot robot :ri ri :cube cube :vw vw))
     (when approached
       (setq pushed
             (push-motion-step
@@ -575,9 +576,7 @@
               :cube-height cube-height
               :cube-width cube-width
               :cube-depth cube-depth
-              :robot robot
-              :ri ri
-              :cube cube)))
+              :robot robot :ri ri :cube cube :vw vw)))
     (when pushed
       (contact-cube arm :cube cube :robot robot)
       (list (list (car approached) (car pushed))
@@ -593,7 +592,7 @@
 
 
 (defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001)
-                                (robot *robot*) (ri *ri*) (cube *box*)
+                                (robot *robot*) (ri *ri*) (cube *box*) (vw *irtviewer*)
                                 &rest args &allow-other-keys)
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
@@ -620,7 +619,7 @@
     (when (and av move-robot)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when av
       (discontact-cube arm :cube cube)
       (list (list av) (list tm)))))
@@ -646,6 +645,7 @@
         (robot *robot*)
         (ri *ri*)
         (cube *box*)
+        (vw *irtviewer*)
         &rest args &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
@@ -694,9 +694,7 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth
-            :robot robot
-            :ri ri
-            :cube cube))
+            :robot robot :ri ri :cube cube :vw vw))
     push-holded))
 
 
@@ -711,6 +709,7 @@
             (robot *robot*)
             (ri *ri*)
             (cube *box*)
+            (vw *irtviewer*)
             &rest args &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
@@ -738,7 +737,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when av (list (list av) (list tm)))))
 
 
@@ -764,6 +763,7 @@
         (robot *robot*)
         (ri *ri*)
         (cube *box*)
+        (vw *irtviewer*)
         &rest args &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
@@ -841,25 +841,21 @@
             :cube-height cube-height
             :cube-width cube-width
             :cube-depth cube-depth
-            :robot robot
-            :ri ri
-            :cube cube))
+            :robot robot :ri ri :cube cube :vw vw))
     support-holded))
 
 
 ;; hold release motion
 
-(defun hold-release-motion (&key (arm :arms) (move-robot t) (tm 5000) (use-torso 0.001)
-                                 (robot *robot*) (ri *ri*) (cube *box*)
+(defun hold-release-motion (&key (arm :arms) (tm 5000)
                                  &rest args &allow-other-keys)
-  (push-release-motion arm :move-robot move-robot :tm tm :use-torso use-torso
-                       :robot robot :ri ri :cube cube))
+  (apply #'push-release-motion (append (list :arm arm :tm tm) args)))
 
 
 ;; hold lift up & down motion
 
 (defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000) (use-torso 0.001)
-                                 (robot *robot*) (ri *ri*) (cube *box*)
+                                 (robot *robot*) (ri *ri*) (cube *box*) (vw *irtviewer*)
                                  &rest args &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
@@ -885,12 +881,12 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when av (list (list av) (list tm)))))
 
 
 (defun hold-lift-down-motion (&key (lift-height nil) (move-robot t) (tm 5000) (use-torso 0.001)
-                                   (robot *robot*) (ri *ri*) (cube *box*)
+                                   (robot *robot*) (ri *ri*) (cube *box*) (vw *irtviewer*)
                                    &rest args &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
@@ -918,7 +914,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when av (list (list av) (list tm)))))
 
 
@@ -951,6 +947,7 @@
         (robot *robot*)
         (ri *ri*)
         (cube *box*)
+        (vw *irtviewer*)
         &rest args &allow-other-keys)
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
@@ -1023,7 +1020,7 @@
                                       :copy-worldcoords))
                           (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso
                                                :robot robot))))
-        (send *irtviewer* :draw-objects)
+        (send vw :draw-objects)
         (if av
           (progn
             (setq rotate-avs (append rotate-avs (list av)))
@@ -1056,7 +1053,7 @@
                                     :copy-worldcoords))
                         (get-contact-ik-args :arms :rotation-axis :z :use-torso use-torso
                                              :robot robot))))
-      (send *irtviewer* :draw-objects)
+      (send vw :draw-objects)
       (when av
         (setq rotate-avs (append rotate-avs (list av)))
         (setq rotate-tms (append rotate-tms (list tm)))))
@@ -1068,7 +1065,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when av (list rotate-avs rotate-tms))))
 
 
@@ -1100,9 +1097,10 @@
 
 (defun reset-motion (&key (move-robot t) (tm 5000)
                           (robot *robot*) (ri *ri*)
+                          (vw *irtviewer*)
                           &rest args &allow-other-keys)
   (let ((av (send robot :reset-cube-manip-pose)))
-    (send *irtviewer* :draw-objects)
+    (send vw :draw-objects)
     (when move-robot
       ;; (stop-grasp :arms)
       (start-grasp :arms)
