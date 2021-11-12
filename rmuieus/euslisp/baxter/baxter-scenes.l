@@ -67,7 +67,8 @@
       (send *co* :wipe-all)
       (send *co* :add-object *desk* :frame-id "base"
             :relative-pose (make-coords :pos *desk-pos*))))
-  (objects (list *baxter* *cube* *desk*)))
+  (make-irtviewer :title "Robot Viewer")
+  (objects (list *baxter* *cube* *desk*) *irtviewer*))
 
 
 (provide :baxter-scenes "baxter-scenes.l")

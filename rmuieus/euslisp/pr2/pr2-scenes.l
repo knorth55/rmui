@@ -57,7 +57,8 @@
                         :coords
                         (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
                               :translate *contact-offset*)))
-  (objects (list *pr2* *cube* *desk*)))
+  (make-irtviewer :title "Robot Viewer")
+  (objects (list *pr2* *cube* *desk*) *irtviewer*))
 
 
 (provide :pr2-scenes "pr2-scenes.l")
