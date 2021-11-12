@@ -118,7 +118,7 @@
             (eval (list action
                         :move-robot move-robot
                         :use-torso use-torso
-                        :robot *robot* :ri *ri*))
+                        :robot *robot* :ri *ri* :cube *cube*))
             (setq execute-symbols
                   (cond
                     ((and larm-motion-symbol rarm-motion-symbol
