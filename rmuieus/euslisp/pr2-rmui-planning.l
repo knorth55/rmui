@@ -2,6 +2,8 @@
 
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
+(require :human-scenes "package://rmuieus/euslisp/human/human-scenes.l")
+(require :human-motions "package://rmuieus/euslisp/human/human-motions.l")
 (require :common-rmui-server "package://rmuieus/euslisp/common/common-rmui-server.l")
 (require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 
@@ -18,6 +20,7 @@
   (ros::roseus "pr2_rmui_planning")
   (set-rmui-parameters rmui-name)
   (motion-init)
+  (pilot-scene-init)
   (ros::ros-info "motion-init finished")
   (setq *server*
         (instance rmui-server :init
