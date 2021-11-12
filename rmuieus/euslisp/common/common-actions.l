@@ -1,8 +1,9 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
 
-(defun action-init (&rest args)
-  (motion-init)
+(defun action-init (&key (cube-pos-y 0) &rest args)
+  (scene-init :cube-pos-y cube-pos-y)
+  (motion-init :robot *robot* :ri *ri*)
   t)
 
 

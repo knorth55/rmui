@@ -4,10 +4,9 @@
 
 ;; init
 
-(defun motion-init (&key (cube-pos-y 0))
-  (scene-init :cube-pos-y cube-pos-y)
+(defun motion-init (&key (robot *robot*) (ri *ri*))
   (add-cube-coords)
-  (reset-motion :robot *robot* :ri *ri*))
+  (reset-motion :robot robot :ri ri))
 
 
 (defun get-contact-coords (arm &key (robot *robot*))

@@ -19,8 +19,9 @@
 (defun main (&key (rmui-name "rmui0"))
   (ros::roseus "baxter_rmui_planning")
   (set-rmui-parameters rmui-name)
-  (motion-init)
+  (scene-init :cube-pos-y 0)
   (pilot-scene-init)
+  (motion-init :robot *robot* :ri *ri*)
   (ros::ros-info "motion-init finished")
   (setq *server*
         (instance rmui-server :init
