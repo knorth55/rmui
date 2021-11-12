@@ -71,6 +71,7 @@
            (last-scene-state (send updater :last-scene-state))
            (executed-actions (send updater :executed-actions)))
       (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+      (if (boundp '*pilotviewer*) (send *pilotviewer* :draw-objects))
       (if (boundp '*ri*) (send *ri* :draw-objects))
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
       (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
