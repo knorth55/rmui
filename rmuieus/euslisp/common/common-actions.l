@@ -1,9 +1,17 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
 
-(defun action-init (&key (box-pos-y 0) &rest args &allow-other-keys)
+(defun action-init (&key (box-pos-y 0) (move-robot t) &allow-other-keys)
   (scene-init :box-pos-y box-pos-y)
-  (motion-init :robot *robot* :ri *ri* :cube *box*)
+  (motion-init :move-robot move-robot
+               :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
+  t)
+
+
+(defun pilot-action-init (&key (device-pos-y 0) &allow-other-keys)
+  (pilot-scene-init :device-pos-y device-pos-y)
+  (motion-init :move-robot nil
+               :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
   t)
 
 
