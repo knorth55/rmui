@@ -12,7 +12,7 @@
 (defvar *pilot-table-z* 0)
 (defvar *pilot-table-height* 700)
 (defvar *pilot-device-pos-x* 550)
-(defvar *pilot-contact-offset* (float-vector -80 0 0))
+(defvar *pilot-contact-offset* (float-vector 30 0 20))
 
 (setq *pilot-device-pos-z*
       (+ (+ *pilot-table-z* *pilot-table-height*) (/ (z-of-cube *pilot-device*) 2.0)))
@@ -32,6 +32,10 @@
   (send *pilot-table* :worldcoords)
   (setq *human* (instance human-robot :init))
   (setq *pilot* *human*)
+  (send (send *pilot* :larm-end-coords) :rotate pi/2 :y)
+  (send (send *pilot* :larm-end-coords) :rotate pi/2 :x)
+  (send (send *pilot* :rarm-end-coords) :rotate pi/2 :y)
+  (send (send *pilot* :rarm-end-coords) :rotate -pi/2 :x)
   (send *pilot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send *pilot* :link :larm-human-wrist-roll)

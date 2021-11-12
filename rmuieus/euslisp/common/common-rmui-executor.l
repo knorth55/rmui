@@ -123,7 +123,7 @@
             ;; pilot
             (eval (list action
                         :move-robot nil
-                        :use-torso use-torso
+                        :use-torso nil
                         :robot *pilot* :ri nil :cube *pilot-device*
                         :vw *pilotviewer*))
             (setq execute-symbols
