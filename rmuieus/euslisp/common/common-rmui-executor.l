@@ -44,33 +44,26 @@
   (:check-every-motion-queue (motion-symbol-queue motion-symbol)
     (and (>= (length motion-symbol-queue) motion-symbol-length)
          (every #'(lambda (x) (equal x motion-symbol)) motion-symbol-queue)))
-  (:get-action-from-motion-symbol (larm-motion-symbol rarm-motion-symbol
-                                        &key (move-robot t) (use-torso t))
+  (:get-action-from-motion-symbol (larm-motion-symbol rarm-motion-symbol)
     (cond
       ((and larm-motion-symbol rarm-motion-symbol
             (equal larm-motion-symbol rarm-motion-symbol))
        (let* ((action-name
                 (format nil "dualarm-~A-action"
                         (string-downcase larm-motion-symbol)))
-              (action
-                (list (read-from-string action-name)
-                     :move-robot move-robot :use-torso use-torso)))
+              (action (read-from-string action-name)))
          (list action-name action)))
       (larm-motion-symbol
        (let* ((action-name
                 (format nil "larm-~A-action"
                              (string-downcase larm-motion-symbol)))
-              (action
-                (list (read-from-string action-name)
-                   :move-robot move-robot :use-torso use-torso)))
+              (action (read-from-string action-name)))
          (list action-name action)))
       (rarm-motion-symbol
        (let* ((action-name
                 (format nil "rarm-~A-action"
                             (string-downcase rarm-motion-symbol)))
-              (action
-                (list (read-from-string action-name)
-                  :move-robot move-robot :use-torso use-torso)))
+              (action (read-from-string action-name)))
          (list action-name action)))
       (t nil)))
   (:execute-motion-symbols
@@ -118,11 +111,14 @@
                             (instance std_msgs::Float32 :init :data 1.0))))
           (let* ((action-name-and-action
                    (send self :get-action-from-motion-symbol
-                     larm-motion-symbol rarm-motion-symbol
-                     :move-robot move-robot :use-torso use-torso))
+                     larm-motion-symbol rarm-motion-symbol))
                  (action-name (if action-name-and-action (car action-name-and-action)))
                  (action (if action-name-and-action (cadr action-name-and-action))))
-            (eval action)
+            ;; robot execution
+            (eval (list action
+                        :move-robot move-robot
+                        :use-torso use-torso
+                        :robot *robot* :ri *ri*))
             (setq execute-symbols
                   (cond
                     ((and larm-motion-symbol rarm-motion-symbol
