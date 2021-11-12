@@ -12,7 +12,7 @@
 (defvar *pilot-table-z* 0)
 (defvar *pilot-table-height* 700)
 (defvar *pilot-device-pos-x* 550)
-(defvar *pilot-pilot-contact-offset* (float-vector -80 0 0))
+(defvar *pilot-contact-offset* (float-vector -80 0 0))
 
 (setq *pilot-device-pos-z*
       (+ (+ *pilot-table-z* *pilot-table-height*) (/ (z-of-cube *pilot-device*) 2.0)))
