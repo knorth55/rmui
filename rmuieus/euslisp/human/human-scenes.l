@@ -32,16 +32,16 @@
   (send *pilot-table* :worldcoords)
   (setq *human* (instance human-robot :init))
   (setq *pilot* *human*)
-  ; (send *pilot* :put :larm-contact-coords
-  ;       (make-cascoords :name :larm-contact-coords
-  ;                       :parent (send *pilot* :link "left_wrist")
-  ;                       :coords (send (send (send *pilot* :larm-end-coords) :copy-worldcoords)
-  ;                                     :translate *pilot-contact-offset*)))
-  ; (send *pilot* :put :rarm-contact-coords
-  ;       (make-cascoords :name :rarm-contact-coords
-  ;                       :parent (send *pilot* :link "right_wrist")
-  ;                       :coords (send (send (send *pilot* :rarm-end-coords) :copy-worldcoords)
-  ;                                     :translate *pilot-contact-offset*)))
+  (send *pilot* :put :larm-contact-coords
+        (make-cascoords :name :larm-contact-coords
+                        :parent (send *pilot* :link :larm-human-wrist-roll)
+                        :coords (send (send (send *pilot* :larm-end-coords) :copy-worldcoords)
+                                      :translate *pilot-contact-offset*)))
+  (send *pilot* :put :rarm-contact-coords
+        (make-cascoords :name :rarm-contact-coords
+                        :parent (send *pilot* :link :rarm-human-wrist-roll)
+                        :coords (send (send (send *pilot* :rarm-end-coords) :copy-worldcoords)
+                                      :translate *pilot-contact-offset*)))
   (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
   (objects (list *pilot* *pilot-device* *pilot-table*) *pilotviewer*))
 

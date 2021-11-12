@@ -1112,27 +1112,7 @@
 (defun reset-cube-manip-motion (arm &key (move-robot t) (tm 5000)
                                     (robot *robot*) (ri *ri*)
                                     &rest args &allow-other-keys)
-  (let ((av (send robot :angle-vector))
-        (reset-av (send robot :reset-cube-manip-pose)))
-    (setq av
-          (cond
-            ((eq arm :arms)
-             (concatenate float-vector
-                          (subseq av 0 1)
-                          (subseq reset-av 1 15)
-                          (subseq av 15 17)))
-            ((eq arm :larm)
-             (concatenate float-vector
-                          (subseq av 0 1)
-                          (subseq reset-av 1 8)
-                          (subseq av 8 17)))
-            ((eq arm :rarm)
-             (concatenate float-vector
-                          (subseq av 0 8)
-                          (subseq reset-av 8 15)
-                          (subseq av 15 17)))
-            (t nil)))
-    (send robot :angle-vector av)
+  (let ((av (send robot :reset-cube-manip-pose arm)))
     (when move-robot
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))

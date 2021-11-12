@@ -118,7 +118,14 @@
             (eval (list action
                         :move-robot move-robot
                         :use-torso use-torso
-                        :robot *robot* :ri *ri* :cube *box*))
+                        :robot *robot* :ri *ri* :cube *box*
+                        :vw *irtviewer*))
+            ;; pilot
+            (eval (list action
+                        :move-robot nil
+                        :use-torso use-torso
+                        :robot *pilot* :ri nil :cube *pilot-device*
+                        :vw *pilotviewer*))
             (setq execute-symbols
                   (cond
                     ((and larm-motion-symbol rarm-motion-symbol

@@ -20,8 +20,11 @@
   (ros::roseus "baxter_rmui_planning")
   (set-rmui-parameters rmui-name)
   (scene-init :box-pos-y 0)
+  (motion-init :move-robot t
+               :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
   (pilot-scene-init)
-  (motion-init :robot *robot* :ri *ri*)
+  (motion-init :move-robot nil
+               :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
   (ros::ros-info "motion-init finished")
   (setq *server*
         (instance rmui-server :init
