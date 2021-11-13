@@ -276,11 +276,11 @@
       ;   (let* ((update-p (send device :update-device-orientation))
       ;          (contact-positions
       ;            (if update-p (send device :get-contact-positions)))
-      ;          ;; TODO: implement object-state-estimator
+      ;          ;; TODO (knorth55): implement object-state-estimator
       ;          ; (object-state
       ;          ;   (send object-state-estimator :get-object-state contact-positions))
       ;          )
-      ;     ;; TODO: implement robot-stte-estimator
+      ;     ;; TODO (knorth55): implement robot-stte-estimator
       ;     ; (user-input-state
       ;     ;   (send robot-state-estimator :get-robot-state object-state))
       ;     (ros::ros-info "teach start state: ~A" start-state)
@@ -704,7 +704,7 @@
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
 
-  ;; TODO: support multiple devices
+  ;; TODO (knorth55): support multiple devices
   (setq *server*
         (instance statenet-action-server :init
                   :device-namespace (car *device-namespaces*)

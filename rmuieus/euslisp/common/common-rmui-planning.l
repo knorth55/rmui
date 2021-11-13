@@ -14,7 +14,7 @@
                :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
   (ros::ros-info "motion-init finished")
 
-  ;; TODO: support multiple devices
+  ;; TODO (knorth55): support multiple devices
   (setq *server*
         (instance rmui-server :init
                   :namespace (car *device-namespaces*)
