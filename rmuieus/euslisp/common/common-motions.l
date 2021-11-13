@@ -891,6 +891,7 @@
 
 (defun hold-lift-down-motion (&key (lift-height nil) (move-robot t) (tm 5000) (use-torso 0.001)
                                    (robot *robot*) (ri *ri*) (cube *box*) (vw *irtviewer*)
+                                   (table-z *table-z*) (table-height *table-height*)
                                    &rest args &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
@@ -899,7 +900,7 @@
          (cube-height (get-cube-height :cube cube)))
     ;; lift down
     (unless lift-height
-      (setq lift-height (- (- cube-z (/ cube-height 2.0)) (+ *table-z* *table-height*))))
+      (setq lift-height (- (- cube-z (/ cube-height 2.0)) (+ table-z table-height))))
     (send cube :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
     (setq av (send* robot :inverse-kinematics
                     (list (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords)

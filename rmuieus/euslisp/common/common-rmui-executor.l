@@ -119,14 +119,18 @@
                         :move-robot move-robot
                         :use-torso use-torso
                         :robot *robot* :ri *ri* :cube *box*
-                        :vw *irtviewer*))
+                        :vw *irtviewer*
+                        :table-z *table-z*
+                        :table-height *table-height*))
             ;; pilot
             ;; TODO: pilot IK is wrong
             (eval (list action
                         :move-robot nil
                         :use-torso nil
                         :robot *pilot* :ri nil :cube *pilot-device*
-                        :vw *pilotviewer*))
+                        :vw *pilotviewer*
+                        :table-z *pilot-table-z*
+                        :table-height *pilot-table-height*))
             (setq execute-symbols
                   (cond
                     ((and larm-motion-symbol rarm-motion-symbol
