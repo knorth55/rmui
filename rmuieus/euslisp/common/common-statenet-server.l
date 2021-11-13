@@ -62,7 +62,7 @@
                (prx-threshold)
                (prx-position-threshold)
                (device-frame-id)
-               (world-frame-id)
+               (device-world-frame-id)
                &rest args)
     (send-super* :init ns sp :groupname gpn args)
     (setq namespace ns)
@@ -103,7 +103,7 @@
                     :prx-threshold prx-threshold
                     :prx-position-threshold prx-position-threshold
                     :device-frame-id device-frame-id
-                    :world-frame-id world-frame-id
+                    :device-world-frame-id device-world-frame-id
                     :groupname device-groupname))
     ; (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
 
@@ -697,6 +697,27 @@
       (ros::spin-once server-groupname))
     (send-super :spin-once))
   )
+
+
+(defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0")))
+  (if (not (listp rmui-names))
+    (setq rmui-names (list rmui-names)))
+  (set-rmui-parameters rmui-names)
+
+  ;; TODO: support multiple devices
+  (setq *server*
+        (instance statenet-action-server :init
+                  :device-namespace (car *device-namespaces*)
+                  :device-groupname (car *device-groupnames*)
+                  :duration-threshold *duration-threshold*
+                  :interrupt-timeout *interrupt-timeout*
+                  :prx-threshold *prx-threshold*
+                  :prx-position-threshold *prx-position-threshold*
+                  :device-frame-id (car *device-frame-ids*)
+                  :device-world-frame-id (car *device-world-frame-ids*)
+                  :show-pdf pdf))
+  (ros::rate 10)
+  (while (ros::ok) (send *server* :spin-once)))
 
 
 (provide :common-statenet-server "common-statenet-server.l")

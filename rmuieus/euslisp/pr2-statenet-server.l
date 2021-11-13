@@ -13,19 +13,6 @@
 (defvar *prx-position-threshold* 0.5)
 
 
-(defun main (&key (pdf nil) (rmui-name "rmui0"))
+(defun main (&key (pdf nil) (rmui-names (list "rmui0")))
   (ros::roseus "pr2_statenet_server")
-  (set-rmui-parameters rmui-name)
-  (setq *server*
-        (instance statenet-action-server :init
-                  :device-namespace *device-namespace*
-                  :device-groupname *device-groupname*
-                  :duration-threshold *duration-threshold*
-                  :interrupt-timeout *interrupt-timeout*
-                  :prx-threshold *prx-threshold*
-                  :prx-position-threshold *prx-position-threshold*
-                  :device-frame-id *device-frame-id*
-                  :world-frame-id *world-frame-id*
-                  :show-pdf pdf))
-  (ros::rate 10)
-  (while (ros::ok) (send *server* :spin-once)))
+  (statenet-server-main :pdf pdf :rmui-names rmui-names))

@@ -33,7 +33,8 @@
   (:init (&key ((:namespace ns))
                ((:groupname gpn))
                (prx-threshold) (prx-position-threshold)
-               (device-frame-id) (world-frame-id)
+               (device-frame-id)
+               (device-world-frame-id)
                ((:motion-symbol-length msym-length) 5)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
@@ -45,7 +46,7 @@
                     :prx-threshold prx-threshold
                     :prx-position-threshold prx-position-threshold
                     :device-frame-id device-frame-id
-                    :world-frame-id world-frame-id))
+                    :device-world-frame-id device-world-frame-id))
     (setq planner (instance rmui-planner :init :namespace namespace))
     (setq executor (instance rmui-executor :init
                              :namespace namespace

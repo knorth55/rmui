@@ -8,7 +8,7 @@
   <arg name="pdf-flag" value="nil" unless="$(arg pdf)" />
 
   <node name="statenet_server" pkg="rmuieus" type="$(arg robot)-statenet-server.l"
-        args="&quot;(main :pdf $(arg pdf-flag) :rmui-name \&quot;$(arg rmui_name)\&quot;)&quot;"
+        args="&quot;(main :pdf $(arg pdf-flag) :rmui-names (list \&quot;$(arg rmui_name)\&quot;))&quot;"
         output="screen" required="true" if="$(arg main)">
   </node>
 

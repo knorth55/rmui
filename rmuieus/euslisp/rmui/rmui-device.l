@@ -14,7 +14,7 @@
           prx-threshold
           prx-position-threshold
           device-frame-id
-          world-frame-id
+          device-world-frame-id
           device
           proximity
           device-prx-vectors
@@ -34,7 +34,7 @@
                ((:prx-threshold prxthre))
                ((:prx-position-threshold prxposthre))
                ((:device-frame-id devfrmid))
-               ((:world-frame-id wldfrmid))
+               ((:device-world-frame-id devwldfrmid))
                ((:prx-initial-positions prxinitpos) *prx-initial-positions*)
                ((:prx-x45-positions prxx45pos) *prx-x45-positions*)
                ((:prx-y45-positions prxy45pos) *prx-y45-positions*)
@@ -50,7 +50,7 @@
     (setq prx-threshold prxthre)
     (setq prx-position-threshold prxposthre)
     (setq device-frame-id devfrmid)
-    (setq world-frame-id wldfrmid)
+    (setq device-world-frame-id devwldfrmid)
     (setq prx-initial-positions prxinitpos)
     (setq prx-x45-positions prxx45pos)
     (setq prx-y45-positions prxy45pos)
@@ -77,11 +77,11 @@
     (setq proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities))))
   (:update-device-orientation ()
     (let* ((wait-p (send tfl :wait-for-transform
-                         world-frame-id device-frame-id (ros::time 0) 0.1))
+                         device-world-frame-id device-frame-id (ros::time 0) 0.1))
            (device-coords
              (if wait-p
                (send tfl :lookup-transform
-                     world-frame-id device-frame-id (ros::time 0)))))
+                     device-world-frame-id device-frame-id (ros::time 0)))))
       (if device-coords
         (send device :newcoords device-coords)
         (send device :worldcoords))))
