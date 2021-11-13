@@ -73,7 +73,7 @@
 
 
 (defun assoc-cube-step (arm &key (ri *ri*) (cube *box*))
-  (if (send ri :simulation-modep)
+  (if (and ri (send ri :simulation-modep))
     (send (get-contact-coords arm :robot (send ri :robot))
           :assoc (car (send ri :find-object (send cube :name))))))
 
@@ -84,7 +84,7 @@
 
 
 (defun dissoc-cube-step (arm &key (ri *ri*) (cube *box*))
-  (if (send ri :simulation-modep)
+  (if (and ri (send ri :simulation-modep))
     (send (get-contact-coords arm :robot (send ri :robot))
           :dissoc (car (send ri :find-object (send cube :name))))))
 
