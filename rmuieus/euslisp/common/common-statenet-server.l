@@ -32,9 +32,9 @@
           stplanner
           stinteractor
           ;; rmui
-          device
-          device-namespace
-          device-groupname
+          devices
+          device-namespaces
+          device-groupnames
           object-state-estimator
           robot-state-estimator
           ;; rmplanner
@@ -52,8 +52,8 @@
                ((:groupname gpn))
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
-               ((:device-namespace devns))
-               ((:device-groupname devgpn) "rmui_device")
+               ((:device-namespaces devnss))
+               ((:device-groupnames devgpns))
                ((:show-pdf shpdf) nil)
                ((:object-statenet-dir objnet-dir) *training-object-statenet-path*)
                ((:collabo-statenet-dir clbnet-dir) *training-collabo-statenet-path*)
@@ -61,16 +61,16 @@
                ((:interrupt-timeout itrtmt))
                (prx-threshold)
                (prx-position-threshold)
-               (device-frame-id)
-               (device-world-frame-id)
+               (device-frame-ids)
+               (device-world-frame-ids)
                &rest args)
     (send-super* :init ns sp :groupname gpn args)
     (setq namespace ns)
     (setq server-namespace srvns)
     (setq server-groupname srvgpn)
     (setq groupname gpn)
-    (setq device-namespace devns)
-    (setq device-groupname devgpn)
+    (setq device-namespaces devnss)
+    (setq device-groupnames devgpns)
     (setq reset-state rs)
     (setq show-pdf shpdf)
     (setq duration-threshold drthld)
@@ -97,14 +97,22 @@
                     :namespace server-namespace
                     :groupname server-groupname
                     :mode :ros))
-    (setq device
-          (instance rmui-device :init
-                    :namespace device-namespace
-                    :prx-threshold prx-threshold
-                    :prx-position-threshold prx-position-threshold
-                    :device-frame-id device-frame-id
-                    :device-world-frame-id device-world-frame-id
-                    :groupname device-groupname))
+
+    (setq devices nil)
+    (dotimes (i (length device-namespaces))
+      (let ((device-namespace (elt device-namespaces i))
+            (device-groupname (elt device-groupnames i))
+            (device-frame-id (elt device-frame-ids i))
+            (device-world-frame-id (elt device-world-frame-ids i)))
+        (setq devices
+              (append devices
+                      (list (instance rmui-device :init
+                                      :namespace device-namespace
+                                      :prx-threshold prx-threshold
+                                      :prx-position-threshold prx-position-threshold
+                                      :device-frame-id device-frame-id
+                                      :device-world-frame-id device-world-frame-id
+                                      :groupname device-groupname))))))
     ; (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
 
     ;; state
@@ -268,6 +276,7 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
+  ;; TODO (knorth55): support multiple devices
   (:wait-ready-for-teach (userdata)
     (let* ((start-state (cdr (assoc :teach-start-state userdata)))
            (user-input-state nil))
@@ -691,8 +700,9 @@
     (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
     (if (boundp '*ri*) (send *ri* :draw-objects)))
   (:spin-once ()
-    (if device-groupname
-      (ros::spin-once device-groupname))
+    (if device-groupnames
+      (dolist (device-groupname device-groupnames)
+        (ros::spin-once device-groupname)))
     (if server-groupname
       (ros::spin-once server-groupname))
     (send-super :spin-once))
@@ -704,17 +714,16 @@
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
 
-  ;; TODO (knorth55): support multiple devices
   (setq *server*
         (instance statenet-action-server :init
-                  :device-namespace (car *device-namespaces*)
-                  :device-groupname (car *device-groupnames*)
+                  :device-namespaces *device-namespaces*
+                  :device-groupnames *device-groupnames*
                   :duration-threshold *duration-threshold*
                   :interrupt-timeout *interrupt-timeout*
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
-                  :device-frame-id (car *device-frame-ids*)
-                  :device-world-frame-id (car *device-world-frame-ids*)
+                  :device-frame-ids *device-frame-ids*
+                  :device-world-frame-ids *device-world-frame-ids*
                   :show-pdf pdf))
   (ros::rate 10)
   (while (ros::ok) (send *server* :spin-once)))
