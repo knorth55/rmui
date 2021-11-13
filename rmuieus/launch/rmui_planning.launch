@@ -4,6 +4,6 @@
   <arg name="rmui_name" default="rmui0" />
 
   <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
-        args="&quot;(main :rmui-name \&quot;$(arg rmui_name)\&quot;)&quot;"
+        args="&quot;(main :rmui-names (list \&quot;$(arg rmui_name)\&quot;))&quot;"
         if="$(arg main)" required="true" output="screen" />
 </launch>

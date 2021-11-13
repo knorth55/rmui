@@ -17,6 +17,6 @@
 (defvar *use-torso* 0.001)
 
 
-(defun main (&key (rmui-name "rmui0"))
+(defun main (&key (rmui-names (list "rmui0")))
   (ros::roseus "pr2_rmui_planning")
-  (rmui-planning-main :rmui-name rmui-name))
+  (rmui-planning-main :rmui-names rmui-names))

@@ -2,8 +2,8 @@
 (require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 
 
-(defun rmui-planning-main (&key (rmui-name "rmui0"))
-  (set-rmui-parameters rmui-name)
+(defun rmui-planning-main (&key (rmui-names (list "rmui0")))
+  (set-rmui-parameters (car rmui-names))
   (scene-init :box-pos-y 0)
   (motion-init :move-robot t
                :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
