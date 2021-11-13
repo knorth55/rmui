@@ -16,9 +16,10 @@
         (t nil)))
 
 
-(defun get-contact-link-list (arm &key (robot *robot*))
+(defun get-contact-link-list (arm &key (robot *robot*) (use-torso t))
   (send robot :link-list
-        (send (get-contact-coords arm :robot robot) :parent)))
+        (send (get-contact-coords arm :robot robot) :parent)
+        (if (not use-torso) (car (send robot arm)))))
 
 
 (defun get-contact-ik-args (arm &key (rotation-axis t) (use-torso t) (robot *robot*))
@@ -26,13 +27,16 @@
     (list
       :move-target (list (get-contact-coords :larm :robot robot)
                          (get-contact-coords :rarm :robot robot))
-      :link-list (list (get-contact-link-list :larm :robot robot)
-                       (get-contact-link-list :rarm :robot robot))
+      :link-list (list (get-contact-link-list :larm :robot robot
+                                              :use-torso use-torso)
+                       (get-contact-link-list :rarm :robot robot
+                                              :use-torso use-torso))
       :rotation-axis (list rotation-axis rotation-axis)
       :use-torso use-torso)
     (list
       :move-target (list (get-contact-coords arm :robot robot))
-      :link-list (list (get-contact-link-list arm :robot robot))
+      :link-list (list (get-contact-link-list arm :robot robot
+                                              :use-torso use-torso))
       :rotation-axis (list rotation-axis)
       :use-torso use-torso)))
 
