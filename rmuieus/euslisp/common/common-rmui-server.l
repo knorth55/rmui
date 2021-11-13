@@ -75,13 +75,14 @@
     (if groupname
       (ros::create-timer 0.1 #'send self :server-cb :groupname groupname)
       (ros::create-timer 0.1 #'send self :server-cb)))
-  ;; TODO (knorth55): support multiple devices
   (:server-cb (&rest args)
-    (let* ((update-p (send (car devices) :update-device-orientation))
-           (contact-positions
-             (if update-p (send (car devices) :get-contact-positions)))
+    (let* ((update-p
+             (eval (append (list 'or)
+                           (send-all devices :update-device-orientation))))
+           (contact-positions-list
+             (if update-p (send-all devices :get-contact-positions)))
            (motion-symbols
-             (send planner :get-motion-symbols contact-positions
+             (send planner :get-motion-symbols contact-positions-list
                    :scene-state (send updater :last-scene-state)))
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols motion-symbols
@@ -97,7 +98,6 @@
       (if (boundp '*ri*) (send *ri* :draw-objects))
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
       (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
-      ; (ros::ros-info (format nil "contact-positions     : ~A" contact-positions))
       (ros::ros-info (format nil "larm-contact-state    : ~A"
                              (cadr (assoc :larm-contact-state last-scene-state))))
       (ros::ros-info (format nil "rarm-contact-state    : ~A"

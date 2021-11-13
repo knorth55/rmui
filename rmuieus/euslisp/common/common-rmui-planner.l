@@ -40,13 +40,16 @@
     (setq dualarm-get-motion-symbols-conditions
           (load-dualarm-get-motion-symbols-conditions))
     self)
+  ;; TODO (knorth55): support multiple devices
   (:get-motion-symbols
-    (contact-positions &key (scene-state))
+    (contact-positions-list &key (scene-state))
     (let* ((larm-motion-symbols
-             (send self :get-motion-symbol :larm contact-positions
+             (send self :get-motion-symbol :larm
+                   (car contact-positions-list)
                    :scene-state scene-state))
            (rarm-motion-symbols
-             (send self :get-motion-symbol :rarm contact-positions
+             (send self :get-motion-symbol :rarm
+                   (car contact-positions-list)
                    :scene-state scene-state)))
       (list larm-motion-symbols rarm-motion-symbols)))
   (:get-motion-symbol
