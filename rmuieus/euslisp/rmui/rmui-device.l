@@ -83,8 +83,9 @@
                (send tfl :lookup-transform
                      device-world-frame-id device-frame-id (ros::time 0)))))
       (if device-coords
-        (send device :newcoords device-coords)
-        (send device :worldcoords))))
+        (progn
+          (send device :newcoords device-coords)
+          (send device :worldcoords)))))
   (:get-contact-positions ()
     (let ((prx-positions
             (send self :get-device-prx-positions))
