@@ -24,6 +24,8 @@
           planner
           executor
           updater
+          use-torso
+          move-robot
           ))
 
 
@@ -32,7 +34,9 @@
                ((:groupname gpn))
                (prx-threshold) (prx-position-threshold)
                (device-frame-id) (world-frame-id)
-               ((:motion-symbol-length msym-length) 5))
+               ((:motion-symbol-length msym-length) 5)
+               ((:use-torso utrso) 0.001)
+               ((:move-robot mvrbt) t))
     (setq namespace (if ns ns ""))
     ;; rmui insntaces
     (setq device
@@ -49,6 +53,8 @@
     (setq updater (instance rmui-updater :init :namespace namespace))
     (setq groupname (if gpn gpn))
     (if groupname (ros::create-nodehandle groupname))
+    (setq use-torso utrso)
+    (setq move-robot mvrbt)
     (send self :init-timer)
     self)
   (:init-timer ()
@@ -64,7 +70,8 @@
                    :scene-state (send updater :last-scene-state)))
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols motion-symbols
-                   :scene-state (send updater :last-scene-state)))
+                   :scene-state (send updater :last-scene-state)
+                   :move-robot move-robot :use-torso use-torso))
            (update-scene-p (send updater :update-scene-state execute-symbols-and-actions))
            (dump-p (if update-scene-p (send updater :dump-files)))
            (execute-symbols (car execute-symbols-and-actions))
