@@ -918,7 +918,7 @@
           (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
     (setq av (solve-ik-rotation-relax
                :arms (list larm-target-coords rarm-target-coords)
-               :use-torso use-torso))
+               :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
