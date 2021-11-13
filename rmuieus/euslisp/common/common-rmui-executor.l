@@ -123,10 +123,9 @@
                         :table-z *table-z*
                         :table-height *table-height*))
             ;; pilot
-            ;; TODO: pilot IK is wrong
             (eval (list action
                         :move-robot nil
-                        :use-torso nil
+                        :use-torso t
                         :robot *pilot* :ri nil :cube *pilot-device*
                         :vw *pilotviewer*
                         :table-z *pilot-table-z*

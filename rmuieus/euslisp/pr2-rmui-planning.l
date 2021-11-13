@@ -14,7 +14,7 @@
 (defvar *prx-position-threshold* 0.5)
 ;; (defvar *motion-symbol-length* 10)
 (defvar *motion-symbol-length* 5)
-(defvar *use-torso* nil)
+(defvar *use-torso* 0.001)
 
 
 (defun main (&key (rmui-name "rmui0"))
