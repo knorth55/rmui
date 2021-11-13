@@ -20,12 +20,9 @@
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
 
-  <!-- TODO: multi planning-->
-  <!--
   <include file="$(find rmuieus)/launch/baxter_multi_rmui_planning.launch"
            if="$(arg main)">
   </include>
-  -->
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_rosbag_record.launch"
            if="$(arg record)">

@@ -23,12 +23,9 @@
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
 
-  <!-- TODO: multi planning-->
-  <!--
   <include file="$(find rmuieus)/launch/pr2_multi_rmui_planning.launch"
            if="$(arg main)">
   </include>
-  -->
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
            if="$(arg marker)" />
