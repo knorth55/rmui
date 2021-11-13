@@ -18,9 +18,9 @@
 
 (defclass rmui-server
   :super propertied-object
-  :slots (namespace
+  :slots (namespaces
           groupname
-          device
+          devices
           planner
           executor
           updater
@@ -30,42 +30,56 @@
 
 
 (defmethod rmui-server
-  (:init (&key ((:namespace ns))
+  (:init (&key ((:namespaces nss))
                ((:groupname gpn))
                (prx-threshold) (prx-position-threshold)
-               (device-frame-id)
-               (device-world-frame-id)
+               (device-frame-ids)
+               (device-world-frame-ids)
                ((:motion-symbol-length msym-length) 5)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
-    (setq namespace (if ns ns ""))
-    ;; rmui insntaces
-    (setq device
-          (instance rmui-device :init
-                    :namespace namespace
-                    :prx-threshold prx-threshold
-                    :prx-position-threshold prx-position-threshold
-                    :device-frame-id device-frame-id
-                    :device-world-frame-id device-world-frame-id))
-    (setq planner (instance rmui-planner :init :namespace namespace))
-    (setq executor (instance rmui-executor :init
-                             :namespace namespace
-                             :motion-symbol-length msym-length))
-    (setq updater (instance rmui-updater :init :namespace namespace))
-    (setq groupname (if gpn gpn))
-    (if groupname (ros::create-nodehandle groupname))
-    (setq use-torso utrso)
-    (setq move-robot mvrbt)
-    (send self :init-timer)
+    (let ((topic-namespace))
+      (setq namespaces (if nss nss (list "")))
+      (setq topic-namespace
+            (if (> (length namespaces) 1)
+              "multi_rmui" (car namespaces)))
+      ;; rmui insntaces
+      (setq devices nil)
+      (dotimes (i (length namespaces))
+        (let ((namespace (elt namespaces i))
+              (device-frame-id (elt device-frame-ids i))
+              (device-world-frame-id (elt device-world-frame-ids i)))
+          (setq devices
+                (append devices
+                        (list (instance rmui-device :init
+                                        :namespace namespace
+                                        :prx-threshold prx-threshold
+                                        :prx-position-threshold prx-position-threshold
+                                        :device-frame-id device-frame-id
+                                        :device-world-frame-id device-world-frame-id))))))
+      (setq planner (instance rmui-planner :init
+                              :namespace topic-namespace))
+      (setq executor (instance rmui-executor :init
+                               :namespace topic-namespace
+                               :motion-symbol-length msym-length))
+      (setq updater (instance rmui-updater :init
+                              :namespace topic-namespace))
+
+      (setq groupname (if gpn gpn))
+      (if groupname (ros::create-nodehandle groupname))
+      (setq use-torso utrso)
+      (setq move-robot mvrbt)
+      (send self :init-timer))
     self)
   (:init-timer ()
     (if groupname
       (ros::create-timer 0.1 #'send self :server-cb :groupname groupname)
       (ros::create-timer 0.1 #'send self :server-cb)))
+  ;; TODO (knorth55): support multiple devices
   (:server-cb (&rest args)
-    (let* ((update-p (send device :update-device-orientation))
+    (let* ((update-p (send (car devices) :update-device-orientation))
            (contact-positions
-             (if update-p (send device :get-contact-positions)))
+             (if update-p (send (car devices) :get-contact-positions)))
            (motion-symbols
              (send planner :get-motion-symbols contact-positions
                    :scene-state (send updater :last-scene-state)))

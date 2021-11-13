@@ -14,14 +14,13 @@
                :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
   (ros::ros-info "motion-init finished")
 
-  ;; TODO (knorth55): support multiple devices
   (setq *server*
         (instance rmui-server :init
-                  :namespace (car *device-namespaces*)
+                  :namespaces *device-namespaces*
                   :prx-threshold *prx-threshold*
                   :prx-position-threshold *prx-position-threshold*
-                  :device-frame-id (car *device-frame-ids*)
-                  :device-world-frame-id (car *device-world-frame-ids*)
+                  :device-frame-ids *device-frame-ids*
+                  :device-world-frame-ids *device-world-frame-ids*
                   :motion-symbol-length *motion-symbol-length*
                   :use-torso *use-torso*))
   (ros::rate 10)
