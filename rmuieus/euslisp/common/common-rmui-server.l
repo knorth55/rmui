@@ -92,7 +92,8 @@
                                :pilot-table-height plttblh
                                ))
       (setq updater (instance rmui-updater :init
-                              :namespace topic-namespace))
+                              :namespace topic-namespace
+                              :boxes bxs))
 
       (setq groupname (if gpn gpn))
       (if groupname (ros::create-nodehandle groupname))
@@ -105,43 +106,45 @@
       (ros::create-timer 0.1 #'send self :server-cb :groupname groupname)
       (ros::create-timer 0.1 #'send self :server-cb)))
   (:server-cb (&rest args)
-    (let* ((prev-scene-state (send updater :last-scene-state))
+    (let* ((prev-scene-states (send updater :last-scene-states))
            (update-p
              (eval (append (list 'or)
                            (send-all devices :update-device-orientation))))
-           (contact-positions-list
+           (contact-positions
              (if update-p (send-all devices :get-contact-positions)))
            (motion-symbols
              (send planner :get-motion-symbols
-                   contact-positions-list
-                   :scene-state prev-scene-state))
+                   contact-positions
+                   :scene-states prev-scene-states))
            (execute-symbols-and-actions
-             (send executor :execute-motion-symbols motion-symbols
-                   :scene-state prev-scene-state
+             (send executor :execute-motion-symbols
+                   motion-symbols
+                   :scene-states prev-scene-states
                    :move-robot move-robot :use-torso use-torso))
            (update-scene-p
-             (send updater :update-scene-state execute-symbols-and-actions))
+             (send updater :update-scene-states execute-symbols-and-actions))
            (dump-p (if update-scene-p (send updater :dump-files)))
-           (execute-symbols (car execute-symbols-and-actions))
-           (scene-state (send updater :last-scene-state))
+           (execute-symbol update-scene-p)
+           (scene-states (send updater :last-scene-states))
            (executed-actions (send updater :executed-actions)))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
-      (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
-      (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
-      (ros::ros-info (format nil "larm-contact-state    : ~A"
-                             (cadr (assoc :larm-contact-state scene-state))))
-      (ros::ros-info (format nil "rarm-contact-state    : ~A"
-                             (cadr (assoc :rarm-contact-state scene-state))))
-      (ros::ros-info (format nil "floor-contact-state   : ~A"
-                             (cadr (assoc :floor-contact-state scene-state))))
-      (ros::ros-info (format nil "object-location-state : ~A"
-                             (cadr (assoc :object-location-state scene-state))))
-      (ros::ros-info (format nil "object-rotation-state : ~A"
-                             (cadr (assoc :object-rotation-state scene-state))))
-      (ros::ros-info (format nil "executed-actions      : ~A"
-                             (mapcar #'car executed-actions)))))
+      (ros::ros-info (format nil "motion-symbols   : ~A" motion-symbols))
+      (ros::ros-info (format nil "execute-symbol   : ~A" execute-symbol))
+      (ros::ros-info (format nil "scene-states     : ~A" scene-states))
+      (ros::ros-info (format nil "executed-actions : ~A" (mapcar #'car executed-actions)))
+      ; (ros::ros-info (format nil "larm-contact-state    : ~A"
+      ;                        (cadr (assoc :larm-contact-state scene-state))))
+      ; (ros::ros-info (format nil "rarm-contact-state    : ~A"
+      ;                        (cadr (assoc :rarm-contact-state scene-state))))
+      ; (ros::ros-info (format nil "floor-contact-state   : ~A"
+      ;                        (cadr (assoc :floor-contact-state scene-state))))
+      ; (ros::ros-info (format nil "object-location-state : ~A"
+      ;                        (cadr (assoc :object-location-state scene-state))))
+      ; (ros::ros-info (format nil "object-rotation-state : ~A"
+      ;                        (cadr (assoc :object-rotation-state scene-state))))
+      ))
   (:spin-once ()
     (if groupname
       (ros::spin-once groupname)
