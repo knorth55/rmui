@@ -22,12 +22,12 @@
           motion-symbol-length
           robot
           ri
-          box
+          boxes
           robotviewer
           table-z
           table-height
           pilot
-          pilot-device
+          pilot-devices
           pilotviewer
           pilot-table-z
           pilot-table-height
@@ -40,12 +40,12 @@
                ((:motion-symbol-length msym-length) 5)
                ((:robot rbt))
                ((:ri rbti))
-               ((:box bx))
+               ((:boxes bxs))
                ((:robotviewer rbtvw))
                ((:table-z tblz))
                ((:table-height tblh))
                ((:pilot plt))
-               ((:pilot-device pltdev))
+               ((:pilot-devices pltdevs))
                ((:pilotviewer pltvw))
                ((:pilot-table-z plttblz))
                ((:pilot-table-height plttblh))
@@ -61,12 +61,12 @@
     (setq motion-symbol-queue (list nil nil))
     (setq robot rbt)
     (setq ri rbti)
-    (setq box bx)
+    (setq boxes bxs)
     (setq robotviewer rbtvw)
     (setq table-z tblz)
     (setq table-height tblh)
     (setq pilot plt)
-    (setq pilot-device pltdev)
+    (setq pilot-devices pltdevs)
     (setq pilotviewer pltvw)
     (setq pilot-table-z plttblz)
     (setq pilot-table-height plttblh)
@@ -155,7 +155,7 @@
                         :use-torso t
                         :robot pilot
                         :ri nil
-                        :cube pilot-device
+                        :cube (car pilot-devices)
                         :vw pilotviewer
                         :table-z pilot-table-z
                         :table-height pilot-table-height))
@@ -166,7 +166,7 @@
                         :use-torso use-torso
                         :robot robot
                         :ri ri
-                        :cube box
+                        :cube (car boxes)
                         :vw robotviewer
                         :table-z table-z
                         :table-height table-height))

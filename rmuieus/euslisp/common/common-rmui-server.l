@@ -41,12 +41,12 @@
                ((:motion-symbol-length msym-length) 5)
                ((:robot rbt) *robot*)
                ((:ri rbti) *ri*)
-               ((:box bx) *box0*)
+               ((:boxes bxs) *boxes*)
                ((:robotviewer rbtvw) *irtviewer*)
                ((:table-z tblz) *table-z*)
                ((:table-height tblh) *table-height*)
                ((:pilot plt) *pilot*)
-               ((:pilot-device pltdev) *pilot-device0*)
+               ((:pilot-devices pltdevs) *pilot-devices*)
                ((:pilotviewer pltvw) *pilotviewer*)
                ((:pilot-table-z plttblz) *pilot-table-z*)
                ((:pilot-table-height plttblh) *pilot-table-height*)
@@ -56,7 +56,6 @@
       (setq namespaces (if nss nss (list "")))
       (setq ri rbti)
       (setq robotviewer rbtvw)
-      (setq pilot-device pltdev)
       (setq pilotviewer pltvw)
       (setq topic-namespace
             (if (> (length namespaces) 1)
@@ -82,12 +81,12 @@
                                :motion-symbol-length msym-length
                                :robot rbt
                                :ri rbti
-                               :box bx
+                               :boxes bxs
                                :robotviewer rbtvw
                                :table-z tblz
                                :table-height tblh
                                :pilot plt
-                               :pilot-device pltdev
+                               :pilot-devices pltdevs
                                :pilotviewer pltvw
                                :pilot-table-z plttblz
                                :pilot-table-height plttblh
@@ -106,7 +105,8 @@
       (ros::create-timer 0.1 #'send self :server-cb :groupname groupname)
       (ros::create-timer 0.1 #'send self :server-cb)))
   (:server-cb (&rest args)
-    (let* ((update-p
+    (let* ((prev-scene-state (send updater :last-scene-state))
+           (update-p
              (eval (append (list 'or)
                            (send-all devices :update-device-orientation))))
            (contact-positions-list
@@ -114,15 +114,16 @@
            (motion-symbols
              (send planner :get-motion-symbols
                    contact-positions-list
-                   :scene-state (send updater :last-scene-state)))
+                   :scene-state prev-scene-state))
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols motion-symbols
-                   :scene-state (send updater :last-scene-state)
+                   :scene-state prev-scene-state
                    :move-robot move-robot :use-torso use-torso))
-           (update-scene-p (send updater :update-scene-state execute-symbols-and-actions))
+           (update-scene-p
+             (send updater :update-scene-state execute-symbols-and-actions))
            (dump-p (if update-scene-p (send updater :dump-files)))
            (execute-symbols (car execute-symbols-and-actions))
-           (last-scene-state (send updater :last-scene-state))
+           (scene-state (send updater :last-scene-state))
            (executed-actions (send updater :executed-actions)))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
@@ -130,15 +131,15 @@
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
       (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
       (ros::ros-info (format nil "larm-contact-state    : ~A"
-                             (cadr (assoc :larm-contact-state last-scene-state))))
+                             (cadr (assoc :larm-contact-state scene-state))))
       (ros::ros-info (format nil "rarm-contact-state    : ~A"
-                             (cadr (assoc :rarm-contact-state last-scene-state))))
+                             (cadr (assoc :rarm-contact-state scene-state))))
       (ros::ros-info (format nil "floor-contact-state   : ~A"
-                             (cadr (assoc :floor-contact-state last-scene-state))))
+                             (cadr (assoc :floor-contact-state scene-state))))
       (ros::ros-info (format nil "object-location-state : ~A"
-                             (cadr (assoc :object-location-state last-scene-state))))
+                             (cadr (assoc :object-location-state scene-state))))
       (ros::ros-info (format nil "object-rotation-state : ~A"
-                             (cadr (assoc :object-rotation-state last-scene-state))))
+                             (cadr (assoc :object-rotation-state scene-state))))
       (ros::ros-info (format nil "executed-actions      : ~A"
                              (mapcar #'car executed-actions)))))
   (:spin-once ()

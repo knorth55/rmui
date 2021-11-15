@@ -32,12 +32,12 @@
                   :motion-symbol-length *motion-symbol-length*
                   :robot *robot*
                   :ri *ri*
-                  :box *box0*
+                  :boxes *boxes*
                   :robotviewer *irtviewer*
                   :table-z *table-z*
                   :table-height *table-height*
                   :pilot *pilot*
-                  :pilot-device *pilot-device0*
+                  :pilot-devices *pilot-devices*
                   :pilotviewer *pilotviewer*
                   :pilot-table-z *pilot-table-z*
                   :pilot-table-height *pilot-table-height*
