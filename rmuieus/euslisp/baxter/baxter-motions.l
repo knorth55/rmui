@@ -31,12 +31,26 @@
       av)))
 
 
-(defun start-grasp (&optional (arm :arms) (wait nil) &rest args)
-  (send* *ri* :start-grasp arm :wait wait args))
+(defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
+  (if (find :ri args)
+    (let ((args-position (position :ri args)))
+      (setq args
+            (if (>= (+ args-position 2) (length args))
+             (subseq args 0 (position :ri args))
+             (append (subseq args 0 (position :ri args))
+                      (subseq args (+ (position :ri args) 2)))))))
+  (send* ri :start-grasp arm :wait wait args))
 
 
-(defun stop-grasp (&optional (arm :arms) (wait nil) &rest args)
-  (send* *ri* :stop-grasp arm :wait wait args))
+(defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
+  (if (find :ri args)
+    (let ((args-position (position :ri args)))
+      (setq args
+            (if (>= (+ args-position 2) (length args))
+             (subseq args 0 (position :ri args))
+             (append (subseq args 0 (position :ri args))
+                      (subseq args (+ (position :ri args) 2)))))))
+  (send* ri :stop-grasp arm :wait wait args))
 
 
 (provide :baxter-motions "baxter-motions.l")

@@ -1106,7 +1106,7 @@
     (send vw :draw-objects)
     (when move-robot
       ;; (stop-grasp :arms)
-      (start-grasp :arms)
+      (start-grasp :arms :ri ri)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
     (list (list av) (list tm))))

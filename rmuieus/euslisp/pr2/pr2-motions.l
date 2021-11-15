@@ -39,11 +39,11 @@
       av)))
 
 
-(defun start-grasp (&optional (arm :arms) &key (objects nil) &rest args)
+(defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
   (send* *ri* :start-grasp arm :objects objects args))
 
 
-(defun stop-grasp (&optional (arm :arms) &rest args)
+(defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
   (send* *ri* :stop-grasp arm args))
 
 
