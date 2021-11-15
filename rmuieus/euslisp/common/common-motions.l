@@ -1105,7 +1105,7 @@
   (let ((av (send robot :reset-cube-manip-pose)))
     (send vw :draw-objects)
     (when move-robot
-      ;; (stop-grasp :arms)
+      ;; (stop-grasp :arms :ri ri)
       (start-grasp :arms :ri ri)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
