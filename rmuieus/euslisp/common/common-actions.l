@@ -1,10 +1,10 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
 
-(defun action-init (&key (box-pos-y 0) (move-robot t) &allow-other-keys)
-  (scene-init :box-pos-y box-pos-y)
+(defun action-init (&key (table-pos-y 0) (move-robot t) &allow-other-keys)
+  (scene-init :table-pos-y table-pos-y)
   (motion-init :move-robot move-robot
-               :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
+               :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
   t)
 
 
@@ -56,7 +56,7 @@
   t)
 
 
-(defun move-push-action (arm &rest args &key (ri *ri*) (cube *box*)
+(defun move-push-action (arm &rest args &key (ri *ri*) (cube *box0*)
                              &allow-other-keys)
   (assoc-cube arm :ri ri :cube cube)
   (apply #'push-move-motion
@@ -77,7 +77,7 @@
 
 ;; dualarm actions
 
-(defun dualarm-hold-up-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-hold-up-action (&rest args &key (ri *ri*) (cube *box0*)
                                      &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (apply #'hold-lift-up-motion (append (list :lift-height 200) args))
@@ -95,7 +95,7 @@
   t)
 
 
-(defun dualarm-hold-down-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-hold-down-action (&rest args &key (ri *ri*) (cube *box0*)
                                        &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (apply #'hold-lift-down-motion args)
@@ -113,7 +113,7 @@
   t)
 
 
-(defun dualarm-push-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                  &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle
@@ -137,7 +137,7 @@
   t)
 
 
-(defun dualarm-push-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                 &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle
@@ -161,7 +161,7 @@
   t)
 
 
-(defun dualarm-push-rotate-ccw-x90-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-ccw-x90-action (&rest args &key (ri *ri*) (cube *box0*)
                                                  &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle 0)
@@ -192,7 +192,7 @@
   t)
 
 
-(defun dualarm-push-rotate-cw-x90-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-cw-x90-action (&rest args &key (ri *ri*) (cube *box0*)
                                                 &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle 0)
@@ -223,7 +223,7 @@
   t)
 
 
-(defun dualarm-push-rotate-ccw-z45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-ccw-z45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                  &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (apply #'push-rotate-motion
@@ -232,7 +232,7 @@
   t)
 
 
-(defun dualarm-push-rotate-cw-z45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-push-rotate-cw-z45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                 &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (apply #'push-rotate-motion
@@ -241,7 +241,7 @@
   t)
 
 
-(defun dualarm-support-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-support-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                     &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle
@@ -265,7 +265,7 @@
   t)
 
 
-(defun dualarm-support-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box*)
+(defun dualarm-support-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
                                                    &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (let* ((initial-rotate-angle
@@ -321,7 +321,7 @@
   (apply #'top-push-action (append (list :larm) args)))
 
 
-(defun larm-top-left-push-action (&rest args &key (cube *box*)
+(defun larm-top-left-push-action (&rest args &key (cube *box0*)
                                         &allow-other-keys)
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -343,7 +343,7 @@
   t)
 
 
-(defun larm-bottom-left-push-action (&rest args &key (cube *box*)
+(defun larm-bottom-left-push-action (&rest args &key (cube *box0*)
                                            &allow-other-keys)
   (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -365,7 +365,7 @@
   t)
 
 
-(defun larm-front-left-push-action (&rest args &key (cube *box*)
+(defun larm-front-left-push-action (&rest args &key (cube *box0*)
                                           &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -387,7 +387,7 @@
   t)
 
 
-(defun larm-back-left-push-action (&rest args &key (cube *box*)
+(defun larm-back-left-push-action (&rest args &key (cube *box0*)
                                          &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -472,7 +472,7 @@
   (apply #'top-push-action (append (list :rarm) args)))
 
 
-(defun rarm-top-right-push-action (&rest args &key (cube *box*)
+(defun rarm-top-right-push-action (&rest args &key (cube *box0*)
                                          &allow-other-keys)
   (let* ((cube-rpy (float-vector 0 0 (/ -pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -494,7 +494,7 @@
   t)
 
 
-(defun rarm-bottom-right-push-action (&rest args &key (cube *box*)
+(defun rarm-bottom-right-push-action (&rest args &key (cube *box0*)
                                             &allow-other-keys)
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -516,7 +516,7 @@
   t)
 
 
-(defun rarm-front-right-push-action (&rest args &key (cube *box*)
+(defun rarm-front-right-push-action (&rest args &key (cube *box0*)
                                            &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
@@ -538,7 +538,7 @@
   t)
 
 
-(defun rarm-back-right-push-action (&rest args &key (cube *box*)
+(defun rarm-back-right-push-action (&rest args &key (cube *box0*)
                                           &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))

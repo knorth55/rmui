@@ -6,9 +6,10 @@
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
-  (scene-init :table-pos-y 0 :n-box (length rmui-names))
+  (scene-init :table-pos-y 0
+              :n-box (length rmui-names))
   (motion-init :move-robot t
-               :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
+               :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
   (pilot-scene-init)
   (motion-init :move-robot nil
                :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
@@ -24,7 +25,7 @@
                   :motion-symbol-length *motion-symbol-length*
                   :robot *robot*
                   :ri *ri*
-                  :box *box*
+                  :box *box0*
                   :robotviewer *irtviewer*
                   :table-z *table-z*
                   :table-height *table-height*

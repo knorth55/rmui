@@ -33,7 +33,7 @@
   (setq *move-robot* move-robot)
   (setq *use-torso* use-torso)
 
-  (scene-init :box-pos-y 0)
+  (scene-init :table-pos-y 0 :n-box 1)
   (motion-init :move-robot t
                :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
   (ros::ros-info "motion-init finished")

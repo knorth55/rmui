@@ -41,7 +41,7 @@
                ((:motion-symbol-length msym-length) 5)
                ((:robot rbt) *robot*)
                ((:ri rbti) *ri*)
-               ((:box bx) *box*)
+               ((:box bx) *box0*)
                ((:robotviewer rbtvw) *irtviewer*)
                ((:table-z tblz) *table-z*)
                ((:table-height tblh) *table-height*)
