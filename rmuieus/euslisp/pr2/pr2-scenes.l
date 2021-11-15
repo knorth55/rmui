@@ -17,8 +17,7 @@
   (setq *pr2* (instance pr2-robot :init))
   (setq *robot* *pr2*)
   (setq *ri* (instance pr2-interface :init :objects table-objects))
-  (robot-scene-init-base :table-objects table-objects
-                         :table-pos table-pos
+  (robot-scene-init-base :table-pos table-pos
                          :larm-ee-frame-id "l_wrist_roll_link"
                          :rarm-ee-frame-id "r_wrist_roll_link"
                          :base-frame-id "base_footprint"))

@@ -17,8 +17,7 @@
   (setq *baxter* (instance baxter-robot-safe :init))
   (setq *robot* *baxter*)
   (setq *ri* (instance baxter-interface :init :objects table-objects))
-  (robot-scene-init-base :table-objects table-objects
-                         :table-pos table-pos
+  (robot-scene-init-base :table-pos table-pos
                          :larm-ee-frame-id "left_wrist"
                          :rarm-ee-frame-id "right_wrist"
                          :base-frame-id "base"))

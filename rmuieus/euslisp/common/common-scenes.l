@@ -7,13 +7,13 @@
   (let ((boxes nil))
     (dotimes (i n-box)
       (let* ((box-id (format nil "box~A" i))
-            (box (make-cube 270 420 220 :name box-id))  ;; ctb
-            ;; (box (make-cube 350 350 300 :name box-id)) ;; cardboard box
-            ;; (box (make-cube 270 370 500 :name box-id))  ;; trash box
-            ;; (box (make-cube 150 280 320 :name box-id))  ;; shredder
-            (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
-            (box-pos-y (* i (+ (y-of-cube box) 100)))
-            (box-pos (float-vector *box-pos-x* box-pos-y box-pos-z)))
+             (box (make-cube 270 420 220 :name box-id))  ;; ctb
+             ;; (box (make-cube 350 350 300 :name box-id)) ;; cardboard box
+             ;; (box (make-cube 270 370 500 :name box-id))  ;; trash box
+             ;; (box (make-cube 150 280 320 :name box-id))  ;; shredder
+             (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
+             (box-pos-y (* i (+ (y-of-cube box) 100)))
+             (box-pos (float-vector *box-pos-x* box-pos-y box-pos-z)))
         (send box :reset-coords)
         (send box :worldcoords)
         (send box :newcoords (make-coords :pos box-pos))
@@ -34,7 +34,52 @@
   (send *table* :worldcoords))
 
 
-(defun robot-scene-init-base (&key (table-objects) (table-pos)
+(defun pilot-device-scene-init (&optional (n-device 1))
+  (let ((pilot-devices nil))
+    (dotimes (i n-device)
+      (let* ((pilot-device-id (format nil "pilot-device~A" i))
+             (pilot-device (make-cube 100 100 100 :name pilot-device-id))
+             (pilot-device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
+                                    (/ (z-of-cube pilot-device) 2.0)))
+             (pilot-device-pos-y (* i (+ (y-of-cube pilot-device) 100)))
+             (pilot-device-pos (float-vector *pilot-device-pos-x* pilot-device-pos-y pilot-device-pos-z)))
+        (send pilot-device :reset-coords)
+        (send pilot-device :worldcoords)
+        (send pilot-device :newcoords (make-coords :pos pilot-device-pos))
+        (send pilot-device :worldcoords)
+        (eval `(defvar ,(read-from-string (format nil "*pilot-device~A*" i)) pilot-device))
+        (setq pilot-devices (append pilot-devices (list pilot-device)))
+        ))
+    (defvar *pilot-devices* pilot-devices)))
+
+
+(defun pilot-table-scene-init (table-pos-y)
+  (defvar *pilot-table-id* "room73b2-askul-1200x700-desk-0")
+  (defvar *pilot-table* (room73b2-askul-1200x700-desk-0))
+  (defvar *pilot-table-pos*
+    (float-vector (+ *pilot-device-pos-x* 100) (* -1 table-pos-y) *pilot-table-z*))
+  (send *pilot-table* :reset-coords)
+  (send *pilot-table* :worldcoords)
+  (send *pilot-table* :newcoords (make-coords :pos *pilot-table-pos*))
+  (send *pilot-table* :worldcoords))
+
+
+(defun pilot-robot-scene-init-base  (&key (table-pos)
+                                          (larm-ee-frame-id)
+                                          (rarm-ee-frame-id))
+  (send *pilot* :put :larm-contact-coords
+        (make-cascoords :name :larm-contact-coords
+                        :parent (send *pilot* :link larm-ee-frame-id)
+                        :coords (send (send (send *pilot* :larm-end-coords) :copy-worldcoords)
+                                      :translate *pilot-contact-offset*)))
+  (send *pilot* :put :rarm-contact-coords
+        (make-cascoords :name :rarm-contact-coords
+                        :parent (send *pilot* :link rarm-ee-frame-id)
+                        :coords (send (send (send *pilot* :rarm-end-coords) :copy-worldcoords)
+                                      :translate *pilot-contact-offset*))))
+
+
+(defun robot-scene-init-base (&key (table-pos)
                                    (larm-ee-frame-id)
                                    (rarm-ee-frame-id)
                                    (base-frame-id))
@@ -84,6 +129,15 @@
   ;: viewer-init
   (make-irtviewer :title "Robot Viewer")
   (objects (append *boxes* (list *robot* *table*)) *irtviewer*))
+
+
+(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1))
+  (pilot-table-scene-init table-pos-y)
+  (pilot-device-scene-init n-device)
+  (pilot-robot-scene-init :table-pos *table-pos*)
+  ;: viewer-init
+  (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
+  (objects (append *pilot-devices* (list *pilot* *pilot-table*)) *pilotviewer*))
 
 
 (provide :common-scenes "common-scenes.l")

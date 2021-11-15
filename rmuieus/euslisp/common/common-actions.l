@@ -11,7 +11,7 @@
 (defun pilot-action-init (&key (device-pos-y 0) &allow-other-keys)
   (pilot-scene-init :device-pos-y device-pos-y)
   (motion-init :move-robot nil
-               :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
+               :robot *pilot* :ri nil :cube *pilot-device0* :vw *pilotviewer*)
   t)
 
 

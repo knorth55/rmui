@@ -46,7 +46,7 @@
                ((:table-z tblz) *table-z*)
                ((:table-height tblh) *table-height*)
                ((:pilot plt) *pilot*)
-               ((:pilot-device pltdev) *pilot-device*)
+               ((:pilot-device pltdev) *pilot-device0*)
                ((:pilotviewer pltvw) *pilotviewer*)
                ((:pilot-table-z plttblz) *pilot-table-z*)
                ((:pilot-table-height plttblh) *pilot-table-height*)

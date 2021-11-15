@@ -10,9 +10,10 @@
               :n-box (length rmui-names))
   (motion-init :move-robot t
                :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
-  (pilot-scene-init)
+  (pilot-scene-init :table-pos-y 0
+                    :n-device (length rmui-names))
   (motion-init :move-robot nil
-               :robot *pilot* :ri nil :cube *pilot-device* :vw *pilotviewer*)
+               :robot *pilot* :ri nil :cube *pilot-device0* :vw *pilotviewer*)
   (ros::ros-info "motion-init finished")
 
   (setq *server*
@@ -30,7 +31,7 @@
                   :table-z *table-z*
                   :table-height *table-height*
                   :pilot *pilot*
-                  :pilot-device *pilot-device*
+                  :pilot-device *pilot-device0*
                   :pilotviewer *pilotviewer*
                   :pilot-table-z *pilot-table-z*
                   :pilot-table-height *pilot-table-height*
