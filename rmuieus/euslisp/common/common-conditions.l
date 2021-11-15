@@ -20,30 +20,30 @@
     rotated-rotation-symbol))
 
 
-;; get-motion-symbols
+;; get-motion-symbol
 
-(defun load-larm-get-motion-symbols-conditions ()
+(defun load-larm-get-motion-symbol-conditions ()
   (with-open-file
-    (larm-get-motion-symbols-conditions-f
-      (format nil "~A/get_motion_symbols/larm-get-motion-symbols-conditions.l"
+    (larm-get-motion-symbol-conditions-f
+      (format nil "~A/get_motion_symbol/larm-get-motion-symbol-conditions.l"
               *conditions-path*))
-    (read larm-get-motion-symbols-conditions-f)))
+    (read larm-get-motion-symbol-conditions-f)))
 
 
-(defun load-rarm-get-motion-symbols-conditions ()
+(defun load-rarm-get-motion-symbol-conditions ()
   (with-open-file
-    (rarm-get-motion-symbols-conditions-f
-      (format nil "~A/get_motion_symbols/rarm-get-motion-symbols-conditions.l"
+    (rarm-get-motion-symbol-conditions-f
+      (format nil "~A/get_motion_symbol/rarm-get-motion-symbol-conditions.l"
               *conditions-path*))
-    (read rarm-get-motion-symbols-conditions-f)))
+    (read rarm-get-motion-symbol-conditions-f)))
 
 
-(defun load-dualarm-get-motion-symbols-conditions ()
+(defun load-dualarm-get-motion-symbol-conditions ()
   (with-open-file
-    (dualarm-get-motion-symbols-conditions-f
-      (format nil "~A/get_motion_symbols/dualarm-get-motion-symbols-conditions.l"
+    (dualarm-get-motion-symbol-conditions-f
+      (format nil "~A/get_motion_symbol/dualarm-get-motion-symbol-conditions.l"
               *conditions-path*))
-    (read dualarm-get-motion-symbols-conditions-f)))
+    (read dualarm-get-motion-symbol-conditions-f)))
 
 
 ;; update-scene-state

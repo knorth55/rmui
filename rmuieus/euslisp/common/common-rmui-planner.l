@@ -18,9 +18,9 @@
   :slots (namespace
           waiting-visualize-topic-name
           moving-visualize-topic-name
-          larm-get-motion-symbols-conditions
-          rarm-get-motion-symbols-conditions
-          dualarm-get-motion-symbols-conditions
+          larm-get-motion-symbol-conditions
+          rarm-get-motion-symbol-conditions
+          dualarm-get-motion-symbol-conditions
           ))
 
 
@@ -33,12 +33,12 @@
           (format nil "~A/output/status/moving" namespace))
     (ros::advertise waiting-visualize-topic-name std_msgs::Float32 1)
     (ros::advertise moving-visualize-topic-name std_msgs::Float32 1)
-    (setq larm-get-motion-symbols-conditions
-          (load-larm-get-motion-symbols-conditions))
-    (setq rarm-get-motion-symbols-conditions
-          (load-rarm-get-motion-symbols-conditions))
-    (setq dualarm-get-motion-symbols-conditions
-          (load-dualarm-get-motion-symbols-conditions))
+    (setq larm-get-motion-symbol-conditions
+          (load-larm-get-motion-symbol-conditions))
+    (setq rarm-get-motion-symbol-conditions
+          (load-rarm-get-motion-symbol-conditions))
+    (setq dualarm-get-motion-symbol-conditions
+          (load-dualarm-get-motion-symbol-conditions))
     self)
   ;; TODO (knorth55): support multiple devices
   (:get-motion-symbols
@@ -69,10 +69,10 @@
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
                                 contact-positions)))
-           (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbols-conditions)
-                                 ((equal arm :rarm) rarm-get-motion-symbols-conditions)
+           (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbol-conditions)
+                                 ((equal arm :rarm) rarm-get-motion-symbol-conditions)
                                  (t nil)))
-           (dualarm-conditions dualarm-get-motion-symbols-conditions))
+           (dualarm-conditions dualarm-get-motion-symbol-conditions))
       (ros::publish waiting-visualize-topic-name
                     (instance std_msgs::Float32 :init :data 0.0))
       (ros::publish moving-visualize-topic-name
