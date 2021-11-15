@@ -26,6 +26,9 @@
           updater
           use-torso
           move-robot
+          ri
+          robotviewer
+          pilotviewer
           ))
 
 
@@ -36,10 +39,25 @@
                (device-frame-ids)
                (device-world-frame-ids)
                ((:motion-symbol-length msym-length) 5)
+               ((:robot rbt) *robot*)
+               ((:ri rbti) *ri*)
+               ((:box bx) *box*)
+               ((:robotviewer rbtvw) *irtviewer*)
+               ((:table-z tblz) *table-z*)
+               ((:table-height tblh) *table-height*)
+               ((:pilot plt) *pilot*)
+               ((:pilot-device pltdev) *pilot-device*)
+               ((:pilotviewer pltvw) *pilotviewer*)
+               ((:pilot-table-z plttblz) *pilot-table-z*)
+               ((:pilot-table-height plttblh) *pilot-table-height*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
     (let ((topic-namespace))
       (setq namespaces (if nss nss (list "")))
+      (setq ri rbti)
+      (setq robotviewer rbtvw)
+      (setq pilot-device pltdev)
+      (setq pilotviewer pltvw)
       (setq topic-namespace
             (if (> (length namespaces) 1)
               "multi_rmui" (car namespaces)))
@@ -61,7 +79,19 @@
                               :namespace topic-namespace))
       (setq executor (instance rmui-executor :init
                                :namespace topic-namespace
-                               :motion-symbol-length msym-length))
+                               :motion-symbol-length msym-length
+                               :robot rbt
+                               :ri rbti
+                               :box bx
+                               :robotviewer rbtvw
+                               :table-z tblz
+                               :table-height tblh
+                               :pilot plt
+                               :pilot-device pltdev
+                               :pilotviewer pltvw
+                               :pilot-table-z plttblz
+                               :pilot-table-height plttblh
+                               ))
       (setq updater (instance rmui-updater :init
                               :namespace topic-namespace))
 
@@ -82,7 +112,8 @@
            (contact-positions-list
              (if update-p (send-all devices :get-contact-positions)))
            (motion-symbols
-             (send planner :get-motion-symbols contact-positions-list
+             (send planner :get-motion-symbols
+                   contact-positions-list
                    :scene-state (send updater :last-scene-state)))
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols motion-symbols
@@ -93,9 +124,9 @@
            (execute-symbols (car execute-symbols-and-actions))
            (last-scene-state (send updater :last-scene-state))
            (executed-actions (send updater :executed-actions)))
-      (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
-      (if (boundp '*pilotviewer*) (send *pilotviewer* :draw-objects))
-      (if (boundp '*ri*) (send *ri* :draw-objects))
+      (if robotviewer (send robotviewer :draw-objects))
+      (if pilotviewer (send pilotviewer :draw-objects))
+      (if ri (send ri :draw-objects))
       (ros::ros-info (format nil "motion-symbols        : ~A" motion-symbols))
       (ros::ros-info (format nil "execute-symbols       : ~A" execute-symbols))
       (ros::ros-info (format nil "larm-contact-state    : ~A"

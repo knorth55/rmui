@@ -6,7 +6,7 @@
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
-  (scene-init :box-pos-y 0)
+  (scene-init :table-pos-y 0 :n-box (length rmui-names))
   (motion-init :move-robot t
                :robot *robot* :ri *ri* :cube *box* :vw *irtviewer*)
   (pilot-scene-init)
@@ -22,7 +22,19 @@
                   :device-frame-ids *device-frame-ids*
                   :device-world-frame-ids *device-world-frame-ids*
                   :motion-symbol-length *motion-symbol-length*
-                  :use-torso *use-torso*))
+                  :robot *robot*
+                  :ri *ri*
+                  :box *box*
+                  :robotviewer *irtviewer*
+                  :table-z *table-z*
+                  :table-height *table-height*
+                  :pilot *pilot*
+                  :pilot-device *pilot-device*
+                  :pilotviewer *pilotviewer*
+                  :pilot-table-z *pilot-table-z*
+                  :pilot-table-height *pilot-table-height*
+                  :use-torso *use-torso*
+                  :move-robot t))
   (ros::rate 10)
   (ros::ros-info "initialization finished, starting")
   (while (ros::ok) (send *server* :spin-once)))

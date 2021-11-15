@@ -19,13 +19,37 @@
           waiting-visualize-topic-name
           moving-visualize-topic-name
           motion-symbol-queue
-          motion-symbol-length)
+          motion-symbol-length
+          robot
+          ri
+          box
+          robotviewer
+          table-z
+          table-height
+          pilot
+          pilot-device
+          pilotviewer
+          pilot-table-z
+          pilot-table-height
+          )
   )
 
 
 (defmethod rmui-executor
   (:init (&key ((:namespace ns))
-               ((:motion-symbol-length msym-length) 5))
+               ((:motion-symbol-length msym-length) 5)
+               ((:robot rbt))
+               ((:ri rbti))
+               ((:box bx))
+               ((:robotviewer rbtvw))
+               ((:table-z tblz))
+               ((:table-height tblh))
+               ((:pilot plt))
+               ((:pilot-device pltdev))
+               ((:pilotviewer pltvw))
+               ((:pilot-table-z plttblz))
+               ((:pilot-table-height plttblh))
+               )
     (setq namespace (if ns ns ""))
     (setq waiting-visualize-topic-name
           (format nil "~A/output/status/waiting" namespace))
@@ -35,6 +59,17 @@
     (ros::advertise moving-visualize-topic-name std_msgs::Float32 1)
     (setq motion-symbol-length msym-length)
     (setq motion-symbol-queue (list nil nil))
+    (setq robot rbt)
+    (setq ri rbti)
+    (setq box bx)
+    (setq robotviewer rbtvw)
+    (setq table-z tblz)
+    (setq table-height tblh)
+    (setq pilot plt)
+    (setq pilot-device pltdev)
+    (setq pilotviewer pltvw)
+    (setq pilot-table-z plttblz)
+    (setq pilot-table-height plttblh)
     self)
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
@@ -118,20 +153,20 @@
             (eval (list action
                         :move-robot nil
                         :use-torso t
-                        :robot *pilot* :ri nil :cube *pilot-device*
-                        :vw *pilotviewer*
-                        :table-z *pilot-table-z*
-                        :table-height *pilot-table-height*))
-            (if (boundp '*pilotviewer*) (send *pilotviewer* :draw-objects))
+                        :robot pilot :ri nil :cube pilot-device
+                        :vw pilotviewer
+                        :table-z pilot-table-z
+                        :table-height pilot-table-height))
+            (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
             (eval (list action
                         :move-robot move-robot
                         :use-torso use-torso
-                        :robot *robot* :ri *ri* :cube *box*
-                        :vw *irtviewer*
-                        :table-z *table-z*
-                        :table-height *table-height*))
-            (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
+                        :robot robot :ri ri :cube box
+                        :vw robotviewer
+                        :table-z table-z
+                        :table-height table-height))
+            (if robotviewer (send robotviewer :draw-objects))
             (setq execute-symbols
                   (cond
                     ((and larm-motion-symbol rarm-motion-symbol
