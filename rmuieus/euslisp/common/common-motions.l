@@ -5,8 +5,11 @@
 ;; init
 
 (defun motion-init (&key (move-robot t)
-                         (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*))
-  (add-cube-coords :cube cube)
+                         (robot *robot*)
+                         (ri *ri*)
+                         (cubes (list *box0*))
+                         (vw *irtviewer*))
+  (dolist (cube cubes) (add-cube-coords :cube cube))
   (reset-motion :robot robot :ri ri :move-robot move-robot :vw vw))
 
 

@@ -9,11 +9,17 @@
   (scene-init :table-pos-y 0
               :n-box (length rmui-names))
   (motion-init :move-robot t
-               :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
+               :robot *robot*
+               :ri *ri*
+               :cubes *boxes*
+               :vw *irtviewer*)
   (pilot-scene-init :table-pos-y 0
                     :n-device (length rmui-names))
   (motion-init :move-robot nil
-               :robot *pilot* :ri nil :cube *pilot-device0* :vw *pilotviewer*)
+               :robot *pilot*
+               :ri nil
+               :cubes *pilot-devices*
+               :vw *pilotviewer*)
   (ros::ros-info "motion-init finished")
 
   (setq *server*

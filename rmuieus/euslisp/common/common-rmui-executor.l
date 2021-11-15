@@ -153,7 +153,9 @@
             (eval (list action
                         :move-robot nil
                         :use-torso t
-                        :robot pilot :ri nil :cube pilot-device
+                        :robot pilot
+                        :ri nil
+                        :cube pilot-device
                         :vw pilotviewer
                         :table-z pilot-table-z
                         :table-height pilot-table-height))
@@ -162,7 +164,9 @@
             (eval (list action
                         :move-robot move-robot
                         :use-torso use-torso
-                        :robot robot :ri ri :cube box
+                        :robot robot
+                        :ri ri
+                        :cube box
                         :vw robotviewer
                         :table-z table-z
                         :table-height table-height))
