@@ -53,7 +53,7 @@
                    :scene-state scene-state)))
       (list larm-motion-symbols rarm-motion-symbols)))
   (:get-motion-symbol
-    (arm contact-positions &key (scene-state))
+    (arm contact-position &key (scene-state))
     (let* ((larm-contact-state
              (cadr (assoc :larm-contact-state scene-state)))
            (rarm-contact-state
@@ -64,11 +64,11 @@
              (cadr (assoc :object-location-state scene-state)))
            (object-rotation-state
              (cadr (assoc :object-rotation-state scene-state)))
-           (contact-surfaces (mapcar #'car contact-positions))
-           (bottom-contact-positions
+           (contact-surface (mapcar #'car contact-position))
+           (bottom-contact-position
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
-                                contact-positions)))
+                                contact-position)))
            (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbol-conditions)
                                  ((equal arm :rarm) rarm-get-motion-symbol-conditions)
                                  (t nil)))
@@ -78,7 +78,7 @@
       (ros::publish moving-visualize-topic-name
                     (instance std_msgs::Float32 :init :data 0.0))
       (eval (append '(cond) arm-conditions dualarm-conditions
-                    '(((null contact-positions) nil) (t nil))))))
+                    '(((null contact-position) nil) (t nil))))))
   )
 
 
