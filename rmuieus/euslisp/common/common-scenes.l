@@ -4,7 +4,8 @@
 ;; parameters
 
 (defun box-scene-init (&optional (n-box 1))
-  (let ((boxes nil))
+  (let ((boxes nil)
+        (colors (list :red :green :blue :yellow :pink :purple)))
     (dotimes (i n-box)
       (let* ((box-id (format nil "box~A" i))
              (box (make-cube 270 420 220 :name box-id))  ;; ctb
@@ -12,8 +13,11 @@
              ;; (box (make-cube 270 370 500 :name box-id))  ;; trash box
              ;; (box (make-cube 150 280 320 :name box-id))  ;; shredder
              (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
-             (box-pos-y (* i (+ (y-of-cube box) 100)))
+             (box-pos-y (* (if (oddp i)  1 -1)
+                           (floor (/ (+ i 1) 2))
+                           (+ (y-of-cube box) 100)))
              (box-pos (float-vector *box-pos-x* box-pos-y box-pos-z)))
+        (send box :set-color (elt colors (mod i 6)))
         (send box :reset-coords)
         (send box :worldcoords)
         (send box :newcoords (make-coords :pos box-pos))
@@ -35,14 +39,18 @@
 
 
 (defun pilot-device-scene-init (&optional (n-device 1))
-  (let ((pilot-devices nil))
+  (let ((pilot-devices nil)
+        (colors (list :red :green :blue :yellow :pink :purple)))
     (dotimes (i n-device)
       (let* ((pilot-device-id (format nil "pilot-device~A" i))
              (pilot-device (make-cube 100 100 100 :name pilot-device-id))
              (pilot-device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
                                     (/ (z-of-cube pilot-device) 2.0)))
-             (pilot-device-pos-y (* i (+ (y-of-cube pilot-device) 100)))
+             (pilot-device-pos-y (* (if (oddp i)  1 -1)
+                                    (floor (/ (+ i 1) 2))
+                                    (+ (y-of-cube pilot-device) 100)))
              (pilot-device-pos (float-vector *pilot-device-pos-x* pilot-device-pos-y pilot-device-pos-z)))
+        (send pilot-device :set-color (elt colors (mod i 6)))
         (send pilot-device :reset-coords)
         (send pilot-device :worldcoords)
         (send pilot-device :newcoords (make-coords :pos pilot-device-pos))

@@ -16,7 +16,7 @@
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
   <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
-        args="0 0.5 0 0 0 0 1 rmui_world rmui0_world 100" />
+        args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
 
   <!-- rmui1 -->
   <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
@@ -28,7 +28,7 @@
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
   <node pkg="tf" type="static_transform_publisher" name="rmui1_static_transform_publisher"
-        args="0 0 0 0 0 0 1 rmui_world rmui1_world 100" />
+        args="0 0.5 0 0 0 0 1 rmui_world rmui1_world 100" />
 
   <!-- rmui2 -->
   <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
