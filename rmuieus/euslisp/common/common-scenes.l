@@ -13,7 +13,7 @@
              ;; (box (make-cube 270 370 500 :name box-id))  ;; trash box
              ;; (box (make-cube 150 280 320 :name box-id))  ;; shredder
              (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
-             (box-pos-y (* (if (oddp i)  1 -1)
+             (box-pos-y (* (if (oddp i) 1 -1)
                            (floor (/ (+ i 1) 2))
                            (+ (y-of-cube box) 100)))
              (box-pos (float-vector *box-pos-x* box-pos-y box-pos-z)))
@@ -46,10 +46,11 @@
              (pilot-device (make-cube 100 100 100 :name pilot-device-id))
              (pilot-device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
                                     (/ (z-of-cube pilot-device) 2.0)))
-             (pilot-device-pos-y (* (if (oddp i)  1 -1)
+             (pilot-device-pos-y (* (if (oddp i) 1 -1)
                                     (floor (/ (+ i 1) 2))
                                     (+ (y-of-cube pilot-device) 100)))
-             (pilot-device-pos (float-vector *pilot-device-pos-x* pilot-device-pos-y pilot-device-pos-z)))
+             (pilot-device-pos
+               (float-vector *pilot-device-pos-x* pilot-device-pos-y pilot-device-pos-z)))
         (send pilot-device :set-color (elt colors (mod i 6)))
         (send pilot-device :reset-coords)
         (send pilot-device :worldcoords)
@@ -72,9 +73,9 @@
   (send *pilot-table* :worldcoords))
 
 
-(defun pilot-robot-scene-init-base  (&key (table-pos)
-                                          (larm-ee-frame-id)
-                                          (rarm-ee-frame-id))
+(defun pilot-robot-scene-init-base (&key (table-pos)
+                                         (larm-ee-frame-id)
+                                         (rarm-ee-frame-id))
   (send *pilot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send *pilot* :link larm-ee-frame-id)

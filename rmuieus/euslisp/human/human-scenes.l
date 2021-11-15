@@ -10,7 +10,7 @@
 (defvar *pilot-contact-offset* (float-vector 30 0 20))
 
 
-(defun pilot-robot-scene-init  (&key (table-pos))
+(defun pilot-robot-scene-init (&key (table-pos))
   (setq *human* (instance human-robot :init))
   (setq *pilot* *human*)
   (send (send *pilot* :larm-end-coords) :rotate pi/2 :y)
