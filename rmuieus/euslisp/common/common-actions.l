@@ -1,8 +1,11 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 
 
-(defun action-init (&key (table-pos-y 0) (move-robot t) &allow-other-keys)
-  (scene-init :table-pos-y table-pos-y)
+(defun action-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
+                         (move-robot t) &allow-other-keys)
+  (scene-init :table-pos-y table-pos-y
+              :n-box n-box
+              :box-types box-types)
   (motion-init :move-robot move-robot
                :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
   t)

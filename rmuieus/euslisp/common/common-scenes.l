@@ -3,15 +3,26 @@
 
 ;; parameters
 
-(defun box-scene-init (&optional (n-box 1))
+(defun box-scene-init (&optional (n-box 1) (box-types :ctb))
   (let ((boxes nil)
-        (colors (list :red :green :blue :yellow :pink :purple)))
+        (colors (list :red :green :blue :yellow :pink :purple))
+        (box-types
+          (if (listp box-types)
+            box-types
+            (make-list n-box :initial-element box-types)))
+        (box-shapes
+          (list
+            (cons :ctb (list 270 420 220))  ;; ctb
+            (cons :cardboardbox (list 350 350 300))  ;; cardboard box
+            (cons :trashbox (list 270 370 500))  ;; trash box
+            (cons :shredder (list 150 280 320))  ;; shredder
+            (cons :toybox (list 200 200 200))  ;; toy box for debugging
+            )))
     (dotimes (i n-box)
       (let* ((box-id (format nil "box~A" i))
-             (box (make-cube 270 420 220 :name box-id))  ;; ctb
-             ;; (box (make-cube 350 350 300 :name box-id)) ;; cardboard box
-             ;; (box (make-cube 270 370 500 :name box-id))  ;; trash box
-             ;; (box (make-cube 150 280 320 :name box-id))  ;; shredder
+             (box-type (elt box-types i))
+             (box-shape (cdr (assoc box-type box-shapes)))
+             (box (apply #'make-cube (append box-shape (list :name box-id))))
              (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
              (box-pos-y (* (if (oddp i) 1 -1)
                            (floor (/ (+ i 1) 2))
@@ -130,9 +141,9 @@
             :relative-pose (make-coords :pos table-pos)))))
 
 
-(defun scene-init (&key (table-pos-y 0) (n-box 1))
+(defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb))
   (table-scene-init table-pos-y)
-  (box-scene-init n-box)
+  (box-scene-init n-box box-types)
   (robot-scene-init :table-objects (append *boxes* (list *table*))
                     :table-pos *table-pos*)
   ;: viewer-init

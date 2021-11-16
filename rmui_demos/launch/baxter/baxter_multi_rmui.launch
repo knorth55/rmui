@@ -11,6 +11,7 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="box_type" default="ctb" />
 
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui.launch" if="$(arg rmui)">
     <arg name="n_board" value="$(arg n_board)" />
@@ -22,6 +23,7 @@
 
   <include file="$(find rmuieus)/launch/baxter_multi_rmui_planning.launch"
            if="$(arg main)">
+    <arg name="box_type" value="$(arg box_type)" />
   </include>
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_rosbag_record.launch"

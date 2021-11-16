@@ -17,6 +17,8 @@
 (defvar *use-torso* 0.001)
 
 
-(defun main (&key (rmui-names (list "rmui0")))
+(defun main (&key (rmui-names (list "rmui0"))
+                  (box-types :ctb))
   (ros::roseus "pr2_rmui_planning")
-  (rmui-planning-main :rmui-names rmui-names))
+  (rmui-planning-main :rmui-names rmui-names
+                      :box-types box-types))

@@ -10,6 +10,7 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="box_type" default="ctb" />
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_multi_rmui.launch">
     <arg name="dummy" value="true" />
@@ -19,5 +20,6 @@
     <arg name="record" value="$(arg record)" />
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="box_type" value="$(arg box_type)" />
   </include>
 </launch>

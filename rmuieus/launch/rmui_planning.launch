@@ -2,8 +2,10 @@
   <arg name="robot" default="pr2" />
   <arg name="main" default="true" />
   <arg name="rmui_name" default="rmui0" />
+  <arg name="box_type" default="ctb" />
 
   <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
-        args="&quot;(main :rmui-names (list \&quot;$(arg rmui_name)\&quot;))&quot;"
+        args="&quot;(main :rmui-names (list \&quot;$(arg rmui_name)\&quot;) 
+                          :box-types :$(arg box_type))&quot;"
         if="$(arg main)" required="true" output="screen" />
 </launch>
