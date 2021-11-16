@@ -110,8 +110,13 @@
            (update-p
              (eval (append (list 'or)
                            (send-all devices :update-device-orientation))))
+           (device-states
+             (if update-p (send-all devices :get-device-state)))
            (contact-positions
-             (if update-p (send-all devices :get-contact-positions)))
+             (mapcar
+               #'(lambda (device-state)
+                   (cadr (assoc :contact-positions device-state)))
+               device-states))
            (motion-symbols
              (send planner :get-motion-symbols
                    contact-positions

@@ -86,19 +86,29 @@
         (progn
           (send device :newcoords device-coords)
           (send device :worldcoords)))))
-  (:get-contact-positions ()
-    (let ((prx-positions
-            (send self :get-device-prx-positions))
-          (prx-index 0)
-          (contact-positions nil))
-      (if prx-positions
+  (:get-device-state ()
+    (if (send self :update-device-prx-vectors)
+      (let* ((device-rotation-state
+               (send self :get-device-rotation-state))
+             (device-prx-positions
+               (send self :get-device-prx-positions
+                     device-rotation-state))
+             (device-contact-positions
+               (send self :get-device-contact-positions
+                     device-prx-positions)))
+        (list (list :rotation-state device-rotation-state)
+              (list :contact-positions device-contact-positions)))))
+  (:get-device-contact-positions (device-prx-positions)
+    (let ((device-prx-index 0)
+          (device-contact-positions nil))
+      (if device-prx-positions
         (dolist (prx proximity)
           (when (> prx prx-threshold)
-            (setq contact-positions
-                  (append contact-positions
-                          (list (elt prx-positions prx-index)))))
-          (setq prx-index (+ prx-index 1))))
-      contact-positions))
+            (setq device-contact-positions
+                  (append device-contact-positions
+                          (list (elt device-prx-positions device-prx-index)))))
+          (setq device-prx-index (+ device-prx-index 1))))
+      device-contact-positions))
   (:update-device-prx-vectors ()
     (let ((device-rot (send device :copy-rot)))
       (setq device-prx-vectors
@@ -106,21 +116,25 @@
                         (let ((v (copy-seq prx-v))) (transform device-rot v)))
                     prx-initial-vectors))
       t))
-  (:get-device-prx-positions ()
-    (if (send self :update-device-prx-vectors)
-      (let* ((prx-vectors-and-positions
-               (send self :select-prx-vectors-and-positions))
-             (prx-vectors (car prx-vectors-and-positions))
-             (prx-positions (cadr prx-vectors-and-positions)))
-        (if (and prx-vectors prx-positions)
-          (mapcar #'(lambda (prx-v)
-                      (send self :get-prx-position prx-v prx-vectors prx-positions))
-                  device-prx-vectors)))))
-  (:select-prx-vectors-and-positions ()
+  (:get-device-prx-positions (device-rotation-state)
+    (let* ((device-rotation-state
+             (send self :get-device-rotation-state))
+           (prx-vectors
+             (send self :select-prx-vectors device-rotation-state))
+           (prx-positions
+             (send self :select-prx-positions device-rotation-state)))
+      (if (and prx-vectors prx-positions)
+        (mapcar #'(lambda (prx-v)
+                    (send self :get-prx-position prx-v prx-vectors prx-positions))
+                device-prx-vectors))))
+  (:get-device-rotation-state ()
     (let* ((device-center-vectors
-             (list (elt device-prx-vectors 4) (elt device-prx-vectors 9)
-                   (elt device-prx-vectors 14) (elt device-prx-vectors 19)
-                   (elt device-prx-vectors 24) (elt device-prx-vectors 29)))
+             (list (elt device-prx-vectors 4)
+                   (elt device-prx-vectors 9)
+                   (elt device-prx-vectors 14)
+                   (elt device-prx-vectors 19)
+                   (elt device-prx-vectors 24)
+                   (elt device-prx-vectors 29)))
            (diff-x-vs
              (mapcar #'(lambda (v) (norm (v- (float-vector 1.0 0 0) v))) device-center-vectors))
            (diff-x-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-x-vs))
@@ -133,13 +147,25 @@
              (mapcar #'(lambda (v) (norm (v- (float-vector 0 0 1.0) v))) device-center-vectors))
            (diff-z-p (mapcar #'(lambda (v) (< v prx-position-threshold)) diff-z-vs))
            (z-p (not (every #'null diff-z-p))))
-      (cond
-        ((and x-p y-p z-p)
-         (list prx-initial-vectors prx-initial-positions))
-        (x-p (list prx-x45-vectors prx-x45-positions))
-        (y-p (list prx-y45-vectors prx-y45-positions))
-        (z-p (list prx-z45-vectors prx-z45-positions))
-        (t (list nil nil)))))
+      (cond ((and x-p y-p z-p) :neutral)
+            (x-p :x45)
+            (y-p :y45)
+            (z-p :z45)
+            (t nil))))
+  (:select-prx-vectors (device-rotation-state)
+    (cond
+      ((equal device-rotation-state :neutral) prx-initial-vectors)
+      ((equal device-rotation-state :x45) prx-x45-vectors)
+      ((equal device-rotation-state :y45) prx-y45-vectors)
+      ((equal device-rotation-state :z45) prx-z45-vectors)
+      (t nil)))
+  (:select-prx-positions (device-rotation-state)
+    (cond
+      ((equal device-rotation-state :neutral) prx-initial-positions)
+      ((equal device-rotation-state :x45) prx-x45-positions)
+      ((equal device-rotation-state :y45) prx-y45-positions)
+      ((equal device-rotation-state :z45) prx-z45-positions)
+      (t nil)))
   (:get-prx-position (prx-v prx-vectors prx-positions)
     (let*
       ((prx-v (scale (/ 1.0 (norm prx-v)) prx-v))
