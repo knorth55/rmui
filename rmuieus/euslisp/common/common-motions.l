@@ -867,7 +867,7 @@
 
 (defun hold-release-motion (&key (arm :arms) (tm 5000)
                                  &rest args &allow-other-keys)
-  (apply #'push-release-motion (append (list :arm arm :tm tm) args)))
+  (apply #'push-release-motion (append (list arm :tm tm) args)))
 
 
 ;; hold lift up & down motion
