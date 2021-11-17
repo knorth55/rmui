@@ -297,6 +297,12 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
+;; TODO: implement dualarm-push-hold-pile-up
+
+(defun dualarm-push-hold-pile-up (&rest args)
+  )
+
+
 ;; larm actions
 
 (defun larm-left-push-action (&rest args)
@@ -448,6 +454,16 @@
   (apply #'push-release-action (append (list :larm) args)))
 
 
+;; TODO: implement larm-right-push-next-to
+(defun larm-right-push-next-to (&rest args)
+  )
+
+
+;; TODO: implement larm-front-push-next-to
+(defun larm-front-push-next-to (&rest args)
+  )
+
+
 ;; rarm actions
 
 (defun rarm-right-push-action (&rest args)
@@ -597,6 +613,16 @@
 
 (defun rarm-push-release-action (&rest args)
   (apply #'push-release-action (append (list :rarm) args)))
+
+
+;; TODO: implement rarm-left-push-next-to
+(defun rarm-left-push-next-to (&rest args)
+  )
+
+
+;; TODO: implement rarm-back-push-next-to
+(defun rarm-back-push-next-to (&rest args)
+  )
 
 
 (provide :common-actions "common-actions.l")

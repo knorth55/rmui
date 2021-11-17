@@ -42,19 +42,101 @@
     self)
   (:get-motion-symbols
     (contact-positions &key (scene-states))
-    (let ((motion-symbols nil))
+    (let ((motion-symbols nil)
+          (push-hold-down-index nil)
+          (left-push-index nil)
+          (right-push-index nil)
+          (front-push-index nil)
+          (back-push-index nil))
       (dotimes (i (length contact-positions))
-        (let* ((larm-motion-symbol
+        (let* ((contact-position (elt contact-positions i))
+               (scene-state (elt scene-states i))
+               (larm-motion-symbol
                  (send self :get-motion-symbol :larm
-                       (elt contact-positions i)
-                       :scene-state (elt scene-states i)))
+                       contact-position
+                       :scene-state scene-state))
                (rarm-motion-symbol
                  (send self :get-motion-symbol :rarm
-                       (elt contact-positions i)
-                       :scene-state (elt scene-states i))))
+                       contact-position
+                       :scene-state scene-state))
+               (larm-contact-state
+                 (cadr (assoc :larm-contact-state scene-state)))
+               (rarm-contact-state
+                 (cadr (assoc :rarm-contact-state scene-state))))
+          ;; TODO: support :used case
+          (if (and (or (and (equal larm-contact-state :front-contact)
+                            (equal rarm-contact-state :back-contact))
+                       (and (equal larm-contact-state :back-contact)
+                            (equal rarm-contact-state :front-contact))
+                       (and (equal larm-contact-state :left-contact)
+                            (equal rarm-contact-state :right-contact))
+                       (and (equal larm-contact-state :front-left-contact)
+                            (equal rarm-contact-state :back-right-contact))
+                       (and (equal larm-contact-state :back-left-contact)
+                            (equal rarm-contact-state :front-right-contact)))
+                   (and (equal larm-motion-symbol :push-hold-down)
+                        (equal rarm-motion-symbol :push-hold-down)))
+            (setq push-hold-down-index i))
+          ;; TODO: support :used case
+          (if (and (equal rarm-contact-state :right-contact)
+                   (equal larm-motion-symbol :left-push))
+            (setq left-push-index i))
+          (if (and (equal rarm-contact-state :front-contact)
+                   (equal larm-motion-symbol :back-push))
+            (setq back-push-index i))
+          (if (and (equal larm-contact-state :left-contact)
+                   (equal rarm-motion-symbol :right-push))
+            (setq right-push-index i))
+          (if (and (equal larm-contact-state :back-contact)
+                   (equal rarm-motion-symbol :front-push))
+            (setq front-push-index i))
           (setq motion-symbols
                 (append motion-symbols
                         (list (list larm-motion-symbol rarm-motion-symbol))))))
+      (if (or push-hold-down-index
+              left-push-index right-push-index
+              front-push-index back-push-index)
+        (dotimes (i (length motion-symbols))
+          (let* ((motion-symbol (elt motion-symbols i))
+                 (larm-motion-symbol (car motion-symbol))
+                 (rarm-motion-symbol (cadr motion-symbol)))
+            (cond
+              ;; pile-up
+              ((and push-hold-down-index
+                    (not (equal push-hold-down-index i))
+                    (equal rarm-motion-symbol :top-push))
+               (setf (car (elt motion-symbols push-hold-down-index))
+                     (list push-hold-pile-up :cube-index i))
+               (setf (cadr (elt motion-symbols push-hold-down-index))
+                     (list push-hold-pile-up :cube-index i))
+               (setf (cadr motion-symbol) nil))
+              ;; next-to
+              ((and left-push-index
+                    (not (equal left-push-index i))
+                    (equal rarm-motion-symbol :right-push))
+               (setf (cadr (elt motion-symbols left-push-index))
+                     (list left-push-next-to :cube-index i))
+               (setf (cadr motion-symbol) nil))
+              ((and back-push-index
+                    (not (equal back-push-index i))
+                    (equal rarm-motion-symbol :front-push))
+               (setf (cadr (elt motion-symbols back-push-index))
+                     (list back-push-next-to :cube-index))
+               (setf (cadr motion-symbol) nil))
+              ((and right-push-index
+                    (not (equal right-push-index i))
+                    (equal larm-motion-symbol :left-push))
+               (setf (car (elt motion-symbols right-push-index))
+                     (list right-push-next-to :cube-index i))
+               (setf (car motion-symbol) nil))
+              ((and front-push-index
+                    (not (equal front-push-index i))
+                    (equal larm-motion-symbol :back-push))
+               (setf (car (elt motion-symbols front-push-index))
+                     (list front-push-next-to :cube-index i))
+               (setf (car motion-symbol) nil))
+              (t nil))
+            )))
       motion-symbols))
   (:get-motion-symbol
     (arm contact-position &key (scene-state))
