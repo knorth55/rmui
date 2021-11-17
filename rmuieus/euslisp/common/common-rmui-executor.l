@@ -84,27 +84,39 @@
     (and (>= (length motion-symbol-queue) motion-symbol-length)
          (every #'(lambda (x) (equal x motion-symbol)) motion-symbol-queue)))
   (:get-action-from-motion-symbol (larm-motion-symbol rarm-motion-symbol)
-    (cond
-      ((and larm-motion-symbol rarm-motion-symbol
-            (equal larm-motion-symbol rarm-motion-symbol))
-       (let* ((action-name
-                (format nil "dualarm-~A-action"
-                        (string-downcase larm-motion-symbol)))
-              (action (read-from-string action-name)))
-         (list action-name action)))
-      (larm-motion-symbol
-       (let* ((action-name
-                (format nil "larm-~A-action"
-                             (string-downcase larm-motion-symbol)))
-              (action (read-from-string action-name)))
-         (list action-name action)))
-      (rarm-motion-symbol
-       (let* ((action-name
-                (format nil "rarm-~A-action"
-                            (string-downcase rarm-motion-symbol)))
-              (action (read-from-string action-name)))
-         (list action-name action)))
-      (t nil)))
+    (let ((action-args nil))
+      (if (listp larm-motion-symbol)
+        (progn
+          (setq larm-motion-symbol (car larm-motion-symbol))
+          (setq action-args (cadr larm-motion-symbol))))
+      (if (listp rarm-motion-symbol)
+        (progn
+          (setq rarm-motion-symbol (car rarm-motion-symbol))
+          (setq action-args (cadr rarm-motion-symbol))))
+      (cond
+        ((and larm-motion-symbol rarm-motion-symbol
+              (equal larm-motion-symbol rarm-motion-symbol))
+         (let* ((action-name
+                  (format nil "dualarm-~A-action"
+                          (string-downcase larm-motion-symbol)))
+                (action (append (list (read-from-string action-name))
+                                action-args)))
+           (list action-name action)))
+        (larm-motion-symbol
+         (let* ((action-name
+                  (format nil "larm-~A-action"
+                               (string-downcase larm-motion-symbol)))
+                (action (append (list (read-from-string action-name))
+                                action-args)))
+           (list action-name action)))
+        (rarm-motion-symbol
+         (let* ((action-name
+                  (format nil "rarm-~A-action"
+                              (string-downcase rarm-motion-symbol)))
+                (action (append (list (read-from-string action-name))
+                                action-args)))
+           (list action-name action)))
+        (t nil))))
   (:execute-motion-symbols
     (motion-symbols &key (scene-states) (move-robot t) (use-torso 0.001))
     (let ((motion-symbols-and-actions
@@ -194,26 +206,28 @@
                  (action-name (if action-name-and-action (car action-name-and-action)))
                  (action (if action-name-and-action (cadr action-name-and-action))))
             ;; pilot viewer
-            (eval (list action
-                        :move-robot nil
-                        :use-torso t
-                        :robot pilot
-                        :ri nil
-                        :cube pilot-device
-                        :vw pilotviewer
-                        :table-z pilot-table-z
-                        :table-height pilot-table-height))
+            (eval (append
+                    action
+                    (list :move-robot nil
+                          :use-torso t
+                          :robot pilot
+                          :ri nil
+                          :cube pilot-device
+                          :vw pilotviewer
+                          :table-z pilot-table-z
+                          :table-height pilot-table-height)))
             (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
-            (eval (list action
-                        :move-robot move-robot
-                        :use-torso use-torso
-                        :robot robot
-                        :ri ri
-                        :cube box
-                        :vw robotviewer
-                        :table-z table-z
-                        :table-height table-height))
+            (eval (append
+                    action
+                    (list :move-robot move-robot
+                          :use-torso use-torso
+                          :robot robot
+                          :ri ri
+                          :cube box
+                          :vw robotviewer
+                          :table-z table-z
+                          :table-height table-height)))
             (if robotviewer (send robotviewer :draw-objects))
             (setq execute-symbol
                   (cond
