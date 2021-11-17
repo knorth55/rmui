@@ -297,10 +297,8 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
-;; TODO: implement dualarm-push-hold-pile-up
-
 (defun dualarm-push-hold-pile-up (&rest args)
-  )
+  (apply #'hold-pile-up-motion args))
 
 
 ;; larm actions

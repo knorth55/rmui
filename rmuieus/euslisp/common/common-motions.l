@@ -935,6 +935,86 @@
     (when av (list (list av) (list tm)))))
 
 
+(defun hold-move-motion (&rest args &key (translate-vector (float-vector 0 0 0))
+                               (move-robot t) (tm 5000) (use-torso 0.001)
+                               (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                               &allow-other-keys)
+  (let* ((av)
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords))
+         (larm-target-coords nil)
+         (rarm-target-coords nil))
+    (send cube :translate translate-vector)
+    (setq larm-target-coords
+          (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
+    (setq rarm-target-coords
+          (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
+    (setq av (solve-ik-rotation-relax
+               :arms (list larm-target-coords rarm-target-coords)
+               :use-torso use-torso :robot robot))
+    (if av
+      (when move-robot
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (send vw :draw-objects)
+    (when av (list (list av) (list tm)))))
+
+
+(defun hold-pile-up-motion (&rest args &key (cubes *cubes*) (cube-index 0)
+                                  (move-robot t) (tm 5000) (use-torso 0.001)
+                                  (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                                  (cubes *cubes*) (cube-index 0)
+                                  &allow-other-keys)
+  (let* ((avs)
+         (moved)
+         (lifted-down)
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords))
+         (cube-height (get-cube-height :cube cube))
+         (cube-coords (send (send cube :worldcoords) :copy-worldcoords))
+         (cube-pos (send cube-coords :worldpos))
+         (target-cube (elt *cubes* cube-index))
+         (target-cube-height (get-cube-height :cube target-cube))
+         (target-cube-coords
+           (send (send target-cube :worldcoords) :copy-worldcoords))
+         (target-cube-pos (send target-cube-coords :worldpos))
+         (translate-vector
+           (float-vector (- (elt target-cube-pos 0) (elt cube-pos 0))
+                         (- (elt target-cube-pos 1) (elt cube-pos 1))
+                         0))
+         (lift-height
+           (- (- (elt cube-pos 2) (/ cube-height 2.0))
+              (+ (elt target-cube-pos 2) (/ target-cube-height 2.0)))))
+    (setq moved
+          (hold-move-motion
+            :translate-vector translate-vector
+            :move-robot nil :tm tm :use-torso use-torso
+            :robot robot :ri ri :cube cube :vw vw))
+    (setq lifted-down
+          (hold-lift-down-motion
+            :lift-height lift-height
+            :move-robot nil :tm tm :use-torso use-torso
+            :robot robot :ri :ri :cube cube :vw vw))
+    (if (and moved lifted-down)
+      (when move-robot
+        (send ri :angle-vector-sequence
+              (list (car moved) (car lifted-down))
+              (list (cadr moved) (cadr lifted-down) nil 0))
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (send vw :draw-objects)
+    (when (and moved lifted-down)
+      (list (list (car moved) (car lifted-down))
+            (list (cadr moved) (cadr lifted-down))))))
+
+
 ;; rotate motion
 
 (defun get-rotate-height
