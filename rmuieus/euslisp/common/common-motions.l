@@ -901,21 +901,30 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-lift-down-motion (&key (lift-height nil) (move-robot t) (tm 5000) (use-torso 0.001)
+(defun hold-lift-down-motion (&key (lift-height nil) (cube-pos-x nil) (cube-pos-y nil)
+                                   (move-robot t) (tm 5000) (use-torso 0.001)
                                    (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                                    (table-z *table-z*) (table-height *table-height*)
                                    &rest args &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
-         (cube-z (elt (send prev-cube-coords :pos) 2))
+         (cube-pos (send prev-cube-coords :worldpos))
          (cube-height (get-cube-height :cube cube))
          (larm-target-coords nil)
          (rarm-target-coords nil))
     ;; lift down
     (unless lift-height
-      (setq lift-height (- (- cube-z (/ cube-height 2.0)) (+ table-z table-height))))
-    (send cube :translate (float-vector 0 0 (* -1.0 lift-height)) :world)
+      (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0)) (+ table-z table-height))))
+    (unless cube-pos-x
+      (setq cube-pos-x (elt (send cube :get :initial-pos) 0)))
+    (unless cube-pos-y
+      (setq cube-pos-y (elt (send cube :get :initial-pos) 1)))
+    (send cube :translate
+          (float-vector (- cube-pos-x (elt cube-pos 0))
+                        (- cube-pos-y (elt cube-pos 1))
+                        (* -1.0 lift-height))
+          :world)
     (setq larm-target-coords
           (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
     (setq rarm-target-coords
@@ -935,16 +944,28 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-move-motion (&rest args &key (translate-vector (float-vector 0 0 0))
+(defun hold-move-motion (&rest args &key (cube-pos-x nil)  (cube-pos-y nil) (cube-pos-z nil)
                                (move-robot t) (tm 5000) (use-torso 0.001)
                                (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                                &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
+         (cube-pos (send prev-cube-coords :worldpos))
          (larm-target-coords nil)
          (rarm-target-coords nil))
-    (send cube :translate translate-vector)
+    (unless cube-pos-x
+      (setq cube-pos-x (elt (send cube :get :initial-pos) 0)))
+    (unless cube-pos-y
+      (setq cube-pos-y (elt (send cube :get :initial-pos) 1)))
+    (unless cube-pos-z
+      (setq cube-pos-z (elt (send cube :get :initial-pos) 2)))
+    (send cube :translate
+          (float-vector
+            (- cube-pos-x (elt cube-pos 0))
+            (- cube-pos-y (elt cube-pos 1))
+            (- cube-pos-z (elt cube-pos 2)))
+          :world)
     (setq larm-target-coords
           (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
     (setq rarm-target-coords
@@ -981,21 +1002,21 @@
          (target-cube-coords
            (send (send target-cube :worldcoords) :copy-worldcoords))
          (target-cube-pos (send target-cube-coords :worldpos))
-         (translate-vector
-           (float-vector (- (elt target-cube-pos 0) (elt cube-pos 0))
-                         (- (elt target-cube-pos 1) (elt cube-pos 1))
-                         0))
          (lift-height
            (- (- (elt cube-pos 2) (/ cube-height 2.0))
               (+ (elt target-cube-pos 2) (/ target-cube-height 2.0)))))
     (setq moved
           (hold-move-motion
-            :translate-vector translate-vector
+            :cube-pos-x (elt target-cube-pos 0)
+            :cube-pos-y (elt target-cube-pos 1)
+            :cube-pos-z (elt cube-pos 2)
             :move-robot nil :tm tm :use-torso use-torso
             :robot robot :ri ri :cube cube :vw vw))
     (setq lifted-down
           (hold-lift-down-motion
             :lift-height lift-height
+            :cube-pos-x (elt target-cube-pos 0)
+            :cube-pos-y (elt target-cube-pos 1)
             :move-robot nil :tm tm :use-torso use-torso
             :robot robot :ri :ri :cube cube :vw vw))
     (if (and moved lifted-down)
