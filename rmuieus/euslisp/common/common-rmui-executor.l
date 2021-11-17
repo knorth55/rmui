@@ -208,26 +208,28 @@
             ;; pilot viewer
             (eval (append
                     action
-                    (list :move-robot nil
-                          :use-torso t
-                          :robot pilot
-                          :ri nil
-                          :cube pilot-device
-                          :vw pilotviewer
-                          :table-z pilot-table-z
-                          :table-height pilot-table-height)))
+                    '(:move-robot nil
+                      :use-torso t
+                      :robot pilot
+                      :ri nil
+                      :cube pilot-device
+                      :cubes pilot-devices
+                      :vw pilotviewer
+                      :table-z pilot-table-z
+                      :table-height pilot-table-height)))
             (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
             (eval (append
                     action
-                    (list :move-robot move-robot
-                          :use-torso use-torso
-                          :robot robot
-                          :ri ri
-                          :cube box
-                          :vw robotviewer
-                          :table-z table-z
-                          :table-height table-height)))
+                    '(:move-robot move-robot
+                      :use-torso use-torso
+                      :robot robot
+                      :ri ri
+                      :cube box
+                      :cubes boxes
+                      :vw robotviewer
+                      :table-z table-z
+                      :table-height table-height)))
             (if robotviewer (send robotviewer :draw-objects))
             (setq execute-symbol
                   (cond
