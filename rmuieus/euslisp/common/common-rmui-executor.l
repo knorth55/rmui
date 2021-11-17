@@ -87,12 +87,12 @@
     (let ((action-args nil))
       (if (listp larm-motion-symbol)
         (progn
-          (setq larm-motion-symbol (car larm-motion-symbol))
-          (setq action-args (cadr larm-motion-symbol))))
+          (setq action-args (cdr larm-motion-symbol))
+          (setq larm-motion-symbol (car larm-motion-symbol))))
       (if (listp rarm-motion-symbol)
         (progn
-          (setq rarm-motion-symbol (car rarm-motion-symbol))
-          (setq action-args (cadr rarm-motion-symbol))))
+          (setq action-args (cdr rarm-motion-symbol))
+          (setq rarm-motion-symbol (car rarm-motion-symbol))))
       (cond
         ((and larm-motion-symbol rarm-motion-symbol
               (equal larm-motion-symbol rarm-motion-symbol))
