@@ -416,7 +416,8 @@
                                (+ (if (eq motion-type :approach) -100 0)
                                   hold-offset))))
               (send target-coords :translate (float-vector x-offset y-offset z-offset))
-              (send target-coords :rotate (* (if (eq arm :rarm) 1.0 -1.0) pi/2) :z)
+              ;; correct ???
+              (send target-coords :rotate (* (if (eq arm :larm) 1.0 -1.0) pi/2) :z)
               (when (eq push-direction :top) (send target-coords :rotate pi :y))))
            (t (return-from get-push-target-coords nil)))
          target-coords))
