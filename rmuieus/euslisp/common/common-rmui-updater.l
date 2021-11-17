@@ -87,31 +87,74 @@
   ;; TODO (knorth55): condition for multiple device combination
   (:update-scene-states (motion-symbols-and-actions)
     (if (null motion-symbols-and-actions) (return-from :update-scene-states nil))
-    (let ((prev-scene-states (send self :last-scene-states)))
+    (let* ((prev-scene-states (send self :last-scene-states))
+           (scene-states
+             (mapcar #'(lambda (x) (mapcar #'copy-seq x)) prev-scene-states))
+           (execute-motion-symbol nil)
+           (execute-action-name nil)
+           (execute-action nil))
       (dotimes (i (length motion-symbols-and-actions))
-        (let* ((prev-scene-state (elt prev-scene-states i))
-               (motion-symbol-and-action (elt motion-symbols-and-actions i))
-               (motion-symbol (car motion-symbol-and-action))
-               (action-name (cadr motion-symbol-and-action))
-               (action (caddr motion-symbol-and-action))
-               (scene-state)
-               (scene-states
-                 (mapcar #'(lambda (x) (mapcar #'copy-seq x)) prev-scene-states)))
-          (if motion-symbol-and-action
-            (progn
-              (setq scene-state
-                    (send self :update-scene-state
-                          motion-symbol-and-action prev-scene-state))
-              (setf (elt scene-states i) scene-state)
-              (send self :append-scene-states-list scene-states)
-              (send self :append-executed-actions
-                    action-name action)
-              (send self :add-action-state-in-pddl-graph
-                    action prev-scene-states scene-states)
-              (send self :add-action-state-in-statenet-graph
-                    action prev-scene-states scene-states)
-              (return-from :update-scene-states motion-symbol)))))
-      nil))
+        (if (elt motion-symbols-and-actions i)
+          (let* ((prev-scene-state
+                   (elt prev-scene-states i))
+                 (motion-symbol-and-action
+                   (elt motion-symbols-and-actions i))
+                 (motion-symbol (car motion-symbol-and-action))
+                 (action-name (cadr motion-symbol-and-action))
+                 (action (caddr motion-symbol-and-action)))
+            (if motion-symbol-and-action
+              (progn
+                (setf (elt scene-states i)
+                      (send self :update-scene-state
+                            motion-symbol-and-action prev-scene-state))
+                (setq execute-action-name action-name)
+                (setq execute-action action)
+                (setq execute-motion-symbol motion-symbol)
+                )))))
+      (let* ((larm-used-or-released
+               (mapcar
+                 #'(lambda (scene-state)
+                     (let ((larm-contact-state
+                             (cadr (assoc :larm-contact-state scene-state))))
+                       (or (equal larm-contact-state :released)
+                           (equal larm-contact-state :used))))
+                 scene-states))
+             (rarm-used-or-released
+               (mapcar
+                 #'(lambda (scene-state)
+                     (let ((rarm-contact-state
+                             (cadr (assoc :rarm-contact-state scene-state))))
+                       (or (equal rarm-contact-state :released)
+                           (equal rarm-contact-state :used))))
+                 scene-states))
+             (larm-released (eval (append '(and) larm-used-or-released)))
+             (rarm-released (eval (append '(and) rarm-used-or-released)))
+             (larm-contact-index (position nil larm-used-or-released))
+             (rarm-contact-index (position nil rarm-used-or-released)))
+        (if larm-released
+          (dolist (scene-state scene-states)
+            (setf (cadr (assoc :larm-contact-state scene-state)) :released))
+          (dotimes (i (length scene-states))
+            (let ((scene-state (elt scene-states i)))
+              (if (not (equal i larm-contact-index))
+                (setf (cadr (assoc :larm-contact-state scene-state)) :used)))))
+        (if rarm-released
+          (dolist (scene-state scene-states)
+            (setf (cadr (assoc :rarm-contact-state scene-state)) :released))
+          (dotimes (i (length scene-states))
+            (let ((scene-state (elt scene-states i)))
+              (if (not (equal i rarm-contact-index))
+                (setf (cadr (assoc :rarm-contact-state scene-state)) :used))))))
+      (if (and execute-action-name execute-action execute-motion-symbol)
+        (progn
+          (send self :append-scene-states-list scene-states)
+          (send self :append-executed-actions
+                execute-action-name execute-action)
+          (send self :add-action-state-in-pddl-graph
+                execute-action prev-scene-states scene-states)
+          (send self :add-action-state-in-statenet-graph
+                execute-action prev-scene-states scene-states)))
+      (return-from :update-scene-states execute-motion-symbol)))
   (:update-scene-state (motion-symbol-and-action prev-scene-state)
     (if (null motion-symbol-and-action) (return-from :update-scene-state nil))
     (let* ((prev-larm-contact-state
