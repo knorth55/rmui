@@ -297,7 +297,7 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
-(defun dualarm-push-hold-pile-up (&rest args)
+(defun dualarm-push-hold-pile-up-action (&rest args)
   (apply #'hold-pile-up-motion args))
 
 
