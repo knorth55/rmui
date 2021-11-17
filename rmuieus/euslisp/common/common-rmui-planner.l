@@ -91,6 +91,7 @@
                         (equal (car floor-contact-state) :bottom-cube-contact)))
             (progn
               (setq push-hold-up-index i)
+              ;; TODO: do not use cube-id, set top-cube-contact condition
               (setq push-hold-up-bottom-cube-id (cadr floor-contact-state))))
           (if (and (equal rarm-contact-state :right-contact)
                    (equal larm-motion-symbol :left-push))
