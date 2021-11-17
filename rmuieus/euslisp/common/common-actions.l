@@ -7,14 +7,14 @@
               :n-box n-box
               :box-types box-types)
   (motion-init :move-robot move-robot
-               :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
+               :robot *robot* :ri *ri* :cubes *boxes* :vw *irtviewer*)
   t)
 
 
 (defun pilot-action-init (&key (device-pos-y 0) &allow-other-keys)
   (pilot-scene-init :device-pos-y device-pos-y)
   (motion-init :move-robot nil
-               :robot *pilot* :ri nil :cube *pilot-device0* :vw *pilotviewer*)
+               :robot *pilot* :ri nil :cubes *pilot-devices* :vw *pilotviewer*)
   t)
 
 

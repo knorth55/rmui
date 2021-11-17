@@ -35,7 +35,7 @@
 
   (scene-init :table-pos-y 0 :n-box 1 :box-types :ctb)
   (motion-init :move-robot t
-               :robot *robot* :ri *ri* :cube *box0* :vw *irtviewer*)
+               :robot *robot* :ri *ri* :cubes *boxes* :vw *irtviewer*)
   (ros::ros-info "motion-init finished")
   (exec-state-machine (convert-smach *graph*) nil :hz 1.0))
 
