@@ -2,6 +2,15 @@
 (require :prx-utils "package://rmuieus/euslisp/rmui/prx-utils.l")
 
 
+(defun dualarm-motion-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
+                         (move-robot t) &allow-other-keys)
+  (scene-init :table-pos-y table-pos-y
+              :n-box n-box
+              :box-types box-types)
+  (motion-init :move-robot move-robot
+               :robot *robot* :ri *ri* :cubes *boxes* :vw *irtviewer*)
+  t)
+
 ;; motion planners
 
 (defun dualarm-push-hold-release (&key (move-robot t) (use-torso 0.001))
