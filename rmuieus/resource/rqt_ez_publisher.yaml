@@ -5,4 +5,4 @@ settings:
     max: 0
     min: 0
 texts:
-- /statenet_server/user_response/data
+  - /statenet_server/user_response/data
