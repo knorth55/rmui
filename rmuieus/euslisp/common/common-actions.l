@@ -455,14 +455,22 @@
   (apply #'push-release-action (append (list :larm) args)))
 
 
-;; TODO: implement larm-right-push-next-to
-(defun larm-right-push-next-to (&rest args)
-  )
+(defun larm-right-push-next-to-action (&rest args)
+  (apply #'push-next-to-motion
+         (append
+           (list :larm
+                 :push-axis :y)
+           args))
+  t)
 
 
-;; TODO: implement larm-front-push-next-to
-(defun larm-front-push-next-to (&rest args)
-  )
+(defun larm-front-push-next-to-action (&rest args)
+  (apply #'push-next-to-motion
+         (append
+           (list :larm
+                 :push-axis :x)
+           args))
+  t)
 
 
 ;; rarm actions
@@ -616,14 +624,22 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
-;; TODO: implement rarm-left-push-next-to
-(defun rarm-left-push-next-to (&rest args)
-  )
+(defun rarm-left-push-next-to-action (&rest args)
+  (apply #'push-next-to-motion
+         (append
+           (list :rarm
+                 :push-axis :y)
+           args))
+  t)
 
 
-;; TODO: implement rarm-back-push-next-to
-(defun rarm-back-push-next-to (&rest args)
-  )
+(defun rarm-back-push-next-to-action (&rest args)
+  (apply #'push-next-to-motion
+         (append
+           (list :rarm
+                 :push-axis :x)
+           args))
+  t)
 
 
 (provide :common-actions "common-actions.l")

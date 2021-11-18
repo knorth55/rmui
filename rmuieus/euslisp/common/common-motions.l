@@ -759,6 +759,50 @@
     (when av (list (list av) (list tm)))))
 
 
+(defun push-next-to-motion
+  (arm &key (push-axis :y)
+            (cubes *boxes*)
+            (cube-index 0)
+            (move-robot t)
+            (tm 3000)
+            (use-torso 0.001)
+            (robot *robot*)
+            (ri *ri*)
+            (cube *box0*)
+            (vw *irtviewer*)
+            &rest args &allow-other-keys)
+  (let* ((cube-coords
+           (send (send target-cube :worldcoords) :copy-worldcoords))
+         (cube-pos (send cube-coords :worldpos))
+         (target-cube (elt cubes cube-index))
+         (target-cube-coords
+           (send (send target-cube :worldcoords) :copy-worldcoords))
+         (target-cube-pos (send target-cube-coords :worldpos))
+         (move-distance
+           (cond
+             ((equal push-axis :x)
+              (- (elt target-cube-pos 0)
+                 (elt cube-pos 0)
+                 (/ (get-cube-depth :cube cube) 2.0)
+                 (/ (get-cube-depth :cube target-cube) 2.0)))
+             ((equal push-axis :y)
+              (- (elt target-cube-pos 1)
+                 (elt cube-pos 1)
+                 (/ (get-cube-width :cube cube) 2.0)
+                 (/ (get-cube-width :cube target-cube) 2.0)))
+             (t nil))))
+    (if (and move-distance
+             (or (and (equal push-axis :x) (equal arm :larm) (>= move-distance 0))
+                 (and (equal push-axis :x) (equal arm :rarm) (>= 0 move-distance))
+                 (and (equal push-axis :y) (equal arm :larm) (>= 0 move-distance))
+                 (and (equal push-axis :y) (equal arm :rarm) (>= move-distance 0))))
+      (push-move-motion
+        :push-axis push-axis
+        :move-distance move-distance
+        :move-robot move-robot :tm tm :use-torso
+        :robot robot :ri ri :cube cube :vw vw))))
+
+
 ;; support hold motion
 
 (defun support-hold-motion
