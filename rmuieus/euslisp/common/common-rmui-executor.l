@@ -47,8 +47,7 @@
                ((:pilot-devices pltdevs))
                ((:pilotviewer pltvw))
                ((:pilot-table-z plttblz))
-               ((:pilot-table-height plttblh))
-               )
+               ((:pilot-table-height plttblh)))
     (setq namespace (if ns ns ""))
     (setq waiting-visualize-topic-name
           (format nil "~A/output/status/waiting" namespace))
@@ -84,37 +83,46 @@
     (and (>= (length motion-symbol-queue) motion-symbol-length)
          (every #'(lambda (x) (equal x motion-symbol)) motion-symbol-queue)))
   (:get-action-from-motion-symbol (larm-motion-symbol rarm-motion-symbol)
-    (let ((action-args nil))
-      (if (listp larm-motion-symbol)
+    (let ((larm-action nil)
+          (larm-action-args nil)
+          (rarm-action nil)
+          (rarm-action-args nil))
+      (if (and larm-motion-symbol (listp larm-motion-symbol))
         (progn
-          (setq action-args (cdr larm-motion-symbol))
-          (setq larm-motion-symbol (car larm-motion-symbol))))
-      (if (listp rarm-motion-symbol)
+          (setq larm-action (car larm-motion-symbol))
+          (setq larm-action-args (cdr larm-motion-symbol)))
+        (setq larm-action larm-motion-symbol))
+      (if (and rarm-motion-symbol (listp rarm-motion-symbol))
         (progn
-          (setq action-args (cdr rarm-motion-symbol))
-          (setq rarm-motion-symbol (car rarm-motion-symbol))))
+          (setq rarm-action (car rarm-motion-symbol))
+          (setq rarm-action-args (cdr rarm-motion-symbol)))
+        (setq rarm-action rarm-motion-symbol))
       (cond
-        ((and larm-motion-symbol rarm-motion-symbol
-              (equal larm-motion-symbol rarm-motion-symbol))
+        ((and larm-action rarm-action
+              (equal larm-action rarm-action))
          (let* ((action-name
                   (format nil "dualarm-~A-action"
-                          (string-downcase larm-motion-symbol)))
+                          (string-downcase larm-action)))
                 (action (append (list (read-from-string action-name))
-                                action-args)))
+                                larm-action-args)))
+           (if (not (equal larm-action-args rarm-action-args))
+             (ros::ros-error
+               (format nil "action args are not same: ~A != ~A"
+                       larm-action-args rarm-action-args)))
            (list action-name action)))
-        (larm-motion-symbol
+        (larm-action
          (let* ((action-name
                   (format nil "larm-~A-action"
-                               (string-downcase larm-motion-symbol)))
+                               (string-downcase larm-action)))
                 (action (append (list (read-from-string action-name))
-                                action-args)))
+                                larm-action-args)))
            (list action-name action)))
-        (rarm-motion-symbol
+        (rarm-action
          (let* ((action-name
                   (format nil "rarm-~A-action"
-                              (string-downcase rarm-motion-symbol)))
+                              (string-downcase rarm-action)))
                 (action (append (list (read-from-string action-name))
-                                action-args)))
+                                rarm-action-args)))
            (list action-name action)))
         (t nil))))
   (:execute-motion-symbols
@@ -219,18 +227,18 @@
                       :table-height pilot-table-height)))
             (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
-            (set executed
-                 (eval (append
-                         action
-                         '(:move-robot move-robot
-                           :use-torso use-torso
-                           :robot robot
-                           :ri ri
-                           :cube box
-                           :cubes boxes
-                           :vw robotviewer
-                           :table-z table-z
-                           :table-height table-height))))
+            (setq executed
+                  (eval (append
+                          action
+                          '(:move-robot move-robot
+                            :use-torso use-torso
+                            :robot robot
+                            :ri ri
+                            :cube box
+                            :cubes boxes
+                            :vw robotviewer
+                            :table-z table-z
+                            :table-height table-height))))
             (if robotviewer (send robotviewer :draw-objects))
             (if executed
               (progn
