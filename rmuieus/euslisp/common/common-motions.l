@@ -772,7 +772,7 @@
             (vw *irtviewer*)
             &rest args &allow-other-keys)
   (let* ((cube-coords
-           (send (send target-cube :worldcoords) :copy-worldcoords))
+           (send (send cube :worldcoords) :copy-worldcoords))
          (cube-pos (send cube-coords :worldpos))
          (target-cube (elt cubes cube-index))
          (target-cube-coords
