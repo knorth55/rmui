@@ -944,7 +944,7 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-move-motion (&rest args &key (cube-pos-x nil)  (cube-pos-y nil) (cube-pos-z nil)
+(defun hold-move-motion (&rest args &key (cube-pos-x nil) (cube-pos-y nil) (cube-pos-z nil)
                                (move-robot t) (tm 5000) (use-torso 0.001)
                                (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                                &allow-other-keys)
