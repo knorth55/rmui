@@ -990,6 +990,7 @@
                                   (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                                   &allow-other-keys)
   (let* ((avs)
+         (lifted-up)
          (moved)
          (lifted-down)
          (prev-av (send robot :angle-vector))
@@ -1002,9 +1003,19 @@
          (target-cube-coords
            (send (send target-cube :worldcoords) :copy-worldcoords))
          (target-cube-pos (send target-cube-coords :worldpos))
-         (lift-height
-           (- (- (elt cube-pos 2) (/ cube-height 2.0))
-              (+ (elt target-cube-pos 2) (/ target-cube-height 2.0)))))
+         (target-cube-top-z
+           (+ (elt target-cube-pos 2) (/ target-cube-height 2.0)))
+         (lift-height nil)
+         (lift-height-offset 100))
+    (setq lifted-up
+          (hold-lift-up-motion
+            :lift-height (- (+ target-cube-top-z lift-height-offset)
+                            (- (elt cube-pos 2) (/ cube-height 2.0)))
+            :move-robot nil :tm tm :use-torso use-torso
+            :robot robot :ri ri :cube cube :vw vw))
+    (setq cube-pos (send (send (send cube :worldcoords) :copy-worldcoords) :worldpos))
+    (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0))
+                         target-cube-top-z))
     (setq moved
           (hold-move-motion
             :cube-pos-x (elt target-cube-pos 0)
@@ -1019,20 +1030,20 @@
             :cube-pos-y (elt target-cube-pos 1)
             :move-robot nil :tm tm :use-torso use-torso
             :robot robot :ri :ri :cube cube :vw vw))
-    (if (and moved lifted-down)
+    (if (and lifted-up moved lifted-down)
       (when move-robot
         (send ri :angle-vector-sequence
-              (append (car moved) (car lifted-down))
-              (append (cadr moved) (cadr lifted-down)) nil 0)
+              (append (car lifted-up) (car moved) (car lifted-down))
+              (append (cadr lifted-up) (cadr moved) (cadr lifted-down)) nil 0)
         (send ri :wait-interpolation))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
     (send vw :draw-objects)
-    (when (and moved lifted-down)
-      (list (append (car moved) (car lifted-down))
-            (append (cadr moved) (cadr lifted-down))))))
+    (when (and lifted-up moved lifted-down)
+      (list (append (car lifted-up) (car moved) (car lifted-down))
+            (append (cadr lifted-up) (cadr moved) (cadr lifted-down))))))
 
 
 ;; rotate motion
