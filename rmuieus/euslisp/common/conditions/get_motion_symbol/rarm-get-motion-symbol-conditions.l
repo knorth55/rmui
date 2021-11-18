@@ -14,7 +14,7 @@
        (find :front contact-surface)
        (find :bottom contact-surface))
   :front-push)
- ;; TODO: back-push for larm
+ ;; back-push for larm
  ; ((and (equal rarm-contact-state :released)
  ;       (null (equal larm-contact-state :back-contact))
  ;       (or (equal floor-contact-state :bottom-contact)

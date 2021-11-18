@@ -6,7 +6,7 @@
        (find :left contact-surface)
        (find :bottom contact-surface))
   :left-push)
- ;; TODO: front-push for rarm
+ ;; front-push for rarm
  ; ((and (equal larm-contact-state :released)
  ;       (null (equal rarm-contact-state :front-contact))
  ;       (or (equal floor-contact-state :bottom-contact)
@@ -23,7 +23,7 @@
        (find :back contact-surface)
        (find :bottom contact-surface))
   :back-push)
- ;; TODO: top-push for rarm
+ ;; top-push for rarm
  ; ((and (equal larm-contact-state :released)
  ;       (null (equal rarm-contact-state :top-contact))
  ;       (null (equal rarm-contact-state :bottom-right-side-contact))
