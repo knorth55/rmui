@@ -35,7 +35,8 @@
 (defmethod rmui-server
   (:init (&key ((:namespaces nss))
                ((:groupname gpn))
-               (prx-threshold) (prx-position-threshold)
+               (prx-threshold)
+               (prx-position-threshold)
                (device-frame-ids)
                (device-world-frame-ids)
                ((:motion-symbol-length msym-length) 5)
@@ -135,20 +136,42 @@
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
-      (ros::ros-info (format nil "motion-symbols   : ~A" motion-symbols))
-      (ros::ros-info (format nil "execute-symbol   : ~A" execute-symbol))
-      (ros::ros-info (format nil "scene-states     : ~A" scene-states))
-      (ros::ros-info (format nil "executed-actions : ~A" (mapcar #'car executed-actions)))
-      ; (ros::ros-info (format nil "larm-contact-state    : ~A"
-      ;                        (cadr (assoc :larm-contact-state scene-state))))
-      ; (ros::ros-info (format nil "rarm-contact-state    : ~A"
-      ;                        (cadr (assoc :rarm-contact-state scene-state))))
-      ; (ros::ros-info (format nil "floor-contact-state   : ~A"
-      ;                        (cadr (assoc :floor-contact-state scene-state))))
-      ; (ros::ros-info (format nil "object-location-state : ~A"
-      ;                        (cadr (assoc :object-location-state scene-state))))
-      ; (ros::ros-info (format nil "object-rotation-state : ~A"
-      ;                        (cadr (assoc :object-rotation-state scene-state))))
+      (ros::ros-info
+        (format nil "motion-symbols        : ~A" motion-symbols))
+      (ros::ros-info
+        (format nil "execute-symbol        : ~A" execute-symbol))
+      (ros::ros-info
+        (format nil "executed-actions      : ~A" (mapcar #'car executed-actions)))
+      (ros::ros-info
+        (format nil "larm-contact-state    : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :larm-contact-state scene-state)))
+                        scene-states)))
+      (ros::ros-info
+        (format nil "rarm-contact-state    : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :rarm-contact-state scene-state)))
+                        scene-states)))
+      (ros::ros-info
+        (format nil "floor-contact-state   : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :floor-contact-state scene-state)))
+                        scene-states)))
+      (ros::ros-info
+        (format nil "object-location-state : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :object-location-state scene-state)))
+                        scene-states)))
+      (ros::ros-info
+        (format nil "object-rotation-state : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :object-rotation-state scene-state)))
+                        scene-states)))
+      (ros::ros-info
+        (format nil "cube-contact-state    : ~A"
+                (mapcar #'(lambda (scene-state)
+                            (cadr (assoc :cube-contact-state scene-state)))
+                        scene-states)))
       ))
   (:spin-once ()
     (if groupname
