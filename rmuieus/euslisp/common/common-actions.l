@@ -297,8 +297,11 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
-(defun dualarm-push-hold-pile-up-action (&rest args)
-  (apply #'hold-pile-up-motion args))
+(defun dualarm-push-hold-pile-up-action (&rest args &key (ri *ri*) (cube *box0*)
+                                               &allow-other-keys)
+  (assoc-cube :arms :ri ri :cube cube)
+  (apply #'hold-pile-up-motion args)
+  (dissoc-cube :arms :ri ri :cube cube))
 
 
 ;; larm actions
