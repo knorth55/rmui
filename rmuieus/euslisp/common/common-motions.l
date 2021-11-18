@@ -781,26 +781,33 @@
          (move-distance
            (cond
              ((equal push-axis :x)
-              (- (elt target-cube-pos 0)
-                 (elt cube-pos 0)
-                 (/ (get-cube-depth :cube cube) 2.0)
+              (- (elt target-cube-pos 0) (elt cube-pos 0)))
+             ((equal push-axis :y)
+              (- (elt target-cube-pos 1) (elt cube-pos 1)))
+             (t nil)))
+         (cube-offset
+           (cond
+             ((equal push-axis :x)
+              (+ (/ (get-cube-depth :cube cube) 2.0)
                  (/ (get-cube-depth :cube target-cube) 2.0)))
              ((equal push-axis :y)
-              (- (elt target-cube-pos 1)
-                 (elt cube-pos 1)
-                 (/ (get-cube-width :cube cube) 2.0)
+              (+ (/ (get-cube-width :cube cube) 2.0)
                  (/ (get-cube-width :cube target-cube) 2.0)))
              (t nil))))
     (if (and move-distance
+             (> (abs move-distance) cube-offset)
              (or (and (equal push-axis :x) (equal arm :larm) (>= move-distance 0))
                  (and (equal push-axis :x) (equal arm :rarm) (>= 0 move-distance))
                  (and (equal push-axis :y) (equal arm :larm) (>= 0 move-distance))
                  (and (equal push-axis :y) (equal arm :rarm) (>= move-distance 0))))
-      (push-move-motion
-        arm :push-axis push-axis
-        :move-distance move-distance
-        :move-robot move-robot :tm tm :use-torso use-torso
-        :robot robot :ri ri :cube cube :vw vw))))
+      (progn
+        (setq move-distance
+              (- move-distance (* (if (> move-distance 0) 1 -1) cube-offset)))
+        (push-move-motion
+          arm :push-axis push-axis
+          :move-distance move-distance
+          :move-robot move-robot :tm tm :use-torso use-torso
+          :robot robot :ri ri :cube cube :vw vw)))))
 
 
 ;; support hold motion
