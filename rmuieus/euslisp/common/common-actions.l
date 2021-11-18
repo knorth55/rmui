@@ -301,7 +301,8 @@
                                                &allow-other-keys)
   (assoc-cube :arms :ri ri :cube cube)
   (apply #'hold-pile-up-motion args)
-  (dissoc-cube :arms :ri ri :cube cube))
+  (dissoc-cube :arms :ri ri :cube cube)
+  t)
 
 
 ;; larm actions
