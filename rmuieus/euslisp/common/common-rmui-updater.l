@@ -47,8 +47,12 @@
 
     ;; TODO (knorth55): change initial state from argument
     ;; initial conditions
-    (let ((scene-states nil))
+    (let ((scene-states nil)
+          (cube-contact-state nil))
       (dotimes (i (length bxs))
+        (setq cube-contact-state
+              (make-list (length bxs) :initial-element :released))
+        (setf (elt cube-contact-state i) :never)
         (setq scene-states
               (append scene-states
                       (list
@@ -57,7 +61,8 @@
                           (list :rarm-contact-state :released)
                           (list :floor-contact-state :bottom-contact)
                           (list :object-location-state :center)
-                          (list :object-rotation-state (list :x0 :y0 :z0)))))))
+                          (list :object-rotation-state (list :x0 :y0 :z0))
+                          (list :cube-contact-state cube-contact-state))))))
       (setq scene-states-list (list scene-states)))
 
     ;; update conditions
@@ -90,9 +95,7 @@
     (let* ((prev-scene-states (send self :last-scene-states))
            (scene-states
              (mapcar #'(lambda (x) (mapcar #'copy-seq x)) prev-scene-states))
-           (execute-motion-symbol nil)
-           (execute-action-name nil)
-           (execute-action nil))
+           (execute-cube-index nil))
       (dotimes (i (length motion-symbols-and-actions))
         (if (elt motion-symbols-and-actions i)
           (let* ((prev-scene-state
@@ -106,11 +109,8 @@
               (progn
                 (setf (elt scene-states i)
                       (send self :update-scene-state
-                            motion-symbol-and-action prev-scene-state))
-                (setq execute-action-name action-name)
-                (setq execute-action action)
-                (setq execute-motion-symbol motion-symbol)
-                )))))
+                            motion-symbol prev-scene-state))
+                (setq execute-cube-index i))))))
       (let* ((larm-used-or-released
                (mapcar
                  #'(lambda (scene-state)
@@ -145,18 +145,48 @@
             (let ((scene-state (elt scene-states i)))
               (if (not (equal i rarm-contact-index))
                 (setf (cadr (assoc :rarm-contact-state scene-state)) :used))))))
-      (if (and execute-action-name execute-action execute-motion-symbol)
-        (progn
+      (if execute-cube-index
+        (let* ((execute-motion-symbol-and-action
+                 (elt motion-symbols-and-actions execute-cube-index))
+               (execute-motion-symbol (car execute-motion-symbol-and-action))
+               (execute-action-name (cadr execute-motion-symbol-and-action))
+               (execute-action (caddr execute-motion-symbol-and-action))
+               (larm-execute-motion-symbol (car execute-motion-symbol))
+               (rarm-execute-motion-symbol (cadr execute-motion-symbol))
+               (prev-scene-state (elt prev-scene-states execute-cube-index))
+               (prev-cube-contact-state
+                 (copy-seq (cadr (assoc :cube-contact-state prev-scene-state)))))
+          ;; pile-up for top contact
+          (if (and (not (find :bottom-contact prev-cube-contact-state))
+                   (listp larm-execute-motion-symbol)
+                   (equal (car larm-execute-motion-symbol) :push-hold-pile-up)
+                   (listp rarm-execute-motion-symbol)
+                   (equal (car rarm-execute-motion-symbol) :push-hold-pile-up))
+            (let ((cube-index
+                    (elt larm-execute-motion-symbol
+                         (+ 1 (position :cube-index larm-execute-motion-symbol)))))
+              (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
+                         execute-cube-index)
+                    :top-contact)))
+          ;; lift-up from pile-up
+          (if (and (find :bottom-contact prev-cube-contact-state)
+                   (equal larm-execute-motion-symbol :push-hold-up)
+                   (equal rarm-execute-motion-symbol :push-hold-up))
+            (let ((cube-index
+                    (position :bottom-contact prev-cube-contact-state)))
+              (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
+                         execute-cube-index)
+                    :released)))
           (send self :append-scene-states-list scene-states)
           (send self :append-executed-actions
                 execute-action-name execute-action)
           (send self :add-action-state-in-pddl-graph
                 execute-action prev-scene-states scene-states)
           (send self :add-action-state-in-statenet-graph
-                execute-action prev-scene-states scene-states)))
-      (return-from :update-scene-states execute-motion-symbol)))
-  (:update-scene-state (motion-symbol-and-action prev-scene-state)
-    (if (null motion-symbol-and-action) (return-from :update-scene-state nil))
+                execute-action prev-scene-states scene-states)
+          (return-from :update-scene-states execute-motion-symbol)))))
+  (:update-scene-state (motion-symbol prev-scene-state)
+    (if (null motion-symbol) (return-from :update-scene-state nil))
     (let* ((prev-larm-contact-state
              (cadr (assoc :larm-contact-state prev-scene-state)))
            (prev-rarm-contact-state
@@ -166,39 +196,53 @@
            (prev-object-location-state
              (cadr (assoc :object-location-state prev-scene-state)))
            (prev-object-rotation-state
-             (cadr (assoc :object-rotation-state prev-scene-state)))
+             (copy-seq (cadr (assoc :object-rotation-state prev-scene-state))))
+           (prev-cube-contact-state
+             (copy-seq (cadr (assoc :cube-contact-state prev-scene-state))))
            (prev-object-x-rotation-symbol (car prev-object-rotation-state))
            (prev-object-y-rotation-symbol (cadr prev-object-rotation-state))
            (prev-object-z-rotation-symbol (caddr prev-object-rotation-state))
-           (motion-symbol (car motion-symbol-and-action))
-           (action-name (cadr motion-symbol-and-action))
-           (action (caddr motion-symbol-and-action))
            (larm-motion-symbol (car motion-symbol))
            (rarm-motion-symbol (cadr motion-symbol))
-           (larm-conditions larm-contact-state-conditions)
-           (rarm-conditions rarm-contact-state-conditions)
-           (floor-conditions floor-contact-state-conditions)
-           (object-location-conditions object-location-state-conditions)
-           (object-rotation-conditions object-rotation-state-conditions)
            (larm-contact-state
-             (eval (append '(cond) larm-conditions '((t prev-larm-contact-state)))))
+             (eval (append '(cond) larm-contact-state-conditions
+                           '((t prev-larm-contact-state)))))
            (rarm-contact-state
-             (eval (append '(cond) rarm-conditions '((t prev-rarm-contact-state)))))
+             (eval (append '(cond) rarm-contact-state-conditions
+                           '((t prev-rarm-contact-state)))))
            (floor-contact-state
-             (eval (append '(cond) floor-conditions '((t prev-floor-contact-state)))))
+             (eval (append '(cond) floor-contact-state-conditions
+                           '((t prev-floor-contact-state)))))
            (object-location-state
-             (eval (append '(cond) object-location-conditions
+             (eval (append '(cond) object-location-state-conditions
                            '((t prev-object-location-state)))))
            (object-rotation-state
-             (eval (append '(cond) object-rotation-conditions
+             (eval (append '(cond) object-rotation-state-conditions
                            '((t prev-object-rotation-state)))))
-           (scene-state
-             (list (list :larm-contact-state larm-contact-state)
-                   (list :rarm-contact-state rarm-contact-state)
-                   (list :floor-contact-state floor-contact-state)
-                   (list :object-location-state object-location-state)
-                   (list :object-rotation-state object-rotation-state))))
-        scene-state))
+           (cube-contact-state prev-cube-contact-state))
+      (cond
+        ((and (not (find :bottom-contact prev-cube-contact-state))
+              (listp larm-motion-symbol)
+              (equal (car larm-motion-symbol) :push-hold-pile-up)
+              (listp rarm-motion-symbol)
+              (equal (car rarm-motion-symbol) :push-hold-pile-up))
+         (setf (elt cube-contact-state
+                    (elt larm-motion-symbol
+                         (+ 1 (position :cube-index larm-motion-symbol))))
+               :bottom-contact))
+        ((and (find :bottom-contact prev-cube-contact-state)
+              (equal larm-motion-symbol :push-hold-up)
+              (equal rarm-motion-symbol :push-hold-up))
+         (setf (elt cube-contact-state
+                    (position :bottom-contact cube-contact-state))
+               :released))
+        (t nil))
+      (list (list :larm-contact-state larm-contact-state)
+            (list :rarm-contact-state rarm-contact-state)
+            (list :floor-contact-state floor-contact-state)
+            (list :object-location-state object-location-state)
+            (list :object-rotation-state object-rotation-state)
+            (list :cube-contact-state cube-contact-state))))
   (:dump-files ()
     (if (null dump-dir) (setq dump-dir (create-dump-dir data-dir)))
     (dump-scene-states scene-states-list :data-dir data-dir)

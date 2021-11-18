@@ -45,7 +45,6 @@
     (let ((motion-symbols nil)
           (push-hold-down-index nil)
           (push-hold-up-index nil)
-          (push-hold-up-bottom-cube-id nil)
           (left-push-index nil)
           (right-push-index nil)
           (front-push-index nil)
@@ -66,7 +65,9 @@
                (rarm-contact-state
                  (cadr (assoc :rarm-contact-state scene-state)))
                (floor-contact-state
-                 (cadr (assoc :floor-contact-state scene-state))))
+                 (cadr (assoc :floor-contact-state scene-state)))
+               (cube-contact-state
+                 (cadr (assoc :cube-contact-state scene-state))))
           ;; pile up
           (if (and (or (and (equal larm-contact-state :front-contact)
                             (equal rarm-contact-state :back-contact))
@@ -76,7 +77,8 @@
                             (equal rarm-contact-state :right-contact)))
                    (equal larm-motion-symbol :push-hold-down)
                    (equal rarm-motion-symbol :push-hold-down)
-                   )
+                   (and (listp cube-contact-state)
+                        (not (find :bottom-contact cube-contact-state))))
             (setq push-hold-down-index i))
           ;; lift up from pile up
           (if (and (or (and (equal larm-contact-state :front-contact)
@@ -87,12 +89,10 @@
                             (equal rarm-contact-state :right-contact)))
                    (equal larm-motion-symbol :push-hold-up)
                    (equal rarm-motion-symbol :push-hold-up)
-                   (and (listp floor-contact-state)
-                        (equal (car floor-contact-state) :bottom-cube-contact)))
+                   (and (listp cube-contact-state)
+                        (find :bottom-contact cube-contact-state)))
             (progn
-              (setq push-hold-up-index i)
-              ;; TODO: do not use cube-id, set top-cube-contact condition
-              (setq push-hold-up-bottom-cube-id (cadr floor-contact-state))))
+              (setq push-hold-up-index i)))
           (if (and (equal rarm-contact-state :right-contact)
                    (equal larm-motion-symbol :left-push))
             (setq left-push-index i))
@@ -122,15 +122,20 @@
                  (rarm-contact-state
                    (cadr (assoc :rarm-contact-state scene-state)))
                  (floor-contact-state
-                   (cadr (assoc :floor-contact-state scene-state))))
+                   (cadr (assoc :floor-contact-state scene-state)))
+                 (cube-contact-state
+                   (cadr (assoc :cube-contact-state scene-state))))
             (cond
               ;; pile-up
               ((and push-hold-down-index
                     (not (equal push-hold-down-index i))
+                    (equal (elt cube-contact-state push-hold-down-index) :released)
+                    (not (find :top-contact cube-contact-state))
                     ;; top-push
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
-                        (equal floor-contact-state :bottom-right-side-contact))
+                        (equal floor-contact-state :bottom-right-side-contact)
+                        (find :bottom-contact cube-contact-state))
                     (find :top contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols push-hold-down-index))
@@ -139,12 +144,13 @@
                      (list :push-hold-pile-up :cube-index i)))
               ;; lift up from pile up
               ((and push-hold-up-index
-                    (equal push-hold-up-bottom-cube-id i)
                     (not (equal push-hold-up-index i))
+                    (equal (elt cube-contact-state push-hold-up-index) :top-contact)
                     ;; top-push
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
-                        (equal floor-contact-state :bottom-right-side-contact))
+                        (equal floor-contact-state :bottom-right-side-contact)
+                        (find :bottom-contact cube-contact-state))
                     (find :top contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols push-hold-up-index)) nil)
@@ -210,6 +216,8 @@
              (cadr (assoc :object-location-state scene-state)))
            (object-rotation-state
              (cadr (assoc :object-rotation-state scene-state)))
+           (cube-contact-state
+             (cadr (assoc :cube-contact-state scene-state)))
            (contact-surface (mapcar #'car contact-position))
            (bottom-contact-position
              (remove-if #'null
