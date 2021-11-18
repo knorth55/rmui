@@ -456,21 +456,27 @@
   (apply #'push-release-action (append (list :larm) args)))
 
 
-(defun larm-right-push-next-to-action (&rest args)
+(defun larm-right-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                             &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
   (apply #'push-next-to-motion
          (append
            (list :larm
                  :push-axis :y)
            args))
+  (dissoc-cube :larm :ri ri :cube cube)
   t)
 
 
-(defun larm-front-push-next-to-action (&rest args)
+(defun larm-front-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                             &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
   (apply #'push-next-to-motion
          (append
            (list :larm
                  :push-axis :x)
            args))
+  (dissoc-cube :larm :ri ri :cube cube)
   t)
 
 
@@ -625,21 +631,27 @@
   (apply #'push-release-action (append (list :rarm) args)))
 
 
-(defun rarm-left-push-next-to-action (&rest args)
+(defun rarm-left-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                             &allow-other-keys)
+  (assoc-cube :rarm :ri ri :cube cube)
   (apply #'push-next-to-motion
          (append
            (list :rarm
                  :push-axis :y)
            args))
+  (dissoc-cube :rarm :ri ri :cube cube)
   t)
 
 
-(defun rarm-back-push-next-to-action (&rest args)
+(defun rarm-back-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                             &allow-other-keys)
+  (assoc-cube :rarm :ri ri :cube cube)
   (apply #'push-next-to-motion
          (append
            (list :rarm
                  :push-axis :x)
            args))
+  (dissoc-cube :rarm :ri ri :cube cube)
   t)
 
 
