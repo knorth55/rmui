@@ -60,7 +60,7 @@
       (setq topic-namespace
             (if (> (length namespaces) 1)
               "multi_rmui" (car namespaces)))
-      ;; rmui insntaces
+      ;; rmui instances
       (setq devices nil)
       (dotimes (i (length namespaces))
         (let ((namespace (elt namespaces i))
