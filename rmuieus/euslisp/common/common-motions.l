@@ -797,9 +797,9 @@
                  (and (equal push-axis :y) (equal arm :larm) (>= 0 move-distance))
                  (and (equal push-axis :y) (equal arm :rarm) (>= move-distance 0))))
       (push-move-motion
-        :push-axis push-axis
+        arm :push-axis push-axis
         :move-distance move-distance
-        :move-robot move-robot :tm tm :use-torso
+        :move-robot move-robot :tm tm :use-torso use-torso
         :robot robot :ri ri :cube cube :vw vw))))
 
 
