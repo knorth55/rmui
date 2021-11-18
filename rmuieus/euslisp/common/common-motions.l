@@ -734,7 +734,7 @@
             &rest args &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
-        (prev-cube-coords (send *box0* :copy-worldcoords))
+        (prev-cube-coords (send cube :copy-worldcoords))
         (cube-move-vector
           (cond ((eq push-axis :x) (float-vector move-distance 0 0))
                 ((eq push-axis :y) (float-vector 0 move-distance 0))
