@@ -159,7 +159,6 @@
             (send self :append-motion-symbol-queue
                   rarm-motion-symbol-queue rarm-motion-symbol))
       (list larm-motion-symbol-queue rarm-motion-symbol-queue)))
-  ;; TODO (knorth55): condition for multiple device combination
   (:execute-motion-symbol
     (motion-symbol motion-symbol-queue
                    &key (scene-state) (pilot-device) (box) (move-robot t) (use-torso 0.001))
@@ -177,6 +176,7 @@
            (rarm-motion-symbol-queue (cadr motion-symbol-queue))
            (larm-motion-symbol (car motion-symbol))
            (rarm-motion-symbol (cadr motion-symbol))
+           (executed nil)
            (execute-symbol nil)
            larm-execute-p rarm-execute-p)
       ;; check motion symbol queue
@@ -219,27 +219,31 @@
                       :table-height pilot-table-height)))
             (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
-            (eval (append
-                    action
-                    '(:move-robot move-robot
-                      :use-torso use-torso
-                      :robot robot
-                      :ri ri
-                      :cube box
-                      :cubes boxes
-                      :vw robotviewer
-                      :table-z table-z
-                      :table-height table-height)))
+            (set executed
+                 (eval (append
+                         action
+                         '(:move-robot move-robot
+                           :use-torso use-torso
+                           :robot robot
+                           :ri ri
+                           :cube box
+                           :cubes boxes
+                           :vw robotviewer
+                           :table-z table-z
+                           :table-height table-height))))
             (if robotviewer (send robotviewer :draw-objects))
-            (setq execute-symbol
-                  (cond
-                    ((and larm-motion-symbol rarm-motion-symbol
-                          (equal larm-motion-symbol rarm-motion-symbol))
-                     (list larm-motion-symbol rarm-motion-symbol))
-                    (larm-motion-symbol (list larm-motion-symbol nil))
-                    (rarm-motion-symbol (list nil rarm-motion-symbol))
-                    (t nil)))
-            (list execute-symbol action-name action))))))
+            (if executed
+              (progn
+                (setq execute-symbol
+                      (cond
+                        ((and larm-motion-symbol rarm-motion-symbol
+                              (equal larm-motion-symbol rarm-motion-symbol))
+                         (list larm-motion-symbol rarm-motion-symbol))
+                        (larm-motion-symbol (list larm-motion-symbol nil))
+                        (rarm-motion-symbol (list nil rarm-motion-symbol))
+                        (t nil)))
+                (list execute-symbol action-name action)
+                )))))))
   )
 
 
