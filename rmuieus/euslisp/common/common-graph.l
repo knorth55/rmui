@@ -18,8 +18,6 @@
   (remove '|n| (read-from-string name)))
 
 
-;; TODO: support multiple cube actions
-
 (defun add-node (sm name func node-type &optional (duration nil))
   (let ((node-func
           (if (equal 'lambda-closure (car func))
@@ -229,7 +227,9 @@
     sm))
 
 
-(defun convert-solution-to-trans-alist (solution)
+(defun convert-solution-to-trans-alist
+  (solution &key (robot *robot*) (ri *ri*) (cubes *boxes*)
+                 (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let ((trans-alist nil))
     ;; create trans-alist from solution
     (dolist (sn solution)
@@ -239,17 +239,33 @@
                  (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
                  (action-name (send ac :name))
                  (action-sym (read-from-string action-name))
+                 (cube-index
+                   (position-if #'(lambda (x) (and x (listp x))) action-sym))
+                 (action-func-sym
+                   (if cube-index
+                     (append
+                       (elt action-sym cube-index)
+                       (list :move-robot move-robot
+                             :use-torso use-torso))
+                     action-sym))
                  (action-func
-                   `(lambda-closure nil 0 0 (userdata)
-                                    (apply #',(car action-sym) ',(cdr action-sym))))
-                 (node-name (format nil "~A" (list action-sym from-state-sym)))
+                   `(lambda-closure
+                      nil 0 0 (userdata)
+                      (apply #',(car action-func-sym)
+                             ',(append (cdr action-func-sym)
+                                      (if cube-index
+                                        (list :robot robot
+                                              :ri ri
+                                              :cube (elt cubes cube-index)
+                                              :cubes cubes :vw vw))))))
+                 (node-name (format nil "~A" (list action-func-sym from-state-sym)))
                  (from-name (format nil "~A" from-state-sym))
                  (to-name (format nil "~A" to-state-sym))
                  (trans (list (cons :from-name from-name)
                               (cons :from-state-sym from-state-sym)
                               (cons :from-duration nil)
                               (cons :node-name node-name)
-                              (cons :action-sym action-sym)
+                              (cons :action-sym action-func-sym)
                               (cons :action-func action-func)
                               (cons :to-name to-name)
                               (cons :to-state-sym to-state-sym)
@@ -261,7 +277,9 @@
     trans-alist))
 
 
-(defun convert-collabo-path-to-trans-alist (collabo-path)
+(defun convert-collabo-path-to-trans-alist
+  (collabo-path &key (robot *robot*) (ri *ri*) (cubes *boxes*)
+                     (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let ((trans-alist nil)
         (collabo-nodes (copy-seq collabo-path)))
     (while (> (length collabo-nodes) 1)
@@ -277,10 +295,26 @@
              (action-node (cadr collabo-nodes))
              (action-node-type (cadr (assoc :node-type action-node)))
              (action-sym (cadr (assoc :state-action action-node)))
+             (cube-index
+               (position-if #'(lambda (x) (and x (listp x))) action-sym))
+             (action-func-sym
+               (if cube-index
+                 (append
+                   (elt action-sym cube-index)
+                   (list :move-robot move-robot
+                         :use-torso use-torso))
+                 action-sym))
              (action-func
-               `(lambda-closure nil 0 0 (userdata)
-                                (apply #',(car action-sym) ',(cdr action-sym))))
-             (node-name (format nil "~A" (list action-sym from-state-sym)))
+               `(lambda-closure
+                  nil 0 0 (userdata)
+                  (apply #',(car action-func-sym)
+                         ',(append (cdr action-func-sym)
+                                  (if cube-index
+                                    (list :robot robot
+                                          :ri ri
+                                          :cube (elt cubes cube-index)
+                                          :cubes cubes :vw vw))))))
+             (node-name (format nil "~A" (list action-func-sym from-state-sym)))
              (to-node (caddr collabo-nodes))
              (to-node-type (cadr (assoc :node-type to-node)))
              (to-state-sym (cadr (assoc :state-action to-node)))
@@ -293,7 +327,7 @@
              (trans (list (cons :from-name from-name)
                           (cons :from-duration from-duration)
                           (cons :node-name node-name)
-                          (cons :action-sym action-sym)
+                          (cons :action-sym action-func-sym)
                           (cons :action-func action-func)
                           (cons :to-name to-name)
                           (cons :to-state-sym to-state-sym)
@@ -315,12 +349,18 @@
 
 
 (defun convert-solution-to-smach
-  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil)
+                 (robot *robot*) (ri *ri*) (cubes *boxes*)
+                 (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let* ((first-state-sym
            (convert-string-to-sym (send (send (car solution) :state) :name)))
          (last-state-sym
            (convert-string-to-sym (send (send (car (last solution)) :state) :name)))
-         (trans-alist (convert-solution-to-trans-alist solution))
+         (trans-alist
+           (convert-solution-to-trans-alist
+             solution
+             :robot robot :ri ri :cubes cubes
+             :vw vw :use-torso use-torso :move-robot move-robot))
          (sm (convert-trans-alist-to-smach
                trans-alist first-state-sym last-state-sym
                :state-func state-func :teach-func teach-func
@@ -337,7 +377,9 @@
 
 
 (defun convert-collabo-path-to-smach
-  (collabo-path &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+  (collabo-path &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil)
+                     (robot *robot*) (ri *ri*) (cubes *boxes*)
+                     (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let* ((collabo-nodes
            (if (equal :task (car (car collabo-path)))
              (cdr collabo-path) collabo-path))
@@ -345,7 +387,11 @@
            (cadr (assoc :state-action (car collabo-nodes))))
          (last-state-sym
            (cadr (assoc :state-action (car (last collabo-nodes)))))
-         (trans-alist (convert-collabo-path-to-trans-alist collabo-nodes))
+         (trans-alist
+           (convert-collabo-path-to-trans-alist
+             collabo-nodes
+             :robot robot :ri ri :cubes cubes
+             :vw vw :use-torso use-torso :move-robot move-robot))
          (sm (convert-trans-alist-to-smach
                trans-alist first-state-sym last-state-sym
                :state-func state-func :teach-func teach-func

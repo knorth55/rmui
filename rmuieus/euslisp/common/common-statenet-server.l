@@ -95,8 +95,6 @@
 
     (setq ri rbti)
     (setq robotviewer rbtvw)
-    (setq use-torso utrso)
-    (setq move-robot mvrbt)
     (setq skip-interaction skip-p)
 
     ;; instances
@@ -111,6 +109,12 @@
                     `(send ,self :get-statenet-state-submachine)
                     :teach-func
                     `(send ,self :get-statenet-teach-submachine)
+                    :robot rbt
+                    :ri rbti
+                    :boxes bxs
+                    :robotviewer rbtvw
+                    :use-torso utrso
+                    :move-robot mvrbt
                     ))
     (setq stinteractor
           (instance statenet-interactor :init
@@ -646,7 +650,6 @@
             (let ((execute-start-stamp nil)
                   (execute-end-stamp nil))
 
-              ;; TODO (knorth55): support multiple cubes in executions
               ;; execute
               (setq execute-start-stamp (ros::time-now))
               (send sm :execute userdata :step -1)
