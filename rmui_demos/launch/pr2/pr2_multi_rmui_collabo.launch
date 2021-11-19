@@ -1,4 +1,5 @@
 <launch>
+  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
@@ -17,6 +18,7 @@
 
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
     <arg name="robot" value="pr2" />
+    <arg name="rmui" value="$(arg rmui)" />
     <arg name="collabo" value="true" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
