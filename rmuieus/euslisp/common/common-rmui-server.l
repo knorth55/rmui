@@ -25,8 +25,6 @@
           planner
           executor
           updater
-          use-torso
-          move-robot
           ri
           robotviewer
           pilotviewer
@@ -92,6 +90,8 @@
                                :pilotviewer pltvw
                                :pilot-table-z plttblz
                                :pilot-table-height plttblh
+                               :use-torso utrso
+                               :move-robot mvrbt
                                ))
       (setq updater (instance rmui-updater :init
                               :namespace topic-namespace
@@ -99,8 +99,6 @@
 
       (setq groupname (if gpn gpn))
       (if groupname (ros::create-nodehandle groupname))
-      (setq use-torso utrso)
-      (setq move-robot mvrbt)
       (send self :init-timer))
     self)
   (:init-timer ()
@@ -126,8 +124,7 @@
            (execute-symbols-and-actions
              (send executor :execute-motion-symbols
                    motion-symbols
-                   :scene-states prev-scene-states
-                   :move-robot move-robot :use-torso use-torso))
+                   :scene-states prev-scene-states))
            (update-scene-p
              (send updater :update-scene-states execute-symbols-and-actions))
            (dump-p (if update-scene-p (send updater :dump-files)))

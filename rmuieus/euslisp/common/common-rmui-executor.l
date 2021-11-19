@@ -30,6 +30,8 @@
           pilotviewer
           pilot-table-z
           pilot-table-height
+          use-torso
+          move-robot
           )
   )
 
@@ -47,7 +49,9 @@
                ((:pilot-devices pltdevs))
                ((:pilotviewer pltvw))
                ((:pilot-table-z plttblz))
-               ((:pilot-table-height plttblh)))
+               ((:pilot-table-height plttblh))
+               ((:use-torso utrso) 0.001)
+               ((:move-robot mvrbt) t))
     (setq namespace (if ns ns ""))
     (setq waiting-visualize-topic-name
           (format nil "~A/output/status/waiting" namespace))
@@ -73,6 +77,8 @@
     (setq pilotviewer pltvw)
     (setq pilot-table-z plttblz)
     (setq pilot-table-height plttblh)
+    (setq use-torso utrso)
+    (setq move-robot mvrbt)
     self)
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
@@ -126,7 +132,7 @@
            (list action-name action)))
         (t nil))))
   (:execute-motion-symbols
-    (motion-symbols &key (scene-states) (move-robot t) (use-torso 0.001))
+    (motion-symbols &key (scene-states))
     (let ((motion-symbols-and-actions
             (make-list (length motion-symbols) :initial-element nil)))
       ;; update motion symbol queue
@@ -146,9 +152,7 @@
                       (elt motion-symbol-queues i)
                       :scene-state (elt scene-states i)
                       :pilot-device (elt pilot-devices i)
-                      :box (elt boxes i)
-                      :move-robot move-robot
-                      :use-torso use-torso)))
+                      :box (elt boxes i))))
           (if motion-symbol-and-action
             (progn
               (setf (elt motion-symbols-and-actions i) motion-symbol-and-action)
@@ -168,8 +172,7 @@
                   rarm-motion-symbol-queue rarm-motion-symbol))
       (list larm-motion-symbol-queue rarm-motion-symbol-queue)))
   (:execute-motion-symbol
-    (motion-symbol motion-symbol-queue
-                   &key (scene-state) (pilot-device) (box) (move-robot t) (use-torso 0.001))
+    (motion-symbol motion-symbol-queue &key (scene-state) (pilot-device) (box))
     (let* ((larm-contact-state
              (cadr (assoc :larm-contact-state scene-state)))
            (rarm-contact-state
