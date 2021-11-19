@@ -1,0 +1,35 @@
+<launch>
+  <arg name="rmui" default="false" />
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="gui" default="true" />
+
+  <arg name="marker" default="false" />
+  <arg name="marker_frame_id" default="ar_marker_1" />
+
+  <arg name="record" default="true" />
+  <arg name="compress" default="false" doc="whether compress rosbag or not." />
+
+  <arg name="main" default="true" />
+  <arg name="box_type" default="ctb" />
+
+  <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
+    <arg name="robot" value="baxter" />
+    <arg name="collabo" value="false" />
+    <arg name="rmui" value="$(arg rmui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="record" value="$(arg record)" />
+    <arg name="compress" value="$(arg compress)" />
+    <arg name="main" value="$(arg main)" />
+    <arg name="box_type" value="$(arg box_type)" />
+    <arg name="marker" value="$(arg marker)" />
+    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
+  </include>
+</launch>
