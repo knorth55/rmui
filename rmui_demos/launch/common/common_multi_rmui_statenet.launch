@@ -1,5 +1,6 @@
 <launch>
   <arg name="robot" />
+  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
@@ -17,13 +18,15 @@
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
 
-  <include file="$(find rmui_demos)/launch/common/common_multi_rmui_base.launch">
-    <arg name="n_board" value="$(arg n_board)" />
-    <arg name="duration" value="$(arg duration)" />
-    <arg name="gui" value="$(arg gui)" />
-    <arg name="dummy" value="$(arg dummy)" />
-    <arg name="launch_device" value="$(arg launch_device)" />
-  </include>
+  <group if="$(arg rmui)">
+    <include file="$(find rmui_demos)/launch/common/common_multi_rmui_base.launch">
+      <arg name="n_board" value="$(arg n_board)" />
+      <arg name="duration" value="$(arg duration)" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="dummy" value="$(arg dummy)" />
+      <arg name="launch_device" value="$(arg launch_device)" />
+    </include>
+  </group>
 
   <!-- eus -->
   <include file="$(find rmuieus)/launch/multi_rmui_statenet_server.launch">
