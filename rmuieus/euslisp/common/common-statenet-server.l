@@ -48,6 +48,7 @@
           initial-state
           current-state
           reset-state
+          skip-interaction
           ))
 
 
@@ -75,7 +76,8 @@
                ((:boxes bxs) *boxes*)
                ((:robotviewer rbtvw) *irtviewer*)
                ((:use-torso utrso) 0.001)
-               ((:move-robot mvrbt) t))
+               ((:move-robot mvrbt) t)
+               ((:skip-interaction skip-p) nil))
     (send-super :init ns sp :groupname gpn)
     (setq namespace ns)
     (setq server-namespace srvns)
@@ -95,6 +97,7 @@
     (setq robotviewer rbtvw)
     (setq use-torso utrso)
     (setq move-robot mvrbt)
+    (setq skip-interaction skip-p)
 
     ;; instances
     (setq gr
@@ -222,6 +225,8 @@
           (ros::ros-error "cannot find a valid path to the goal-state")
           (return-from :replan-in-statenet-state nil)))))
   (:interrupt-wait (userdata)
+    ;; skip interaction
+    (if skip-interaction (return-from :interrupt-wait t))
     (let* ((current-sm-node (send sm :active-state))
            (duration (get current-sm-node :duration))
            (interrupt-p nil))
@@ -234,6 +239,8 @@
             (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
       (return-from :interrupt-wait interrupt-p)))
   (:ask-user-decision (userdata)
+    ;; skip interaction
+    (if skip-interaction (return-from :ask-user-decision :next))
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
@@ -728,7 +735,7 @@
 
 
 (defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0"))
-                                  (box-types :ctb))
+                                  (box-types :ctb) (skip-interaction nil))
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
@@ -761,7 +768,8 @@
                   :robotviewer *irtviewer*
                   :use-torso *use-torso*
                   :move-robot t
-                  :show-pdf pdf))
+                  :show-pdf pdf
+                  :skip-interaction skip-interaction))
   (ros::rate 10)
   (while (ros::ok) (send *server* :spin-once)))
 

@@ -16,7 +16,8 @@
 (defvar *use-torso* 0.001)
 
 
-(defun main (&key (pdf nil) (rmui-names (list "rmui0")) (box-types :ctb))
+(defun main (&key (pdf nil) (rmui-names (list "rmui0")) (box-types :ctb) (skip-interaction nil))
   (ros::roseus "baxter_statenet_server")
   (statenet-server-main :pdf pdf :rmui-names rmui-names
+                        :skip-interaction skip-interaction
                         :box-types box-types))
