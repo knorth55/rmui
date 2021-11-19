@@ -181,7 +181,7 @@
   )
 
 
-(defun rmui-planning-main (&key (rmui-names (list "rmui0"))
+(defun rmui-server-main (&key (rmui-names (list "rmui0"))
                                 (box-types :ctb))
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
