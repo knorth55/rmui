@@ -73,7 +73,6 @@
     (add-action-state-in-graph pddl-gr action prev-scene-states scene-states))
   (:add-action-state-in-statenet-graph (action prev-scene-states scene-states)
     (add-action-state-in-graph statenet-gr action prev-scene-states scene-states))
-  ;; TODO (knorth55): condition for multiple device combination
   (:update-scene-states (motion-symbols-and-actions)
     (if (null motion-symbols-and-actions) (return-from :update-scene-states nil))
     (let* ((prev-scene-states (send self :last-scene-states))
