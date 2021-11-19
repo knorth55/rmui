@@ -240,7 +240,7 @@
       (return-from :interrupt-wait interrupt-p)))
   (:ask-user-decision (userdata)
     ;; skip interaction
-    (if skip-interaction (return-from :ask-user-decision :next))
+    (if skip-interaction (return-from :ask-user-decision :pass))
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
