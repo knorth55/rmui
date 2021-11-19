@@ -18,6 +18,8 @@
   (remove '|n| (read-from-string name)))
 
 
+;; TODO: support multiple cube actions
+
 (defun add-node (sm name func node-type &optional (duration nil))
   (let ((node-func
           (if (equal 'lambda-closure (car func))

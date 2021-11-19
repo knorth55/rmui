@@ -646,6 +646,7 @@
             (let ((execute-start-stamp nil)
                   (execute-end-stamp nil))
 
+              ;; TODO (knorth55): support multiple cubes in executions
               ;; execute
               (setq execute-start-stamp (ros::time-now))
               (send sm :execute userdata :step -1)
