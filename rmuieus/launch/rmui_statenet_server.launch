@@ -20,7 +20,8 @@
         output="screen" required="true" if="$(arg main)">
   </node>
 
-  <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py" />
+  <node name="smach_viewer" pkg="smach_viewer" type="smach_viewer.py"
+        output="screen" />
 
   <node name="rqt_ez_publisher" pkg="rqt_ez_publisher" type="rqt_ez_publisher"
         args="--slider-file $(find rmuieus)/resource/rqt_ez_publisher.yaml" />
