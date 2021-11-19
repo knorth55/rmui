@@ -554,10 +554,10 @@
           (return-from :execute-statenet-cb t)))
       ;; execute state machine
       ;; modified from (exec-state-machine *sm* nil :hz 1.0)
-      (let* ((userdata (list (cons :start-state start-state)
-                             (cons :goal-state goal-state)
-                             (cons :user-decision nil)
-                             (cons :replan-start-state nil)))
+      (let* ((userdata (list (cons :start-state (list start-state))
+                             (cons :goal-state (list goal-state))
+                             (cons :user-decision (list nil))
+                             (cons :replan-start-state (list nil))))
              (hz 10.0)
              (execute-stamp (get-iso-stamp))
              (trained-executed-collabo-paths
