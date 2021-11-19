@@ -3,4 +3,5 @@
                       (:rarm-contact-state :right-contact)
                       (:floor-contact-state :released)
                       (:object-location-state :center)
-                      (:object-rotation-state (:x0 :y0 :z0)))))
+                      (:object-rotation-state (:x0 :y0 :z0))
+                      (:cube-contact-state (list :never :released :released)))))
