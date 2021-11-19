@@ -1,14 +1,12 @@
 <launch>
   <arg name="main" default="true" />
   <arg name="pdf" default="true" />
-  <arg name="rmui_name" default="rmui0" />
   <arg name="box_type" default="ctb" />
 
-  <include file="$(find rmuieus)/launch/rmui_statenet_server.launch">
-    <arg name="robot" value="pr2" />
+  <include file="$(find rmuieus)/launch/multi_rmui_statenet_server.launch">
+    <arg name="robot" value="baxter" />
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="box_type" value="$(arg box_type)" />
   </include>
 </launch>
