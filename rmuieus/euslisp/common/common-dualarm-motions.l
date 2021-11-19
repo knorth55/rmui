@@ -14,7 +14,7 @@
 ;; motion planners
 
 (defun dualarm-push-hold-release (&key (move-robot t) (use-torso 0.001))
-  (let* ((released (hold-release-motion :move-robot nil :use-torso use-torso
+  (let* ((released (hold-release-motion :arms :move-robot nil :use-torso use-torso
                                         :robot *robot* :ri *ri* :cube *box0*))
          (avs (car released))
          (tms (cadr released)))
@@ -58,7 +58,7 @@
 (defun dualarm-push-hold-down (&key (move-robot t) (use-torso 0.001))
   (let* ((lifted-down (hold-lift-down-motion :move-robot nil :use-torso use-torso
                                              :robot *robot* :ri *ri* :cube *box0*))
-         (released (when lifted-down (hold-release-motion :move-robot nil
+         (released (when lifted-down (hold-release-motion :arms :move-robot nil
                                                           :use-torso use-torso
                                                           :robot *robot* :ri *ri* :cube *box0*))))
     (when released
@@ -95,7 +95,7 @@
                                             :use-torso use-torso
                                             :robot *robot* :ri *ri* :cube *box0*)))
          (released
-           (when rotated (hold-release-motion :move-robot nil
+           (when rotated (hold-release-motion :arms :move-robot nil
                                               :use-torso use-torso
                                               :robot *robot* :ri *ri* :cube *box0*))))
     (when released
@@ -149,7 +149,7 @@
                                                :use-torso use-torso
                                                :robot *robot* :ri *ri* :cube *box0*)))
          (released
-           (when rotated (hold-release-motion :move-robot nil
+           (when rotated (hold-release-motion :arms :move-robot nil
                                               :use-torso use-torso
                                               :robot *robot* :ri *ri* :cube *box0*)))
          (avs (when released (append (car holded) (car rotated) (car released))))
@@ -226,7 +226,7 @@
                                                  :cube-depth cube-depth
                                                  :robot *robot* :ri *ri* :cube *box0*)))
          (push-released
-           (when push-rotated (hold-release-motion :arm top-arm
+           (when push-rotated (hold-release-motion top-arm
                                                    :move-robot nil
                                                    :use-torso use-torso
                                                    :robot *robot* :ri *ri* :cube *box0*)))
@@ -266,7 +266,7 @@
                                     :cube-depth cube-depth
                                     :robot *robot* :ri *ri* :cube *box0*)))
          (support-released
-           (when support-rotated (hold-release-motion :arm :arms
+           (when support-rotated (hold-release-motion :arms
                                                       :move-robot nil
                                                       :use-torso use-torso
                                                       :robot *robot* :ri *ri* :cube *box0*)))
