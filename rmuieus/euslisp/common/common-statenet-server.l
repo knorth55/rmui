@@ -132,6 +132,7 @@
                                       :groupname device-groupname))))))
     ; (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
 
+    (ros::set-param (format nil "~A/n_box" server-namespace) (length bxs))
     ;; state
     (setq initial-state '(:init))
     (setq current-state '(:init))

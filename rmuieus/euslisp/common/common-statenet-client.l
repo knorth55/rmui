@@ -47,4 +47,16 @@
     (send self :cancel-all-goals)))
 
 
+(defun statenet-action-client-main (state &key (n-box nil) (server-name "/statenet_server"))
+  (load-statenet-state state)
+  (if (not n-box)
+    (setq n-box (round (ros::get-param (format nil "~A/n_box" server-name)))))
+  (set-statenet-reset-state n-box)
+  (setq *client*
+        (instance statenet-action-client :init
+                  :server-name server-name
+                  :reset-state *reset-state*))
+  (send *client* :call-execute-statenet *start-state* *goal-state*))
+
+
 (provide :common-statenet-client "common-statenet-client.l")

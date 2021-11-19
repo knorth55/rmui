@@ -5,10 +5,7 @@
 (ros::roseus-add-msgs "rmui_msgs")
 
 
-(defun main (state)
+(defun main (state &key (n-box nil) (server-name "/statenet_server"))
   (ros::roseus "pr2_execute_statenet")
-  (load-statenet-state state)
-  (setq *client*
-        (instance statenet-action-client :init
-                  :reset-state *reset-state*))
-  (send *client* :call-execute-statenet *start-state* *goal-state*))
+  (statenet-action-client-main state :n-box n-box
+                               :server-name server-name))
