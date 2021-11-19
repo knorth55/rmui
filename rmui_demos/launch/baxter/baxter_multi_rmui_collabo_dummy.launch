@@ -1,6 +1,6 @@
 <launch>
-  <arg name="rmui_name" default="rmui0" />
   <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
 
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
@@ -15,9 +15,8 @@
   <arg name="main" default="true" />
   <arg name="box_type" default="ctb" />
 
-  <include file="$(find rmui_demos)/launch/pr2/pr2_rmui.launch">
+  <include file="$(find rmui_demos)/launch/baxter/baxter_multi_rmui_collabo.launch">
     <arg name="dummy" value="true" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />

@@ -1,9 +1,7 @@
 <launch>
   <arg name="rmui_name" default="rmui0" />
-  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
-  <arg name="box_type" default="ctb" />
 
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
@@ -16,36 +14,21 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="box_type" default="ctb" />
 
-  <include file="$(find rmui_demos)/launch/common/common_rmui.launch" if="$(arg rmui)">
+  <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
+    <arg name="robot" value="pr2" />
     <arg name="rmui_name" value="$(arg rmui_name)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
-    <arg name="dummy" value="$(arg dummy)" />
-    <arg name="launch_device" value="$(arg launch_device)" />
-  </include>
-
-  <include file="$(find rmuieus)/launch/pr2_rmui_planning.launch"
-           if="$(arg main)">
-    <arg name="rmui_name" value="$(arg rmui_name)" />
-    <arg name="box_type" value="$(arg box_type)" />
-  </include>
-
-  <include file="$(find rmui_demos)/launch/pr2/pr2_ar_tracker.launch"
-           if="$(arg marker)" />
-
-  <include file="$(find rmui_demos)/launch/pr2/pr2_rosbag_record.launch"
-           if="$(arg record)">
+    <arg name="record" value="$(arg record)" />
     <arg name="compress" value="$(arg compress)" />
+    <arg name="main" value="$(arg main)" />
+    <arg name="box_type" value="$(arg box_type)" />
+    <arg name="marker" value="$(arg marker)" />
+    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>
-
-  <node pkg="rmui_demos" type="marker_pose_publisher.py" name="marker_pose_publisher"
-        respawn="true" output="screen" if="$(arg marker)">
-    <rosparam subst_value="true">
-      marker_frame_id: $(arg marker_frame_id)
-    </rosparam>
-  </node>
-
-
 </launch>

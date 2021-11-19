@@ -1,10 +1,12 @@
 <launch>
-  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
 
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
+
+  <arg name="marker" default="false" />
+  <arg name="marker_frame_id" default="ar_marker_1" />
 
   <arg name="record" default="true" />
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
@@ -14,6 +16,7 @@
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_multi_rmui.launch">
     <arg name="dummy" value="true" />
+    <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
@@ -21,5 +24,7 @@
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
     <arg name="box_type" value="$(arg box_type)" />
+    <arg name="marker" value="$(arg marker)" />
+    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>
 </launch>

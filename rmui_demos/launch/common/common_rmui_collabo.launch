@@ -29,7 +29,7 @@
         args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
 
   <!-- eus -->
-  <include file="$(find rmuieus)/launch/rmui_planning.launch">
+  <include file="$(find rmuieus)/launch/rmui_statenet_server.launch">
     <arg name="robot" value="$(arg robot)" />
     <arg name="main" value="$(arg main)" />
     <arg name="rmui_name" value="$(arg rmui_name)" />

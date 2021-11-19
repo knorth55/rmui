@@ -1,6 +1,6 @@
 <launch>
-  <arg name="rmui" default="true" />
   <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
 
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
@@ -17,14 +17,15 @@
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_multi_rmui.launch">
     <arg name="dummy" value="true" />
+    <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="record" value="$(arg record)" />
     <arg name="compress" value="$(arg compress)" />
-    <arg name="marker" value="$(arg marker)" />
-    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
     <arg name="main" value="$(arg main)" />
     <arg name="box_type" value="$(arg box_type)" />
+    <arg name="marker" value="$(arg marker)" />
+    <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>
 </launch>
