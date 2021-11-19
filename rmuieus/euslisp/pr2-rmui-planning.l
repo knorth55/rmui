@@ -4,8 +4,7 @@
 (require :pr2-motions "package://rmuieus/euslisp/pr2/pr2-motions.l")
 (require :human-scenes "package://rmuieus/euslisp/human/human-scenes.l")
 (require :human-motions "package://rmuieus/euslisp/human/human-motions.l")
-(require :common-rmui-planning "package://rmuieus/euslisp/common/common-rmui-planning.l")
-(require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
+(require :common-rmui-server "package://rmuieus/euslisp/common/common-rmui-server.l")
 
 
 ;; parameters

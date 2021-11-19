@@ -2,6 +2,7 @@
 (require :eus-pddl-client "package://pddl_planner/src/eus-pddl-client.l")
 
 (require :rmui-device "package://rmuieus/euslisp/rmui/rmui-device.l")
+(require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
@@ -178,6 +179,54 @@
       (ros::spin-once groupname)
       (ros::spin-once)))
   )
+
+
+(defun rmui-planning-main (&key (rmui-names (list "rmui0"))
+                                (box-types :ctb))
+  (if (not (listp rmui-names))
+    (setq rmui-names (list rmui-names)))
+  (set-rmui-parameters rmui-names)
+  (scene-init :table-pos-y 0
+              :n-box (length rmui-names)
+              :box-types box-types)
+  (motion-init :move-robot t
+               :robot *robot*
+               :ri *ri*
+               :cubes *boxes*
+               :vw *irtviewer*)
+  (pilot-scene-init :table-pos-y 0
+                    :n-device (length rmui-names))
+  (motion-init :move-robot nil
+               :robot *pilot*
+               :ri nil
+               :cubes *pilot-devices*
+               :vw *pilotviewer*)
+  (ros::ros-info "motion-init finished")
+
+  (setq *server*
+        (instance rmui-server :init
+                  :namespaces *device-namespaces*
+                  :prx-threshold *prx-threshold*
+                  :prx-position-threshold *prx-position-threshold*
+                  :device-frame-ids *device-frame-ids*
+                  :device-world-frame-ids *device-world-frame-ids*
+                  :motion-symbol-length *motion-symbol-length*
+                  :robot *robot*
+                  :ri *ri*
+                  :boxes *boxes*
+                  :robotviewer *irtviewer*
+                  :table-z *table-z*
+                  :table-height *table-height*
+                  :pilot *pilot*
+                  :pilot-devices *pilot-devices*
+                  :pilotviewer *pilotviewer*
+                  :pilot-table-z *pilot-table-z*
+                  :pilot-table-height *pilot-table-height*
+                  :use-torso *use-torso*
+                  :move-robot t))
+  (ros::rate 10)
+  (ros::ros-info "initialization finished, starting")
+  (while (ros::ok) (send *server* :spin-once)))
 
 
 (provide :common-rmui-server "common-rmui-server.l")

@@ -4,7 +4,7 @@
 (require :baxter-motions "package://rmuieus/euslisp/baxter/baxter-motions.l")
 (require :human-scenes "package://rmuieus/euslisp/human/human-scenes.l")
 (require :human-motions "package://rmuieus/euslisp/human/human-motions.l")
-(require :common-rmui-planning "package://rmuieus/euslisp/common/common-rmui-planning.l")
+(require :common-rmui-server "package://rmuieus/euslisp/common/common-rmui-server.l")
 
 
 ;; parameters
