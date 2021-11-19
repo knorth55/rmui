@@ -515,7 +515,8 @@
 
 
 (defun push-motion
-  (arm &key (push-axes (list :y))
+  (arm &rest args
+       &key (push-axes (list :y))
             (push-positions (list :center))
             (push-directions (list :left))
             (approach-directions (list :back))
@@ -534,7 +535,7 @@
             (ri *ri*)
             (cube *box0*)
             (vw *irtviewer*)
-            &rest args &allow-other-keys)
+            &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
@@ -620,9 +621,10 @@
     target-coords))
 
 
-(defun push-release-motion (arm &key (move-robot t) (tm 3000) (use-torso 0.001)
-                                (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                &rest args &allow-other-keys)
+(defun push-release-motion (arm &rest args
+                                &key (move-robot t) (tm 3000) (use-torso 0.001)
+                                     (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                                     &allow-other-keys)
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
@@ -649,25 +651,26 @@
 ;; push hold motion
 
 (defun push-hold-motion
-  (&key (push-axis :y)
-        (push-position :center)
-        (approach-direction :back)
-        (top-arm :larm)
-        (front-arm nil)
-        (approach-arm nil)
-        (hold-type :tight)
-        (move-robot t)
-        (use-torso 0.001)
-        (cube-pos nil)
-        (cube-rpy (float-vector 0 0 0))
-        (cube-height nil)
-        (cube-width nil)
-        (cube-depth nil)
-        (robot *robot*)
-        (ri *ri*)
-        (cube *box0*)
-        (vw *irtviewer*)
-        &rest args &allow-other-keys)
+  (&rest args
+         &key (push-axis :y)
+              (push-position :center)
+              (approach-direction :back)
+              (top-arm :larm)
+              (front-arm nil)
+              (approach-arm nil)
+              (hold-type :tight)
+              (move-robot t)
+              (use-torso 0.001)
+              (cube-pos nil)
+              (cube-rpy (float-vector 0 0 0))
+              (cube-height nil)
+              (cube-width nil)
+              (cube-depth nil)
+              (robot *robot*)
+              (ri *ri*)
+              (cube *box0*)
+              (vw *irtviewer*)
+              &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
@@ -722,7 +725,8 @@
 ;; push-move-motion
 
 (defun push-move-motion
-  (arm &key (push-axis :y)
+  (arm &rest args
+       &key (push-axis :y)
             (move-distance 200.0)
             (move-robot t)
             (tm 3000)
@@ -731,7 +735,7 @@
             (ri *ri*)
             (cube *box0*)
             (vw *irtviewer*)
-            &rest args &allow-other-keys)
+            &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
         (prev-cube-coords (send cube :copy-worldcoords))
@@ -760,7 +764,8 @@
 
 
 (defun push-next-to-motion
-  (arm &key (push-axis :y)
+  (arm &rest args
+       &key (push-axis :y)
             (cubes *boxes*)
             (cube-index 0)
             (move-robot t)
@@ -770,7 +775,7 @@
             (ri *ri*)
             (cube *box0*)
             (vw *irtviewer*)
-            &rest args &allow-other-keys)
+            &allow-other-keys)
   (let* ((cube-coords
            (send (send cube :worldcoords) :copy-worldcoords))
          (cube-pos (send cube-coords :worldpos))
@@ -813,27 +818,28 @@
 ;; support hold motion
 
 (defun support-hold-motion
-  (&key (support-axis :x)
-        (push-position :center)
-        (approach-direction :back)
-        (top-arm :rarm)
-        (front-arm nil)
-        (back-arm nil)
-        (approach-arm nil)
-        (hold-type :tight)
-        (move-robot t)
-        (switch nil)
-        (use-torso 0.001)
-        (cube-pos nil)
-        (cube-rpy (float-vector 0 0 0))
-        (cube-height nil)
-        (cube-width nil)
-        (cube-depth nil)
-        (robot *robot*)
-        (ri *ri*)
-        (cube *box0*)
-        (vw *irtviewer*)
-        &rest args &allow-other-keys)
+  (&rest args
+         &key (support-axis :x)
+              (push-position :center)
+              (approach-direction :back)
+              (top-arm :rarm)
+              (front-arm nil)
+              (back-arm nil)
+              (approach-arm nil)
+              (hold-type :tight)
+              (move-robot t)
+              (switch nil)
+              (use-torso 0.001)
+              (cube-pos nil)
+              (cube-rpy (float-vector 0 0 0))
+              (cube-height nil)
+              (cube-width nil)
+              (cube-depth nil)
+              (robot *robot*)
+              (ri *ri*)
+              (cube *box0*)
+              (vw *irtviewer*)
+              &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
@@ -916,16 +922,20 @@
 
 ;; hold release motion
 
-(defun hold-release-motion (&key (arm :arms) (tm 5000)
-                                 &rest args &allow-other-keys)
+(defun hold-release-motion (&rest args
+                                  &key (arm :arms) (tm 5000)
+                                       &allow-other-keys)
   (apply #'push-release-motion (append (list arm :tm tm) args)))
 
 
 ;; hold lift up & down motion
 
-(defun hold-lift-up-motion (&key (lift-height 100) (move-robot t) (tm 5000) (use-torso 0.001)
-                                 (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                 &rest args &allow-other-keys)
+(defun hold-lift-up-motion (&rest args
+                                  &key (lift-height 100) (move-robot t)
+                                       (tm 5000) (use-torso 0.001)
+                                       (robot *robot*) (ri *ri*)
+                                       (cube *box0*) (vw *irtviewer*)
+                                       &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
         (prev-cube-coords (send cube :copy-worldcoords))
@@ -952,11 +962,13 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-lift-down-motion (&key (lift-height nil) (cube-pos-x nil) (cube-pos-y nil)
-                                   (move-robot t) (tm 5000) (use-torso 0.001)
-                                   (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                   (table-z *table-z*) (table-height *table-height*)
-                                   &rest args &allow-other-keys)
+(defun hold-lift-down-motion (&rest args
+                                    &key (lift-height nil) (cube-pos-x nil) (cube-pos-y nil)
+                                         (move-robot t) (tm 5000) (use-torso 0.001)
+                                         (robot *robot*) (ri *ri*) (cube *box0*)
+                                         (vw *irtviewer*)
+                                         (table-z *table-z*) (table-height *table-height*)
+                                         &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
@@ -995,10 +1007,11 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-move-motion (&rest args &key (cube-pos-x nil) (cube-pos-y nil) (cube-pos-z nil)
-                               (move-robot t) (tm 5000) (use-torso 0.001)
-                               (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                               &allow-other-keys)
+(defun hold-move-motion (&rest args
+                               &key (cube-pos-x nil) (cube-pos-y nil) (cube-pos-z nil)
+                                    (move-robot t) (tm 5000) (use-torso 0.001)
+                                    (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                                    &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
@@ -1036,10 +1049,12 @@
     (when av (list (list av) (list tm)))))
 
 
-(defun hold-pile-up-motion (&rest args &key (cubes *boxes*) (cube-index 0)
-                                  (move-robot t) (tm 5000) (use-torso 0.001)
-                                  (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                  &allow-other-keys)
+(defun hold-pile-up-motion (&rest args
+                                  &key (cubes *boxes*) (cube-index 0)
+                                       (move-robot t) (tm 5000) (use-torso 0.001)
+                                       (robot *robot*) (ri *ri*) (cube *box0*)
+                                       (vw *irtviewer*)
+                                       &allow-other-keys)
   (let* ((avs)
          (lifted-up)
          (moved)
@@ -1113,21 +1128,22 @@
 
 
 (defun rotate-motion
-  (&key (rotate-angle pi/2)
-        (rotate-axis :x)
-        (rotate-type :push)
-        (initial-rotate-angle 0)
-        (move-robot t)
-        (tm 1000)
-        (use-torso 0.001)
-        (cube-height nil)
-        (cube-depth nil)
-        (cube-width nil)
-        (robot *robot*)
-        (ri *ri*)
-        (cube *box0*)
-        (vw *irtviewer*)
-        &rest args &allow-other-keys)
+  (&rest args
+         &key (rotate-angle pi/2)
+              (rotate-axis :x)
+              (rotate-type :push)
+              (initial-rotate-angle 0)
+              (move-robot t)
+              (tm 1000)
+              (use-torso 0.001)
+              (cube-height nil)
+              (cube-depth nil)
+              (cube-width nil)
+              (robot *robot*)
+              (ri *ri*)
+              (cube *box0*)
+              (vw *irtviewer*)
+              &allow-other-keys)
   (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
   (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
   (if (not cube-depth) (setq cube-depth (get-cube-depth :cube cube)))
@@ -1264,10 +1280,11 @@
 
 ;; reset-motion
 
-(defun reset-motion (&key (move-robot t) (tm 5000)
-                          (robot *robot*) (ri *ri*)
-                          (vw *irtviewer*)
-                          &rest args &allow-other-keys)
+(defun reset-motion (&rest args
+                           &key (move-robot t) (tm 5000)
+                                (robot *robot*) (ri *ri*)
+                                (vw *irtviewer*)
+                                &allow-other-keys)
   (let ((av (send robot :reset-cube-manip-pose)))
     (send vw :draw-objects)
     (when move-robot
@@ -1278,9 +1295,10 @@
     (list (list av) (list tm))))
 
 
-(defun reset-cube-manip-motion (arm &key (move-robot t) (tm 5000)
-                                    (robot *robot*) (ri *ri*)
-                                    &rest args &allow-other-keys)
+(defun reset-cube-manip-motion (arm &rest args
+                                    &key (move-robot t) (tm 5000)
+                                         (robot *robot*) (ri *ri*)
+                                         &allow-other-keys)
   (let ((av (send robot :reset-cube-manip-pose arm)))
     (when move-robot
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
