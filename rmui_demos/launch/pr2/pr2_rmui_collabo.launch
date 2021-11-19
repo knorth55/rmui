@@ -16,8 +16,9 @@
   <arg name="main" default="true" />
   <arg name="box_type" default="ctb" />
 
-  <include file="$(find rmui_demos)/launch/common/common_rmui_collabo.launch">
+  <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">
     <arg name="robot" value="pr2" />
+    <arg name="collabo" value="true" />
     <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
