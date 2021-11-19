@@ -6,20 +6,15 @@
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
+(require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
-;; state
-
-(defvar *reset-state*
-  '((:larm-contact-state :released)
-    (:rarm-contact-state :released)
-    (:floor-contact-state :bottom-contact)
-    (:object-location-state :center)
-    (:object-rotation-state (:x0 :y0 :z0))))
+(defun set-statenet-reset-state (&optional (n-box 1))
+  (defvar *reset-state* (get-initial-scene-states n-box)))
 
 
 (defun add-initial-state (gr reset-state)
-  (add-action-state-in-graph gr '(action-init) '(:init) reset-state))
+  (add-action-state-in-graph gr '(statenet-action-init) '(:init) reset-state))
 
 
 (defun load-merged-statenet-graph-with-reset

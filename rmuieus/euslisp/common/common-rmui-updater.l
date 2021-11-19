@@ -8,6 +8,7 @@
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
+(require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 (ros::roseus-add-msgs "std_msgs")
 
@@ -47,23 +48,7 @@
 
     ;; TODO (knorth55): change initial state from argument
     ;; initial conditions
-    (let ((scene-states nil)
-          (cube-contact-state nil))
-      (dotimes (i (length bxs))
-        (setq cube-contact-state
-              (make-list (length bxs) :initial-element :released))
-        (setf (elt cube-contact-state i) :never)
-        (setq scene-states
-              (append scene-states
-                      (list
-                        (list
-                          (list :larm-contact-state :released)
-                          (list :rarm-contact-state :released)
-                          (list :floor-contact-state :bottom-contact)
-                          (list :object-location-state :center)
-                          (list :object-rotation-state (list :x0 :y0 :z0))
-                          (list :cube-contact-state cube-contact-state))))))
-      (setq scene-states-list (list scene-states)))
+    (setq scene-states-list (list (get-initial-scene-states (length bxs))))
 
     ;; update conditions
     (setq larm-contact-state-conditions (load-larm-contact-state-conditions))

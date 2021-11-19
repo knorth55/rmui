@@ -18,6 +18,10 @@
   t)
 
 
+(defun statenet-action-init (&rest args)
+  t)
+
+
 ;; common arm actions
 
 (defun front-push-action (arm &rest args)

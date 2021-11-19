@@ -1,3 +1,5 @@
+(require :rmui-device "package://rmuieus/euslisp/rmui/rmui-device.l")
+(require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :common-statenet-planner
          "package://rmuieus/euslisp/common/common-statenet-planner.l")
@@ -24,6 +26,10 @@
           dump-statenet-dir
           duration-threshold
           interrupt-timeout
+          ri
+          robotviewer
+          use-torso
+          move-robot
           ;; statenet
           slvr
           sm
@@ -63,15 +69,21 @@
                (prx-position-threshold)
                (device-frame-ids)
                (device-world-frame-ids)
-               &rest args)
-    (send-super* :init ns sp :groupname gpn args)
+               (solver-class *solver-class*)
+               ((:robot rbt) *robot*)
+               ((:ri rbti) *ri*)
+               ((:boxes bxs) *boxes*)
+               ((:robotviewer rbtvw) *irtviewer*)
+               ((:use-torso utrso) 0.001)
+               ((:move-robot mvrbt) t))
+    (send-super :init ns sp :groupname gpn)
     (setq namespace ns)
     (setq server-namespace srvns)
     (setq server-groupname srvgpn)
     (setq groupname gpn)
+    (setq reset-state rs)
     (setq device-namespaces devnss)
     (setq device-groupnames devgpns)
-    (setq reset-state rs)
     (setq show-pdf shpdf)
     (setq duration-threshold drthld)
     (setq interrupt-timeout itrtmt)
@@ -79,11 +91,16 @@
     (setq collabo-statenet-dir clbnet-dir)
     (setq dump-statenet-dir nil)
 
+    (setq ri rbti)
+    (setq robotviewer rbtvw)
+    (setq use-torso utrso)
+    (setq move-robot mvrbt)
+
     ;; instances
     (setq gr
           (load-merged-statenet-graph-with-reset
             reset-state :data-dir object-statenet-dir))
-    (setq slvr (instance *solver-class* :init))
+    (setq slvr (instance solver-class :init))
     (setq stplanner
           (instance statenet-planner :init
                     :graph gr :solver slvr
@@ -579,7 +596,7 @@
         (while (ros::ok)
           (ros::rate hz)
           (send self :spin-once)
-          (if (and (boundp '*ri*) *ri*) (send *ri* :spin-once))
+          (if ri (send ri :spin-once))
           ;; check if sm is not nil for replanning
           (if (null sm)
             (progn
@@ -697,8 +714,8 @@
       (send msg :state :state (format nil "~A" current-state))
       (ros::publish "~current_state" msg)))
   (:visualize-update-cb (event)
-    (if (boundp '*irtviewer*) (send *irtviewer* :draw-objects))
-    (if (boundp '*ri*) (send *ri* :draw-objects)))
+    (if robotviewer (send robotviewer :draw-objects))
+    (if ri (send ri :draw-objects)))
   (:spin-once ()
     (if device-groupnames
       (dolist (device-groupname device-groupnames)
@@ -709,13 +726,25 @@
   )
 
 
-(defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0")))
+(defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0"))
+                                  (box-types :ctb))
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
+  (scene-init :table-pos-y 0
+              :n-box (length rmui-names)
+              :box-types box-types)
+  (motion-init :move-robot t
+               :robot *robot*
+               :ri *ri*
+               :cubes *boxes*
+               :vw *irtviewer*)
 
+  ;; TODO (knorth55): change initial state from argument
+  (set-statenet-reset-state (length rmui-names))
   (setq *server*
         (instance statenet-action-server :init
+                  :reset-state *reset-state*
                   :device-namespaces *device-namespaces*
                   :device-groupnames *device-groupnames*
                   :duration-threshold *duration-threshold*
@@ -724,6 +753,13 @@
                   :prx-position-threshold *prx-position-threshold*
                   :device-frame-ids *device-frame-ids*
                   :device-world-frame-ids *device-world-frame-ids*
+                  :solver-class *solver-class*
+                  :robot *robot*
+                  :ri *ri*
+                  :boxes *boxes*
+                  :robotviewer *irtviewer*
+                  :use-torso *use-torso*
+                  :move-robot t
                   :show-pdf pdf))
   (ros::rate 10)
   (while (ros::ok) (send *server* :spin-once)))

@@ -1,7 +1,25 @@
 (require :room73b2-askul-1200x700-desk-0 "models/room73b2-askul-1200x700-desk-0-object.l")
 
 
-;; parameters
+(defun get-initial-scene-states (&optional (n-box))
+  (let ((scene-states nil)
+        (cube-contact-state nil))
+    (dotimes (i n-box)
+      (setq cube-contact-state
+            (make-list n-box :initial-element :released))
+      (setf (elt cube-contact-state i) :never)
+      (setq scene-states
+            (append scene-states
+                    (list
+                      (list
+                        (list :larm-contact-state :released)
+                        (list :rarm-contact-state :released)
+                        (list :floor-contact-state :bottom-contact)
+                        (list :object-location-state :center)
+                        (list :object-rotation-state (list :x0 :y0 :z0))
+                        (list :cube-contact-state cube-contact-state))))))
+    scene-states))
+
 
 (defun box-scene-init (&optional (n-box 1) (box-types :ctb))
   (let ((boxes nil)
