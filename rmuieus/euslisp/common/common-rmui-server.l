@@ -142,7 +142,10 @@
       (ros::ros-info
         (format nil "execute-symbol        : ~A" execute-symbol))
       (ros::ros-info
-        (format nil "executed-actions      : ~A" (mapcar #'car executed-actions)))
+        (format nil "executed-actions      : ~A"
+                (mapcar #'(lambda (x)
+                            (find-if-not #'null (car x)))
+                        executed-actions)))
       (ros::ros-info
         (format nil "larm-contact-state    : ~A"
                 (mapcar #'(lambda (scene-state)

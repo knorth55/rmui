@@ -65,8 +65,7 @@
             (car (last scene-states-list))))
   (:executed-actions () executed-actions)
   (:append-executed-actions (action-name action)
-    (let ((executed-action
-            (list (read-from-string (format nil ":~A" action-name)) action)))
+    (let ((executed-action (list action-name action)))
       (setq executed-actions (append executed-actions (list executed-action)))))
   (:append-scene-states-list (scene-states)
     (setq scene-states-list (append scene-states-list (list scene-states))))
@@ -80,6 +79,10 @@
     (let* ((prev-scene-states (send self :last-scene-states))
            (scene-states
              (mapcar #'(lambda (x) (mapcar #'copy-seq x)) prev-scene-states))
+           (execute-action-names
+             (make-list (length motion-symbols-and-actions) :initial-element nil))
+           (execute-actions
+             (make-list (length motion-symbols-and-actions) :initial-element nil))
            (execute-cube-index nil))
       (dotimes (i (length motion-symbols-and-actions))
         (if (elt motion-symbols-and-actions i)
@@ -141,6 +144,8 @@
                (prev-scene-state (elt prev-scene-states execute-cube-index))
                (prev-cube-contact-state
                  (copy-seq (cadr (assoc :cube-contact-state prev-scene-state)))))
+          (setf (elt execute-action-names execute-cube-index) execute-action-name)
+          (setf (elt execute-actions execute-cube-index) (copy-seq execute-action))
           (cond
             ;; pile-up
             ((and (not (find :bottom-contact prev-cube-contact-state))
@@ -203,11 +208,11 @@
             (t nil))
           (send self :append-scene-states-list scene-states)
           (send self :append-executed-actions
-                execute-action-name execute-action)
+                execute-action-names execute-actions)
           (send self :add-action-state-in-pddl-graph
-                execute-action prev-scene-states scene-states)
+                execute-actions prev-scene-states scene-states)
           (send self :add-action-state-in-statenet-graph
-                execute-action prev-scene-states scene-states)
+                execute-actions prev-scene-states scene-states)
           (return-from :update-scene-states execute-motion-symbol)))))
   (:update-scene-state (motion-symbol prev-scene-state)
     (if (null motion-symbol) (return-from :update-scene-state nil))
