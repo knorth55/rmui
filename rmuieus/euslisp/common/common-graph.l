@@ -24,8 +24,8 @@
             func (eval func))))
     (if (null (send sm :node name))
       (let ((n (instance state :init name node-func)))
-        (setf (get n :node-type) node-type)
-        (if duration (setf (get n :duration) duration))
+        (send n :put :node-type node-type)
+        (if duration (send n :put :duration duration))
         (send sm :add-node n)))))
 
 

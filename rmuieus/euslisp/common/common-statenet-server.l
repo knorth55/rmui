@@ -232,7 +232,7 @@
     ;; skip interaction
     (if skip-interaction (return-from :interrupt-wait t))
     (let* ((current-sm-node (send sm :active-state))
-           (duration (get current-sm-node :duration))
+           (duration (send current-sm-node :get :duration))
            (interrupt-p nil))
       ;; first time node, move to ask user input
       (if (null duration) (return-from :interrupt-wait t))
@@ -623,7 +623,7 @@
               (send self :set-aborted result)
               (return-from :execute-statenet-cb nil)))
           (let* ((active-state (send sm :active-state))
-                 (node-type (get active-state :node-type))
+                 (node-type (send active-state :get :node-type))
                  (node-name (send active-state :name))
                  (node-sym (read-from-string node-name)))
             ;; check node type
