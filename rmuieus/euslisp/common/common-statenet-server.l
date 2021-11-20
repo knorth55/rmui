@@ -577,9 +577,7 @@
                    (list :end-stamp nil)
                    (list :first-time
                          (if trained-executed-collabo-paths t nil))))))
-        ;; TODO: support multi cube
-        ; (if trained-executed-collabo-paths
-        (if nil
+        (if trained-executed-collabo-paths
           (progn
             (ros::ros-warn "This is a trained task.")
             (ros::ros-warn "Loading the trained path.")

@@ -253,19 +253,29 @@
                       nil 0 0 (userdata)
                       (apply #',(car action-func-sym)
                              ',(append (cdr action-func-sym)
-                                      (if cube-index
-                                        (list :robot robot
-                                              :ri ri
-                                              :cube (elt cubes cube-index)
-                                              :cubes cubes :vw vw))))))
-                 (node-name (format nil "~A" (list action-func-sym from-state-sym)))
+                                       (if cube-index
+                                         (list :robot robot
+                                               :ri ri
+                                               :cube (elt cubes cube-index)
+                                               :cubes cubes
+                                               :vw vw))))))
+                 (action-func-sym-list
+                   (if cube-index
+                     (let
+                       ((afsl (make-list (length action-sym) :initial-element nil)))
+                       (setf (elt afsl cube-index) action-func-sym)
+                       afsl)
+                     action-func-sym))
+                 (node-name
+                   (format nil "~A"
+                           (list action-func-sym-list from-state-sym)))
                  (from-name (format nil "~A" from-state-sym))
                  (to-name (format nil "~A" to-state-sym))
                  (trans (list (cons :from-name from-name)
                               (cons :from-state-sym from-state-sym)
                               (cons :from-duration nil)
                               (cons :node-name node-name)
-                              (cons :action-sym action-func-sym)
+                              (cons :action-sym action-func-sym-list)
                               (cons :action-func action-func)
                               (cons :to-name to-name)
                               (cons :to-state-sym to-state-sym)
@@ -314,7 +324,16 @@
                                           :ri ri
                                           :cube (elt cubes cube-index)
                                           :cubes cubes :vw vw))))))
-             (node-name (format nil "~A" (list action-func-sym from-state-sym)))
+             (action-func-sym-list
+               (if cube-index
+                 (let
+                   ((afsl (make-list (length action-sym) :initial-element nil)))
+                   (setf (elt afsl cube-index) action-func-sym)
+                   afsl)
+                 action-func-sym))
+             (node-name
+               (format nil "~A"
+                       (list action-func-sym-list from-state-sym)))
              (to-node (caddr collabo-nodes))
              (to-node-type (cadr (assoc :node-type to-node)))
              (to-state-sym (cadr (assoc :state-action to-node)))
@@ -327,7 +346,7 @@
              (trans (list (cons :from-name from-name)
                           (cons :from-duration from-duration)
                           (cons :node-name node-name)
-                          (cons :action-sym action-func-sym)
+                          (cons :action-sym action-func-sym-list)
                           (cons :action-func action-func)
                           (cons :to-name to-name)
                           (cons :to-state-sym to-state-sym)
