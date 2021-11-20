@@ -106,7 +106,10 @@
           (instance statenet-planner :init
                     :graph gr :solver slvr
                     :state-func
-                    `(send ,self :get-statenet-state-submachine)
+                    (if skip-interaction
+                      #'(lambda (userdata) t)
+                      `(send ,self :get-statenet-state-submachine)
+                      )
                     :teach-func
                     (if skip-interaction
                       nil
@@ -231,8 +234,6 @@
           (ros::ros-error "cannot find a valid path to the goal-state")
           (return-from :replan-in-statenet-state nil)))))
   (:interrupt-wait (userdata)
-    ;; skip interaction
-    (if skip-interaction (return-from :interrupt-wait t))
     (let* ((current-sm-node (send sm :active-state))
            (duration (send current-sm-node :get :duration))
            (interrupt-p nil))
@@ -245,8 +246,6 @@
             (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
       (return-from :interrupt-wait interrupt-p)))
   (:ask-user-decision (userdata)
-    ;; skip interaction
-    (if skip-interaction (return-from :ask-user-decision :pass))
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
@@ -464,10 +463,13 @@
             collabo-paths))
   (:load-trained-collabo-paths (start-state goal-state)
     (let ((trained-collabo-paths
-            (send self :simplify-trained-collabo-paths
-                  (load-all-executed-collabo-path
-                    :data-dir collabo-statenet-dir
-                    :sort-predicate #'string>))))
+            (let ((tcpaths
+                    (load-all-executed-collabo-path
+                      :data-dir collabo-statenet-dir
+                      :sort-predicate #'string>)))
+              (if skip-interaction
+                tcpaths
+                (send self :simplify-trained-collabo-paths tcpaths)))))
       (if (equal start-state '(:init))
         ;; start-state is (:init)
         (remove
