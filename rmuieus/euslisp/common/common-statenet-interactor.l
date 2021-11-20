@@ -162,7 +162,30 @@
                (next-gr-states
                  (mapcar #'(lambda (act)
                              (convert-string-to-sym (send (cdr act) :name)))
-                         gr-acts)))
+                         gr-acts))
+               (next-sm-action-syms
+                 (mapcar
+                   #'(lambda (next-sm-action)
+                      (mapcar
+                        #'(lambda (as)
+                            (if (and as (listp as))
+                              (progn
+                                (let ((move-robot-position (position :move-robot as)))
+                                  (if move-robot-position
+                                    (if (>= (length as) (+ 2 move-robot-position))
+                                      (setq as (subseq as 0 move-robot-position))
+                                      (setq as (append (subseq as 0 move-robot-position)
+                                                       (subseq as (+ 2 move-robot-position)))))))
+                                (let ((use-torso-position (position :use-torso as)))
+                                  (if use-torso-position
+                                    (if (>= (length as) (+ 2 use-torso-position))
+                                      (setq as (subseq as 0 use-torso-position))
+                                      (setq as (append (subseq as 0 use-torso-position)
+                                                       (subseq as (+ 2 use-torso-position)))))))
+                                as)
+                              as))
+                        next-sm-action))
+                   next-sm-actions)))
           (tagbody retry-ask-user-decision
             (cond
               ;; if next actions are multiples
@@ -182,7 +205,7 @@
                      (ros::ros-info
                        (format nil "(~A) next-state: ~A"
                                next-gr-index next-gr-state))
-                     (if (find next-gr-action next-sm-actions :test #'equal)
+                     (if (find next-gr-action next-sm-action-syms :test #'equal)
                        (setq default-index next-gr-index))
                      (setq next-gr-index (+ next-gr-index 1))))
                  ;; -1 index for teaching
@@ -204,7 +227,7 @@
               ;; if next action is only one
               ;; ask if execute or not -> ask if teach or not -> ask if abort or not
               ((= (length next-gr-actions) 1)
-               (if (find (car next-gr-actions) next-sm-actions :test #'equal)
+               (if (find (car next-gr-actions) next-sm-action-syms :test #'equal)
                  (let* ((next-action (car next-gr-actions))
                         (next-state (car next-gr-states)))
                    (ros::ros-info (format nil "current-state: ~A" current-state))
