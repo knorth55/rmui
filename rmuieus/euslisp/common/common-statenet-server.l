@@ -108,7 +108,9 @@
                     :state-func
                     `(send ,self :get-statenet-state-submachine)
                     :teach-func
-                    `(send ,self :get-statenet-teach-submachine)
+                    (if skip-interaction
+                      nil
+                      `(send ,self :get-statenet-teach-submachine))
                     :robot rbt
                     :ri rbti
                     :boxes bxs
