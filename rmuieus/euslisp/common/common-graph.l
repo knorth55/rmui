@@ -243,10 +243,15 @@
                    (position-if #'(lambda (x) (and x (listp x))) action-sym))
                  (action-func-sym
                    (if cube-index
-                     (append
-                       (elt action-sym cube-index)
-                       (list :move-robot move-robot
-                             :use-torso use-torso))
+                     (let ((afs (copy-seq (elt action-sym cube-index))))
+                       (if (find :move-robot afs)
+                         (setf (elt afs (+ 1(position :move-robot afs))) move-robot)
+                         (setq afs (append afs (list :move-robot move-robot)))
+                         )
+                       (if (find :use-torso afs)
+                         (setf (elt afs (+ 1(position :use-torso afs))) use-torso)
+                         (setq afs (append afs (list :use-torso use-torso))))
+                       afs)
                      action-sym))
                  (action-func
                    `(lambda-closure
@@ -309,10 +314,15 @@
                (position-if #'(lambda (x) (and x (listp x))) action-sym))
              (action-func-sym
                (if cube-index
-                 (append
-                   (elt action-sym cube-index)
-                   (list :move-robot move-robot
-                         :use-torso use-torso))
+                 (let ((afs (copy-seq (elt action-sym cube-index))))
+                   (if (find :move-robot afs)
+                     (setf (elt afs (+ 1(position :move-robot afs))) move-robot)
+                     (setq afs (append afs (list :move-robot move-robot)))
+                     )
+                   (if (find :use-torso afs)
+                     (setf (elt afs (+ 1(position :use-torso afs))) use-torso)
+                     (setq afs (append afs (list :use-torso use-torso))))
+                   afs)
                  action-sym))
              (action-func
                `(lambda-closure
