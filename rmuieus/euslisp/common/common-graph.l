@@ -238,21 +238,39 @@
           (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
                  (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
                  (action-name (send ac :name))
-                 (action-sym (read-from-string action-name))
+                 (action-syms (read-from-string action-name))
                  (cube-index
-                   (position-if #'(lambda (x) (and x (listp x))) action-sym))
+                   (position-if #'(lambda (x) (and x (listp x))) action-syms))
+                 (action-sym
+                   (if cube-index
+                     (let ((as (copy-seq (elt action-syms cube-index))))
+                       (let ((move-robot-position (position :move-robot as)))
+                         (if move-robot-position
+                           (if (>= (length as) (+ 2 move-robot-position))
+                             (setq as (subseq as 0 move-robot-position))
+                             (setq as (append (subseq as 0 move-robot-position)
+                                              (subseq as (+ 2 move-robot-position)))))))
+                       (let ((use-torso-position (position :use-torso as)))
+                         (if use-torso-position
+                           (if (>= (length as) (+ 2 use-torso-position))
+                             (setq as (subseq as 0 use-torso-position))
+                             (setq as (append (subseq as 0 use-torso-position)
+                                              (subseq as (+ 2 use-torso-position)))))))
+                       as)
+                     (copy-seq action-syms)))
                  (action-func-sym
                    (if cube-index
-                     (let ((afs (copy-seq (elt action-sym cube-index))))
-                       (if (find :move-robot afs)
-                         (setf (elt afs (+ 1(position :move-robot afs))) move-robot)
-                         (setq afs (append afs (list :move-robot move-robot)))
-                         )
-                       (if (find :use-torso afs)
-                         (setf (elt afs (+ 1(position :use-torso afs))) use-torso)
-                         (setq afs (append afs (list :use-torso use-torso))))
+                     (let ((afs (copy-seq action-sym)))
+                       (let ((move-robot-position (position :move-robot afs)))
+                         (if move-robot-position
+                           (setf (elt afs (+ 1 move-robot-position)) move-robot)
+                           (setq afs (append afs (list :move-robot move-robot)))))
+                       (let ((use-torso-position (position :use-torso afs)))
+                         (if use-torso-position
+                           (setf (elt afs (+ 1 use-torso-position)) use-torso)
+                           (setq afs (append afs (list :use-torso use-torso)))))
                        afs)
-                     action-sym))
+                     (copy-seq action-sym)))
                  (action-func
                    `(lambda-closure
                       nil 0 0 (userdata)
@@ -264,10 +282,17 @@
                                                :cube (elt cubes cube-index)
                                                :cubes cubes
                                                :vw vw))))))
+                 (action-sym-list
+                   (if cube-index
+                     (let
+                       ((afsl (make-list (length action-syms) :initial-element nil)))
+                       (setf (elt afsl cube-index) action-sym)
+                       afsl)
+                     action-sym))
                  (action-func-sym-list
                    (if cube-index
                      (let
-                       ((afsl (make-list (length action-sym) :initial-element nil)))
+                       ((afsl (make-list (length action-syms) :initial-element nil)))
                        (setf (elt afsl cube-index) action-func-sym)
                        afsl)
                      action-func-sym))
@@ -280,7 +305,7 @@
                               (cons :from-state-sym from-state-sym)
                               (cons :from-duration nil)
                               (cons :node-name node-name)
-                              (cons :action-sym action-func-sym-list)
+                              (cons :action-sym action-sym-list)
                               (cons :action-func action-func)
                               (cons :to-name to-name)
                               (cons :to-state-sym to-state-sym)
@@ -309,21 +334,39 @@
              (from-name (format nil "~A" from-state-sym))
              (action-node (cadr collabo-nodes))
              (action-node-type (cadr (assoc :node-type action-node)))
-             (action-sym (cadr (assoc :state-action action-node)))
+             (action-syms (cadr (assoc :state-action action-node)))
              (cube-index
-               (position-if #'(lambda (x) (and x (listp x))) action-sym))
+               (position-if #'(lambda (x) (and x (listp x))) action-syms))
+             (action-sym
+               (if cube-index
+                 (let ((as (copy-seq (elt action-syms cube-index))))
+                   (let ((move-robot-position (position :move-robot as)))
+                     (if move-robot-position
+                       (if (>= (length as) (+ 2 move-robot-position))
+                         (setq as (subseq as 0 move-robot-position))
+                         (setq as (append (subseq as 0 move-robot-position)
+                                          (subseq as (+ 2 move-robot-position)))))))
+                   (let ((use-torso-position (position :use-torso as)))
+                     (if use-torso-position
+                       (if (>= (length as) (+ 2 use-torso-position))
+                         (setq as (subseq as 0 use-torso-position))
+                         (setq as (append (subseq as 0 use-torso-position)
+                                          (subseq as (+ 2 use-torso-position)))))))
+                   as)
+                 (copy-seq action-syms)))
              (action-func-sym
                (if cube-index
-                 (let ((afs (copy-seq (elt action-sym cube-index))))
-                   (if (find :move-robot afs)
-                     (setf (elt afs (+ 1(position :move-robot afs))) move-robot)
-                     (setq afs (append afs (list :move-robot move-robot)))
-                     )
-                   (if (find :use-torso afs)
-                     (setf (elt afs (+ 1(position :use-torso afs))) use-torso)
-                     (setq afs (append afs (list :use-torso use-torso))))
+                 (let ((afs (copy-seq action-sym)))
+                   (let ((move-robot-position (position :move-robot afs)))
+                     (if move-robot-position
+                       (setf (elt afs (+ 1 move-robot-position)) move-robot)
+                       (setq afs (append afs (list :move-robot move-robot)))))
+                   (let ((use-torso-position (position :use-torso afs)))
+                     (if use-torso-position
+                       (setf (elt afs (+ 1 use-torso-position)) use-torso)
+                       (setq afs (append afs (list :use-torso use-torso)))))
                    afs)
-                 action-sym))
+                 (copy-seq action-sym)))
              (action-func
                `(lambda-closure
                   nil 0 0 (userdata)
@@ -334,10 +377,17 @@
                                           :ri ri
                                           :cube (elt cubes cube-index)
                                           :cubes cubes :vw vw))))))
+             (action-sym-list
+               (if cube-index
+                 (let
+                   ((afsl (make-list (length action-syms) :initial-element nil)))
+                   (setf (elt afsl cube-index) action-sym)
+                   afsl)
+                 action-sym))
              (action-func-sym-list
                (if cube-index
                  (let
-                   ((afsl (make-list (length action-sym) :initial-element nil)))
+                   ((afsl (make-list (length action-syms) :initial-element nil)))
                    (setf (elt afsl cube-index) action-func-sym)
                    afsl)
                  action-func-sym))
@@ -356,7 +406,7 @@
              (trans (list (cons :from-name from-name)
                           (cons :from-duration from-duration)
                           (cons :node-name node-name)
-                          (cons :action-sym action-func-sym-list)
+                          (cons :action-sym action-sym-list)
                           (cons :action-func action-func)
                           (cons :to-name to-name)
                           (cons :to-state-sym to-state-sym)

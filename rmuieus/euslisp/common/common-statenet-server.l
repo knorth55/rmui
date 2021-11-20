@@ -96,6 +96,8 @@
     (setq ri rbti)
     (setq robotviewer rbtvw)
     (setq skip-interaction skip-p)
+    (setq move-robot mvrbt)
+    (setq use-torso utrso)
 
     ;; instances
     (setq gr
