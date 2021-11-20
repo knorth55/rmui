@@ -422,8 +422,10 @@
                    (append start-stamp-list (list start-stamp)))
              (setq end-stamp-list
                    (append end-stamp-list (list end-stamp))))
-            ;; last
-            ((equal n last-n)
+            ;; last and continue
+            ((and (equal n last-n)
+                  (equal prev-node-type node-type)
+                  (equal prev-state-action state-action))
              (setq start-stamp-list
                    (append start-stamp-list (list start-stamp)))
              (setq end-stamp-list
@@ -433,12 +435,22 @@
              (setf (cadr (assoc :end-stamp current-n))
                    (reduce #'max end-stamp-list))
              (setq simple-collabo-path
-                   (append simple-collabo-path (list current-n)))
-             (setq start-stamp-list (list start-stamp))
-             (setq end-stamp-list (list end-stamp))
-             (setq current-n
+                   (append simple-collabo-path (list current-n))))
+            ;; last and diff
+            ((and (equal n last-n)
+                  (not (and (equal prev-node-type node-type)
+                            (equal prev-state-action state-action))))
+             (setf (cadr (assoc :start-stamp current-n))
+                   (reduce #'min start-stamp-list))
+             (setf (cadr (assoc :end-stamp current-n))
+                   (reduce #'max end-stamp-list))
+             (setq last-n
                    (mapcar
-                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
+                     #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
+             (setf (cadr (assoc :start-stamp last-n)) start-stamp)
+             (setf (cadr (assoc :end-stamp last-n)) end-stamp)
+             (setq simple-collabo-path
+                   (append simple-collabo-path (list current-n last-n))))
             ;; diff
             (t
              (setf (cadr (assoc :start-stamp current-n))
