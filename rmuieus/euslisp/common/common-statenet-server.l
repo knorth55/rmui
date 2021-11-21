@@ -477,13 +477,10 @@
             collabo-paths))
   (:load-trained-collabo-paths (start-state goal-state)
     (let ((trained-collabo-paths
-            (let ((tcpaths
-                    (load-all-executed-collabo-path
-                      :data-dir collabo-statenet-dir
-                      :sort-predicate #'string>)))
-              (if skip-interaction
-                tcpaths
-                (send self :simplify-trained-collabo-paths tcpaths)))))
+            (send self :simplify-trained-collabo-paths
+                  (load-all-executed-collabo-path
+                    :data-dir collabo-statenet-dir
+                    :sort-predicate #'string>))))
       (if (equal start-state '(:init))
         ;; start-state is (:init)
         (remove
