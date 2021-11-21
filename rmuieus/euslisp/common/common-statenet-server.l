@@ -28,8 +28,6 @@
           interrupt-timeout
           ri
           robotviewer
-          use-torso
-          move-robot
           ;; statenet
           slvr
           sm
@@ -48,7 +46,6 @@
           initial-state
           current-state
           reset-state
-          skip-interaction
           ))
 
 
@@ -77,7 +74,7 @@
                ((:robotviewer rbtvw) *irtviewer*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t)
-               ((:skip-interaction skip-p) nil))
+               ((:skip-interaction skip-intr-p) nil))
     (send-super :init ns sp :groupname gpn)
     (setq namespace ns)
     (setq server-namespace srvns)
@@ -92,12 +89,8 @@
     (setq object-statenet-dir objnet-dir)
     (setq collabo-statenet-dir clbnet-dir)
     (setq dump-statenet-dir nil)
-
     (setq ri rbti)
     (setq robotviewer rbtvw)
-    (setq skip-interaction skip-p)
-    (setq move-robot mvrbt)
-    (setq use-torso utrso)
 
     ;; instances
     (setq gr
@@ -108,12 +101,12 @@
           (instance statenet-planner :init
                     :graph gr :solver slvr
                     :state-func
-                    (if skip-interaction
+                    (if skip-intr-p
                       #'(lambda (userdata) t)
                       `(send ,self :get-statenet-state-submachine)
                       )
                     :teach-func
-                    (if skip-interaction
+                    (if skip-intr-p
                       nil
                       `(send ,self :get-statenet-teach-submachine))
                     :robot rbt
