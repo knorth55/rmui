@@ -1,5 +1,6 @@
 #!/usr/bin/env roseus
 
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :pr2-scenes "package://rmuieus/euslisp/pr2/pr2-scenes.l")
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
@@ -40,10 +41,12 @@
 
 
 (defun start-grasp (&optional (arm :arms) &rest args &key (objects nil) (wait nil) (ri *ri*))
+  (setq args (remove-key-from-args args :ri))
   (send* ri :start-grasp arm :objects objects :wait wait args))
 
 
 (defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
+  (setq args (remove-key-from-args args :ri))
   (send* ri :stop-grasp arm :wait wait args))
 
 

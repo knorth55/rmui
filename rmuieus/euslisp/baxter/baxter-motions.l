@@ -1,5 +1,6 @@
 #!/usr/bin/env roseus
 
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :baxter-scenes "package://rmuieus/euslisp/baxter/baxter-scenes.l")
 (require :baxter-interface "package://baxtereus/baxter-interface.l")
@@ -32,24 +33,12 @@
 
 
 (defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
-  (if (find :ri args)
-    (let ((args-position (position :ri args)))
-      (setq args
-            (if (>= (+ args-position 2) (length args))
-             (subseq args 0 (position :ri args))
-             (append (subseq args 0 (position :ri args))
-                      (subseq args (+ (position :ri args) 2)))))))
+  (setq args (remove-key-from-args args :ri))
   (send* ri :start-grasp arm :wait wait args))
 
 
 (defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
-  (if (find :ri args)
-    (let ((args-position (position :ri args)))
-      (setq args
-            (if (>= (+ args-position 2) (length args))
-             (subseq args 0 (position :ri args))
-             (append (subseq args 0 (position :ri args))
-                      (subseq args (+ (position :ri args) 2)))))))
+  (setq args (remove-key-from-args args :ri))
   (send* ri :stop-grasp arm :wait wait args))
 
 

@@ -4,6 +4,7 @@
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 
 
 (defmethod state-machine
@@ -15,20 +16,18 @@
 
 
 (defun remove-key-from-action (action-sym key)
-  (let ((key-position (position key action-sym)))
-    (if key-position
-      (if (>= (length action-sym) (+ 2 key-position))
-        (setq action-sym (subseq action-sym 0 key-position))
-        (setq action-sym (append (subseq action-sym 0 key-position)
-                         (subseq action-sym (+ 2 key-position))))))
+  (if (cdr action-sym)
+    (append
+      (list (car action-sym))
+      (remove-key-from-args (cdr action-sym) key))
     action-sym))
 
 
 (defun override-key-value-in-action (action-sym key value)
-  (let ((key-position (position key action-sym)))
-    (if key-position
-      (setf (elt action-sym (+ 1 key-position)) value)
-      (setq action-sym (append action-sym (list key value))))
+  (if (cdr action-sym)
+    (append
+      (list (car action-sym))
+      (override-key-value-in-args (cdr action-sym) key value))
     action-sym))
 
 
