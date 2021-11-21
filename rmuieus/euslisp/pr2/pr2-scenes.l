@@ -12,7 +12,7 @@
 
 ;; functions
 
-(defun robot-scene-init (table-objects table-pos)
+(defun robot-scene-init (&key (table-objects) (table-pos))
   ;; robot-init
   (setq *pr2* (instance pr2-robot :init))
   (setq *robot* *pr2*)
