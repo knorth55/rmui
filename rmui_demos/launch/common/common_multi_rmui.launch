@@ -12,6 +12,7 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="pdf" default="true" />
   <arg name="box_type" default="ctb" />
 
   <arg name="marker" default="false" />
@@ -31,6 +32,7 @@
   <include file="$(find rmuieus)/launch/multi_rmui_planning.launch">
     <arg name="robot" value="$(arg robot)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="pdf" value="$(arg pdf)" />
     <arg name="box_type" value="$(arg box_type)" />
   </include>
 

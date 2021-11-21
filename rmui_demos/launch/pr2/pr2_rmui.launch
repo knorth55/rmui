@@ -15,6 +15,7 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="pdf" default="true" />
   <arg name="box_type" default="ctb" />
 
   <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
@@ -29,6 +30,7 @@
     <arg name="record" value="$(arg record)" />
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="pdf" value="$(arg pdf)" />
     <arg name="box_type" value="$(arg box_type)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
