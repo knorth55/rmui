@@ -38,8 +38,8 @@
 
 (defun add-node (sm name func node-type &optional (duration nil))
   (let ((node-func
-          (if (equal 'lambda-closure (car func))
-            func (eval func))))
+          (if (equal 'send (car func))
+            (eval func) func)))
     (if (null (send sm :node name))
       (let ((n (instance state :init name node-func)))
         (send n :put :node-type node-type)
