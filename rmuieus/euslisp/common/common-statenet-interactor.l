@@ -166,24 +166,14 @@
                (next-sm-action-syms
                  (mapcar
                    #'(lambda (next-sm-action)
-                      (mapcar
-                        #'(lambda (as)
-                            (if (and as (listp as))
-                              (progn
-                                (let ((move-robot-position (position :move-robot as)))
-                                  (if move-robot-position
-                                    (if (>= (length as) (+ 2 move-robot-position))
-                                      (setq as (subseq as 0 move-robot-position))
-                                      (setq as (append (subseq as 0 move-robot-position)
-                                                       (subseq as (+ 2 move-robot-position)))))))
-                                (let ((use-torso-position (position :use-torso as)))
-                                  (if use-torso-position
-                                    (if (>= (length as) (+ 2 use-torso-position))
-                                      (setq as (subseq as 0 use-torso-position))
-                                      (setq as (append (subseq as 0 use-torso-position)
-                                                       (subseq as (+ 2 use-torso-position)))))))
-                                as)
-                              as))
+                       (mapcar
+                         #'(lambda (as)
+                             (if (and as (listp as))
+                               (progn
+                                 (setq as (remove-key-from-action as :move-robot))
+                                 (setq as (remove-key-from-action as :use-torso))
+                                 as)
+                               as))
                         next-sm-action))
                    next-sm-actions)))
           (tagbody retry-ask-user-decision

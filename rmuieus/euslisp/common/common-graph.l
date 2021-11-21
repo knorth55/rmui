@@ -14,6 +14,24 @@
     (send-super :goal-state (append goal-state gs))))
 
 
+(defun remove-key-from-action (action-sym key)
+  (let ((key-position (position key action-sym)))
+    (if key-position
+      (if (>= (length action-sym) (+ 2 key-position))
+        (setq action-sym (subseq action-sym 0 key-position))
+        (setq action-sym (append (subseq action-sym 0 key-position)
+                         (subseq action-sym (+ 2 key-position))))))
+    action-sym))
+
+
+(defun override-key-value-in-action (action-sym key value)
+  (let ((key-position (position key action-sym)))
+    (if key-position
+      (setf (elt action-sym (+ 1 key-position)) value)
+      (setq action-sym (append action-sym (list key value))))
+    action-sym))
+
+
 (defun convert-string-to-sym (name)
   (remove '|n| (read-from-string name)))
 
@@ -244,31 +262,15 @@
                  (action-sym
                    (if cube-index
                      (let ((as (copy-seq (elt action-syms cube-index))))
-                       (let ((move-robot-position (position :move-robot as)))
-                         (if move-robot-position
-                           (if (>= (length as) (+ 2 move-robot-position))
-                             (setq as (subseq as 0 move-robot-position))
-                             (setq as (append (subseq as 0 move-robot-position)
-                                              (subseq as (+ 2 move-robot-position)))))))
-                       (let ((use-torso-position (position :use-torso as)))
-                         (if use-torso-position
-                           (if (>= (length as) (+ 2 use-torso-position))
-                             (setq as (subseq as 0 use-torso-position))
-                             (setq as (append (subseq as 0 use-torso-position)
-                                              (subseq as (+ 2 use-torso-position)))))))
+                       (setq as (remove-key-from-action as :move-robot))
+                       (setq as (remove-key-from-action as :use-torso))
                        as)
                      (copy-seq action-syms)))
                  (action-func-sym
                    (if cube-index
                      (let ((afs (copy-seq action-sym)))
-                       (let ((move-robot-position (position :move-robot afs)))
-                         (if move-robot-position
-                           (setf (elt afs (+ 1 move-robot-position)) move-robot)
-                           (setq afs (append afs (list :move-robot move-robot)))))
-                       (let ((use-torso-position (position :use-torso afs)))
-                         (if use-torso-position
-                           (setf (elt afs (+ 1 use-torso-position)) use-torso)
-                           (setq afs (append afs (list :use-torso use-torso)))))
+                       (setq afs (override-key-value-in-action afs :move-robot move-robot))
+                       (setq afs (override-key-value-in-action afs :use-torso use-torso))
                        afs)
                      (copy-seq action-sym)))
                  (action-func
@@ -340,31 +342,15 @@
              (action-sym
                (if cube-index
                  (let ((as (copy-seq (elt action-syms cube-index))))
-                   (let ((move-robot-position (position :move-robot as)))
-                     (if move-robot-position
-                       (if (>= (length as) (+ 2 move-robot-position))
-                         (setq as (subseq as 0 move-robot-position))
-                         (setq as (append (subseq as 0 move-robot-position)
-                                          (subseq as (+ 2 move-robot-position)))))))
-                   (let ((use-torso-position (position :use-torso as)))
-                     (if use-torso-position
-                       (if (>= (length as) (+ 2 use-torso-position))
-                         (setq as (subseq as 0 use-torso-position))
-                         (setq as (append (subseq as 0 use-torso-position)
-                                          (subseq as (+ 2 use-torso-position)))))))
+                   (setq as (remove-key-from-action as :move-robot))
+                   (setq as (remove-key-from-action as :use-torso))
                    as)
                  (copy-seq action-syms)))
              (action-func-sym
                (if cube-index
                  (let ((afs (copy-seq action-sym)))
-                   (let ((move-robot-position (position :move-robot afs)))
-                     (if move-robot-position
-                       (setf (elt afs (+ 1 move-robot-position)) move-robot)
-                       (setq afs (append afs (list :move-robot move-robot)))))
-                   (let ((use-torso-position (position :use-torso afs)))
-                     (if use-torso-position
-                       (setf (elt afs (+ 1 use-torso-position)) use-torso)
-                       (setq afs (append afs (list :use-torso use-torso)))))
+                   (setq afs (override-key-value-in-action afs :move-robot move-robot))
+                   (setq afs (override-key-value-in-action afs :use-torso use-torso))
                    afs)
                  (copy-seq action-sym)))
              (action-func
