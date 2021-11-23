@@ -6,7 +6,7 @@
 
 
 (defvar *table-z* -900)
-(defvar *box-pos-x* 600)
+(defvar *box-pos-x* 500)
 (defvar *contact-offset* (float-vector -150 0 50))
 
 

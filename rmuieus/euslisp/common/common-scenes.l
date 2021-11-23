@@ -77,7 +77,7 @@
   (let* ((wall-height 200)
          (wall-width 10)
          (left-wall-length 300)
-         (front-wall-length 800)
+         (front-wall-length 1000)
          (left-wall-pos
            (float-vector
              *box-pos-x*
