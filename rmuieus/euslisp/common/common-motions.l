@@ -491,9 +491,10 @@
           (ros::ros-error "larm target coords is invalid: ~A" larm-target-coords)
           (ros::ros-error "rarm target coords is invalid: ~A" rarm-target-coords)
           (return-from push-motion-step nil))
-        (setq av (solve-ik-rotation-relax
-                   :arms (list larm-target-coords rarm-target-coords)
-                   :use-torso use-torso :robot robot)))
+        (setq av
+              (solve-ik-rotation-relax
+                :arms (list larm-target-coords rarm-target-coords)
+                :use-torso use-torso :robot robot)))
       (let ((target-coords
               (get-push-target-coords
                 arm :motion-type motion-type
@@ -510,9 +511,10 @@
                 :cube cube)))
         (unless target-coords
           (return-from push-motion-step nil))
-        (setq av (solve-ik-rotation-relax
-                   arm target-coords
-                   :use-torso use-torso :robot robot))))
+        (setq av
+              (solve-ik-rotation-relax
+                arm target-coords
+                :use-torso use-torso :robot robot))))
     (when (and av move-robot)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
@@ -638,13 +640,15 @@
     (if (eq arm :arms)
       (let ((larm-target-coords (get-push-release-target-coords :larm :robot robot))
             (rarm-target-coords (get-push-release-target-coords :rarm :robot robot)))
-        (setq av (solve-ik-rotation-relax
-                   :arms (list larm-target-coords rarm-target-coords)
-                   :use-torso use-torso :robot robot)))
+        (setq av
+              (solve-ik-rotation-relax
+                :arms (list larm-target-coords rarm-target-coords)
+                :use-torso use-torso :robot robot)))
       (let ((target-coords (get-push-release-target-coords arm :robot robot)))
-        (setq av (solve-ik-rotation-relax
-                   arm target-coords
-                   :use-torso use-torso :robot robot))))
+        (setq av
+              (solve-ik-rotation-relax
+                arm target-coords
+                :use-torso use-torso :robot robot))))
     (when (and av move-robot)
       (send ri :angle-vector (send robot :angle-vector) tm nil 0)
       (send ri :wait-interpolation))
@@ -754,9 +758,10 @@
     (send cube :translate cube-move-vector :world)
     (setq target-coords
           (send (get-contact-cube-coords arm :cube cube) :copy-worldcoords))
-    (setq av (solve-ik-rotation-relax
-               arm target-coords
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            arm target-coords
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -850,9 +855,10 @@
             ((equal arm :arms)
              (send-all (get-contact-cube-coords arm :cube cube) :copy-worldcoords))
             (t (send (get-contact-cube-coords arm :cube cube) :copy-worldcoords))))
-    (setq av (solve-ik-rotation-relax
-               arm target-coords
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            arm target-coords
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -895,9 +901,10 @@
             ((equal arm :arms)
              (send-all (get-contact-cube-coords arm :cube cube) :copy-worldcoords))
             (t (send (get-contact-cube-coords arm :cube cube) :copy-worldcoords))))
-    (setq av (solve-ik-rotation-relax
-               arm target-coords
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            arm target-coords
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -1042,9 +1049,10 @@
           (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
     (setq rarm-target-coords
           (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-    (setq av (solve-ik-rotation-relax
-               :arms (list larm-target-coords rarm-target-coords)
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            :arms (list larm-target-coords rarm-target-coords)
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -1087,9 +1095,10 @@
           (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
     (setq rarm-target-coords
           (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-    (setq av (solve-ik-rotation-relax
-               :arms (list larm-target-coords rarm-target-coords)
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            :arms (list larm-target-coords rarm-target-coords)
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -1129,9 +1138,10 @@
           (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
     (setq rarm-target-coords
           (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-    (setq av (solve-ik-rotation-relax
-               :arms (list larm-target-coords rarm-target-coords)
-               :use-torso use-torso :robot robot))
+    (setq av
+          (solve-ik-rotation-relax
+            :arms (list larm-target-coords rarm-target-coords)
+            :use-torso use-torso :robot robot))
     (if av
       (when move-robot
         (send ri :angle-vector (send robot :angle-vector) tm nil 0)
@@ -1303,9 +1313,10 @@
               (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
         (setq rarm-target-coords
               (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-        (setq av (solve-ik-rotation-relax
-                   :arms (list larm-target-coords rarm-target-coords)
-                   :use-torso use-torso :robot robot))
+        (setq av
+              (solve-ik-rotation-relax
+                :arms (list larm-target-coords rarm-target-coords)
+                :use-torso use-torso :robot robot))
         (send vw :draw-objects)
         (if av
           (progn
@@ -1330,9 +1341,10 @@
             (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
       (setq rarm-target-coords
             (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-      (setq av (solve-ik-rotation-relax
-                 :arms (list larm-target-coords rarm-target-coords)
-                 :use-torso use-torso :robot robot))
+      (setq av 
+            (solve-ik-rotation-relax
+              :arms (list larm-target-coords rarm-target-coords)
+              :use-torso use-torso :robot robot))
       (send vw :draw-objects)
       (when av
         (setq rotate-avs (append rotate-avs (list av)))
