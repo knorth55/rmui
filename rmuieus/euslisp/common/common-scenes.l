@@ -61,11 +61,42 @@
 (defun table-scene-init (table-pos-y)
   (defvar *table-id* "room73b2-askul-1200x700-desk-0")
   (defvar *table* (room73b2-askul-1200x700-desk-0))
-  (defvar *table-pos* (float-vector (+ *box-pos-x* 100) table-pos-y *table-z*))
+  (defvar *table-pos*
+    (float-vector (+ *box-pos-x* 100) table-pos-y *table-z*))
   (send *table* :reset-coords)
   (send *table* :worldcoords)
   (send *table* :newcoords (make-coords :pos *table-pos*))
   (send *table* :worldcoords))
+
+
+(defun wall-scene-init ()
+  (let* ((wall-height 200)
+         (wall-width 10)
+         (left-wall-length 300)
+         (front-wall-length 1000)
+         (left-wall-pos
+           (float-vector
+             (+ *box-pos-x* (/ left-wall-length 2.0))
+             (+ (/ front-wall-length 2.0) (/ wall-width 2.0))
+             (+ *table-z* *table-height* (/ wall-height 2.0))
+             ))
+         (front-wall-pos
+           (float-vector
+             (+ *box-pos-x* left-wall-length) 0
+             (+ *table-z* *table-height* (/ wall-height 2.0))))
+         )
+    (defvar *left-wall*
+      (make-cube left-wall-length wall-width wall-height))
+    (defvar *front-wall*
+      (make-cube wall-width front-wall-length wall-height))
+    (send *left-wall* :reset-coords)
+    (send *left-wall* :worldcoords)
+    (send *left-wall* :newcoords (make-coords :pos left-wall-pos))
+    (send *left-wall* :worldcoords)
+    (send *front-wall* :reset-coords)
+    (send *front-wall* :worldcoords)
+    (send *front-wall* :newcoords (make-coords :pos front-wall-pos))
+    (send *front-wall* :worldcoords)))
 
 
 (defun pilot-device-scene-init (&optional (n-device 1))
@@ -102,6 +133,43 @@
   (send *pilot-table* :worldcoords)
   (send *pilot-table* :newcoords (make-coords :pos *pilot-table-pos*))
   (send *pilot-table* :worldcoords))
+
+
+(defun pilot-wall-scene-init ()
+  (let* ((wall-height 200)
+         (wall-width 10)
+         (left-wall-length 300)
+         (front-wall-length 1000)
+         (left-wall-pos
+           (float-vector
+             (+ *pilot-device-pos-x*
+                (/ left-wall-length 2.0))
+             (+ (/ front-wall-length 2.0)
+                (/ wall-width 2.0))
+             (+ *pilot-table-z*
+                *pilot-table-height*
+                (/ wall-height 2.0))
+             ))
+         (front-wall-pos
+           (float-vector
+             (+ *pilot-device-pos-x*
+                left-wall-length)
+             0
+             (+ *pilot-table-z*
+                *pilot-table-height*
+                (/ wall-height 2.0)))))
+    (defvar *pilot-left-wall*
+      (make-cube left-wall-length wall-width wall-height))
+    (defvar *pilot-front-wall*
+      (make-cube wall-width front-wall-length wall-height))
+    (send *pilot-left-wall* :reset-coords)
+    (send *pilot-left-wall* :worldcoords)
+    (send *pilot-left-wall* :newcoords (make-coords :pos left-wall-pos))
+    (send *pilot-left-wall* :worldcoords)
+    (send *pilot-front-wall* :reset-coords)
+    (send *pilot-front-wall* :worldcoords)
+    (send *pilot-front-wall* :newcoords (make-coords :pos front-wall-pos))
+    (send *pilot-front-wall* :worldcoords)))
 
 
 (defun pilot-robot-scene-init-base (&key (table-pos)
@@ -161,23 +229,35 @@
             :relative-pose (make-coords :pos table-pos)))))
 
 
-(defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb))
+(defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
+                        (wall-p t))
   (table-scene-init table-pos-y)
   (box-scene-init n-box box-types)
-  (robot-scene-init :table-objects (append *boxes* (list *table*))
-                    :table-pos *table-pos*)
+  (if wall-p (wall-scene-init))
+  (robot-scene-init
+    :table-pos *table-pos*
+    :table-objects
+    (append *boxes*
+            (list *table* *left-wall* *front-wall*)))
   ;: viewer-init
   (make-irtviewer :title "Robot Viewer")
-  (objects (append *boxes* (list *robot* *table*)) *irtviewer*))
+  (objects (append *boxes*
+                   (list *robot* *table*
+                         *left-wall* *front-wall*))
+           *irtviewer*))
 
 
-(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1))
+(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1) (wall-p t))
   (pilot-table-scene-init table-pos-y)
   (pilot-device-scene-init n-device)
+  (if wall-p (pilot-wall-scene-init))
   (pilot-robot-scene-init :table-pos *table-pos*)
   ;: viewer-init
   (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
-  (objects (append *pilot-devices* (list *pilot* *pilot-table*)) *pilotviewer*))
+  (objects (append *pilot-devices*
+                   (list *pilot* *pilot-table*
+                         *pilot-left-wall* *pilot-front-wall*))
+           *pilotviewer*))
 
 
 (provide :common-scenes "common-scenes.l")
