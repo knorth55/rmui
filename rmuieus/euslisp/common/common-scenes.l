@@ -61,6 +61,7 @@
 (defun table-scene-init (table-pos-y)
   (defvar *table-id* "room73b2-askul-1200x700-desk-0")
   (defvar *table* (room73b2-askul-1200x700-desk-0))
+  (defvar *table-height* 700)
   (defvar *table-pos*
     (float-vector (+ *box-pos-x* 100) table-pos-y *table-z*))
   (send *table* :reset-coords)
@@ -127,6 +128,7 @@
 (defun pilot-table-scene-init (table-pos-y)
   (defvar *pilot-table-id* "room73b2-askul-1200x700-desk-0")
   (defvar *pilot-table* (room73b2-askul-1200x700-desk-0))
+  (defvar *pilot-table-height* 700)
   (defvar *pilot-table-pos*
     (float-vector (+ *pilot-device-pos-x* 100) (* -1 table-pos-y) *pilot-table-z*))
   (send *pilot-table* :reset-coords)

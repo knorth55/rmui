@@ -5,7 +5,6 @@
 
 
 (defvar *pilot-table-z* 0)
-(defvar *pilot-table-height* 700)
 (defvar *pilot-device-pos-x* 550)
 (defvar *pilot-contact-offset* (float-vector 30 0 20))
 
