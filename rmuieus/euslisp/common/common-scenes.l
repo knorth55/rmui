@@ -77,18 +77,19 @@
   (let* ((wall-height 200)
          (wall-width 10)
          (left-wall-length 300)
-         (front-wall-length 1000)
+         (front-wall-length 800)
          (left-wall-pos
            (float-vector
-             (+ *box-pos-x* (/ left-wall-length 2.0))
+             *box-pos-x*
              (+ (/ front-wall-length 2.0) (/ wall-width 2.0))
              (+ *table-z* *table-height* (/ wall-height 2.0))
              ))
          (front-wall-pos
            (float-vector
-             (+ *box-pos-x* left-wall-length) 0
-             (+ *table-z* *table-height* (/ wall-height 2.0))))
-         )
+             (+ *box-pos-x*
+                (/ left-wall-length 2.0))
+             0
+             (+ *table-z* *table-height* (/ wall-height 2.0)))))
     (defvar *left-wall*
       (make-cube left-wall-length wall-width wall-height))
     (defvar *front-wall*
@@ -149,25 +150,20 @@
   (let* ((wall-height 200)
          (wall-width 10)
          (left-wall-length 300)
-         (front-wall-length 1000)
+         (front-wall-length 800)
          (left-wall-pos
            (float-vector
-             (+ *pilot-device-pos-x*
-                (/ left-wall-length 2.0))
-             (+ (/ front-wall-length 2.0)
-                (/ wall-width 2.0))
-             (+ *pilot-table-z*
-                *pilot-table-height*
-                (/ wall-height 2.0))
+             *pilot-device-pos-x*
+             (+ (/ front-wall-length 2.0) (/ wall-width 2.0))
+             (+ *pilot-table-z* *pilot-table-height* (/ wall-height 2.0))
              ))
          (front-wall-pos
            (float-vector
              (+ *pilot-device-pos-x*
-                left-wall-length)
+                (/ left-wall-length 2.0))
              0
-             (+ *pilot-table-z*
-                *pilot-table-height*
-                (/ wall-height 2.0)))))
+             (+ *pilot-table-z* *pilot-table-height* (/ wall-height 2.0))))
+         )
     (defvar *pilot-left-wall*
       (make-cube left-wall-length wall-width wall-height))
     (defvar *pilot-front-wall*

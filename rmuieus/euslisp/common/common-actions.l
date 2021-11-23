@@ -318,6 +318,23 @@
   t)
 
 
+(defun dualarm-front-wall-push-release-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                     &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
+  (apply #'hold-move-motion
+         (append
+           (list
+             :cube-pos-x
+             (elt (send cube :get :initial-pos) 0)
+             :cube-pos-y
+             (elt (send cube :worldpos) 1)
+             :cube-pos-z
+             (elt (send cube :worldpos) 2))
+           args))
+  (dissoc-cube :larm :ri ri :cube cube)
+  t)
+
+
 ;; larm actions
 
 (defun larm-left-push-action (&rest args)

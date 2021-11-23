@@ -270,6 +270,13 @@
                      (equal larm-motion-symbol :front-wall-push-next-to)
                      (equal rarm-motion-symbol :front-wall-push-next-to))
                 :front-contact)
+               ((and (equal prev-larm-contact-state :left-contact)
+                     (equal prev-rarm-contact-state :right-contact)
+                     (equal prev-front-wall-contact-state :front-contact)
+                     (equal prev-left-wall-contact-state :released)
+                     (equal larm-motion-symbol :front-wall-push-release)
+                     (equal rarm-motion-symbol :front-wall-push-release))
+                :released)
                (t prev-front-wall-contact-state)))
            )
       (cond
