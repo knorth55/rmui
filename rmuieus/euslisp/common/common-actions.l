@@ -493,24 +493,6 @@
   t)
 
 
-(defun larm-left-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                 (wall-left-limit *wall-left-limit*)
-                                                 &allow-other-keys)
-  (assoc-cube :larm :ri ri :cube cube)
-  (apply #'push-left-wall-next-to-motion (append (list :larm) args))
-  (dissoc-cube :larm :ri ri :cube cube)
-  t)
-
-
-(defun larm-front-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                  (wall-front-limit *wall-front-limit*)
-                                                  &allow-other-keys)
-  (assoc-cube :larm :ri ri :cube cube)
-  (apply #'push-front-wall-next-to-motion (append (list :larm) args))
-  (dissoc-cube :larm :ri ri :cube cube)
-  t)
-
-
 ;; rarm actions
 
 (defun rarm-right-push-action (&rest args)
@@ -682,6 +664,24 @@
            (list :rarm
                  :push-axis :x)
            args))
+  (dissoc-cube :rarm :ri ri :cube cube)
+  t)
+
+
+(defun rarm-left-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                 (wall-left-limit *wall-left-limit*)
+                                                 &allow-other-keys)
+  (assoc-cube :rarm :ri ri :cube cube)
+  (apply #'push-left-wall-next-to-motion (append (list :rarm) args))
+  (dissoc-cube :rarm :ri ri :cube cube)
+  t)
+
+
+(defun rarm-front-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                  (wall-front-limit *wall-front-limit*)
+                                                  &allow-other-keys)
+  (assoc-cube :rarm :ri ri :cube cube)
+  (apply #'push-front-wall-next-to-motion (append (list :rarm) args))
   (dissoc-cube :rarm :ri ri :cube cube)
   t)
 

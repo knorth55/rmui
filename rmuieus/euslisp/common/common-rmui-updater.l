@@ -227,6 +227,10 @@
              (copy-seq (cadr (assoc :object-rotation-state prev-scene-state))))
            (prev-cube-contact-state
              (copy-seq (cadr (assoc :cube-contact-state prev-scene-state))))
+           (prev-left-wall-contact-state
+             (cadr (assoc :left-wall-contact-state prev-scene-state)))
+           (prev-front-wall-contact-state
+             (cadr (assoc :front-wall-contact-state prev-scene-state)))
            (prev-object-x-rotation-symbol (car prev-object-rotation-state))
            (prev-object-y-rotation-symbol (cadr prev-object-rotation-state))
            (prev-object-z-rotation-symbol (caddr prev-object-rotation-state))
@@ -247,7 +251,27 @@
            (object-rotation-state
              (eval (append '(cond) object-rotation-state-conditions
                            '((t prev-object-rotation-state)))))
-           (cube-contact-state prev-cube-contact-state))
+           (cube-contact-state prev-cube-contact-state)
+           (left-wall-contact-state
+             (cond 
+               ((and (equal prev-larm-contact-state :released)
+                     (equal prev-rarm-contact-state :right-contact)
+                     (equal prev-left-wall-contact-state :released)
+                     (equal prev-front-wall-contact-state :front-contact)
+                     (equal rarm-motion-symbol :left-wall-push-next-to))
+                :left-contact)
+               (t prev-left-wall-contact-state)))
+           (front-wall-contact-state
+             (cond 
+               ((and (equal prev-larm-contact-state :left-contact)
+                     (equal prev-rarm-contact-state :right-contact)
+                     (equal prev-front-wall-contact-state :released)
+                     (equal prev-left-wall-contact-state :released)
+                     (equal larm-motion-symbol :front-wall-push-next-to)
+                     (equal rarm-motion-symbol :front-wall-push-next-to))
+                :front-contact)
+               (t prev-front-wall-contact-state)))
+           )
       (cond
         ;; pile up
         ((and (not (find :bottom-contact prev-cube-contact-state))
@@ -301,7 +325,9 @@
             (list :floor-contact-state floor-contact-state)
             (list :object-location-state object-location-state)
             (list :object-rotation-state object-rotation-state)
-            (list :cube-contact-state cube-contact-state))))
+            (list :cube-contact-state cube-contact-state)
+            (list :left-wall-contact-state left-wall-contact-state)
+            (list :front-wall-contact-state front-wall-contact-state))))
   (:dump-files ()
     (if (null dump-dir) (setq dump-dir (create-dump-dir data-dir)))
     (dump-scene-states scene-states-list :data-dir data-dir)

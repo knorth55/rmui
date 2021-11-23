@@ -226,6 +226,10 @@
              (cadr (assoc :object-rotation-state scene-state)))
            (cube-contact-state
              (cadr (assoc :cube-contact-state scene-state)))
+           (left-wall-contact-state
+             (cadr (assoc :left-wall-contact-state scene-state)))
+           (front-wall-contact-state
+             (cadr (assoc :front-wall-contact-state scene-state)))
            (contact-surface (mapcar #'car contact-position))
            (bottom-contact-position
              (remove-if #'null

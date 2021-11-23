@@ -4,6 +4,9 @@
            (equal floor-contact-state :bottom-left-side-contact)
            (equal floor-contact-state :bottom-right-side-contact)
            (find :bottom-contact cube-contact-state))
+       (equal left-wall-contact-state :released)
+       ;; TODO: ?????
+       (equal front-wall-contact-state :released)
        (null (find :left-contact cube-contact-state))
        (find :left contact-surface)
        (find :bottom contact-surface))
