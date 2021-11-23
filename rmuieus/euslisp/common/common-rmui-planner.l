@@ -125,7 +125,11 @@
                  (floor-contact-state
                    (cadr (assoc :floor-contact-state scene-state)))
                  (cube-contact-state
-                   (cadr (assoc :cube-contact-state scene-state))))
+                   (cadr (assoc :cube-contact-state scene-state)))
+                 (left-wall-contact-state
+                   (cadr (assoc :left-wall-contact-state scene-state)))
+                 (front-wall-contact-state
+                   (cadr (assoc :front-wall-contact-state scene-state))))
             (cond
               ;; pile-up
               ((and push-hold-down-index
@@ -165,6 +169,7 @@
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact))
+                    ;; (equal right-wall-contact-state :released)
                     (find :right contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols left-push-index)) nil)
@@ -178,6 +183,7 @@
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact))
+                    (equal front-wall-contact-state :released)
                     (find :front contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols back-push-index)) nil)
@@ -191,6 +197,7 @@
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact))
+                    (equal left-wall-contact-state :released)
                     (find :left contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols right-push-index))
@@ -204,6 +211,7 @@
                     (or (equal floor-contact-state :bottom-contact)
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact))
+                    ;; (equal back-wall-contact-state :released)
                     (find :back contact-surface)
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols front-push-index))
