@@ -309,7 +309,7 @@
   t)
 
 
-(defun dualarm-push-front-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+(defun dualarm-front-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                                      (wall-front-limit *wall-front-limit*)
                                                      &allow-other-keys)
   (assoc-cube :larm :ri ri :cube cube)
@@ -493,7 +493,7 @@
   t)
 
 
-(defun larm-push-left-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+(defun larm-left-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                                  (wall-left-limit *wall-left-limit*)
                                                  &allow-other-keys)
   (assoc-cube :larm :ri ri :cube cube)
@@ -502,7 +502,7 @@
   t)
 
 
-(defun larm-push-front-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+(defun larm-front-wall-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                                   (wall-front-limit *wall-front-limit*)
                                                   &allow-other-keys)
   (assoc-cube :larm :ri ri :cube cube)
