@@ -17,7 +17,10 @@
                         (list :floor-contact-state :bottom-contact)
                         (list :object-location-state :center)
                         (list :object-rotation-state (list :x0 :y0 :z0))
-                        (list :cube-contact-state cube-contact-state))))))
+                        (list :cube-contact-state cube-contact-state)
+                        (list :left-wall-contact-state :released)
+                        (list :front-wall-contact-state :released)
+                        )))))
     scene-states))
 
 
