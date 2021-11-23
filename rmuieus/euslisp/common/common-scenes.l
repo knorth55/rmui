@@ -97,7 +97,12 @@
     (send *front-wall* :reset-coords)
     (send *front-wall* :worldcoords)
     (send *front-wall* :newcoords (make-coords :pos front-wall-pos))
-    (send *front-wall* :worldcoords)))
+    (send *front-wall* :worldcoords)
+    (defvar *wall-front-limit*
+      (- (elt front-wall-pos 0) (/ wall-width 2.0)))
+    (defvar *wall-left-limit*
+      (- (elt left-wall-pos 1) (/ wall-width 2.0)))
+    ))
 
 
 (defun pilot-device-scene-init (&optional (n-device 1))
@@ -171,7 +176,12 @@
     (send *pilot-front-wall* :reset-coords)
     (send *pilot-front-wall* :worldcoords)
     (send *pilot-front-wall* :newcoords (make-coords :pos front-wall-pos))
-    (send *pilot-front-wall* :worldcoords)))
+    (send *pilot-front-wall* :worldcoords)
+    (defvar *pilot-wall-front-limit*
+      (- (elt front-wall-pos 0) (/ wall-width 2.0)))
+    (defvar *pilot-wall-left-limit*
+      (- (elt left-wall-pos 1) (/ wall-width 2.0)))
+    ))
 
 
 (defun pilot-robot-scene-init-base (&key (table-pos)
