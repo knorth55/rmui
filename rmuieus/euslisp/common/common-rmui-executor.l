@@ -25,11 +25,15 @@
           robotviewer
           table-z
           table-height
+          wall-front-limit
+          wall-left-limit
           pilot
           pilot-devices
           pilotviewer
           pilot-table-z
           pilot-table-height
+          pilot-wall-front-limit
+          pilot-wall-left-limit
           use-torso
           move-robot
           )
@@ -45,11 +49,15 @@
                ((:robotviewer rbtvw))
                ((:table-z tblz))
                ((:table-height tblh))
+               ((:wall-front-limit wfl))
+               ((:wall-left-limit wll))
                ((:pilot plt))
                ((:pilot-devices pltdevs))
                ((:pilotviewer pltvw))
                ((:pilot-table-z plttblz))
                ((:pilot-table-height plttblh))
+               ((:pilot-wall-front-limit pwfl))
+               ((:pilot-wall-left-limit pwll))
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
     (setq namespace (if ns ns ""))
@@ -72,11 +80,15 @@
     (setq robotviewer rbtvw)
     (setq table-z tblz)
     (setq table-height tblh)
+    (setq wall-front-limit wfl)
+    (setq wall-left-limit wll)
     (setq pilot plt)
     (setq pilot-devices pltdevs)
     (setq pilotviewer pltvw)
     (setq pilot-table-z plttblz)
     (setq pilot-table-height plttblh)
+    (setq pilot-wall-front-limit pwfl)
+    (setq pilot-wall-left-limit pwll)
     (setq use-torso utrso)
     (setq move-robot mvrbt)
     self)
@@ -227,7 +239,10 @@
                       :cubes pilot-devices
                       :vw pilotviewer
                       :table-z pilot-table-z
-                      :table-height pilot-table-height)))
+                      :table-height pilot-table-height
+                      :wall-front-limit pilot-wall-front-limit
+                      :wall-left-limit pilot-wall-left-limit
+                      )))
             (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
             (setq executed
@@ -241,7 +256,10 @@
                             :cubes boxes
                             :vw robotviewer
                             :table-z table-z
-                            :table-height table-height))))
+                            :table-height table-height
+                            :wall-front-limit wall-front-limit
+                            :wall-left-limit wall-left-limit
+                            ))))
             (if robotviewer (send robotviewer :draw-objects))
             (if executed
               (progn

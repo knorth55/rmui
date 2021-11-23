@@ -45,11 +45,15 @@
                ((:robotviewer rbtvw) *irtviewer*)
                ((:table-z tblz) *table-z*)
                ((:table-height tblh) *table-height*)
+               ((:wall-front-limit wfl) *wall-front-limit*)
+               ((:wall-left-limit wll) *wall-left-limit*)
                ((:pilot plt) *pilot*)
                ((:pilot-devices pltdevs) *pilot-devices*)
                ((:pilotviewer pltvw) *pilotviewer*)
                ((:pilot-table-z plttblz) *pilot-table-z*)
                ((:pilot-table-height plttblh) *pilot-table-height*)
+               ((:pilot-wall-front-limit pwfl) *pilot-wall-front-limit*)
+               ((:pilot-wall-left-limit pwll) *pilot-wall-left-limit*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
     (let ((topic-namespace))
@@ -76,23 +80,28 @@
                                         :device-world-frame-id device-world-frame-id))))))
       (setq planner (instance rmui-planner :init
                               :namespace topic-namespace))
-      (setq executor (instance rmui-executor :init
-                               :namespace topic-namespace
-                               :motion-symbol-length msym-length
-                               :robot rbt
-                               :ri rbti
-                               :boxes bxs
-                               :robotviewer rbtvw
-                               :table-z tblz
-                               :table-height tblh
-                               :pilot plt
-                               :pilot-devices pltdevs
-                               :pilotviewer pltvw
-                               :pilot-table-z plttblz
-                               :pilot-table-height plttblh
-                               :use-torso utrso
-                               :move-robot mvrbt
-                               ))
+      (setq executor
+            (instance rmui-executor :init
+                      :namespace topic-namespace
+                      :motion-symbol-length msym-length
+                      :robot rbt
+                      :ri rbti
+                      :boxes bxs
+                      :robotviewer rbtvw
+                      :table-z tblz
+                      :table-height tblh
+                      :wall-front-limit wfl
+                      :wall-left-limit wll
+                      :pilot plt
+                      :pilot-devices pltdevs
+                      :pilotviewer pltvw
+                      :pilot-table-z plttblz
+                      :pilot-table-height plttblh
+                      :pilot-wall-front-limit pwfl
+                      :pilot-wall-left-limit pwll
+                      :use-torso utrso
+                      :move-robot mvrbt
+                      ))
       (setq updater (instance rmui-updater :init
                               :namespace topic-namespace
                               :boxes bxs))
