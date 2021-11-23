@@ -309,6 +309,15 @@
   t)
 
 
+(defun dualarm-push-front-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                     (wall-front-limit *wall-front-limit*)
+                                                     &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
+  (apply #'push-front-wall-next-to-motion (append (list :arms) args))
+  (dissoc-cube :larm :ri ri :cube cube)
+  t)
+
+
 ;; larm actions
 
 (defun larm-left-push-action (&rest args)
@@ -480,6 +489,24 @@
            (list :larm
                  :push-axis :x)
            args))
+  (dissoc-cube :larm :ri ri :cube cube)
+  t)
+
+
+(defun larm-push-left-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                 (wall-left-limit *wall-left-limit*)
+                                                 &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
+  (apply #'push-left-wall-next-to-motion (append (list :larm) args))
+  (dissoc-cube :larm :ri ri :cube cube)
+  t)
+
+
+(defun larm-push-front-wall-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
+                                                  (wall-front-limit *wall-front-limit*)
+                                                  &allow-other-keys)
+  (assoc-cube :larm :ri ri :cube cube)
+  (apply #'push-front-wall-next-to-motion (append (list :larm) args))
   (dissoc-cube :larm :ri ri :cube cube)
   t)
 

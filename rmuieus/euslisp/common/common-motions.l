@@ -16,6 +16,9 @@
 (defun get-contact-coords (arm &key (robot *robot*))
   (cond ((eq arm :larm) (send robot :get :larm-contact-coords))
         ((eq arm :rarm) (send robot :get :rarm-contact-coords))
+        ((eq arm :arms)
+         (list (get-contact-coords :larm :robot robot)
+               (get-contact-coords :rarm :robot robot)))
         (t nil)))
 
 
@@ -253,6 +256,9 @@
 (defun get-contact-cube-coords (arm &key (cube *box0*))
   (cond ((eq arm :larm) (send cube :get :larm-contact-coords))
         ((eq arm :rarm) (send cube :get :rarm-contact-coords))
+        ((eq arm :arms)
+         (list (get-contact-cube-coords :larm :cube cube)
+               (get-contact-cube-coords :rarm :cube cube)))
         (t nil)))
 
 
@@ -813,6 +819,95 @@
           :move-distance move-distance
           :move-robot move-robot :tm tm :use-torso use-torso
           :robot robot :ri ri :cube cube :vw vw)))))
+
+
+(defun push-left-wall-next-to-motion
+  (arm &rest args
+       &key (wall-left-limit *wall-left-limit*)
+            (move-robot t)
+            (tm 3000)
+            (use-torso 0.001)
+            (robot *robot*)
+            (ri *ri*)
+            (cube *box0*)
+            (vw *irtviewer*)
+            &allow-other-keys)
+  (let* ((av)
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords))
+         (cube-pos (send prev-cube-coords :worldpos))
+         (cube-width (get-cube-width :cube cube))
+         (cube-move-vector
+           (float-vector 0
+                         (- wall-left-limit
+                            (elt cube-pos 1)
+                            (/ cube-width 2.0))
+                         0))
+         (target-coords nil))
+    (send cube :translate cube-move-vector :world)
+    (setq target-coords
+          (cond
+            ((equal arm :arms)
+             (send-all (get-contact-cube-coords arm :cube cube) :copy-worldcoords))
+            (t (send (get-contact-cube-coords arm :cube cube) :copy-worldcoords))))
+    (setq av (solve-ik-rotation-relax
+               arm target-coords
+               :use-torso use-torso :robot robot))
+    (if av
+      (when move-robot
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (send vw :draw-objects)
+    (when av (list (list av) (list tm)))))
+
+
+(defun push-front-wall-next-to-motion
+  (arm &rest args
+       &key (wall-front-limit *wall-front-limit*)
+            (move-robot t)
+            (tm 3000)
+            (use-torso 0.001)
+            (robot *robot*)
+            (ri *ri*)
+            (cube *box0*)
+            (vw *irtviewer*)
+            &allow-other-keys)
+  (let* ((av)
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords))
+         (cube-pos (send prev-cube-coords :worldpos))
+         (cube-depth (get-cube-depth :cube cube))
+         (cube-move-vector
+           (float-vector
+             (- wall-front-limit
+                (elt cube-pos 0)
+                (/ cube-depth 2.0))
+             0
+             0))
+         (target-coords nil))
+    (send cube :translate cube-move-vector :world)
+    (setq target-coords
+          (cond
+            ((equal arm :arms)
+             (send-all (get-contact-cube-coords arm :cube cube) :copy-worldcoords))
+            (t (send (get-contact-cube-coords arm :cube cube) :copy-worldcoords))))
+    (setq av (solve-ik-rotation-relax
+               arm target-coords
+               :use-torso use-torso :robot robot))
+    (if av
+      (when move-robot
+        (send ri :angle-vector (send robot :angle-vector) tm nil 0)
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (send vw :draw-objects)
+    (when av (list (list av) (list tm)))))
 
 
 ;; support hold motion
