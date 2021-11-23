@@ -253,7 +253,7 @@
                            '((t prev-object-rotation-state)))))
            (cube-contact-state prev-cube-contact-state)
            (left-wall-contact-state
-             (cond 
+             (cond
                ((and (equal prev-larm-contact-state :released)
                      (equal prev-rarm-contact-state :right-contact)
                      (equal prev-left-wall-contact-state :released)
@@ -262,7 +262,7 @@
                 :left-contact)
                (t prev-left-wall-contact-state)))
            (front-wall-contact-state
-             (cond 
+             (cond
                ((and (equal prev-larm-contact-state :left-contact)
                      (equal prev-rarm-contact-state :right-contact)
                      (equal prev-front-wall-contact-state :released)

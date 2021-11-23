@@ -1341,7 +1341,7 @@
             (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
       (setq rarm-target-coords
             (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-      (setq av 
+      (setq av
             (solve-ik-rotation-relax
               :arms (list larm-target-coords rarm-target-coords)
               :use-torso use-torso :robot robot))
