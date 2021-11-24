@@ -241,6 +241,8 @@
         (make-cascoords :name :rarm-contact-coords
                         :parent (send (send *ri* :robot) :link rarm-ee-frame-id)
                         :coords rarm-contact-coords))
+
+  (send *robot* :put :base-frame-id base-frame-id)
   (if (send *ri* :simulation-modep)
     (progn
       (send (get (geo:find-viewer (send *robot* :name)) :pickviewer)
