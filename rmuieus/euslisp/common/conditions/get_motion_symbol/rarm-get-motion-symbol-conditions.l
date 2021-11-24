@@ -95,6 +95,7 @@
        (or (equal floor-contact-state :bottom-contact)
            (equal floor-contact-state :bottom-left-side-contact)
            (equal floor-contact-state :bottom-right-side-contact))
+       (not (find :left-contact cube-contact-state))
        (equal front-wall-contact-state :front-contact)
        (equal left-wall-contact-state :released)
        (find :front contact-surface)
