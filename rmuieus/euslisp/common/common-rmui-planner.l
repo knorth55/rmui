@@ -104,6 +104,10 @@
           (if (and (equal larm-contact-state :back-contact)
                    (equal rarm-motion-symbol :front-push))
             (setq front-push-index i))
+          ;; TODO: priority ?
+          (if (and (equal larm-motion-symbol :left-push)
+                   (equal rarm-motion-symbol :left-wall-push-next-to))
+            (setq larm-motion-symbol nil))
           (setq motion-symbols
                 (append motion-symbols
                         (list (list larm-motion-symbol rarm-motion-symbol))))))
