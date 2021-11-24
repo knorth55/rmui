@@ -11,7 +11,9 @@
                          (vw *irtviewer*))
   (dolist (cube cubes)
     (add-cube-coords :cube cube)
-    (add-cube-collision-object :cube cube :robot robot :ri ri))
+    ;; TODO: support cube collision avoidance
+    ; (add-cube-collision-object :cube cube :robot robot :ri ri)
+    )
   (reset-motion :robot robot :ri ri :move-robot move-robot :vw vw))
 
 
