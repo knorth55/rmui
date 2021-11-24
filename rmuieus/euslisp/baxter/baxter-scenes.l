@@ -27,8 +27,8 @@
     (send rarm-contact-coords :rotate -pi/2 :x)
     (robot-scene-init-base
       :table-pos table-pos
-      :larm-ee-frame-id larm-ee-frame-id 
-      :rarm-ee-frame-id rarm-ee-frame-id 
+      :larm-ee-frame-id larm-ee-frame-id
+      :rarm-ee-frame-id rarm-ee-frame-id
       :larm-contact-coords larm-contact-coords
       :rarm-contact-coords rarm-contact-coords
       :base-frame-id "base")
@@ -36,7 +36,7 @@
       (progn
         (send *co* :add-attached-object *larm-softhand*
               "left_gripper"
-              :frame-id "left_gripper" 
+              :frame-id "left_gripper"
               :object-id "left_softhand"
               :relative-pose (make-coords :pos (float-vector 0 0 50))
               :touch-links
@@ -47,7 +47,7 @@
               )
         (send *co* :add-attached-object *rarm-softhand*
               "right_gripper"
-              :frame-id "right_gripper" 
+              :frame-id "right_gripper"
               :object-id "right_softhand"
               :relative-pose (make-coords :pos (float-vector 0 0 50))
               :touch-links
