@@ -24,7 +24,7 @@
     scene-states))
 
 
-(defun box-scene-init (&optional (n-box 1) (box-types :ctb))
+(defun box-scene-init (&optional (n-box 1) (box-types :ctb) (cube-distance 200))
   (let ((boxes nil)
         (colors (list :red :green :blue :yellow :pink :purple))
         (box-types
@@ -45,9 +45,14 @@
              (box-shape (cdr (assoc box-type box-shapes)))
              (box (apply #'make-cube (append box-shape (list :name box-id))))
              (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
-             (box-pos-y (* (if (oddp i) 1 -1)
-                           (floor (/ (+ i 1) 2))
-                           (+ (y-of-cube box) 100)))
+             (box-pos-y
+               (if (oddp n-box)
+                 (* (if (oddp i) 1 -1)
+                    (floor (/ (+ i 1) 2))
+                    (+ (y-of-cube box) cube-distance))
+                 (* (if (oddp i) 1 -1)
+                    (+ 0.5 (floor (/ i 2)))
+                    (+ (y-of-cube box) cube-distance))))
              (box-pos (float-vector *box-pos-x* box-pos-y box-pos-z)))
         (send box :set-color (elt colors (mod i 6)))
         (send box :reset-coords)
