@@ -7,9 +7,11 @@
 (defun motion-init (&key (move-robot t)
                          (robot *robot*)
                          (ri *ri*)
-                         (cubes (list *box0*))
+                         (cubes *boxes*)
                          (vw *irtviewer*))
-  (dolist (cube cubes) (add-cube-coords :cube cube))
+  (dolist (cube cubes)
+    (add-cube-coords :cube cube)
+    (add-cube-collision-object :cube cube :robot robot :ri ri))
   (reset-motion :robot robot :ri ri :move-robot move-robot :vw vw))
 
 
@@ -171,6 +173,19 @@
     (send cube :put :right-cube-coords right-cube-coords)
     (send cube :put :top-cube-coords top-cube-coords)
     (send cube :put :bottom-cube-coords bottom-cube-coords)))
+
+
+(defun add-cube-collision-object (&key (cube *box0*) (robot *robot*) (ri *ri*))
+  (if (and ri (not (send ri :simulation-modep)))
+    (send *co* :add-object cube
+          :frame-id (send robot :get :base-frame-id)
+          :relative-pose (send (send cube :worldcoords) :copy-worldcoords)
+          :object-id (send cube :name))))
+
+
+(defun delete-cube-collision-object (&key (cube *box0*) (ri *ri*))
+  (if (and ri (not (send ri :simulation-modep)))
+    (send *co* :delete-object cube)))
 
 
 (defun get-cube-length (axis &key (cube-rpy (float-vector 0 0 0)) (cube *box0*))
