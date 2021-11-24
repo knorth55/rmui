@@ -251,7 +251,8 @@
       (setq *co* (instance collision-object-publisher :init))
       (send *co* :wipe-all)
       (send *co* :add-object *table* :frame-id base-frame-id
-            :relative-pose (make-coords :pos table-pos)))))
+            :relative-pose (make-coords :pos table-pos))))
+  t)
 
 
 (defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
