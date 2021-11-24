@@ -16,10 +16,17 @@
   (setq *pr2* (instance pr2-robot :init))
   (setq *robot* *pr2*)
   (setq *ri* (instance pr2-interface :init :objects table-objects))
-  (robot-scene-init-base :table-pos table-pos
-                         :larm-ee-frame-id "l_wrist_roll_link"
-                         :rarm-ee-frame-id "r_wrist_roll_link"
-                         :base-frame-id "base_footprint"))
+  (let* ((larm-contact-coords
+           (send (send *robot* :larm-end-coords) :copy-worldcoords))
+         (rarm-contact-coords
+           (send (send *robot* :rarm-end-coords) :copy-worldcoords)))
+    (robot-scene-init-base
+      :table-pos table-pos
+      :larm-ee-frame-id "l_wrist_roll_link"
+      :rarm-ee-frame-id "r_wrist_roll_link"
+      :larm-contact-coords larm-contact-coords
+      :rarm-contact-coords rarm-contact-coords
+      :base-frame-id "base_footprint")))
 
 
 (provide :pr2-scenes "pr2-scenes.l")

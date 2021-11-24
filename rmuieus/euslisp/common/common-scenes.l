@@ -33,7 +33,7 @@
             (make-list n-box :initial-element box-types)))
         (box-shapes
           (list
-            (cons :ctb (list 270 420 220))  ;; ctb
+            (cons :ctb (list 220 210 200))  ;; ctb
             (cons :cardboardbox (list 350 350 300))  ;; cardboard box
             (cons :trashbox (list 270 370 500))  ;; trash box
             (cons :shredder (list 150 280 320))  ;; shredder
@@ -185,48 +185,62 @@
 
 (defun pilot-robot-scene-init-base (&key (table-pos)
                                          (larm-ee-frame-id)
-                                         (rarm-ee-frame-id))
+                                         (rarm-ee-frame-id)
+                                         (larm-contact-coords)
+                                         (rarm-contact-coords))
+  (if (null larm-contact-coords)
+    (setq larm-contact-coords
+          (send (send *pilot* :larm-end-coords) :copy-worldcoords)))
+  (if (null rarm-contact-coords)
+    (setq rarm-contact-coords
+          (send (send *pilot* :rarm-end-coords) :copy-worldcoords)))
+  (send larm-contact-coords :translate *pilot-contact-offset*)
+  (send rarm-contact-coords :translate *pilot-contact-offset*)
+
   (send *pilot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send *pilot* :link larm-ee-frame-id)
-                        :coords (send (send (send *pilot* :larm-end-coords) :copy-worldcoords)
-                                      :translate *pilot-contact-offset*)))
+                        :coords larm-contact-coords))
   (send *pilot* :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
                         :parent (send *pilot* :link rarm-ee-frame-id)
-                        :coords (send (send (send *pilot* :rarm-end-coords) :copy-worldcoords)
-                                      :translate *pilot-contact-offset*))))
+                        :coords rarm-contact-coords)))
 
 
 (defun robot-scene-init-base (&key (table-pos)
                                    (larm-ee-frame-id)
                                    (rarm-ee-frame-id)
+                                   (larm-contact-coords)
+                                   (rarm-contact-coords)
                                    (base-frame-id))
   ;; (send (send *robot* :larm :end-coords) :translate *contact-offset*)
   ;; (send (send *robot* :rarm :end-coords) :translate *contact-offset*)
   ;; add :larm-contact-coords and :rarm-contact-coords
+  (if (null larm-contact-coords)
+    (setq larm-contact-coords
+          (send (send *robot* :larm-end-coords) :copy-worldcoords)))
+  (if (null rarm-contact-coords)
+    (setq rarm-contact-coords
+          (send (send *robot* :rarm-end-coords) :copy-worldcoords)))
+  (send larm-contact-coords :translate *contact-offset*)
+  (send rarm-contact-coords :translate *contact-offset*)
+
   (send *robot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send *robot* :link larm-ee-frame-id)
-                        :coords (send (send (send *robot* :larm-end-coords) :copy-worldcoords)
-                                      :translate *contact-offset*)))
+                        :coords larm-contact-coords))
   (send *robot* :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
                         :parent (send *robot* :link rarm-ee-frame-id)
-                        :coords (send (send (send *robot* :rarm-end-coords) :copy-worldcoords)
-                                      :translate *contact-offset*)))
+                        :coords rarm-contact-coords))
   (send (send *ri* :robot) :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send (send *ri* :robot) :link larm-ee-frame-id)
-                        :coords
-                        (send (send (send (send *ri* :robot) :larm-end-coords) :copy-worldcoords)
-                              :translate *contact-offset*)))
+                        :coords larm-contact-coords))
   (send (send *ri* :robot) :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
                         :parent (send (send *ri* :robot) :link rarm-ee-frame-id)
-                        :coords
-                        (send (send (send (send *ri* :robot) :rarm-end-coords) :copy-worldcoords)
-                              :translate *contact-offset*)))
+                        :coords rarm-contact-coords))
   (if (send *ri* :simulation-modep)
     (progn
       (send (get (geo:find-viewer (send *robot* :name)) :pickviewer)
