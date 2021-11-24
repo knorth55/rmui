@@ -32,6 +32,13 @@
       av)))
 
 
+(defun get-arm-controller (arm &key (use-torso t))
+  (cond
+    ((eq arm :larm) :larm-controller)
+    ((eq arm :rarm) :rarm-controller)
+    ((eq arm :arms) :default-controller)))
+
+
 (defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
   (setq args (remove-key-from-args args :ri))
   (send* ri :start-grasp arm :wait wait args))

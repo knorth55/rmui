@@ -6,6 +6,10 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
 
 
+(if (not (assoc :init-org (send pr2-interface :methods)))
+  (rplaca (assoc :init (send pr2-interface :methods)) :init-org))
+
+
 (defmethod pr2-robot
   (:reset-cube-manip-pose (&optional (arm :arms))
     (let ((av (send self :angle-vector))
@@ -38,6 +42,37 @@
               (t nil)))
       (send self :angle-vector av)
       av)))
+
+
+(defmethod pr2-interface
+  (:init (&rest args)
+    (prog1
+      (send* :init-org args)
+      (send self :add-controller :larm-torso-controller)
+      (send self :add-controller :rarm-torso-controller)
+      (send self :add-controller :dualarm-controller)))
+  (:larm-torso-controller ()
+    (append
+      (send self :larm-controller)
+      (send self :torso-controller)))
+  (:rarm-torso-controller ()
+    (append
+      (send self :rarm-controller)
+      (send self :torso-controller)))
+  (:dualarm-torso-controller ()
+    (append
+      (send self :larm-controller)
+      (send self :rarm-controller))))
+
+
+(defun get-arm-controller (arm &key (use-torso t))
+  (cond
+    ((eq arm :larm)
+     (if use-torso :larm-torso-controller :larm-controller))
+    ((eq arm :rarm)
+     (if use-torso :rarm-torso-controller :rarm-controller))
+    ((eq arm :arms)
+     (if use-torso :default-controller :dualarm-controller))))
 
 
 (defun start-grasp (&optional (arm :arms) &rest args &key (objects nil) (wait nil) (ri *ri*))
