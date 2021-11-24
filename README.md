@@ -73,7 +73,7 @@ roslaunch rmui_demos pr2_rmui_dummy.launch
 
 ```bash
 # for real robot
-roslaunch eus_vive baxter_moveit_remote.launch
+roslaunch eus_vive baxter_moveit.launch
 ```
 
 ```bash
@@ -84,7 +84,7 @@ roslaunch rmui_demos baxter_rmui.launch
 
 ```bash
 # for real robot
-roslaunch eus_vive baxter_moveit_remote.launch
+roslaunch eus_vive baxter_moveit.launch
 ```
 
 ```bash
