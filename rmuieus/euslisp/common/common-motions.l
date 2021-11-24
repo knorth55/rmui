@@ -536,7 +536,7 @@
             tm (get-arm-controller arm :use-torso use-torso) 0)
       (send ri :wait-interpolation))
     (send vw :draw-objects)
-    (list av tm)))
+    (list (list av) (list tm))))
 
 
 (defun push-motion
@@ -594,7 +594,9 @@
                     (list (car approach-directions))
                     (cdr approach-directions)))
                  (t approach-directions)))
-         (pushed))
+         (pushed)
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords)))
     (setq approached
           (push-motion-step
             approach-arm
@@ -604,7 +606,7 @@
             :push-directions approach-push-directions
             :approach-directions approach-approach-directions
             :hold-type hold-type
-            :move-robot move-robot
+            :move-robot nil
             :tm approach-tm
             :use-torso use-torso
             :cube-pos cube-pos
@@ -623,7 +625,7 @@
               :push-directions push-directions
               :approach-directions approach-directions
               :hold-type hold-type
-              :move-robot move-robot
+              :move-robot nil
               :tm push-tm
               :use-torso use-torso
               :cube-pos cube-pos
@@ -632,10 +634,21 @@
               :cube-width cube-width
               :cube-depth cube-depth
               :robot robot :ri ri :cube cube :vw vw)))
-    (when pushed
+    (if (and approached pushed)
+      (when move-robot
+        (send ri :angle-vector-sequence
+              (append (car approached) (car pushed))
+              (append (cadr approached) (cadr pushed))
+              (get-arm-controller arm :use-torso use-torso) 0)
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (when (and approached pushed)
       (contact-cube arm :cube cube :robot robot)
-      (list (list (car approached) (car pushed))
-            (list (cadr approached) (cadr pushed))))))
+      (list (append (car approached) (car pushed))
+            (append (cadr approached) (cadr pushed))))))
 
 
 ;; push release motion
