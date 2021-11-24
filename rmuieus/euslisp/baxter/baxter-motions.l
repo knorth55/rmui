@@ -9,7 +9,10 @@
 (defmethod baxter-robot
   (:reset-cube-manip-pose (&optional (arm :arms))
     (let ((av (send self :angle-vector))
-          (reset-av (send self :reset-pose)))
+          (reset-av
+            (float-vector
+              0 58 0 -83 98 32 43 82
+               -58 0 83 98 -32 43 -82)))
       (setq av
             (cond
               ((eq arm :arms)
