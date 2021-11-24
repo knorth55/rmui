@@ -1226,20 +1226,22 @@
     (setq cube-pos (send (send (send cube :worldcoords) :copy-worldcoords) :worldpos))
     (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0))
                          target-cube-top-z))
-    (setq moved
-          (hold-move-motion
-            :cube-pos-x (elt target-cube-pos 0)
-            :cube-pos-y (elt target-cube-pos 1)
-            :cube-pos-z (elt cube-pos 2)
-            :move-robot nil :tm tm :use-torso use-torso
-            :robot robot :ri ri :cube cube :vw vw))
-    (setq lifted-down
-          (hold-lift-down-motion
-            :lift-height lift-height
-            :cube-pos-x (elt target-cube-pos 0)
-            :cube-pos-y (elt target-cube-pos 1)
-            :move-robot nil :tm tm :use-torso use-torso
-            :robot robot :ri :ri :cube cube :vw vw))
+    (when lifted-up
+      (setq moved
+            (hold-move-motion
+              :cube-pos-x (elt target-cube-pos 0)
+              :cube-pos-y (elt target-cube-pos 1)
+              :cube-pos-z (elt cube-pos 2)
+              :move-robot nil :tm tm :use-torso use-torso
+              :robot robot :ri ri :cube cube :vw vw)))
+    (when moved
+      (setq lifted-down
+            (hold-lift-down-motion
+              :lift-height lift-height
+              :cube-pos-x (elt target-cube-pos 0)
+              :cube-pos-y (elt target-cube-pos 1)
+              :move-robot nil :tm tm :use-torso use-torso
+              :robot robot :ri :ri :cube cube :vw vw)))
     (if (and lifted-up moved lifted-down)
       (when move-robot
         (send ri :angle-vector-sequence
