@@ -200,14 +200,15 @@
   )
 
 
-(defun rmui-server-main (&key (rmui-names (list "rmui0"))
-                              (box-types :ctb) (align-axis :y))
+(defun rmui-server-main (&key (rmui-names (list "rmui0")) (box-types :ctb)
+                              (wall-p nil) (align-axis :y))
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
   (set-rmui-parameters rmui-names)
   (scene-init :table-pos-y 0
               :n-box (length rmui-names)
               :box-types box-types
+              :wall-p wall-p
               :align-axis align-axis)
   (motion-init :move-robot t
                :robot *robot*
@@ -216,6 +217,7 @@
                :vw *irtviewer*)
   (pilot-scene-init :table-pos-y 0
                     :n-device (length rmui-names)
+                    :wall-p wall-p
                     :align-axis align-axis)
   (motion-init :move-robot nil
                :robot *pilot*

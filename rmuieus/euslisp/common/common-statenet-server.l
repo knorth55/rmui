@@ -747,7 +747,7 @@
 
 
 (defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0"))
-                                  (box-types :ctb) (align-axis :y)
+                                  (box-types :ctb) (wall-p nil) (align-axis :y)
                                   (skip-interaction nil))
   (if (not (listp rmui-names))
     (setq rmui-names (list rmui-names)))
@@ -755,6 +755,7 @@
   (scene-init :table-pos-y 0
               :n-box (length rmui-names)
               :box-types box-types
+              :wall-p wall-p
               :align-axis align-axis)
   (motion-init :move-robot t
                :robot *robot*
