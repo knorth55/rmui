@@ -4,6 +4,7 @@
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
+  <arg name="n_box" default="3" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
@@ -19,6 +20,7 @@
 
   <group if="$(arg rmui)">
     <include file="$(find rmui_demos)/launch/common/common_multi_rmui_base.launch">
+      <arg name="n_box" value="$(arg n_box)" />
       <arg name="n_board" value="$(arg n_board)" />
       <arg name="duration" value="$(arg duration)" />
       <arg name="gui" value="$(arg gui)" />
@@ -31,6 +33,7 @@
   <include file="$(find rmuieus)/launch/multi_rmui_planning.launch">
     <arg name="robot" value="$(arg robot)" />
     <arg name="main" value="$(arg main)" />
+    <arg name="n_box" value="$(arg n_box)" />
     <arg name="box_type" value="$(arg box_type)" />
   </include>
 

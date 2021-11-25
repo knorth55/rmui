@@ -2,21 +2,24 @@
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
+  <arg name="n_box" default="3" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
 
   <!-- rmui0 -->
-  <include file="$(find rmui_demos)/launch/common/common_rmui_base.launch">
-    <arg name="rmui_name" value="rmui0" />
-    <arg name="n_board" value="$(arg n_board)" />
-    <arg name="duration" value="$(arg duration)" />
-    <arg name="gui" value="false" />
-    <arg name="dummy" value="$(arg dummy)" />
-    <arg name="launch_device" value="$(arg launch_device)" />
-  </include>
-  <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
-        args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
+  <group if="$(eval arg('n_box') >= 3)">
+    <include file="$(find rmui_demos)/launch/common/common_rmui_base.launch">
+      <arg name="rmui_name" value="rmui0" />
+      <arg name="n_board" value="$(arg n_board)" />
+      <arg name="duration" value="$(arg duration)" />
+      <arg name="gui" value="false" />
+      <arg name="dummy" value="$(arg dummy)" />
+      <arg name="launch_device" value="$(arg launch_device)" />
+    </include>
+    <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
+          args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
+  </group>
 
   <!-- rmui1 -->
   <include file="$(find rmui_demos)/launch/common/common_rmui_base.launch">

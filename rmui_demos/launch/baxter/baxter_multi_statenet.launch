@@ -3,6 +3,7 @@
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
+  <arg name="n_box" default="3" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
@@ -23,6 +24,7 @@
     <arg name="rmui" value="$(arg rmui)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
+    <arg name="n_box" value="$(arg n_box)" />
     <arg name="n_board" value="$(arg n_board)" />
     <arg name="duration" value="$(arg duration)" />
     <arg name="gui" value="$(arg gui)" />
