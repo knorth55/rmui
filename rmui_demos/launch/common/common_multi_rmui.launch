@@ -14,6 +14,7 @@
 
   <arg name="main" default="true" />
   <arg name="box_type" default="ctb" />
+  <arg name="align_axis" default="y" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
@@ -35,6 +36,7 @@
     <arg name="main" value="$(arg main)" />
     <arg name="n_box" value="$(arg n_box)" />
     <arg name="box_type" value="$(arg box_type)" />
+    <arg name="align_axis" value="$(arg align_axis)" />
   </include>
 
   <!-- rosbag -->

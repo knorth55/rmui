@@ -3,6 +3,7 @@
   <arg name="main" default="true" />
   <arg name="box_type" default="ctb" />
   <arg name="n_box" default="3" />
+  <arg name="align_axis" default="y" />
 
   <arg names="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
        if="$(eval arg('n_box') >= 3)" />
@@ -11,6 +12,7 @@
 
   <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
         args="&quot;(main :rmui-names $(arg rmui_names)
-                          :box-types :$(arg box_type))&quot;"
+                          :box-types :$(arg box_type)
+                          :align-axis :$(arg align_axis))&quot;"
         if="$(arg main)" required="true" output="screen" />
 </launch>
