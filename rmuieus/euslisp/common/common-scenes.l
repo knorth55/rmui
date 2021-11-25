@@ -286,37 +286,46 @@
 
 (defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
                         (wall-p t) (align-axis :y))
-  (table-scene-init table-pos-y)
-  (box-scene-init
-    :n-box n-box :box-types box-types
-    :align-axis align-axis)
-  (if wall-p (wall-scene-init))
-  (robot-scene-init
-    :table-pos *table-pos*
-    :table-objects
-    (append *boxes*
-            (list *table* *left-wall* *front-wall*)))
-  ;: viewer-init
-  (make-irtviewer :title "Robot Viewer")
-  (objects (append *boxes*
-                   (list *robot* *table*
-                         *left-wall* *front-wall*))
-           *irtviewer*))
+  (let ((table-objects nil))
+    (table-scene-init table-pos-y)
+    (setq table-objects (list *table*))
+    (box-scene-init
+      :n-box n-box :box-types box-types
+      :align-axis align-axis)
+    (setq table-objects (append table-objects *boxes*))
+    (wall-scene-init)
+    (if wall-p
+      (progn
+        (setq table-objects
+              (append table-objects
+                      (list *left-wall* *front-wall*)))))
+    (robot-scene-init
+      :table-pos *table-pos*
+      :table-objects table-objects)
+    ;: viewer-init
+    (make-irtviewer :title "Robot Viewer")
+    (objects (append (list *robot*) table-objects) *irtviewer*)))
 
 
 (defun pilot-scene-init (&key (table-pos-y 0) (n-device 1) (wall-p t)
                               (align-axis :y))
-  (pilot-table-scene-init table-pos-y)
-  (pilot-device-scene-init
-    :n-device n-device :align-axis align-axis)
-  (if wall-p (pilot-wall-scene-init))
-  (pilot-robot-scene-init :table-pos *table-pos*)
-  ;: viewer-init
-  (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
-  (objects (append *pilot-devices*
-                   (list *pilot* *pilot-table*
-                         *pilot-left-wall* *pilot-front-wall*))
-           *pilotviewer*))
+  (let ((table-objects nil))
+    (pilot-table-scene-init table-pos-y)
+    (setq table-objects (list *pilot-table*))
+    (pilot-device-scene-init
+      :n-device n-device :align-axis align-axis)
+    (setq table-objects
+          (append table-objects *pilot-devices*))
+    (pilot-wall-scene-init)
+    (if wall-p
+      (progn
+        (setq table-objects
+              (append table-objects
+                      (list *pilot-left-wall* *pilot-front-wall*)))))
+    (pilot-robot-scene-init :table-pos *table-pos*)
+    ;: viewer-init
+    (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
+    (objects (append (list *pilot*) table-objects) *pilotviewer*)))
 
 
 (provide :common-scenes "common-scenes.l")
