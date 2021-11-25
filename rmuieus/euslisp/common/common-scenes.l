@@ -24,8 +24,8 @@
     scene-states))
 
 
-(defun box-scene-init (&optional (n-box 1) (box-types :ctb)
-                                 (cube-distance 100) (align-axis :y))
+(defun box-scene-init (&key (n-box 1) (box-types :ctb)
+                            (box-distance 100) (align-axis :y))
   (let ((boxes nil)
         (colors (list :red :green :blue :yellow :pink :purple))
         (box-types
@@ -52,20 +52,20 @@
                    (if (oddp n-box)
                      (* (if (oddp i) 1 -1)
                         (floor (/ (+ i 1) 2))
-                        (+ (x-of-cube box) cube-distance))
+                        (+ (x-of-cube box) box-distance))
                      (* (if (oddp i) 1 -1)
                         (+ 0.5 (floor (/ i 2)))
-                        (+ (x-of-cube box) cube-distance)))
+                        (+ (x-of-cube box) box-distance)))
                    0)))
              (box-pos-y
                (if (equal align-axis :y)
                  (if (oddp n-box)
                    (* (if (oddp i) 1 -1)
                       (floor (/ (+ i 1) 2))
-                      (+ (y-of-cube box) cube-distance))
+                      (+ (y-of-cube box) box-distance))
                    (* (if (oddp i) 1 -1)
                       (+ 0.5 (floor (/ i 2)))
-                      (+ (y-of-cube box) cube-distance)))
+                      (+ (y-of-cube box) box-distance)))
                  0))
              (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
              (box-pos (float-vector box-pos-x box-pos-y box-pos-z)))
@@ -129,19 +129,37 @@
     ))
 
 
-(defun pilot-device-scene-init (&optional (n-device 1))
+(defun pilot-device-scene-init (&key (n-device 1) (device-distance 100) (align-axis :y))
   (let ((pilot-devices nil)
         (colors (list :red :green :blue :yellow :pink :purple)))
     (dotimes (i n-device)
       (let* ((pilot-device-id (format nil "pilot-device~A" i))
              (pilot-device (make-cube 100 100 100 :name pilot-device-id))
+             (pilot-device-pos-x
+               (+ *pilot-device-pos-x*
+                 (if (equal align-axis :x)
+                   (if (oddp n-device)
+                     (* (if (oddp i) 1 -1)
+                        (floor (/ (+ i 1) 2))
+                        (+ (x-of-cube pilot-device) device-distance))
+                     (* (if (oddp i) 1 -1)
+                        (+ 0.5 (floor (/ i 2)))
+                        (+ (x-of-cube pilot-device) device-distance)))
+                   0)))
+             (pilot-device-pos-y
+               (if (equal align-axis :y)
+                 (if (oddp n-device)
+                   (* (if (oddp i) 1 -1)
+                      (floor (/ (+ i 1) 2))
+                      (+ (y-of-cube pilot-device) device-distance))
+                   (* (if (oddp i) 1 -1)
+                      (+ 0.5 (floor (/ i 2)))
+                      (+ (y-of-cube pilot-device) device-distance)))
+                 0))
              (pilot-device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
                                     (/ (z-of-cube pilot-device) 2.0)))
-             (pilot-device-pos-y (* (if (oddp i) 1 -1)
-                                    (floor (/ (+ i 1) 2))
-                                    (+ (y-of-cube pilot-device) 100)))
              (pilot-device-pos
-               (float-vector *pilot-device-pos-x* pilot-device-pos-y pilot-device-pos-z)))
+               (float-vector pilot-device-pos-x pilot-device-pos-y pilot-device-pos-z)))
         (send pilot-device :set-color (elt colors (mod i 6)))
         (send pilot-device :reset-coords)
         (send pilot-device :worldcoords)
@@ -279,9 +297,11 @@
 
 
 (defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
-                        (wall-p t))
+                        (wall-p t) (align-axis :y))
   (table-scene-init table-pos-y)
-  (box-scene-init n-box box-types)
+  (box-scene-init
+    :n-box n-box :box-types box-types
+    :align-axis align-axis)
   (if wall-p (wall-scene-init))
   (robot-scene-init
     :table-pos *table-pos*
@@ -296,9 +316,11 @@
            *irtviewer*))
 
 
-(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1) (wall-p t))
+(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1) (wall-p t)
+                              (align-axis :y))
   (pilot-table-scene-init table-pos-y)
-  (pilot-device-scene-init n-device)
+  (pilot-device-scene-init
+    :n-device n-device :align-axis align-axis)
   (if wall-p (pilot-wall-scene-init))
   (pilot-robot-scene-init :table-pos *table-pos*)
   ;: viewer-init

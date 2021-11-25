@@ -17,7 +17,8 @@
 
 
 (defun main (&key (rmui-names (list "rmui0"))
-                  (box-types :ctb))
+                  (box-types :ctb) (align-axis :y))
   (ros::roseus "baxter_rmui_planning")
   (rmui-server-main :rmui-names rmui-names
-                    :box-types box-types))
+                    :box-types box-types
+                    :align-axis align-axis))
