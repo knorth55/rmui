@@ -49,13 +49,7 @@
              (box-pos-x
                (+ *box-pos-x*
                  (if (equal align-axis :x)
-                   (if (oddp n-box)
-                     (* (if (oddp i) 1 -1)
-                        (floor (/ (+ i 1) 2))
-                        (+ (x-of-cube box) box-distance))
-                     (* (if (oddp i) 1 -1)
-                        (+ 0.5 (floor (/ i 2)))
-                        (+ (x-of-cube box) box-distance)))
+                   (* i (+ (x-of-cube box) box-distance))
                    0)))
              (box-pos-y
                (if (equal align-axis :y)
@@ -138,13 +132,7 @@
              (pilot-device-pos-x
                (+ *pilot-device-pos-x*
                  (if (equal align-axis :x)
-                   (if (oddp n-device)
-                     (* (if (oddp i) 1 -1)
-                        (floor (/ (+ i 1) 2))
-                        (+ (x-of-cube pilot-device) device-distance))
-                     (* (if (oddp i) 1 -1)
-                        (+ 0.5 (floor (/ i 2)))
-                        (+ (x-of-cube pilot-device) device-distance)))
+                   (* i (+ (x-of-cube pilot-device) device-distance))
                    0)))
              (pilot-device-pos-y
                (if (equal align-axis :y)
