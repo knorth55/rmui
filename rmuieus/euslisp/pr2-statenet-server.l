@@ -17,9 +17,10 @@
 
 
 (defun main (&key (pdf nil) (rmui-names (list "rmui0")) (box-types :ctb)
-                  (align-axis :y) (skip-interaction nil))
+                  (wall-p nil) (align-axis :y) (skip-interaction nil))
   (ros::roseus "pr2_statenet_server")
   (statenet-server-main :pdf pdf :rmui-names rmui-names
                         :skip-interaction skip-interaction
                         :box-types box-types
+                        :wall-p wall-p
                         :align-axis align-axis))

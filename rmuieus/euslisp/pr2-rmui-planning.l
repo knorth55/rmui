@@ -16,9 +16,10 @@
 (defvar *use-torso* 0.001)
 
 
-(defun main (&key (rmui-names (list "rmui0"))
-                  (box-types :ctb) (align-axis :y))
+(defun main (&key (rmui-names (list "rmui0")) (box-types :ctb)
+                  (wall-p nil) (align-axis :y))
   (ros::roseus "pr2_rmui_planning")
   (rmui-server-main :rmui-names rmui-names
                     :box-types box-types
+                    :wall-p wall-p
                     :align-axis align-axis))
