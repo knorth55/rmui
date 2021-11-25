@@ -13,9 +13,9 @@
   <arg name="skip_flag" value="t" unless="$(arg collabo)" />
   <arg name="skip_flag" value="nil" if="$(arg collabo)" />
 
-  <arg names="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
+  <arg name="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
        if="$(eval arg('n_box') >= 3)" />
-  <arg names="rmui_names" value="(list \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
+  <arg name="rmui_names" value="(list \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
        unless="$(eval arg('n_box') >= 3)" />
 
   <node name="statenet_server" pkg="rmuieus" type="$(arg robot)-statenet-server.l"
