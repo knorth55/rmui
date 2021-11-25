@@ -15,6 +15,7 @@
   <arg name="main" default="true" />
   <arg name="pdf" default="true" />
   <arg name="box_type" default="ctb" />
+  <arg name="wall" default="false" />
   <arg name="collabo" default="true" />
 
   <arg name="marker" default="false" />
@@ -39,8 +40,9 @@
     <arg name="main" value="$(arg main)" />
     <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="pdf" value="$(arg pdf)" />
-    <arg name="collabo" value="$(arg collabo)" />
     <arg name="box_type" value="$(arg box_type)" />
+    <arg name="wall" value="$(arg wall)" />
+    <arg name="collabo" value="$(arg collabo)" />
   </include>
 
   <!-- rosbag -->

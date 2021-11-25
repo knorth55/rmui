@@ -4,6 +4,7 @@
   <arg name="pdf" default="true" />
   <arg name="collabo" default="true" />
   <arg name="box_type" default="ctb" />
+  <arg name="wall" default="false" />
   <arg name="n_box" default="3" />
   <arg name="align_axis" default="y" />
 
@@ -13,6 +14,9 @@
   <arg name="skip_flag" value="t" unless="$(arg collabo)" />
   <arg name="skip_flag" value="nil" if="$(arg collabo)" />
 
+  <arg name="wall_flag" value="t" if="$(arg wall)" />
+  <arg name="wall_flag" value="nil" unless="$(arg wall)" />
+
   <arg name="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
        if="$(eval arg('n_box') >= 3)" />
   <arg name="rmui_names" value="(list \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
@@ -21,6 +25,7 @@
   <node name="statenet_server" pkg="rmuieus" type="$(arg robot)-statenet-server.l"
         args="&quot;(main :rmui-names $(arg rmui_names)
                           :box-types :$(arg box_type)
+                          :wall-p $(arg wall_flag)
                           :align-axis :$(arg align_axis)
                           :skip-interaction $(arg skip_flag)
                           :pdf $(arg pdf_flag))&quot;"

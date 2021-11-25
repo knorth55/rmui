@@ -3,9 +3,14 @@
   <arg name="main" default="true" />
   <arg name="rmui_name" default="rmui0" />
   <arg name="box_type" default="ctb" />
+  <arg name="wall" default="false" />
+
+  <arg name="wall_flag" value="t" if="$(arg wall)" />
+  <arg name="wall_flag" value="nil" unless="$(arg wall)" />
 
   <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
         args="&quot;(main :rmui-names (list \&quot;$(arg rmui_name)\&quot;) 
-                          :box-types :$(arg box_type))&quot;"
+                          :box-types :$(arg box_type)
+                          :wall-p $(arg wall_flag))&quot;"
         if="$(arg main)" required="true" output="screen" />
 </launch>

@@ -16,6 +16,7 @@
   <arg name="collabo" default="true" />
   <arg name="n_box" default="3" />
   <arg name="box_type" default="ctb" />
+  <arg name="wall" default="false" />
   <arg name="align_axis" default="y" />
 
   <arg name="marker" default="false" />
@@ -39,6 +40,7 @@
     <arg name="collabo" value="$(arg collabo)" />
     <arg name="n_box" value="$(arg n_box)" />
     <arg name="box_type" value="$(arg box_type)" />
+    <arg name="wall" value="$(arg wall)" />
     <arg name="align_axis" value="$(arg align_axis)" />
   </include>
 
