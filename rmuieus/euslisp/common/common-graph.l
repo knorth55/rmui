@@ -32,7 +32,10 @@
 
 
 (defun convert-string-to-sym (name)
-  (remove '|n| (read-from-string name)))
+  (let ((node-sym (read-from-string name)))
+    (remove '|n|
+            (mapcar #'(lambda (x) (if (listp x) (remove '|n| x) x))
+                    node-sym))))
 
 
 (defun add-node (sm name func node-type &optional (duration nil))
