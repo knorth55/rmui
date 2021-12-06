@@ -235,7 +235,8 @@
       ;; first time node, move to ask user input
       (if (null duration) (return-from :interrupt-wait t))
       ;; duration is long, move to ask user input
-      (if (> duration duration-threshold) (return-from :interrupt-wait t))
+      (if (and duration (> duration duration-threshold))
+        (return-from :interrupt-wait t))
       (ros::ros-info "Duration: ~A" duration)
       (setq interrupt-p
             (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
