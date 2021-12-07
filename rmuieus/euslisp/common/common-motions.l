@@ -538,7 +538,7 @@
             tm (get-arm-controller arm :use-torso use-torso) 0)
       (send ri :wait-interpolation))
     (send vw :draw-objects)
-    (list (list av) (list tm))))
+    (when av (list (list av) (list tm)))))
 
 
 (defun push-motion
