@@ -47,7 +47,7 @@
 (defmethod pr2-interface
   (:init (&rest args)
     (prog1
-      (send* :init-org args)
+      (send* self :init-org args)
       (send self :add-controller :larm-torso-controller)
       (send self :add-controller :rarm-torso-controller)
       (send self :add-controller :dualarm-controller)))
@@ -59,7 +59,7 @@
     (append
       (send self :rarm-controller)
       (send self :torso-controller)))
-  (:dualarm-torso-controller ()
+  (:dualarm-controller ()
     (append
       (send self :larm-controller)
       (send self :rarm-controller))))
