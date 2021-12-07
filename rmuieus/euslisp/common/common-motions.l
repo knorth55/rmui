@@ -1124,8 +1124,6 @@
                                          (vw *irtviewer*)
                                          (table-z *table-z*) (table-height *table-height*)
                                          &allow-other-keys)
-  (unless lift-height
-    (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0)) (+ table-z table-height))))
   (unless cube-pos-x
     (setq cube-pos-x (elt (send cube :get :initial-pos) 0)))
   (unless cube-pos-y
@@ -1139,11 +1137,14 @@
          (rarm-target-coords nil)
          (height-step 50)
          (height-count 0)
+         (max-height-count)
          (cube-pos-x-step)
          (cube-pos-y-step)
-         (max-height-count (+ (floor (/ lift-height height-step)) 1))
          (avs nil)
          (tms nil))
+    (unless lift-height
+      (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0)) (+ table-z table-height))))
+    (setq max-height-count (+ (floor (/ lift-height height-step)) 1))
     (setq height-step (/ (* -1.0 lift-height) max-height-count))
     (setq cube-pos-x-step (/ (- cube-pos-x (elt cube-pos 0) max-height-count)))
     (setq cube-pos-y-step (/ (- cube-pos-y (elt cube-pos 1) max-height-count)))
