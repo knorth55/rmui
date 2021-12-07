@@ -7,7 +7,8 @@
 
 
 (defmethod baxter-robot
-  (:inverse-kinematics (target-coords &rest args &key (avoid-collision-distance 5) &allow-other-keys)
+  (:inverse-kinematics
+    (target-coords &rest args &key (avoid-collision-distance 5) &allow-other-keys)
     ;; use raw instead
     (setq args
           (override-key-value-in-args
