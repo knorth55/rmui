@@ -7,6 +7,12 @@
 
 
 (defmethod baxter-robot
+  (:inverse-kinematics (target-coords &rest args &key (avoid-collision-distance 5) &allow-other-keys)
+    ;; use raw instead
+    (setq args
+          (override-key-value-in-args
+            args :avoid-collision-distance avoid-collision-distance))
+    (send* self :inverse-kinematics-raw target-coords args))
   (:reset-cube-manip-pose (&optional (arm :arms))
     (let ((av (send self :angle-vector))
           (reset-av
