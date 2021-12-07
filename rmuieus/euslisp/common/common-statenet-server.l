@@ -695,6 +695,8 @@
                   :reset-state *reset-state*
                   :device-namespaces *device-namespaces*
                   :device-groupnames *device-groupnames*
+                  :object-statenet-dir *training-object-statenet-path*
+                  :collabo-statenet-dir *training-collabo-statenet-path*
                   :duration-threshold *duration-threshold*
                   :interrupt-timeout *interrupt-timeout*
                   :prx-threshold *prx-threshold*
