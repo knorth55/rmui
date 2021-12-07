@@ -228,22 +228,6 @@
                      larm-motion-symbol rarm-motion-symbol))
                  (action-name (if action-name-and-action (car action-name-and-action)))
                  (action (if action-name-and-action (cadr action-name-and-action))))
-            ;; pilot viewer
-            (eval (append
-                    action
-                    '(:move-robot nil
-                      :use-torso t
-                      :robot pilot
-                      :ri nil
-                      :cube pilot-device
-                      :cubes pilot-devices
-                      :vw pilotviewer
-                      :table-z pilot-table-z
-                      :table-height pilot-table-height
-                      :wall-front-limit pilot-wall-front-limit
-                      :wall-left-limit pilot-wall-left-limit
-                      )))
-            (if pilotviewer (send pilotviewer :draw-objects))
             ;; robot execution
             (setq executed
                   (eval (append
@@ -263,6 +247,22 @@
             (if robotviewer (send robotviewer :draw-objects))
             (if executed
               (progn
+                ;; pilot viewer
+                (eval (append
+                        action
+                        '(:move-robot nil
+                          :use-torso t
+                          :robot pilot
+                          :ri nil
+                          :cube pilot-device
+                          :cubes pilot-devices
+                          :vw pilotviewer
+                          :table-z pilot-table-z
+                          :table-height pilot-table-height
+                          :wall-front-limit pilot-wall-front-limit
+                          :wall-left-limit pilot-wall-left-limit
+                          )))
+                (if pilotviewer (send pilotviewer :draw-objects))
                 (setq execute-symbol
                       (cond
                         ((and larm-motion-symbol rarm-motion-symbol
