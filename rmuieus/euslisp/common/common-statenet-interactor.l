@@ -226,7 +226,7 @@
                    (if (send self :ask-user-next-action next-action :timeout timeout)
                      (return-from :ask-user-decision (cons :next next-action))
                      (if (send self :ask-user-teaching :timeout timeout)
-                       (return-from :ask-user-decision :teach)
+                       (return-from :ask-user-decision (cons :teach nil))
                        (if (send self :ask-user-abortion :timeout timeout)
                          (return-from :ask-user-decision (cons :abort nil))
                          (go retry-ask-user-decision)))))))
