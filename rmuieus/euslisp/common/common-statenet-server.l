@@ -303,40 +303,17 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
-  ;; TODO (knorth55): support multiple devices
+  ;; TODO (knorth55): implement teaching
   (:wait-ready-for-teach (userdata)
-    (let* ((start-state (cdr (assoc :teach-start-state userdata)))
-           (user-input-state nil))
-      ; (ros::rate 10)
-      ; (while  (not (equal start-state user-input-state))
-      ;   (let* ((update-p (send device :update-device-orientation))
-      ;          (contact-positions
-      ;            (if update-p (send device :get-contact-positions)))
-      ;          ;; TODO (knorth55): implement object-state-estimator
-      ;          ; (object-state
-      ;          ;   (send object-state-estimator :get-object-state contact-positions))
-      ;          )
-      ;     ;; TODO (knorth55): implement robot-stte-estimator
-      ;     ; (user-input-state
-      ;     ;   (send robot-state-estimator :get-robot-state object-state))
-      ;     (ros::ros-info "teach start state: ~A" start-state)
-      ;     (ros::ros-info "user input state : ~A" user-input-state)
-      ;     (if device-groupname
-      ;       (ros::spin-once device-groupname))
-      ;     (ros::sleep)))
-      ; (ros::ros-info "user input state: ~A" user-input-state)
-      t))
-  ;; TODO (knorth55): implement teaching
-  (:check-teach-scene-state (userdata)
     t)
   ;; TODO (knorth55): implement teaching
-  (:confirm-user-teach-action (userdata)
+  (:wait-device-user-input (userdata)
     t)
   ;; TODO (knorth55): implement teaching
-  (:search-teach-action (userdata)
+  (:execute-device-user-input (userdata)
     t)
   ;; TODO (knorth55): implement teaching
-  (:update-teach-action (userdata)
+  (:update-scene-state (userdata)
     t)
   ;; TODO (knorth55): implement teaching
   (:ask-user-finish-teach (userdata)
@@ -347,27 +324,23 @@
   (:get-statenet-teach-submachine ()
     (let ((sub-sm (instance state-machine :init))
           (wait-ready-node-name "(wait-ready-for-teach)")
-          (check-node-name "(check-teach-scene-state)")
-          (confirm-node-name "(confirm-user-teach-action)")
-          (search-node-name "(search-teach-action)")
-          (update-node-name "(update-teach-action)")
+          (wait-device-node-name "(wait-device-user-input)")
+          (execute-node-name "(execute-device-user-input)")
+          (update-node-name "(update-scene-state)")
           (ask-finish-node-name "(ask-finish)")
           (replan-node-name "(replan-in-statenet-teach)"))
       (add-teach-node sub-sm wait-ready-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :wait-ready-for-teach userdata)))
-      (add-teach-node sub-sm check-node-name
+      (add-teach-node sub-sm wait-device-node-name
                       `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :check-teach-scene-state userdata)))
-      (add-teach-node sub-sm confirm-node-name
+                                       (send ,self :wait-device-user-input userdata)))
+      (add-teach-node sub-sm execute-node-name
                       `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :confirm-user-teach-action userdata)))
-      (add-teach-node sub-sm search-node-name
-                      `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :search-teach-action userdata)))
+                                       (send ,self :execute-device-user-input userdata)))
       (add-teach-node sub-sm update-node-name
                       `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :update-teach-action userdata)))
+                                       (send ,self :update-scene-state userdata)))
       (add-teach-node sub-sm ask-finish-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :ask-user-finish-teach userdata)))
@@ -376,17 +349,15 @@
                                        (send ,self :replan-in-statenet-teach userdata)))
       (send sub-sm :start-state wait-ready-node-name)
       (send sub-sm :goal-state '(t))
-      (add-transition sub-sm wait-ready-node-name check-node-name t)
+      (add-transition sub-sm wait-ready-node-name wait-device-node-name t)
       (add-transition sub-sm wait-ready-node-name t nil)
-      (add-transition sub-sm check-node-name confirm-node-name t)
-      (add-transition sub-sm check-node-name check-node-name nil)
-      (add-transition sub-sm confirm-node-name search-node-name t)
-      (add-transition sub-sm confirm-node-name check-node-name nil)
-      (add-transition sub-sm search-node-name update-node-name t)
-      (add-transition sub-sm search-node-name check-node-name nil)
+      (add-transition sub-sm wait-device-node-name execute-device-node-name t)
+      (add-transition sub-sm wait-device-node-name wait-device-node-name  nil)
+      (add-transition sub-sm execute-node-name update-node-name t)
+      (add-transition sub-sm execute-node-name wait-device-node-name nil)
       (add-transition sub-sm update-node-name ask-finish-node-name t)
       (add-transition sub-sm ask-finish-node-name replan-node-name t)
-      (add-transition sub-sm ask-finish-node-name check-node-name nil)
+      (add-transition sub-sm ask-finish-node-name wait-device-node-name nil)
       (add-transition sub-sm replan-node-name t t)
       sub-sm))
   (:simplify-trained-collabo-paths (collabo-paths)
