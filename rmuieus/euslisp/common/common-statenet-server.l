@@ -461,7 +461,8 @@
       (let* ((userdata (list (cons :start-state start-state)
                              (cons :goal-state goal-state)
                              (cons :user-decision nil)
-                             (cons :replan-start-state nil)))
+                             (cons :replan-start-state nil)
+                             (cons :teach-start-state nil)))
              (hz 10.0)
              (execute-stamp (get-iso-stamp))
              (trained-executed-collabo-paths
