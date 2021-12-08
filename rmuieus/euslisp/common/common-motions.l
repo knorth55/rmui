@@ -415,7 +415,7 @@
                (* (if (eq push-direction :top) 1.0 -1.0)
                   (+ (/ cube-height 2.0)
                      (if (eq motion-type :approach)
-                       (if (eq push-direction :top) 50 200) 0)))))
+                       (if (eq push-direction :top) 50 100) 0)))))
          (cond
            ((eq approach-direction :back)
             (let ((x-offset hold-offset)
