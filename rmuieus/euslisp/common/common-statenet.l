@@ -34,6 +34,11 @@
                 #'(lambda (data-dir)
                     (load-merged-statenet-graph :data-dir data-dir))
                 data-dirs))))
+    (let ((init-n (send gr :search-node-from-pddl-state '(:init))))
+      (if init-n
+        (progn
+          (send init-n :remove-all-arcs)
+          (send gr :remove-node init-n))))
     (dolist (data-dir data-dirs)
       (dump-merged-statenet-graph gr :data-dir data-dir))
     (add-initial-state gr reset-state)
