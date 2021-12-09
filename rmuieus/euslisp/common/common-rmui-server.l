@@ -130,14 +130,14 @@
              (send planner :get-motion-symbols
                    contact-positions
                    :scene-states prev-scene-states))
-           (execute-symbols-and-actions
+           (executed-symbols-and-actions
              (send executor :execute-motion-symbols
                    motion-symbols
                    :scene-states prev-scene-states))
            (update-scene-p
-             (send updater :update-scene-states execute-symbols-and-actions))
+             (send updater :update-scene-states executed-symbols-and-actions))
            (dump-p (if update-scene-p (send updater :dump-files)))
-           (execute-symbol update-scene-p)
+           (executed-symbol update-scene-p)
            (scene-states (send updater :last-scene-states))
            (executed-actions (send updater :executed-actions)))
       (if robotviewer (send robotviewer :draw-objects))
@@ -146,7 +146,7 @@
       (ros::ros-info
         (format nil "motion-symbols           : ~A" motion-symbols))
       (ros::ros-info
-        (format nil "execute-symbol           : ~A" execute-symbol))
+        (format nil "executed-symbol          : ~A" executed-symbol))
       (ros::ros-info
         (format nil "executed-actions         : ~A"
                 (mapcar #'(lambda (x)
