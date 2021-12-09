@@ -351,15 +351,15 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
-  ;; TODO (knorth55): implement teaching
+  ;; TODO (knorth55): ask user if ready for teach 
   (:wait-ready-for-teach (userdata)
     (send devexecutor :reset-motion-symbol-queues)
     (setf (cdr (assoc :teach-state userdata))
           (copy-seq (cdr (assoc :teach-start-state userdata))))
     (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
     t)
+  ;; TODO (knorth55) : enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
-    ;; TODO (knorth55) : enable stop teaching state in while loop
     (while t
       (if device-groupnames
         (dolist (device-groupname device-groupnames)
@@ -387,6 +387,7 @@
           (progn
             (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
             (return-from :wait-device-user-input t))))))
+  ;; TODO (knorth55): add executed action in executed-collabo-path and collabo-statenet
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
            (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))
@@ -411,7 +412,7 @@
                                 (find-if-not #'null (car x)))
                             executed-actions)))))
       (return-from :execute-device-user-input (if executed-symbol t nil))))
-  ;; TODO (knorth55): implement teaching
+  ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
     t)
   (:replan-in-statenet-teach (userdata)
