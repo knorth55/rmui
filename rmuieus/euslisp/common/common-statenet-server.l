@@ -1,13 +1,15 @@
 (require :rmui-device "package://rmuieus/euslisp/rmui/rmui-device.l")
 (require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
+(require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
 (require :common-collabo-path "package://rmuieus/euslisp/common/common-collabo-path.l")
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :common-statenet-planner
          "package://rmuieus/euslisp/common/common-statenet-planner.l")
 (require :common-statenet-interactor
          "package://rmuieus/euslisp/common/common-statenet-interactor.l")
+(require :common-rmui-executor "package://rmuieus/euslisp/common/common-rmui-executor.l")
 (require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
-(require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
+(require :common-rmui-updater "package://rmuieus/euslisp/common/common-rmui-updater.l")
 
 (ros::roseus-add-msgs "rmui_msgs")
 
@@ -29,6 +31,7 @@
           interrupt-timeout
           ri
           robotviewer
+          pilotviewer
           ;; statenet
           slvr
           sm
@@ -40,9 +43,9 @@
           devices
           device-namespaces
           device-groupnames
-          object-state-estimator
-          robot-state-estimator
-          ;; rmplanner
+          devplanner
+          devexecutor
+          devupdater
           ;; state
           initial-state
           current-state
@@ -69,86 +72,130 @@
                (device-frame-ids)
                (device-world-frame-ids)
                (solver-class *solver-class*)
+               ((:motion-symbol-length msym-length) 5)
                ((:robot rbt) *robot*)
                ((:ri rbti) *ri*)
                ((:boxes bxs) *boxes*)
                ((:robotviewer rbtvw) *irtviewer*)
+               ((:table-z tblz) *table-z*)
+               ((:table-height tblh) *table-height*)
+               ((:wall-front-limit wfl) *wall-front-limit*)
+               ((:wall-left-limit wll) *wall-left-limit*)
+               ((:pilot plt) *pilot*)
+               ((:pilot-devices pltdevs) *pilot-devices*)
+               ((:pilotviewer pltvw) *pilotviewer*)
+               ((:pilot-table-z plttblz) *pilot-table-z*)
+               ((:pilot-table-height plttblh) *pilot-table-height*)
+               ((:pilot-wall-front-limit pwfl) *pilot-wall-front-limit*)
+               ((:pilot-wall-left-limit pwll) *pilot-wall-left-limit*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t)
                ((:skip-interaction skip-intr-p) nil))
-    (send-super :init ns sp :groupname gpn)
-    (setq namespace ns)
-    (setq server-namespace srvns)
-    (setq server-groupname srvgpn)
-    (setq groupname gpn)
-    (setq reset-state rs)
-    (setq device-namespaces devnss)
-    (setq device-groupnames devgpns)
-    (setq show-pdf shpdf)
-    (setq duration-threshold drthld)
-    (setq interrupt-timeout itrtmt)
-    (setq object-statenet-dir objnet-dir)
-    (setq collabo-statenet-dir clbnet-dir)
-    (setq dump-statenet-dir nil)
-    (setq ri rbti)
-    (setq robotviewer rbtvw)
+    (let ((device-topic-namespace))
+      (send-super :init ns sp :groupname gpn)
+      (setq namespace ns)
+      (setq server-namespace srvns)
+      (setq server-groupname srvgpn)
+      (setq groupname gpn)
+      (setq reset-state rs)
+      (setq device-namespaces devnss)
+      (setq device-groupnames devgpns)
+      (setq show-pdf shpdf)
+      (setq duration-threshold drthld)
+      (setq interrupt-timeout itrtmt)
+      (setq object-statenet-dir objnet-dir)
+      (setq collabo-statenet-dir clbnet-dir)
+      (setq dump-statenet-dir nil)
+      (setq ri rbti)
+      (setq robotviewer rbtvw)
+      (setq pilotviewer pltvw)
 
-    ;; instances
-    (setq gr
-          (load-merged-statenet-graph-with-reset
-            reset-state :data-dir object-statenet-dir))
-    (setq slvr (instance solver-class :init))
-    (setq stplanner
-          (instance statenet-planner :init
-                    :graph gr :solver slvr
-                    :state-func
-                    (if skip-intr-p
-                      #'(lambda (userdata) t)
-                      `(send ,self :get-statenet-state-submachine)
-                      )
-                    :teach-func
-                    (if skip-intr-p
-                      nil
-                      `(send ,self :get-statenet-teach-submachine))
-                    :robot rbt
-                    :ri rbti
-                    :boxes bxs
-                    :robotviewer rbtvw
-                    :use-torso utrso
-                    :move-robot mvrbt
-                    ))
-    (setq stinteractor
-          (instance statenet-interactor :init
-                    :namespace server-namespace
-                    :groupname server-groupname
-                    :mode :ros))
+      (setq device-topic-namespace
+            (if (> (length device-namespaces) 1)
+                "multi_rmui" (car device-namespaces)))
 
-    (setq devices nil)
-    (dotimes (i (length device-namespaces))
-      (let ((device-namespace (elt device-namespaces i))
-            (device-groupname (elt device-groupnames i))
-            (device-frame-id (elt device-frame-ids i))
-            (device-world-frame-id (elt device-world-frame-ids i)))
-        (setq devices
-              (append devices
-                      (list (instance rmui-device :init
-                                      :namespace device-namespace
-                                      :prx-threshold prx-threshold
-                                      :prx-position-threshold prx-position-threshold
-                                      :device-frame-id device-frame-id
-                                      :device-world-frame-id device-world-frame-id
-                                      :groupname device-groupname))))))
-    ; (setq rmplanner (instance rmui-planner :init :namespace device-namespace))
+      ;; instances
+      (setq gr
+            (load-merged-statenet-graph-with-reset
+              reset-state :data-dir object-statenet-dir))
+      (setq slvr (instance solver-class :init))
+      (setq stplanner
+            (instance statenet-planner :init
+                      :graph gr :solver slvr
+                      :state-func
+                      (if skip-intr-p
+                        #'(lambda (userdata) t)
+                        `(send ,self :get-statenet-state-submachine)
+                        )
+                      :teach-func
+                      (if skip-intr-p
+                        nil
+                        `(send ,self :get-statenet-teach-submachine))
+                      :robot rbt
+                      :ri rbti
+                      :boxes bxs
+                      :robotviewer rbtvw
+                      :use-torso utrso
+                      :move-robot mvrbt
+                      ))
+      (setq stinteractor
+            (instance statenet-interactor :init
+                      :namespace server-namespace
+                      :groupname server-groupname
+                      :mode :ros))
 
-    (ros::set-param (format nil "~A/n_box" server-namespace) (length bxs))
-    ;; state
-    (setq initial-state '(:init))
-    (setq current-state '(:init))
-    (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
-    (send self :init-timer)
-    (ros::ros-info "init finished")
-    (send self :dump-collabo-statenet)
-    (if show-pdf (send self :show-statenet-pdf))
+      (setq devices nil)
+      (dotimes (i (length device-namespaces))
+        (let ((device-namespace (elt device-namespaces i))
+              (device-groupname (elt device-groupnames i))
+              (device-frame-id (elt device-frame-ids i))
+              (device-world-frame-id (elt device-world-frame-ids i)))
+          (setq devices
+                (append devices
+                        (list (instance rmui-device :init
+                                        :namespace device-namespace
+                                        :prx-threshold prx-threshold
+                                        :prx-position-threshold prx-position-threshold
+                                        :device-frame-id device-frame-id
+                                        :device-world-frame-id device-world-frame-id
+                                        :groupname device-groupname))))))
+      (setq devplanner (instance rmui-planner :init
+                                 :namespace device-topic-namespace))
+      (setq devexecutor
+            (instance rmui-executor :init
+                      :namespace device-topic-namespace
+                      :motion-symbol-length msym-length
+                      :robot rbt
+                      :ri rbti
+                      :boxes bxs
+                      :robotviewer rbtvw
+                      :table-z tblz
+                      :table-height tblh
+                      :wall-front-limit wfl
+                      :wall-left-limit wll
+                      :pilot plt
+                      :pilot-devices pltdevs
+                      :pilotviewer pltvw
+                      :pilot-table-z plttblz
+                      :pilot-table-height plttblh
+                      :pilot-wall-front-limit pwfl
+                      :pilot-wall-left-limit pwll
+                      :use-torso utrso
+                      :move-robot mvrbt
+                      ))
+      (setq devupdater (instance rmui-updater :init
+                                 :namespace device-topic-namespace
+                                 :boxes bxs))
+
+      (ros::set-param (format nil "~A/n_box" server-namespace) (length bxs))
+      ;; state
+      (setq initial-state '(:init))
+      (setq current-state '(:init))
+      (ros::advertise "~current_state" rmui_msgs::StatenetStateStamped 1 t)
+      (send self :init-timer)
+      (ros::ros-info "init finished")
+      (send self :dump-collabo-statenet)
+      (if show-pdf (send self :show-statenet-pdf)))
     self)
   (:graph () gr)
   (:solver () slvr)
@@ -305,28 +352,90 @@
       sub-sm))
   ;; TODO (knorth55): implement teaching
   (:wait-ready-for-teach (userdata)
+    (send devexecutor :reset-motion-symbol-queues)
+    (setf (cdr (assoc :teach-state userdata))
+          (copy-seq (cdr (assoc :teach-start-state userdata))))
+    (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
     t)
-  ;; TODO (knorth55): implement teaching
   (:wait-device-user-input (userdata)
-    t)
-  ;; TODO (knorth55): implement teaching
+    ;; TODO (knorth55) : enable stop teaching state in while loop
+    (while t
+      (if device-groupnames
+        (dolist (device-groupname device-groupnames)
+          (ros::spin-once device-groupname)))
+      (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
+             (update-p
+               (eval (append '(or)
+                              (send-all devices :update-device-orientation))))
+             (device-states
+               (if update-p (send-all devices :get-device-state)))
+             (contact-positions
+               (mapcar
+                 #'(lambda (device-state)
+                     (cadr (assoc :contact-positions device-state)))
+                 device-states))
+             (motion-symbols
+               (send devplanner :get-motion-symbols
+                     contact-positions
+                     :scene-states prev-scene-states))
+             (update-motion-symbol-queues
+                (send devexecutor :update-motion-symbol-queues motion-symbols))
+             (checked-motion-symbols
+               (send devexecutor :check-motion-symbol-queues motion-symbols)))
+        (if (not (every #'null checked-motion-symbols))
+          (progn
+            (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
+            (return-from :wait-device-user-input t))))))
   (:execute-device-user-input (userdata)
-    t)
-  ;; TODO (knorth55): implement teaching
-  (:update-scene-state (userdata)
-    t)
+    (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
+           (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))
+           (executed-symbols-and-actions
+             (send devexecutor :execute-checked-motion-symbols
+                   checked-motion-symbols
+                   :scene-states prev-scene-states))
+           (update-scene-p
+             (send devupdater :update-scene-states executed-symbols-and-actions))
+           (executed-symbol update-scene-p)
+           (executed-actions (send devupdater :executed-actions)))
+      (if robotviewer (send robotviewer :draw-objects))
+      (if pilotviewer (send pilotviewer :draw-objects))
+      (if ri (send ri :draw-objects))
+      (if executed-symbol
+        (progn
+          (ros::ros-info
+            (format nil "executed-symbol  : ~A" executed-symbol))
+          (ros::ros-info
+            (format nil "executed-actions : ~A"
+                    (mapcar #'(lambda (x)
+                                (find-if-not #'null (car x)))
+                            executed-actions)))))
+      (return-from :execute-device-user-input (if executed-symbol t nil))))
   ;; TODO (knorth55): implement teaching
   (:ask-user-finish-teach (userdata)
     t)
-  ;; TODO (knorth55): implement teaching
   (:replan-in-statenet-teach (userdata)
-    t)
+    (ros::ros-warn "replanning...")
+    (let* ((start-state (send devupdater :last-scene-states))
+           (goal-state (cdr (assoc :goal-state userdata)))
+           (replan-sm
+             (send self :plan-state-machine start-state goal-state)))
+      (if replan-sm
+        (progn
+          (ros::ros-info "replanning succeeded")
+          (setq sm replan-sm)
+          (send self :set-start-state :state start-state)
+          (send self :initialize-state-machine userdata)
+          (send self :dump-collabo-statenet)
+          (return-from :replan-in-statenet-teach t))
+        (progn
+          (ros::ros-error "replanning failed...")
+          (ros::ros-error "cannot find a valid path to the goal-state")
+          (return-from :replan-in-statenet-teach nil)))))
   (:get-statenet-teach-submachine ()
     (let ((sub-sm (instance state-machine :init))
           (wait-ready-node-name "(wait-ready-for-teach)")
           (wait-device-node-name "(wait-device-user-input)")
           (execute-node-name "(execute-device-user-input)")
-          (update-node-name "(update-scene-state)")
           (ask-finish-node-name "(ask-finish)")
           (replan-node-name "(replan-in-statenet-teach)"))
       (add-teach-node sub-sm wait-ready-node-name
@@ -338,9 +447,6 @@
       (add-teach-node sub-sm execute-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :execute-device-user-input userdata)))
-      (add-teach-node sub-sm update-node-name
-                      `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :update-scene-state userdata)))
       (add-teach-node sub-sm ask-finish-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :ask-user-finish-teach userdata)))
@@ -350,12 +456,11 @@
       (send sub-sm :start-state wait-ready-node-name)
       (send sub-sm :goal-state '(t))
       (add-transition sub-sm wait-ready-node-name wait-device-node-name t)
-      (add-transition sub-sm wait-ready-node-name t nil)
+      (add-transition sub-sm wait-ready-node-name ask-finish-node-name nil)
       (add-transition sub-sm wait-device-node-name execute-node-name t)
-      (add-transition sub-sm wait-device-node-name wait-device-node-name nil)
-      (add-transition sub-sm execute-node-name update-node-name t)
+      (add-transition sub-sm wait-device-node-name ask-finish-node-name nil)
+      (add-transition sub-sm execute-node-name ask-finish-node-name t)
       (add-transition sub-sm execute-node-name wait-device-node-name nil)
-      (add-transition sub-sm update-node-name ask-finish-node-name t)
       (add-transition sub-sm ask-finish-node-name replan-node-name t)
       (add-transition sub-sm ask-finish-node-name wait-device-node-name nil)
       (add-transition sub-sm replan-node-name t t)
@@ -462,7 +567,9 @@
                              (cons :goal-state goal-state)
                              (cons :user-decision nil)
                              (cons :replan-start-state nil)
-                             (cons :teach-start-state nil)))
+                             (cons :teach-start-state nil)
+                             (cons :teach-state nil)
+                             (cons :teach-motion-symbols nil)))
              (hz 10.0)
              (execute-stamp (get-iso-stamp))
              (trained-executed-collabo-paths
@@ -659,6 +766,15 @@
                :ri *ri*
                :cubes *boxes*
                :vw *irtviewer*)
+  (pilot-scene-init :table-pos-y 0
+                    :n-device (length rmui-names)
+                    :wall-p wall-p
+                    :align-axis align-axis)
+  (motion-init :move-robot nil
+               :robot *pilot*
+               :ri nil
+               :cubes *pilot-devices*
+               :vw *pilotviewer*)
 
   ;; TODO (knorth55): change initial state from argument
   (set-statenet-reset-state (length rmui-names))
@@ -676,10 +792,18 @@
                   :device-frame-ids *device-frame-ids*
                   :device-world-frame-ids *device-world-frame-ids*
                   :solver-class *solver-class*
+                  :motion-symbol-length *motion-symbol-length*
                   :robot *robot*
                   :ri *ri*
                   :boxes *boxes*
                   :robotviewer *irtviewer*
+                  :table-z *table-z*
+                  :table-height *table-height*
+                  :pilot *pilot*
+                  :pilot-devices *pilot-devices*
+                  :pilotviewer *pilotviewer*
+                  :pilot-table-z *pilot-table-z*
+                  :pilot-table-height *pilot-table-height*
                   :use-torso *use-torso*
                   :move-robot t
                   :show-pdf pdf

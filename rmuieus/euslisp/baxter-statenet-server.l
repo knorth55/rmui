@@ -2,6 +2,8 @@
 
 (require :baxter-scenes "package://rmuieus/euslisp/baxter/baxter-scenes.l")
 (require :baxter-motions "package://rmuieus/euslisp/baxter/baxter-motions.l")
+(require :human-scenes "package://rmuieus/euslisp/human/human-scenes.l")
+(require :human-motions "package://rmuieus/euslisp/human/human-motions.l")
 (require :common-statenet-server "package://rmuieus/euslisp/common/common-statenet-server.l")
 (require :rmui-utils "package://rmuieus/euslisp/rmui/rmui-utils.l")
 
