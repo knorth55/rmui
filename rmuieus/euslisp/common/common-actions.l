@@ -89,11 +89,7 @@
 
 (defun push-release-action (&rest args)
   (let ((executed nil))
-    (setq executed
-          (apply #'push-release-motion args))
-    (setq executed
-          (and executed
-               (apply #'reset-cube-manip-motion args)))
+    (setq executed (apply #'push-release-and-reset-motion args))
     (if executed t nil)))
 
 
@@ -324,13 +320,7 @@
 
 
 (defun dualarm-push-release-action (&rest args)
-  (let ((executed))
-    (setq executed
-          (apply #'push-release-action (append (list :larm) args)))
-    (setq executed
-          (and executed
-               (apply #'push-release-action (append (list :rarm) args))))
-    (if executed t nil)))
+  (apply #'push-release-action (append (list :arms) args)))
 
 
 (defun dualarm-push-hold-pile-up-action (&rest args &key (ri *ri*) (cube *box0*)
