@@ -661,6 +661,40 @@
     target-coords))
 
 
+(defun push-release-and-reset-motion
+  (arm &rest args &key (move-robot t) (tm 3000) (use-torso 0.001)
+                       (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                       &allow-other-keys)
+  (let ((avs)
+        (released)
+        (reseted)
+        (prev-av (send robot :angle-vector)))
+    (setq released
+          (push-release-motion arm
+                               :move-robot nil :tm tm
+                               :use-torso use-torso
+                               :robot robot :ri ri :cube cube :vw vw))
+    (when released
+      (setq reseted
+            (reset-cube-manip-motion arm
+                                     :move-robot nil :tm tm
+                                     :use-torso use-torso
+                                     :robot robot :ri ri :vw vw)))
+    (if (and released reseted)
+      (when move-robot
+        (send ri :angle-vector-sequence
+              (append (car released) (car reseted))
+              (append (cadr released) (cadr reseted))
+              (get-arm-controller arm :use-torso use-torso) 0)
+        (send ri :wait-interpolation))
+      (progn
+        (send robot :angle-vector prev-av)))
+    (send vw :draw-objects)
+    (when (and released reseted)
+      (list (append (car released) (car reseted))
+            (append (cadr released) (cadr reseted))))))
+
+
 (defun push-release-motion (arm &rest args
                                 &key (move-robot t) (tm 3000) (use-torso 0.001)
                                      (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
