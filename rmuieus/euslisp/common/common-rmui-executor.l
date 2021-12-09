@@ -69,11 +69,6 @@
     (ros::advertise moving-visualize-topic-name std_msgs::Float32 1)
     (setq motion-symbol-length msym-length)
 
-    (setq motion-symbol-queues nil)
-    (dotimes (i (length bxs))
-      (setq motion-symbol-queues
-            (append motion-symbol-queues (list (list nil nil)))))
-
     (setq robot rbt)
     (setq ri rbti)
     (setq boxes bxs)
@@ -91,6 +86,8 @@
     (setq pilot-wall-left-limit pwll)
     (setq use-torso utrso)
     (setq move-robot mvrbt)
+
+    (send self :reset-motion-symbol-queues)
     self)
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
@@ -143,6 +140,11 @@
                                 rarm-action-args)))
            (list action-name action)))
         (t nil))))
+  (:reset-motion-symbol-queues ()
+    (setq motion-symbol-queues nil)
+    (dotimes (i (length boxes))
+      (setq motion-symbol-queues
+            (append motion-symbol-queues (list (list nil nil))))))
   (:update-motion-symbol-queues (motion-symbols)
     ;; update motion symbol queue
     (dotimes (i (length motion-symbols))
