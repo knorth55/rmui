@@ -230,6 +230,7 @@
     (send statenet-gr :write-to-pdf "rmui_statenet.pdf")
     (piped-fork "xdg-open rmui_statenet.pdf"))
   (:show-smach-pdf ()
+    (send sm :current-draw-mode)
     (send sm :write-to-pdf "rmui_smach.pdf")
     (piped-fork "xdg-open rmui_smach.pdf"))
   (:initialize-state-machine (userdata &key (root-name "SM_ROOT"))
