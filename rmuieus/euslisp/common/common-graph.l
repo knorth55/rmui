@@ -3,16 +3,9 @@
 (require :state-machine "package://roseus_smach/src/state-machine.l")
 
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
+(require :smach-state-machine "package://rmuieus/euslisp/smach/smach-state-machine.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
-
-
-(defmethod state-machine
-  (:append-goal-state (gs)
-    (if (atom gs) (setq gs (list gs)))
-    (setq gs (mapcar #'(lambda(g) (instance state :init g nil)) gs))
-    (dolist (n gs) (send self :add-node n))
-    (send-super :goal-state (append goal-state gs))))
 
 
 (defun remove-key-from-action (action-sym key)

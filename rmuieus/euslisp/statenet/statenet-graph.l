@@ -1,4 +1,5 @@
 (require :pddl-result-graph "package://pddl_planner/src/pddl-result-graph.l")
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 
 
 (defclass statenet-graph
@@ -20,19 +21,7 @@
                            ((eq node-name :pprint)
                             (cond
                               ((listp (car pddl-state))
-                               (let ((str (make-string-output-stream 128)))
-                                 (format str "(")
-                                 (dolist (pdst (butlast pddl-state))
-                                   (format str "(")
-                                   (dolist (e (butlast pdst))
-                                     (format str "~A\\n" e))
-                                   (format str "~A)" (car (last pdst)))
-                                   (format str "\\n"))
-                                 (format str "(")
-                                 (dolist (e (butlast (car (last pddl-state))))
-                                   (format str "~A\\n" e))
-                                 (format str "~A))" (car (last (car (last pddl-state)))))
-                                 (get-output-stream-string str)))
+                               (convert-scene-state-to-string pddl-state))
                               (t (format nil "~A" pddl-state))))
                            (t (string-upcase (format nil "~A" pddl-state)))))))
          (incf cntr)
