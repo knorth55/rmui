@@ -326,7 +326,7 @@
 (defun dualarm-push-release-action (&rest args)
   (let ((executed))
     (setq executed
-          (apply #'push-release-action (append (list :larm :move-robot nil) args)))
+          (apply #'push-release-action (append (list :larm) args)))
     (setq executed
           (and executed
                (apply #'push-release-action (append (list :rarm) args))))
