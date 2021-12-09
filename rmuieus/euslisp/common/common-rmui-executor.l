@@ -143,35 +143,16 @@
                                 rarm-action-args)))
            (list action-name action)))
         (t nil))))
-  (:execute-motion-symbols
-    (motion-symbols &key (scene-states))
-    (let ((motion-symbols-and-actions
-            (make-list (length motion-symbols) :initial-element nil)))
-      ;; update motion symbol queue
-      (dotimes (i (length motion-symbols))
-        (let ((motion-symbol-queue
-                (send self :update-motion-symbol-queue
-                      (elt motion-symbols i)
-                      (elt motion-symbol-queues i)
-                      :scene-state (elt scene-states i))))
-          (setf (elt motion-symbol-queues i) motion-symbol-queue)))
-      ;; execute motion symbols
-      ;; execute only one symbol
-      (dotimes (i (length motion-symbols))
-        (let ((motion-symbol-and-action
-                (send self :execute-motion-symbol
-                      (elt motion-symbols i)
-                      (elt motion-symbol-queues i)
-                      :scene-state (elt scene-states i)
-                      :pilot-device (elt pilot-devices i)
-                      :box (elt boxes i))))
-          (if motion-symbol-and-action
-            (progn
-              (setf (elt motion-symbols-and-actions i) motion-symbol-and-action)
-              (return-from :execute-motion-symbols motion-symbols-and-actions)))))
-      motion-symbols-and-actions))
+  (:update-motion-symbol-queues (motion-symbols)
+    ;; update motion symbol queue
+    (dotimes (i (length motion-symbols))
+      (let ((motion-symbol-queue
+              (send self :update-motion-symbol-queue
+                    (elt motion-symbols i)
+                    (elt motion-symbol-queues i))))
+        (setf (elt motion-symbol-queues i) motion-symbol-queue))))
   (:update-motion-symbol-queue
-    (motion-symbol motion-symbol-queue &key (scene-state))
+    (motion-symbol motion-symbol-queue)
     (let* ((larm-motion-symbol-queue (car motion-symbol-queue))
            (rarm-motion-symbol-queue (cadr motion-symbol-queue))
            (larm-motion-symbol (car motion-symbol))
@@ -183,25 +164,27 @@
             (send self :append-motion-symbol-queue
                   rarm-motion-symbol-queue rarm-motion-symbol))
       (list larm-motion-symbol-queue rarm-motion-symbol-queue)))
-  (:execute-motion-symbol
-    (motion-symbol motion-symbol-queue &key (scene-state) (pilot-device) (box))
-    (let* ((larm-contact-state
-             (cadr (assoc :larm-contact-state scene-state)))
-           (rarm-contact-state
-             (cadr (assoc :rarm-contact-state scene-state)))
-           (floor-contact-state
-             (cadr (assoc :floor-contact-state scene-state)))
-           (object-location-state
-             (cadr (assoc :object-location-state scene-state)))
-           (object-rotation-state
-             (cadr (assoc :object-rotation-state scene-state)))
-           (larm-motion-symbol-queue (car motion-symbol-queue))
+  (:check-motion-symbol-queues (motion-symbols)
+    (let ((checked-motion-symbols
+            (make-list (length motion-symbols) :initial-element nil)))
+      (dotimes (i (length motion-symbols))
+        (let ((checked-motion-symbol
+                (send self :check-motion-symbol-queue
+                      (elt motion-symbols i)
+                      (elt motion-symbol-queues i))))
+          (if checked-motion-symbol
+            (progn
+              (setf (elt checked-motion-symbols i) checked-motion-symbol)
+              (return-from :check-motion-symbol-queues checked-motion-symbols)))))
+      checked-motion-symbols))
+  (:check-motion-symbol-queue
+    (motion-symbol motion-symbol-queue)
+    (let* ((larm-motion-symbol-queue (car motion-symbol-queue))
            (rarm-motion-symbol-queue (cadr motion-symbol-queue))
            (larm-motion-symbol (car motion-symbol))
            (rarm-motion-symbol (cadr motion-symbol))
-           (executed nil)
-           (execute-symbol nil)
-           larm-execute-p rarm-execute-p)
+           (larm-execute-p nil)
+           (rarm-execute-p nil))
       ;; check motion symbol queue
       (if (or larm-motion-symbol rarm-motion-symbol)
         (ros::publish waiting-visualize-topic-name
@@ -212,8 +195,44 @@
             (send self :check-every-motion-queue rarm-motion-symbol-queue rarm-motion-symbol))
       (setq larm-motion-symbol (if larm-execute-p larm-motion-symbol))
       (setq rarm-motion-symbol (if rarm-execute-p rarm-motion-symbol))
-      (setq motion-symbol-queue (list larm-motion-symbol-queue rarm-motion-symbol-queue))
-
+      (if (or larm-motion-symbol rarm-motion-symbol)
+        (list larm-motion-symbol rarm-motion-symbol) nil)))
+  (:execute-checked-motion-symbols
+    (checked-motion-symbols &key (scene-states))
+    (let ((motion-symbols-and-actions
+            (make-list (length checked-motion-symbols) :initial-element nil)))
+      ;; execute motion symbols
+      ;; execute only one symbol
+      (dotimes (i (length checked-motion-symbols))
+        (let ((motion-symbol-and-action
+                (if (elt checked-motion-symbols i)
+                  (send self :execute-checked-motion-symbol
+                        (elt checked-motion-symbols i)
+                        :scene-state (elt scene-states i)
+                        :pilot-device (elt pilot-devices i)
+                        :box (elt boxes i)))))
+          (if motion-symbol-and-action
+            (progn
+              (setf (elt motion-symbols-and-actions i) motion-symbol-and-action)
+              (return-from :execute-checked-motion-symbols
+                           motion-symbols-and-actions)))))
+      motion-symbols-and-actions))
+  (:execute-checked-motion-symbol
+    (checked-motion-symbol &key (scene-state) (pilot-device) (box))
+    (let* ((larm-contact-state
+             (cadr (assoc :larm-contact-state scene-state)))
+           (rarm-contact-state
+             (cadr (assoc :rarm-contact-state scene-state)))
+           (floor-contact-state
+             (cadr (assoc :floor-contact-state scene-state)))
+           (object-location-state
+             (cadr (assoc :object-location-state scene-state)))
+           (object-rotation-state
+             (cadr (assoc :object-rotation-state scene-state)))
+           (larm-motion-symbol (car checked-motion-symbol))
+           (rarm-motion-symbol (cadr checked-motion-symbol))
+           (executed nil)
+           (execute-symbol nil))
       ;; execute motion symbols
       (if (or larm-motion-symbol rarm-motion-symbol)
         (progn
@@ -225,7 +244,7 @@
                             (instance std_msgs::Float32 :init :data 1.0))))
           (let* ((action-name-and-action
                    (send self :get-action-from-motion-symbol
-                     larm-motion-symbol rarm-motion-symbol))
+                         larm-motion-symbol rarm-motion-symbol))
                  (action-name (if action-name-and-action (car action-name-and-action)))
                  (action (if action-name-and-action (cadr action-name-and-action))))
             ;; robot execution
@@ -273,6 +292,18 @@
                         (t nil)))
                 (list execute-symbol action-name action)
                 )))))))
+  ;; run update, check and execute in one method
+  (:execute-motion-symbols
+    (motion-symbols &key (scene-states))
+    (let* ((update-motion-symbol-queues
+             (send self :update-motion-symbol-queues motion-symbols))
+           (checked-motion-symbols
+             (send self :check-motion-symbol-queues motion-symbols))
+           (executed-symbols-and-actions
+             (send self :execute-checked-motion-symbols
+                   checked-motion-symbols
+                   :scene-states scene-states)))
+      executed-symbols-and-actions))
   )
 
 
