@@ -202,6 +202,8 @@
   (:solver () slvr)
   (:statenet-planner () stplanner)
   (:state-machine () sm)
+  (:add-action-state-in-statenet-graph (action prev-scene-states scene-states)
+    (add-action-state-in-graph statenet-gr action prev-scene-states scene-states))
   (:dump-collabo-statenet ()
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
@@ -389,7 +391,6 @@
             (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
             (return-from :wait-device-user-input t))))))
   ;; TODO (knorth55): add executed state and action in executed-collabo-path
-  ;; TODO (knorth55): add executed state and action in collabo-statenet
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
            (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))
@@ -400,11 +401,12 @@
            (update-scene-p
              (send devupdater :update-scene-states executed-symbols-and-actions))
            (executed-symbol update-scene-p)
-           (executed-actions (send devupdater :executed-actions)))
+           (executed-actions (send devupdater :executed-actions))
+           (scene-states (send devupdater :last-scene-states)))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
-      (if executed-symbol
+      (if update-scene-p
         (progn
           (ros::ros-info
             (format nil "executed-symbol  : ~A" executed-symbol))
@@ -412,7 +414,10 @@
             (format nil "executed-actions : ~A"
                     (mapcar #'(lambda (x)
                                 (find-if-not #'null (car x)))
-                            executed-actions)))))
+                            executed-actions)))
+          (send self :add-action-state-in-statenet-graph
+                executed-actions prev-scene-states scene-states )
+          (send self :dump-collabo-statenet)))
       (return-from :execute-device-user-input (if executed-symbol t nil))))
   ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
