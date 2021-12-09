@@ -1504,13 +1504,14 @@
 
 (defun reset-cube-manip-motion (arm &rest args
                                     &key (move-robot t) (tm 5000) (use-torso 0.001)
-                                         (robot *robot*) (ri *ri*)
+                                         (robot *robot*) (ri *ri*) (vw *irtviewer*)
                                          &allow-other-keys)
   (let ((av (send robot :reset-cube-manip-pose arm)))
     (when move-robot
       (send ri :angle-vector (send robot :angle-vector)
             tm (get-arm-controller arm :use-torso use-torso) 0)
       (send ri :wait-interpolation))
+    (send vw :draw-objects)
     (list (list av) (list tm))))
 
 
