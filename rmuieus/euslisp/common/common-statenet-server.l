@@ -36,7 +36,7 @@
           slvr
           sm
           insp
-          gr
+          statenet-gr
           stplanner
           stinteractor
           ;; rmui
@@ -115,14 +115,14 @@
                 "multi_rmui" (car device-namespaces)))
 
       ;; instances
-      (setq gr
+      (setq statenet-gr
             (load-merged-statenet-graph-with-reset
               reset-state
               :data-dirs (list object-statenet-dir collabo-statenet-dir)))
       (setq slvr (instance solver-class :init))
       (setq stplanner
             (instance statenet-planner :init
-                      :graph gr :solver slvr
+                      :solver slvr
                       :state-func
                       (if skip-intr-p
                         #'(lambda (userdata) t)
@@ -198,7 +198,7 @@
       (send self :dump-collabo-statenet)
       (if show-pdf (send self :show-statenet-pdf)))
     self)
-  (:graph () gr)
+  (:statenet-graph () statenet-gr)
   (:solver () slvr)
   (:statenet-planner () stplanner)
   (:state-machine () sm)
@@ -206,7 +206,7 @@
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
             (create-dump-dir collabo-statenet-dir)))
-    (dump-statenet-graph gr :data-dir collabo-statenet-dir))
+    (dump-statenet-graph statenet-gr :data-dir collabo-statenet-dir))
   (:dump-executed-collabo-path (executed-collabo-path execute-stamp)
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
@@ -227,7 +227,7 @@
                        `(lambda-closure nil 0 0 (event)
                                         (send ,self :execute-cb))))
   (:show-statenet-pdf ()
-    (send gr :write-to-pdf "rmui_statenet.pdf")
+    (send statenet-gr :write-to-pdf "rmui_statenet.pdf")
     (piped-fork "xdg-open rmui_statenet.pdf"))
   (:show-smach-pdf ()
     (send sm :write-to-pdf "rmui_smach.pdf")
@@ -248,7 +248,7 @@
         (send sm :start-state (send sm :node node-name)))))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
     (send stplanner :generate-smach-from-state
-          start-state goal-state
+          statenet-gr start-state goal-state
           :first-action first-action
           :no-loop no-loop))
   (:convert-collabo-path-to-state-machine (collabo-path)
@@ -295,7 +295,7 @@
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
         (let ((user-decision
-                (send stinteractor :ask-user-decision sm gr :timeout nil)))
+                (send stinteractor :ask-user-decision sm statenet-gr :timeout nil)))
           (setf (cdr (assoc :user-decision userdata)) user-decision)
           (cond
             ;; replan
@@ -387,7 +387,8 @@
           (progn
             (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
             (return-from :wait-device-user-input t))))))
-  ;; TODO (knorth55): add executed action in executed-collabo-path and collabo-statenet
+  ;; TODO (knorth55): add executed state and action in executed-collabo-path
+  ;; TODO (knorth55): add executed state and action in collabo-statenet
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
            (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))

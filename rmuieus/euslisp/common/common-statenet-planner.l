@@ -3,8 +3,7 @@
 
 (defclass statenet-planner
   :super propertied-object
-  :slots (gr
-          slvr
+  :slots (slvr
           state-func
           teach-func
           robot
@@ -18,8 +17,7 @@
 
 
 (defmethod statenet-planner
-  (:init (&key ((:graph g))
-               ((:solver s))
+  (:init (&key ((:solver s))
                ((:state-func sfunc))
                ((:teach-func tfunc))
                ((:robot rbt) *robot*)
@@ -28,7 +26,6 @@
                ((:robotviewer rbtvw) *irtviewer*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t))
-    (setq gr g)
     (setq slvr s)
     (setq state-func sfunc)
     (setq teach-func tfunc)
@@ -39,7 +36,7 @@
     (setq use-torso utrso)
     (setq move-robot mvrbt)
     self)
-  (:solve-statenet-path (start-state goal-state &key (first-action nil))
+  (:solve-statenet-path (gr start-state goal-state &key (first-action nil))
     (let ((start-node (send gr :search-node-from-pddl-state start-state))
           (goal-node (send gr :search-node-from-pddl-state goal-state)))
       (if first-action
@@ -84,10 +81,11 @@
       :robot robot :ri ri :cubes boxes
       :vw robotviewer :use-torso use-torso
       :move-robot move-robot))
-  (:generate-smach-from-state (start-state goal-state &key (first-action nil) (no-loop nil))
+  (:generate-smach-from-state
+    (gr start-state goal-state &key (first-action nil) (no-loop nil))
     (let* ((solution
              (send self :solve-statenet-path
-                   start-state goal-state :first-action first-action))
+                   gr start-state goal-state :first-action first-action))
            (sm (if solution
                  (send self :convert-solution-to-state-machine
                        solution :no-loop no-loop))))
