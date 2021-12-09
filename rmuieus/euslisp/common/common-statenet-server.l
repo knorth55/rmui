@@ -117,7 +117,8 @@
       ;; instances
       (setq gr
             (load-merged-statenet-graph-with-reset
-              reset-state :data-dir object-statenet-dir))
+              reset-state
+              :data-dirs (list object-statenet-dir collabo-statenet-dir)))
       (setq slvr (instance solver-class :init))
       (setq stplanner
             (instance statenet-planner :init
