@@ -249,6 +249,28 @@
     (if s
       (let ((node-name (format nil "~A" (if a (list a s) s))))
         (send sm :start-state (send sm :node node-name)))))
+  (:plan-state-machine-with-trained-paths
+    (start-state goal-state &key (first-action nil) (no-loop nil))
+    (let ((trained-executed-collabo-paths
+            (send self :load-trained-collabo-paths start-state goal-state))
+          (tmp-sm nil))
+      (if trained-executed-collabo-paths
+        (progn
+          (ros::ros-warn "This is a trained task.")
+          (ros::ros-warn "Loading the trained path.")
+          ;; generate sm from latest successful path
+          (setq tmp-sm
+                (send self :convert-collabo-path-to-state-machine
+                      (car trained-executed-collabo-paths))))
+        ;; first time for this task, so planning.
+        ;; generate smach machine
+        (progn
+          (ros::ros-warn "This is a new task.")
+          (ros::ros-warn "Planning the path")
+          (setq tmp-sm
+                (send self :plan-state-machine start-state goal-state
+                      :first-action first-action :no-loop no-loop))))
+      (list tmp-sm trained-executed-collabo-paths)))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
     (send stplanner :generate-smach-from-state
           statenet-gr start-state goal-state
@@ -428,7 +450,8 @@
     (let* ((start-state (cdr (assoc :teach-state userdata)))
            (goal-state (cdr (assoc :goal-state userdata)))
            (replan-sm
-             (send self :plan-state-machine start-state goal-state)))
+             (car (send self :plan-state-machine-with-trained-paths
+                        start-state goal-state :first-action nil :no-loop t))))
       (if replan-sm
         (progn
           (ros::ros-info "replanning succeeded")
@@ -585,9 +608,10 @@
                              (cons :teach-state nil)
                              (cons :teach-motion-symbols nil)))
              (hz 10.0)
-             (execute-stamp (get-iso-stamp))
-             (trained-executed-collabo-paths
-               (send self :load-trained-collabo-paths start-state goal-state))
+             (planning-result
+               (send self :plan-state-machine-with-trained-paths
+                       start-state goal-state :first-action nil :no-loop t))
+             (trained-executed-collabo-paths (cadr planning-result))
              (executed-collabo-path
                (list
                  (list
@@ -602,24 +626,9 @@
                                :to-sec))
                    (list :end-stamp nil)
                    (list :first-time
-                         (if trained-executed-collabo-paths t nil))))))
-        (if trained-executed-collabo-paths
-          (progn
-            (ros::ros-warn "This is a trained task.")
-            (ros::ros-warn "Loading the trained path.")
-            ;; generate sm from latest successful path
-            (setq sm (send self :convert-collabo-path-to-state-machine
-                           (car trained-executed-collabo-paths)))
-            )
-          ;; first time for this task, so planning.
-          ;; generate smach machine
-          (progn
-            (ros::ros-warn "This is a new task.")
-            (ros::ros-warn "Planning the path")
-            (setq sm (send self :plan-state-machine start-state goal-state
-                           :first-action nil :no-loop t))
-            ))
-
+                         (if trained-executed-collabo-paths t nil)))))
+             (execute-stamp (get-iso-stamp)))
+        (setq sm (car planning-result))
         ;; check if sm is nil
         (if (null sm)
           (progn
