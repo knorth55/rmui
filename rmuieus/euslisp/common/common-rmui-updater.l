@@ -24,6 +24,7 @@
           statenet-gr
           data-dir
           dump-dir
+          boxes
           larm-contact-state-conditions
           rarm-contact-state-conditions
           floor-contact-state-conditions
@@ -38,17 +39,8 @@
                 *training-object-statenet-path*)
                ((:boxes bxs)))
     (setq namespace (if ns ns ""))
-
-    ;; initialize
-    (setq executed-actions nil)
-    (setq pddl-gr (instance pddl-graph :init))
-    (setq statenet-gr (instance statenet-graph :init))
     (setq data-dir ddir)
-    (setq dump-dir nil)
-
-    ;; TODO (knorth55): change initial state from argument
-    ;; initial conditions
-    (setq scene-states-list (list (get-initial-scene-states (length bxs))))
+    (setq boxes bxs)
 
     ;; update conditions
     (setq larm-contact-state-conditions (load-larm-contact-state-conditions))
@@ -56,7 +48,18 @@
     (setq floor-contact-state-conditions (load-floor-contact-state-conditions))
     (setq object-location-state-conditions (load-object-location-state-conditions))
     (setq object-rotation-state-conditions (load-object-rotation-state-conditions))
+
+    ;; initialize
+    ;; TODO (knorth55): change initial state from argument
+    (send self :reset-updater)
     self)
+  (:reset-updater
+    (&key (initial-scene-states (get-initial-scene-states (length boxes))))
+    (setq executed-actions nil)
+    (setq pddl-gr (instance pddl-graph :init))
+    (setq statenet-gr (instance statenet-graph :init))
+    (setq dump-dir nil)
+    (setq scene-states-list (list initial-scene-states)))
   (:initial-scene-states ()
     (mapcar #'(lambda (x) (mapcar #'copy-seq x))
             (car scene-states-list)))
