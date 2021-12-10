@@ -356,11 +356,12 @@
       sub-sm))
   ;; TODO (knorth55): ask user if ready for teach 
   (:wait-ready-for-teach (userdata)
-    (send devexecutor :reset-motion-symbol-queues)
-    (setf (cdr (assoc :teach-state userdata))
-          (copy-seq (cdr (assoc :teach-start-state userdata))))
-    (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
-    t)
+    (let ((teach-start-state (cdr (assoc :teach-start-state userdata))))
+      (send devexecutor :reset-motion-symbol-queues)
+      (send devupdater :append-scene-states-list (copy-seq teach-start-state))
+      (setf (cdr (assoc :teach-state userdata)) (copy-seq teach-start-state))
+      (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
+      t))
   ;; TODO (knorth55) : enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
     (while t
@@ -439,6 +440,9 @@
         (progn
           (ros::ros-error "replanning failed...")
           (ros::ros-error "cannot find a valid path to the goal-state")
+          (setf (cdr (assoc :teach-start-state userdata))
+                (copy-seq (cdr (assoc :teach-state userdata))))
+          (ros::ros-error "go back to teach state")
           (return-from :replan-in-statenet-teach nil)))))
   (:get-statenet-teach-submachine ()
     (let ((sub-sm (instance state-machine :init))
@@ -473,6 +477,7 @@
       (add-transition sub-sm ask-finish-node-name replan-node-name t)
       (add-transition sub-sm ask-finish-node-name wait-device-node-name nil)
       (add-transition sub-sm replan-node-name t t)
+      (add-transition sub-sm replan-node-name wait-ready-node-name nil)
       sub-sm))
   (:simplify-trained-collabo-paths (collabo-paths)
     (mapcar #'(lambda (collabo-path)
