@@ -418,8 +418,10 @@
                                 (find-if-not #'null (car x)))
                             executed-actions)))
           (send self :add-action-state-in-statenet-graph
-                executed-actions prev-scene-states scene-states )
-          (send self :dump-collabo-statenet)))
+                executed-actions prev-scene-states scene-states)
+          (send self :dump-collabo-statenet)
+          (setf (cdr (assoc :teach-state userdata)) (copy-seq scene-states))
+          ))
       (return-from :execute-device-user-input (if executed-symbol t nil))))
   ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
