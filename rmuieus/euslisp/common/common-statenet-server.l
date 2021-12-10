@@ -430,21 +430,26 @@
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
+      (if update-scene-p
+        (progn
+          (ros::ros-warn
+            (format nil "executed-symbol  : ~A" executed-symbol))
+          (ros::ros-warn
+            (format nil "executed-actions : ~A"
+                    (mapcar #'(lambda (x)
+                                (find-if-not #'null (car x)))
+                            executed-actions)))))
       (return-from :execute-device-user-input (if update-scene-p t nil))))
   ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
-    (ros::ros-warn
-      (format nil "executed-symbol  : ~A" executed-symbol))
-    (ros::ros-warn
-      (format nil "executed-actions : ~A"
-              (mapcar #'(lambda (x)
-                          (find-if-not #'null (car x)))
-                      executed-actions)))
-    (send self :add-action-state-in-statenet-graph
-          executed-actions prev-scene-states scene-states)
-    (send self :dump-collabo-statenet)
-    (setf (cdr (assoc :teach-state userdata)) (copy-seq scene-states))
-    t)
+    (let ((prev-scene-states (cdr (assoc :teach-state userdata)))
+          (scene-states (send devupdater :last-scene-states))
+          (executed-action (send devupdater :last-executed-action)))
+      (send self :add-action-state-in-statenet-graph
+            executed-action prev-scene-states scene-states)
+      (send self :dump-collabo-statenet)
+      (setf (cdr (assoc :teach-state userdata)) scene-states)
+      t))
   (:replan-in-statenet-teach (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :teach-state userdata)))
