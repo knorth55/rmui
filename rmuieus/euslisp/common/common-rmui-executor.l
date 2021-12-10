@@ -87,7 +87,7 @@
     (setq use-torso utrso)
     (setq move-robot mvrbt)
 
-    (send self :reset-motion-symbol-queues)
+    (send self :reset-executor)
     self)
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
@@ -140,7 +140,7 @@
                                 rarm-action-args)))
            (list action-name action)))
         (t nil))))
-  (:reset-motion-symbol-queues ()
+  (:reset-executor ()
     (setq motion-symbol-queues nil)
     (dotimes (i (length boxes))
       (setq motion-symbol-queues

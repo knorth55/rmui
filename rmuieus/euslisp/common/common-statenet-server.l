@@ -357,7 +357,7 @@
   ;; TODO (knorth55): ask user if ready for teach 
   (:wait-ready-for-teach (userdata)
     (let ((teach-start-state (cdr (assoc :teach-start-state userdata))))
-      (send devexecutor :reset-motion-symbol-queues)
+      (send devexecutor :reset-executor)
       (send devupdater :append-scene-states-list (copy-seq teach-start-state))
       (setf (cdr (assoc :teach-state userdata)) (copy-seq teach-start-state))
       (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
