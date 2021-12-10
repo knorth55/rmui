@@ -555,6 +555,20 @@
                              successp)
                       collabo-path))))
             trained-collabo-paths)))))
+  (:append-executed-collabo-path
+    (executed-collabo-path &key (node-type) (state-action) (start-stamp) (end-stamp))
+    (append
+      executed-collabo-path
+      (list
+        (list
+          (cond
+            ((equal node-type :action-node) :action)
+            ((equal node-type :state-node) :state)
+            (t nil))
+          (list :node-type node-type)
+          (list :state-action state-action)
+          (list :start-stamp start-stamp)
+          (list :end-stamp end-stamp)))))
   (:execute-statenet-cb (goal)
     (let ((start-state
             (if (> (length (send goal :goal :start_state :state)) 0)
@@ -691,37 +705,30 @@
               (setq execute-end-stamp (ros::time-now))
 
               ;; append executed state actions
-              (let ((last-executed-state-action (car (last executed-collabo-path)))
-                    (relative-execute-start-sec
+              (let ((relative-execute-start-sec
                       (send (ros::time- execute-start-stamp start-stamp) :to-sec))
                     (relative-execute-end-sec
                       (send (ros::time- execute-end-stamp start-stamp) :to-sec)))
                 (cond
                   ((equal node-type :state-node)
                    (setq executed-collabo-path
-                         (append
-                           executed-collabo-path
-                           (list
-                             (list
-                               :state
-                               (list :node-type node-type)
-                               (list :state-action node-sym)
-                               (list :start-stamp relative-execute-start-sec)
-                               (list :end-stamp relative-execute-end-sec)))))
+                         (send self :append-executed-collabo-path
+                               executed-collabo-path
+                               :node-type node-type
+                               :state-action node-sym
+                               :start-stamp relative-execute-start-sec
+                               :end-stamp relative-execute-end-sec))
                    (send self :dump-executed-collabo-path
                          executed-collabo-path execute-stamp)
                    (ros::ros-info (format nil "current-state: ~A" current-state)))
                   ((equal node-type :action-node)
                    (setq executed-collabo-path
-                         (append
-                           executed-collabo-path
-                           (list
-                             (list
-                               :action
-                               (list :node-type node-type)
-                               (list :state-action (car node-sym))
-                               (list :start-stamp relative-execute-start-sec)
-                               (list :end-stamp relative-execute-end-sec)))))
+                         (send self :append-executed-collabo-path
+                               executed-collabo-path
+                               :node-type node-type
+                               :state-action (car node-sym)
+                               :start-stamp relative-execute-start-sec
+                               :end-stamp relative-execute-end-sec))
                    (send self :dump-executed-collabo-path
                          executed-collabo-path execute-stamp)
                    (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
