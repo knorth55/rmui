@@ -2,6 +2,17 @@
 
 
 (defmethod state-machine
+  (:bottom-active-state (&optional top-active-state)
+    (if (not top-active-state)
+      (setq top-active-state active-state))
+    (if (listp top-active-state)
+      (flatten
+        (mapcar #'(lambda (x) (send self :bottom-active-state x))
+                top-active-state))
+      (if (send top-active-state :submachine)
+        (send (send top-active-state :submachine)
+              :bottom-active-state)
+        top-active-state)))
   (:append-goal-state (gs)
     (if (atom gs) (setq gs (list gs)))
     (setq gs (mapcar #'(lambda(g) (instance state :init g nil)) gs))
