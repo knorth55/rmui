@@ -378,7 +378,10 @@
       sub-sm))
   ;; TODO (knorth55): ask user if ready for teach 
   (:wait-ready-for-teach (userdata)
+    t)
+  (:initialize-teach-device (userdata)
     (let ((teach-start-state (cdr (assoc :teach-start-state userdata))))
+      (ros::ros-info "Initializing teach-device")
       (send devexecutor :reset-executor)
       (send devupdater :reset-updater
             :initial-scene-states (copy-seq teach-start-state))
@@ -387,6 +390,7 @@
       t))
   ;; TODO (knorth55) : enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
+    (ros::ros-info "Waiting for device input")
     (while t
       (if device-groupnames
         (dolist (device-groupname device-groupnames)
@@ -425,31 +429,26 @@
            (update-scene-p
              (send devupdater :update-scene-states executed-symbols-and-actions))
            (executed-symbol update-scene-p)
-           (executed-actions (send devupdater :executed-actions))
-           (scene-states (send devupdater :last-scene-states)))
+           (scene-states (send devupdater :last-scene-states))
+           (executed-action (send devupdater :last-executed-action))
+           )
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
       (if update-scene-p
         (progn
           (ros::ros-warn
-            (format nil "executed-symbol  : ~A" executed-symbol))
+            (format nil "executed-symbol : ~A" executed-symbol))
           (ros::ros-warn
-            (format nil "executed-actions : ~A"
-                    (mapcar #'(lambda (x)
-                                (find-if-not #'null (car x)))
-                            executed-actions)))))
+            (format nil "executed-action : ~A" executed-action))
+          (send self :add-action-state-in-statenet-graph
+                executed-action prev-scene-states scene-states)
+          (send self :dump-collabo-statenet)
+          (setf (cdr (assoc :teach-state userdata)) scene-states)))
       (return-from :execute-device-user-input (if update-scene-p t nil))))
   ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
-    (let ((prev-scene-states (cdr (assoc :teach-state userdata)))
-          (scene-states (send devupdater :last-scene-states))
-          (executed-action (send devupdater :last-executed-action)))
-      (send self :add-action-state-in-statenet-graph
-            executed-action prev-scene-states scene-states)
-      (send self :dump-collabo-statenet)
-      (setf (cdr (assoc :teach-state userdata)) scene-states)
-      t))
+    t)
   (:replan-in-statenet-teach (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :teach-state userdata)))
@@ -475,6 +474,7 @@
   (:get-statenet-teach-submachine ()
     (let ((sub-sm (instance state-machine :init))
           (wait-ready-node-name "(wait-ready-for-teach)")
+          (init-device-node-name "(initialize-teach-device)")
           (wait-device-node-name "(wait-device-user-input)")
           (execute-node-name "(execute-device-user-input)")
           (ask-finish-node-name "(ask-finish)")
@@ -482,6 +482,9 @@
       (add-teach-node sub-sm wait-ready-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :wait-ready-for-teach userdata)))
+      (add-teach-node sub-sm init-device-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :initialize-teach-device userdata)))
       (add-teach-node sub-sm wait-device-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :wait-device-user-input userdata)))
@@ -496,8 +499,9 @@
                                        (send ,self :replan-in-statenet-teach userdata)))
       (send sub-sm :start-state wait-ready-node-name)
       (send sub-sm :goal-state '(t))
-      (add-transition sub-sm wait-ready-node-name wait-device-node-name t)
-      (add-transition sub-sm wait-ready-node-name ask-finish-node-name nil)
+      (add-transition sub-sm wait-ready-node-name init-device-node-name t)
+      (add-transition sub-sm wait-ready-node-name t nil)
+      (add-transition sub-sm init-device-node-name wait-device-node-name t)
       (add-transition sub-sm wait-device-node-name execute-node-name t)
       (add-transition sub-sm wait-device-node-name ask-finish-node-name nil)
       (add-transition sub-sm execute-node-name ask-finish-node-name t)
