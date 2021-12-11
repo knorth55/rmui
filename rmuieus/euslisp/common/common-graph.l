@@ -133,7 +133,7 @@
 (defun convert-graph-to-smach
   (gr start-state &key (state-func #'(lambda (x) t)) (teach-func nil))
   (let ((sm (instance state-machine :init))
-        (abort-name ":abort")
+        (abort-name "(:abort)")
         (goals nil)
         (aborts nil))
     (dolist (node (send gr :nodes))
@@ -156,7 +156,7 @@
                  (to-node (cdr act))
                  (to-state-sym (convert-string-to-sym (send to-node :name)))
                  (to-name (format nil "~A" to-state-sym))
-                 (teach-name (format nil "~A" (list :teach from-state-sym))))
+                 (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
             (add-action-node-trans sm from-name node-name to-name state-func action-func
                                    :smach-transition t :add-t-transition nil)
             (if teach-func
@@ -183,9 +183,9 @@
   (trans-alist first-state-sym last-state-sym
     &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
   (let ((sm (instance state-machine :init))
-        (start-state ":start")
-        (goal-state ":goal")
-        (abort-name ":abort")
+        (start-state "(:start)")
+        (goal-state "(:goal)")
+        (abort-name "(:abort)")
         (aborts nil))
     (if no-loop
       (let ((current-state-sym (copy-seq first-state-sym)))
@@ -195,7 +195,7 @@
                  (from-state-sym (car trans-a))
                  (from-name (format nil "~A" from-state-sym))
                  (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
-                 (teach-name (format nil "~A" (list :teach from-state-sym))))
+                 (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
             (add-nodes-from-trans
               sm trans :state-func state-func
               :smach-transition
@@ -209,7 +209,7 @@
         (let* ((trans-list (cdr trans-a))
                (from-state-sym (car trans-a))
                (from-name (format nil "~A" from-state-sym))
-               (teach-name (format nil "~A" (list :teach from-state-sym)))
+               (teach-name (format nil "~A" (list '(:teach) from-state-sym)))
                (trans-index 0))
           (dolist (trans trans-list)
             (add-nodes-from-trans
