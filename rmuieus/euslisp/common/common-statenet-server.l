@@ -709,9 +709,14 @@
                     (format nil "~A" current-state))
               (send self :set-aborted result)
               (return-from :execute-statenet-cb nil)))
-          (let* ((active-state (send sm :active-state))
-                 (node-type (send active-state :get :node-type))
-                 (node-name (send active-state :name))
+          (let* ((top-active-state (send sm :active-state))
+                 (bottom-active-state (car (send sm :bottom-active-state)))
+                 (node-type
+                   (send bottom-active-state :get :node-type))
+                 (teach-node-type
+                   (if (equal node-type :teach-node)
+                     (send bottom-active-state :get :teach-node-type)))
+                 (node-name (send top-active-state :name))
                  (node-sym (read-from-string node-name)))
             ;; check node type
             (ros::ros-info (format nil "active-state: ~A" node-name))
@@ -742,7 +747,6 @@
                 (return-from :execute-statenet-cb nil)))
             (let ((execute-start-stamp nil)
                   (execute-end-stamp nil))
-
               ;; execute
               (setq execute-start-stamp (ros::time-now))
               (send sm :execute userdata :step -1)
@@ -766,8 +770,7 @@
                        (setq ntype :action)
                        (setq saction (car node-sym)))
                       ((and (equal node-type :teach-node)
-                            (equal (send active-state :get :teach-node-type)
-                                   :update-teach-node))
+                            (equal teach-node-type :update-teach-node))
                        (setq ntype :action)
                        (setq saction (cdr (assoc :teach-executed-action userdata))))
                       ((equal node-type :teach-node)
