@@ -395,7 +395,7 @@
       (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
       (setf (cdr (assoc :teach-executed-action userdata)) nil)
       t))
-  ;; TODO (knorth55) : enable stop teaching state in while loop
+  ;; TODO (knorth55): enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
     (ros::ros-info "Waiting for device input")
     (while t
