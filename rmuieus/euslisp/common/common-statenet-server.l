@@ -799,8 +799,8 @@
         ;; finish state-machine
         (ros::ros-info (format nil "current-state: ~A" current-state))
         (let* ((final-state (send (send sm :active-state) :name))
-               (abortp (equal (read-from-string (subseq final-state 0 6)) :abort))
-               (goalp (equal (read-from-string (subseq final-state 0 5)) :goal))
+               (abortp (equal (read-from-string (subseq final-state 0 8)) '(:abort)))
+               (goalp (equal (read-from-string (subseq final-state 0 7)) '(:goal)))
                (successp (and goalp (null abortp)))
                (end-stamp (ros::time- (ros::time-now) start-stamp)))
           (setf (cadr (assoc :result (cdr (assoc :task executed-collabo-path))))
