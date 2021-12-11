@@ -274,7 +274,7 @@
       (add-state-node sm first-name state-func)
       (add-transition sm start-state first-name t)
       (add-node sm goal-state
-                `(lambda-closure nil 0 0  (userdata) t) nil)
+                `(lambda-closure nil 0 0 (userdata) t) nil)
       (add-state-node sm last-name state-func)
       (add-transition sm last-name goal-state t))
     ;; aborts
