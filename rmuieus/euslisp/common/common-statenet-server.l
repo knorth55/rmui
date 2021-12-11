@@ -261,7 +261,7 @@
           ;; generate sm from latest successful path
           (setq tmp-sm
                 (send self :convert-collabo-path-to-state-machine
-                      (car trained-executed-collabo-paths))))
+                      (car trained-executed-collabo-paths) :no-loop nil)))
         ;; first time for this task, so planning.
         ;; generate smach machine
         (progn
@@ -276,8 +276,8 @@
           statenet-gr start-state goal-state
           :first-action first-action
           :no-loop no-loop))
-  (:convert-collabo-path-to-state-machine (collabo-path)
-    (send stplanner :convert-collabo-path-to-state-machine collabo-path))
+  (:convert-collabo-path-to-state-machine (collabo-path &key (no-loop nil))
+    (send stplanner :convert-collabo-path-to-state-machine collabo-path :no-loop no-loop))
   (:next-in-statenet-state (userdata)
     (let* ((first-action (cdr (cdr (assoc :user-decision userdata)))))
       (return-from :next-in-statenet-state (format nil "~A" first-action))))
