@@ -39,7 +39,8 @@
       (let ((n (instance state :init name node-func)))
         (send n :put :node-type node-type)
         (if duration (send n :put :duration duration))
-        (send sm :add-node n)))))
+        (send sm :add-node n)
+        n))))
 
 
 (defun add-transition (sm from-name to-name arc-key)
@@ -50,16 +51,27 @@
       (send sm :add-transition from-name to-name arc-key))))
 
 
-(defun add-state-node (sm name &optional (state-func #'(lambda (x) t)) (duration nil))
-  (add-node sm name state-func :state-node duration))
+(defun add-state-node (sm name
+                          &optional (state-func #'(lambda (x) t)) (duration nil)
+                          (state-node-type nil))
+  (let ((n (add-node sm name state-func :state-node duration)))
+    (if (and state-node-type n)
+      (send n :put :state-node-type state-node-type))
+    n))
 
 
-(defun add-action-node (sm name action-func)
-  (add-node sm name action-func :action-node))
+(defun add-action-node (sm name action-func &optional (action-node-type nil))
+  (let ((n (add-node sm name action-func :action-node)))
+    (if (and action-node-type n)
+      (send n :put :action-node-type action-node-type))
+    n))
 
 
-(defun add-teach-node (sm name teach-func)
-  (add-node sm name teach-func :teach-node))
+(defun add-teach-node (sm name teach-func &optional (teach-node-type nil))
+  (let ((n (add-node sm name teach-func :teach-node)))
+    (if (and teach-node-type n)
+      (send n :put :teach-node-type teach-node-type))
+    n))
 
 
 (defun add-state-abort-nodes (sm aborts)
