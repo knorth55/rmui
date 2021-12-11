@@ -125,7 +125,7 @@
                       :solver slvr
                       :state-func
                       (if skip-intr-p
-                        #'(lambda (userdata) t)
+                        `(lambda-closure nil 0 0 (userdata) t)
                         `(send ,self :get-statenet-state-submachine)
                         )
                       :teach-func

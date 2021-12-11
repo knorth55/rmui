@@ -52,8 +52,8 @@
 
 
 (defun add-state-node
-  (sm name &optional (state-func #'(lambda (x) t)) (duration nil)
-                     (sntype nil))
+  (sm name &optional (state-func `(lambda-closure nil 0 0 (userdata) t))
+                     (duration nil) (sntype nil))
   (let ((n (add-node sm name state-func :state-node duration)))
     (if (and sntype n)
       (send n :put :state-node-type sntype))
@@ -136,7 +136,7 @@
 
 
 (defun add-nodes-from-trans
-  (sm trans &key (state-func #'(lambda (x) t))
+  (sm trans &key (state-func `(lambda-closure nil 0 0 (userdata) t))
       (smach-transition t) (add-t-transition nil))
   (let ((from-name (cdr (assoc :from-name trans :test #'equal)))
         (from-duration (cdr (assoc :from-duration trans :test #'equal)))
@@ -153,7 +153,8 @@
 
 
 (defun convert-graph-to-smach
-  (gr start-state &key (state-func #'(lambda (x) t)) (teach-func nil))
+  (gr start-state &key (state-func `(lambda-closure nil 0 0 (userdata) t))
+                       (teach-func nil))
   (let ((sm (instance state-machine :init))
         (abort-name "(:abort)")
         (goals nil)
@@ -209,7 +210,8 @@
 
 (defun convert-trans-alist-to-smach
   (trans-alist first-state-sym last-state-sym
-    &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil))
+    &key (state-func `(lambda-closure nil 0 0 (userdata) t))
+         (teach-func nil) (no-loop nil))
   (let ((sm (instance state-machine :init))
         (start-state "(:start)")
         (goal-state "(:goal)")
@@ -261,7 +263,8 @@
           (setq state-aborts
                 (append state-aborts (list (list from-name abort-name state-func)))))))
     ;; start-state
-    (add-node sm start-state #'(lambda (x) t) nil)
+    (add-node sm start-state
+              `(lambda-closure nil 0 0 (userdata) t) nil)
     (send sm :start-state start-state)
     ;; goal-state
     (send sm :goal-state (list goal-state abort-name))
@@ -270,7 +273,8 @@
            (last-name (format nil "~A" last-state-sym)))
       (add-state-node sm first-name state-func)
       (add-transition sm start-state first-name t)
-      (add-node sm goal-state #'(lambda (x) t) nil)
+      (add-node sm goal-state
+                `(lambda-closure nil 0 0  (userdata) t) nil)
       (add-state-node sm last-name state-func)
       (add-transition sm last-name goal-state t))
     ;; aborts
@@ -448,7 +452,8 @@
 
 
 (defun convert-solution-to-smach
-  (solution &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil)
+  (solution &key (state-func `(lambda-closure nil 0 0 (userdata) t))
+                 (teach-func nil) (no-loop nil)
                  (robot *robot*) (ri *ri*) (cubes *boxes*)
                  (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let* ((first-state-sym
@@ -476,7 +481,8 @@
 
 
 (defun convert-collabo-path-to-smach
-  (collabo-path &key (state-func #'(lambda (x) t)) (teach-func nil) (no-loop nil)
+  (collabo-path &key (state-func `(lambda-closure nil 0 0 (userdata) t))
+                     (teach-func nil) (no-loop nil)
                      (robot *robot*) (ri *ri*) (cubes *boxes*)
                      (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let* ((collabo-nodes
