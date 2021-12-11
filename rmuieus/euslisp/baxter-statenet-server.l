@@ -9,7 +9,9 @@
 
 
 ;; 60 seconds for duration threshold
-(defvar *duration-threshold* 60)
+;; (defvar *duration-threshold* 60)
+;; no duration wait
+(defvar *duration-threshold* nil)
 (defvar *interrupt-timeout* 10)
 (defvar *prx-threshold* 500)
 (defvar *prx-position-threshold* 0.5)
