@@ -62,12 +62,22 @@
   (add-node sm name teach-func :teach-node))
 
 
-(defun add-abort-nodes (sm aborts state-func)
+(defun add-state-abort-nodes (sm aborts)
   (dolist (ab aborts)
     (let ((from-name (car ab))
-          (abort-name (cdr ab)))
+          (abort-name (cadr ab))
+          (state-func (caddr ab)))
       (add-state-node sm from-name state-func)
       (add-transition sm from-name abort-name nil))))
+
+
+(defun add-action-abort-nodes (sm aborts)
+  (dolist (ab aborts)
+    (let ((node-name (car ab))
+          (abort-name (cadr ab))
+          (action-func (caddr ab)))
+      (add-action-node sm node-name action-func)
+      (add-transition sm node-name abort-name nil))))
 
 
 (defun add-goal-nodes (sm goals state-func)
@@ -135,7 +145,8 @@
   (let ((sm (instance state-machine :init))
         (abort-name "(:abort)")
         (goals nil)
-        (aborts nil))
+        (state-aborts nil)
+        (action-aborts nil))
     (dolist (node (send gr :nodes))
       (let* ((from-state-sym (convert-string-to-sym (send node :name)))
              (from-name (format nil "~A" from-state-sym))
@@ -161,7 +172,11 @@
                                    :smach-transition t :add-t-transition nil)
             (if teach-func
               (add-teach-node-trans sm from-name teach-name state-func teach-func))
-            (setq aborts (append aborts (list (cons from-name abort-name))))))))
+            (setq state-aborts
+                  (append state-aborts (list (list from-name abort-name state-func))))
+            (setq action-aborts
+                  (append action-aborts (list (list node-name abort-name action-func))))
+            ))))
     ;; start-state
     (send sm :start-state start-state)
     ;; goal-state
@@ -169,7 +184,8 @@
     ;; goals
     (add-goal-nodes sm goals state-func)
     ;; aborts
-    (add-abort-nodes sm aborts state-func)
+    (add-state-abort-nodes sm state-aborts)
+    (add-action-abort-nodes sm action-aborts)
     ;; ros-info
     (ros::ros-info (format nil "convert-graph-to-smach: smach start-state is ~A."
                            (send (send sm :start-state) :name)))
@@ -186,7 +202,8 @@
         (start-state "(:start)")
         (goal-state "(:goal)")
         (abort-name "(:abort)")
-        (aborts nil))
+        (state-aborts nil)
+        (action-aborts nil))
     (if no-loop
       (let ((current-state-sym (copy-seq first-state-sym)))
         (while (null (equal current-state-sym last-state-sym))
@@ -194,6 +211,8 @@
                  (trans (car (cdr trans-a)))
                  (from-state-sym (car trans-a))
                  (from-name (format nil "~A" from-state-sym))
+                 (node-name (cdr (assoc :node-name trans :test #'equal)))
+                 (action-func (cdr (assoc :action-func trans :test #'equal)))
                  (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
                  (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
             (add-nodes-from-trans
@@ -203,7 +222,10 @@
               :add-t-transition t)
             (if teach-func
               (add-teach-node-trans sm from-name teach-name state-func teach-func))
-            (setq aborts (append aborts (list (cons from-name abort-name))))
+            (setq state-aborts
+                  (append state-aborts (list (list from-name abort-name state-func))))
+            (setq action-aborts
+                  (append action-aborts (list (list node-name abort-name action-func))))
             (setq current-state-sym to-state-sym))))
       (dolist (trans-a trans-alist)
         (let* ((trans-list (cdr trans-a))
@@ -212,16 +234,20 @@
                (teach-name (format nil "~A" (list '(:teach) from-state-sym)))
                (trans-index 0))
           (dolist (trans trans-list)
-            (add-nodes-from-trans
-              sm trans :state-func state-func
-              :smach-transition
-              (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
-              :add-t-transition (equal trans-index 0))
-            (setq trans-index (+ trans-index 1)))
+            (let ((node-name (cdr (assoc :node-name trans :test #'equal)))
+                  (action-func (cdr (assoc :action-func trans :test #'equal))))
+              (add-nodes-from-trans
+                sm trans :state-func state-func
+                :smach-transition
+                (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
+                :add-t-transition (equal trans-index 0))
+              (setq action-aborts
+                    (append action-aborts (list (list node-name abort-name action-func))))
+              (setq trans-index (+ trans-index 1))))
           (if teach-func
             (add-teach-node-trans sm from-name teach-name state-func teach-func))
-          (setq aborts (append aborts (list (cons from-name abort-name))))
-          )))
+          (setq state-aborts
+                (append state-aborts (list (list from-name abort-name state-func)))))))
     ;; start-state
     (add-node sm start-state #'(lambda (x) t) nil)
     (send sm :start-state start-state)
@@ -236,7 +262,8 @@
       (add-state-node sm last-name state-func)
       (add-transition sm last-name goal-state t))
     ;; aborts
-    (add-abort-nodes sm aborts state-func)
+    (add-state-abort-nodes sm state-aborts)
+    (add-action-abort-nodes sm action-aborts)
     sm))
 
 
