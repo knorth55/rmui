@@ -376,17 +376,18 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
-  ;; TODO (knorth55): ask user if ready for teach 
+  ;; TODO (knorth55): ask user if ready for teach
   (:wait-ready-for-teach (userdata)
     t)
   (:initialize-teach-device (userdata)
     (let ((teach-start-state (cdr (assoc :teach-start-state userdata))))
-      (ros::ros-info "Initializing teach-device")
+      (ros::ros-info "Initializing teach device")
       (send devexecutor :reset-executor)
       (send devupdater :reset-updater
             :initial-scene-states (copy-seq teach-start-state))
       (setf (cdr (assoc :teach-state userdata)) (copy-seq teach-start-state))
       (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
+      (setf (cdr (assoc :teach-executed-action userdata)) nil)
       t))
   ;; TODO (knorth55) : enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
@@ -418,7 +419,6 @@
           (progn
             (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
             (return-from :wait-device-user-input t))))))
-  ;; TODO (knorth55): add executed state and action in executed-collabo-path
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
            (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))
@@ -427,27 +427,28 @@
                    checked-motion-symbols
                    :scene-states prev-scene-states))
            (update-scene-p
-             (send devupdater :update-scene-states executed-symbols-and-actions))
-           (executed-symbol update-scene-p)
-           (scene-states (send devupdater :last-scene-states))
-           (executed-action (send devupdater :last-executed-action))
-           )
+             (send devupdater :update-scene-states executed-symbols-and-actions)))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
-      (if update-scene-p
-        (progn
-          (ros::ros-warn
-            (format nil "executed-symbol : ~A" executed-symbol))
-          (ros::ros-warn
-            (format nil "executed-action : ~A" executed-action))
-          (send self :add-action-state-in-statenet-graph
-                executed-action prev-scene-states scene-states)
-          (send self :dump-collabo-statenet)
-          (setf (cdr (assoc :teach-state userdata)) scene-states)))
+      ;; when motion is executed
       (return-from :execute-device-user-input (if update-scene-p t nil))))
+  (:update-from-teach-execution (userdata)
+    (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
+           (scene-states (send devupdater :last-scene-states))
+           (executed-action (send devupdater :last-executed-action)))
+      (ros::ros-warn
+        (format nil "executed-action : ~A" executed-action))
+      (send self :add-action-state-in-statenet-graph
+            executed-action prev-scene-states scene-states)
+      (send self :dump-collabo-statenet)
+      (setf (cdr (assoc :teach-state userdata)) scene-states)
+      (setf (cdr (assoc :teach-executed-action userdata)) executed-action)
+      t))
   ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
+    (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
+    (setf (cdr (assoc :teach-executed-action userdata)) nil)
     t)
   (:replan-in-statenet-teach (userdata)
     (ros::ros-warn "replanning...")
@@ -471,14 +472,21 @@
                 (copy-seq (cdr (assoc :teach-state userdata))))
           (ros::ros-error "go back to teach state")
           (return-from :replan-in-statenet-teach nil)))))
+  (:reset-teach-device (userdata)
+    (setf (cdr (assoc :teach-state userdata)) nil)
+    (setf (cdr (assoc :teach-motion-symbols)) nil)
+    (setf (cdr (assoc :teach-executed-action)) nil)
+    t)
   (:get-statenet-teach-submachine ()
     (let ((sub-sm (instance state-machine :init))
           (wait-ready-node-name "(wait-ready-for-teach)")
           (init-device-node-name "(initialize-teach-device)")
           (wait-device-node-name "(wait-device-user-input)")
           (execute-node-name "(execute-device-user-input)")
+          (update-teach-node-name "(update-from-teach-execution)")
           (ask-finish-node-name "(ask-finish)")
-          (replan-node-name "(replan-in-statenet-teach)"))
+          (replan-node-name "(replan-in-statenet-teach)")
+          (reset-device-node-name "(reset-teach-device)"))
       (add-teach-node sub-sm wait-ready-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :wait-ready-for-teach userdata)))
@@ -491,25 +499,34 @@
       (add-teach-node sub-sm execute-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :execute-device-user-input userdata)))
+      (add-teach-node sub-sm update-teach-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :update-from-teach-execution userdata))
+                      :update-teach-node)
       (add-teach-node sub-sm ask-finish-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :ask-user-finish-teach userdata)))
       (add-teach-node sub-sm replan-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :replan-in-statenet-teach userdata)))
+      (add-teach-node sub-sm reset-device-node-name
+                      `(lambda-closure nil 0 0 (userdata)
+                                       (send ,self :reset-teach-device userdata)))
       (send sub-sm :start-state wait-ready-node-name)
       (send sub-sm :goal-state '(t))
       (add-transition sub-sm wait-ready-node-name init-device-node-name t)
-      (add-transition sub-sm wait-ready-node-name t nil)
+      (add-transition sub-sm wait-ready-node-name reset-device-node-name nil)
       (add-transition sub-sm init-device-node-name wait-device-node-name t)
       (add-transition sub-sm wait-device-node-name execute-node-name t)
       (add-transition sub-sm wait-device-node-name ask-finish-node-name nil)
-      (add-transition sub-sm execute-node-name ask-finish-node-name t)
-      (add-transition sub-sm execute-node-name wait-device-node-name nil)
+      (add-transition sub-sm execute-node-name update-teach-node-name t)
+      (add-transition sub-sm execute-node-name ask-finish-node-name nil)
+      (add-transition sub-sm update-teach-node-name ask-finish-node-name t)
       (add-transition sub-sm ask-finish-node-name replan-node-name t)
       (add-transition sub-sm ask-finish-node-name wait-device-node-name nil)
-      (add-transition sub-sm replan-node-name t t)
+      (add-transition sub-sm replan-node-name reset-device-node-name t)
       (add-transition sub-sm replan-node-name wait-ready-node-name nil)
+      (add-transition sub-sm reset-device-node-name t t)
       sub-sm))
   (:simplify-trained-collabo-paths (collabo-paths)
     (mapcar #'(lambda (collabo-path)
@@ -573,7 +590,7 @@
           (cond
             ((equal node-type :action-node) :action)
             ((equal node-type :state-node) :state)
-            (t nil))
+            (t node-type))
           (list :node-type node-type)
           (list :state-action state-action)
           (list :start-stamp start-stamp)
@@ -629,7 +646,8 @@
                              (cons :replan-start-state nil)
                              (cons :teach-start-state nil)
                              (cons :teach-state nil)
-                             (cons :teach-motion-symbols nil)))
+                             (cons :teach-motion-symbols nil)
+                             (cons :teach-executed-action nil)))
              (hz 10.0)
              (planning-result
                (send self :plan-state-machine-with-trained-paths
@@ -692,7 +710,11 @@
               ((equal node-type :action-node)
                (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
               ((equal node-type :teach-node)
-               (ros::ros-info (format nil "teach-state: ~A" node-sym)))
+               (setq current-state
+                     (if (cdr (assoc :teach-state userdata))
+                       (cdr (assoc :teach-state userdata))
+                       (cdr (assoc :teach-start-state userdata))))
+               (ros::ros-info (format nil "current-state: ~A" current-state)))
               (t nil))
             (send insp :publish-status userdata)
             (when (send sm :goal-reached) (return))
@@ -718,32 +740,39 @@
                       (send (ros::time- execute-start-stamp start-stamp) :to-sec))
                     (relative-execute-end-sec
                       (send (ros::time- execute-end-stamp start-stamp) :to-sec)))
-                (cond
-                  ((equal node-type :state-node)
-                   (setq executed-collabo-path
-                         (send self :append-executed-collabo-path
-                               executed-collabo-path
-                               :node-type node-type
-                               :state-action node-sym
-                               :start-stamp relative-execute-start-sec
-                               :end-stamp relative-execute-end-sec))
-                   (send self :dump-executed-collabo-path
-                         executed-collabo-path execute-stamp)
-                   (ros::ros-info (format nil "current-state: ~A" current-state)))
-                  ((equal node-type :action-node)
-                   (setq executed-collabo-path
-                         (send self :append-executed-collabo-path
-                               executed-collabo-path
-                               :node-type node-type
-                               :state-action (car node-sym)
-                               :start-stamp relative-execute-start-sec
-                               :end-stamp relative-execute-end-sec))
-                   (send self :dump-executed-collabo-path
-                         executed-collabo-path execute-stamp)
-                   (ros::ros-info (format nil "action-function: ~A" (car node-sym))))
-                  ((equal node-type :teach-node)
-                   (ros::ros-info (format nil "teach-state: ~A" node-sym)))
-                  (t nil))))
+                (if (or (equal node-type :state-node)
+                        (equal node-type :action-node)
+                        (equal node-type :teach-node))
+                  (let ((ntype nil)
+                        (saction nil))
+                    (cond
+                      ((equal node-type :state-node)
+                       (setq ntype :state)
+                       (setq saction current-state))
+                      ((equal node-type :action-node)
+                       (setq ntype :action)
+                       (setq saction (car node-sym)))
+                      ((and (equal node-type :teach-node)
+                            (equal (send active-state :get :teach-node-type)
+                                   :update-teach-node))
+                       (setq ntype :action)
+                       (setq saction (cdr (assoc :teach-executed-action userdata))))
+                      ((equal node-type :teach-node)
+                       (setq ntype :state)
+                       (setq saction current-state))
+                      (t nil))
+                    (if (and ntype saction)
+                      (progn
+                        (setq executed-collabo-path
+                              (send self :append-executed-collabo-path
+                                    executed-collabo-path
+                                    :node-type ntype
+                                    :state-action saction
+                                    :start-stamp relative-execute-start-sec
+                                    :end-stamp relative-execute-end-sec))
+                        (send self :dump-executed-collabo-path
+                              executed-collabo-path execute-stamp)
+                        ))))))
             ;; feedback
             (send feedback :feedback :stamp
                   (ros::time- (ros::time-now) start-stamp))
