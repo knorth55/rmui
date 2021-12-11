@@ -251,17 +251,23 @@
         (send sm :start-state (send sm :node node-name)))))
   (:plan-state-machine-with-trained-paths
     (start-state goal-state &key (first-action nil) (no-loop nil))
-    (let ((trained-executed-collabo-paths
+    (let* ((trained-data
             (send self :load-trained-collabo-paths start-state goal-state))
-          (tmp-sm nil))
+           (trained-executed-collabo-paths (car trained-data))
+           (trained-dump-dirnames (cdr trained-data))
+           (trained-index 0)
+           (tmp-sm nil))
       (if trained-executed-collabo-paths
         (progn
           (ros::ros-warn "This is a trained task.")
           (ros::ros-warn "Loading the trained path.")
+          (ros::ros-warn "Trained data: ~A"
+                         (elt trained-dump-dirnames trained-index))
           ;; generate sm from latest successful path
           (setq tmp-sm
                 (send self :convert-collabo-path-to-state-machine
-                      (car trained-executed-collabo-paths) :no-loop nil)))
+                      (elt trained-executed-collabo-paths trained-index)
+                      :no-loop nil)))
         ;; first time for this task, so planning.
         ;; generate smach machine
         (progn
@@ -537,50 +543,57 @@
             (send self :simplify-trained-collabo-paths
                   (load-all-executed-collabo-path
                     :data-dir collabo-statenet-dir
-                    :sort-predicate #'string>))))
-      (if (equal start-state '(:init))
-        ;; start-state is (:init)
-        (remove
-          nil
-          (mapcar
-            #'(lambda (collabo-path)
-                (let* ((task-data (cdr (assoc :task collabo-path)))
-                       (successp (cadr (assoc :result task-data)))
-                       (sstate (cadr (assoc :start-state task-data)))
-                       (gstate (cadr (assoc :goal-state task-data))))
-                  (if (and (equal sstate start-state)
-                           (equal gstate goal-state)
-                           successp)
-                    collabo-path)))
-            trained-collabo-paths))
-        (remove
-          nil
-          (mapcar
-            #'(lambda (collabo-path)
-                (let* ((task-data (cdr (assoc :task collabo-path)))
-                       (successp (cadr (assoc :result task-data)))
-                       (sstate (cadr (assoc :start-state task-data)))
-                       (gstate (cadr (assoc :goal-state task-data))))
-                  (if (and (equal sstate '(:init))
-                           (> (length collabo-path) 3))
-                    ;; if sstate is (:init) and state-state is not (:init)
-                    (let ((task-info (car collabo-path))
-                          (sn (elt collabo-path 3)))
-                      (if (and (equal (cadr (assoc :state-action sn)) start-state)
+                    :sort-predicate #'string>)))
+          (trained-dump-dirnames
+            (get-all-executed-collabo-path-dump-dirnames
+              :data-dir collabo-statenet-dir
+              :sort-predicate #'string>)))
+      (setq trained-collabo-paths
+            (if (equal start-state '(:init))
+              ;; start-state is (:init)
+              (mapcar
+                #'(lambda (collabo-path)
+                    (let* ((task-data (cdr (assoc :task collabo-path)))
+                           (successp (cadr (assoc :result task-data)))
+                           (sstate (cadr (assoc :start-state task-data)))
+                           (gstate (cadr (assoc :goal-state task-data))))
+                      (if (and (equal sstate start-state)
                                (equal gstate goal-state)
                                successp)
-                        (progn
-                          (setf (cadr (assoc :start-state task-info))
-                                (cadr (assoc :state-action sn)))
-                          (setf (cadr (assoc :start-stamp task-info))
-                                (cadr (assoc :start-stamp sn)))
-                          (append (list task-info) (subseq collabo-path 3)))))
-                    ;; if sstate is not (:init) and state-state is not (:init)
-                    (if (and (equal sstate start-state)
-                             (equal gstate goal-state)
-                             successp)
-                      collabo-path))))
-            trained-collabo-paths)))))
+                        collabo-path)))
+                trained-collabo-paths)
+              (mapcar
+                #'(lambda (collabo-path)
+                    (let* ((task-data (cdr (assoc :task collabo-path)))
+                           (successp (cadr (assoc :result task-data)))
+                           (sstate (cadr (assoc :start-state task-data)))
+                           (gstate (cadr (assoc :goal-state task-data))))
+                      (if (and (equal sstate '(:init))
+                               (> (length collabo-path) 3))
+                        ;; if sstate is (:init) and state-state is not (:init)
+                        (let ((task-info (car collabo-path))
+                              (sn (elt collabo-path 3)))
+                          (if (and (equal (cadr (assoc :state-action sn)) start-state)
+                                   (equal gstate goal-state)
+                                   successp)
+                            (progn
+                              (setf (cadr (assoc :start-state task-info))
+                                    (cadr (assoc :state-action sn)))
+                              (setf (cadr (assoc :start-stamp task-info))
+                                    (cadr (assoc :start-stamp sn)))
+                              (append (list task-info) (subseq collabo-path 3)))))
+                        ;; if sstate is not (:init) and state-state is not (:init)
+                        (if (and (equal sstate start-state)
+                                 (equal gstate goal-state)
+                                 successp)
+                          collabo-path))))
+                trained-collabo-paths)))
+      (dotimes (i (length trained-dump-dirnames))
+        (if (not (elt trained-collabo-paths i))
+          (setf (elt trained-dump-dirnames i) nil)))
+      (setq trained-dump-dirnames (remove nil trained-dump-dirnames))
+      (setq trained-collabo-paths (remove nil trained-collabo-paths))
+      (cons trained-collabo-paths trained-dump-dirnames)))
   (:append-executed-collabo-path
     (executed-collabo-path &key (node-type) (state-action) (start-stamp) (end-stamp))
     (append
