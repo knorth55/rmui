@@ -39,15 +39,18 @@
     dump-dir))
 
 
-(defun get-dump-dirnames (data-dir)
+(defun get-dump-dirnames (data-dir &key (sort-predicate #'string<))
   (let* ((dump-dirnames
            (remove-if-not
              #'(lambda (x) (equal (subseq x 0 2) "20"))
              (directory data-dir))))
-    (remove-if-not
-      #'(lambda (x)
-          (directory-p (format nil "~A/~A" data-dir x)))
-      dump-dirnames)))
+    (setq dump-dirnames
+          (remove-if-not
+            #'(lambda (x)
+                (directory-p (format nil "~A/~A" data-dir x)))
+            dump-dirnames))
+    (setq dump-dirnames (sort dump-dirnames sort-predicate))
+    dump-dirnames))
 
 
 (defun get-dump-dirpaths (data-dir)
@@ -74,8 +77,8 @@
 (defun load-all-executed-actions (&key (data-dir *training-object-statenet-path*)
                                        (sort-predicate #'string<))
   (let ((executed-actions-list nil)
-        (dump-dirnames (get-dump-dirnames data-dir)))
-    (sort dump-dirnames sort-predicate)
+        (dump-dirnames
+          (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (setq executed-actions-list
             (append executed-actions-list
@@ -102,8 +105,7 @@
 (defun load-all-scene-states (&key (data-dir *training-object-statenet-path*)
                                    (sort-predicate #'string<))
   (let ((scene-states-list nil)
-        (dump-dirnames (get-dump-dirnames data-dir)))
-    (sort dump-dirnames sort-predicate)
+        (dump-dirnames (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (setq scene-states-list
             (append scene-states-list
@@ -130,8 +132,8 @@
 (defun load-all-pddl-graph (&key (data-dir *training-object-statenet-path*)
                                  (sort-predicate #'string<))
   (let ((pddl-graph-list nil)
-        (dump-dirnames (get-dump-dirnames data-dir)))
-    (sort dump-dirnames sort-predicate)
+        (dump-dirnames
+          (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (setq pddl-graph-list
             (append pddl-graph-list
@@ -158,8 +160,8 @@
 (defun load-all-statenet-graph (&key (data-dir *training-object-statenet-path*)
                                      (sort-predicate #'string<))
   (let ((statenet-graph-list nil)
-        (dump-dirnames (get-dump-dirnames data-dir)))
-    (sort dump-dirnames sort-predicate)
+        (dump-dirnames
+          (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (setq statenet-graph-list
             (append statenet-graph-list
@@ -198,20 +200,46 @@
     (dump-structure filepath executed-collabo-path)))
 
 
+(defun get-all-executed-collabo-path-dump-dirnames
+  (&key (data-dir *training-collabo-statenet-path*)
+        (sort-predicate #'string<))
+  (let ((all-dump-dirnames)
+        (dump-dirnames
+          (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
+    (dolist (dump-dirname dump-dirnames)
+      (setq all-dump-dirnames
+            (append all-dump-dirnames
+                    (get-executed-collabo-path-dump-dirnames
+                      :data-dir data-dir
+                      :stamp dump-dirname
+                      :sort-predicate sort-predicate))))
+    all-dump-dirnames))
+
+
+(defun get-executed-collabo-path-dump-dirnames
+  (&key (data-dir *training-collabo-statenet-path*)
+        (path nil) (stamp "latest") (filename "executed-collabo-path.l")
+        (sort-predicate #'string<))
+  (let* ((dumppath (if path path (format nil "~A/~A" data-dir stamp)))
+         (dump-dirnames
+           (get-dump-dirnames dumppath :sort-predicate sort-predicate)))
+    dump-dirnames))
+
+
 (defun load-executed-collabo-path
   (&key (data-dir *training-collabo-statenet-path*)
         (path nil) (stamp "latest") (filename "executed-collabo-path.l")
         (sort-predicate #'string<))
   (let* ((executed-collabo-path nil)
          (dumppath (if path path (format nil "~A/~A" data-dir stamp)))
-         (dump-dirnames (get-dump-dirnames dumppath)))
-    (sort dump-dirnames sort-predicate)
+         (dump-dirnames
+           (get-dump-dirnames dumppath :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (let ((filepath (format nil "~A/~A/~A" dumppath dump-dirname filename)))
         (with-open-file (executed-collabo-path-f filepath)
           (setq executed-collabo-path
                 (append executed-collabo-path
-                        (list (read executed-collabo-path-f) ))))))
+                        (list (read executed-collabo-path-f)))))))
     executed-collabo-path))
 
 
@@ -219,8 +247,8 @@
   (&key (data-dir *training-collabo-statenet-path*)
         (sort-predicate #'string<))
   (let ((executed-collabo-path nil)
-        (dump-dirnames (get-dump-dirnames data-dir)))
-    (sort dump-dirnames sort-predicate)
+        (dump-dirnames
+          (get-dump-dirnames data-dir :sort-predicate sort-predicate)))
     (dolist (dump-dirname dump-dirnames)
       (setq executed-collabo-path
             (append executed-collabo-path
