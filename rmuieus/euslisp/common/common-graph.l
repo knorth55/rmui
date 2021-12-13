@@ -165,7 +165,6 @@
   (gr start-state &key (state-func `(lambda-closure nil 0 0 (userdata) t))
                        (teach-func nil))
   (let* ((sm (instance state-machine :init))
-         (start-state "(:start)")
          (goal-state "(:goal)")
          (abort-name "(:abort)")
          (goals (list goal-state))
@@ -209,7 +208,7 @@
     ;; start-state
     (send sm :start-state start-state)
     ;; goal-state
-    (send sm :goal-state (append (mapcar #'cdr goals) (list abort-name)))
+    (send sm :goal-state (append (mapcar #'cdr goals) (list goal-state abort-name)))
     ;; goals
     (add-goal-nodes sm goals state-func)
     ;; aborts
