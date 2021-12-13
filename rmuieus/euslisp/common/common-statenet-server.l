@@ -313,7 +313,8 @@
            (duration (send current-sm-node :get :duration))
            (interrupt-p nil))
       ;; first time node, move to ask user input
-      (if (null duration) (return-from :interrupt-wait t))
+      (if (and duration-threshold (null duration))
+        (return-from :interrupt-wait t))
       ;; duration is long, move to ask user input
       (if (and duration duration-threshold
                (> duration duration-threshold))
