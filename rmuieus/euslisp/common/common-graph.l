@@ -98,7 +98,7 @@
           (goal-name (cadr gl))
           (teach-func (caddr gl)))
       (add-teach-node sm teach-name teach-func)
-      (add-transition sm teach-name goal-name nil))))
+      (add-transition sm teach-name goal-name :finish))))
 
 
 (defun add-goal-nodes (sm goals state-func)
