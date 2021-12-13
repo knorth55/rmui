@@ -375,6 +375,7 @@
       (add-transition sub-sm ask-node-name ask-node-name nil)
       (add-transition sub-sm replan-node-name :replan t)
       (add-transition sub-sm replan-node-name ask-node-name nil)
+      (send sub-sm :put :next-node-name next-node-name)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
   (:ask-user-ready-device (userdata)

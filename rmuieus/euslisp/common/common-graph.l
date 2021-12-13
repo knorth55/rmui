@@ -132,10 +132,11 @@
       (let ((goal-state-names
               (mapcar #'(lambda (x) (send x :name)) (send sub-sm :goal-state))))
         (if (null (find smach-transition goal-state-names :test #'equal))
-          (progn
+          (let ((next-node-name (send sub-sm :get :next-node-name)))
             (if (null (equal smach-transition t))
               (send sub-sm :append-goal-state smach-transition))
-            (add-transition sub-sm "(next)" smach-transition smach-transition)
+            (add-transition sub-sm next-node-name
+                            smach-transition smach-transition)
             )))))
   (add-transition sm from-name node-name smach-transition)
   (if add-t-transition (add-transition sm from-name node-name t)))
