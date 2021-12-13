@@ -321,10 +321,12 @@
         (progn
          (ros::ros-info "Duration: ~A" duration)
          (return-from :interrupt-wait t)))
+      (send stinteractor :reset-interactor)
       (setq interrupt-p
             (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
       (return-from :interrupt-wait interrupt-p)))
   (:ask-user-state-decision (userdata)
+    (send stinteractor :reset-interactor)
     (let* ((current-sm-node (send sm :active-state))
            (current-sm-state (read-from-string (send current-sm-node :name)))
            (goal-state (cdr (assoc :goal-state userdata))))
@@ -380,6 +382,7 @@
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
   (:ask-user-ready-device (userdata)
+    (send stinteractor :reset-interactor)
     (let ((ready-device-p (send stinteractor :ask-user-ready-device)))
       (if ready-device-p
         (ros::ros-info "Start teaching")
@@ -452,6 +455,7 @@
       (setf (cdr (assoc :teach-executed-action userdata)) executed-action)
       t))
   (:ask-user-teach-decision (userdata)
+    (send stinteractor :reset-interactor)
     (let ((user-decision (send stinteractor :ask-user-teach-decision)))
       (if user-decision
         (progn

@@ -8,7 +8,8 @@
   :slots (namespace
           groupname
           mode
-          response)
+          response
+          response-stamp)
   )
 
 (defmethod statenet-interactor
@@ -26,6 +27,10 @@
         (if namespace (format nil "~A/user_response" namespace) "/user_response")
         std_msgs::String #'send self :string-cb))
     self)
+  (:reset-interactor ()
+    (setq response nil)
+    (setq response-stamp nil)
+    t)
   (:string-cb (msg)
     (setq response (if msg (send msg :data))))
   (:get-user-response (&key (mode :ros) (timeout nil) (namespace nil))
