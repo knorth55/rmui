@@ -141,6 +141,21 @@
             (format nil "Are you sure to abort the execution ? : ")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
+  (:ask-user-ready-device (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Are you ready for teaching ? : ")))
+      (send self :ros-yes-or-no-p ask-sentence
+            :use-default nil :timeout timeout)))
+  (:ask-user-finish-teach (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Do you want to finish teaching new actions? : ")))
+      (send self :ros-yes-or-no-p ask-sentence
+            :use-default nil :timeout timeout)))
+  (:ask-user-finish-task (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Do you want to finish the task? : ")))
+      (send self :ros-yes-or-no-p ask-sentence
+            :use-default nil :timeout timeout)))
   (:ask-user-state-decision (sm gr &key (timeout nil))
     (let* ((current-sm-node (send sm :active-state))
            (current-state (read-from-string (send current-sm-node :name)))

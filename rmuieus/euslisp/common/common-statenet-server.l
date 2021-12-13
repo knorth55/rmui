@@ -384,9 +384,12 @@
       (add-transition sub-sm abort-node-name nil t)
       ; (add-transition sub-sm next-node-name t t)
       sub-sm))
-  ;; TODO (knorth55): ask user if ready for teach
   (:ask-user-ready-device (userdata)
-    t)
+    (let ((ready-device-p (send stinteractor :ask-user-ready-device)))
+      (if ready-device-p
+        (ros::ros-info "Start teaching")
+        (ros::ros-warn "Abort teaching, go back to state"))
+      ready-device-p))
   (:initialize-device (userdata)
     (let ((teach-start-state (cdr (assoc :teach-start-state userdata))))
       (ros::ros-info "Initializing teach device")
@@ -453,11 +456,15 @@
       (setf (cdr (assoc :teach-state userdata)) scene-states)
       (setf (cdr (assoc :teach-executed-action userdata)) executed-action)
       t))
-  ;; TODO (knorth55): ask user if teaching is finished 
   (:ask-user-finish-teach (userdata)
-    (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
-    (setf (cdr (assoc :teach-executed-action userdata)) nil)
-    t)
+    (let ((finish-teach-p (send stinteractor :ask-user-finish-teach)))
+      (if finish-teach-p
+        (progn
+          (ros::ros-warn "Finishing teaching")
+          (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
+          (setf (cdr (assoc :teach-executed-action userdata)) nil))
+        (ros::ros-warn "Continue teaching"))
+      finish-teach-p))
   (:replan-in-teach (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :teach-state userdata)))
