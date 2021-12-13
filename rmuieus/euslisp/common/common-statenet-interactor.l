@@ -32,16 +32,23 @@
     (setq response-stamp nil)
     t)
   (:string-cb (msg)
-    (setq response (if msg (send msg :data))))
-  (:get-user-response (&key (mode :ros) (timeout nil) (namespace nil))
+    (if msg
+      (progn
+        (setq response (send msg :data))
+        (setq response-stamp (ros::time-now)))))
+  (:get-user-response (&key (mode :ros) (timeout nil) (from-stamp nil))
     (cond
       ;; timeout is not valid for read-line
       ((equal mode :read-line)
        (read-line t))
       ((equal mode :ros)
        (let ((start-stamp (ros::time-now)))
-         (ros::rate 10)
-         (while (null response)
+         (setq from-stamp
+               (if from-stamp from-stamp (ros::time-now)))
+         (ros::rate 50)
+         (while (or (null response)
+                    (null response-stamp)
+                    (ros::time> from-stamp response-stamp))
            (if (and timeout
                     (> (send
                          (ros::time- (ros::time-now) start-stamp)
@@ -50,25 +57,28 @@
              (return-from :get-user-response :timeout))
            (ros::spin-once groupname))
          (let ((tmp-response (copy-seq response)))
-           (setq response nil)
+           (send self :reset-interactor)
            tmp-response)))
       (t nil)))
-  (:ros-wait-user-interrupt (ask-sentence &key (timeout nil))
+  (:ros-wait-user-interrupt (ask-sentence &key (timeout nil) (from-stamp nil))
     (let ((user-response))
-      (ros::ros-info ask-sentence)
+      (if ask-sentence (ros::ros-info ask-sentence))
       ; (finish-output t)
       (setq user-response
-            (send self :get-user-response :timeout timeout))
+            (send self :get-user-response
+                  :timeout timeout :from-stamp from-stamp))
       (return-from :ros-wait-user-interrupt
                    (null (equal user-response :timeout)))))
-  (:ros-yes-or-no-p (ask-sentence &key (use-default t) (default t) (timeout nil))
+  (:ros-yes-or-no-p (ask-sentence &key (use-default t) (default t)
+                                       (timeout nil) (from-stamp nil))
     (let ((user-response))
       (tagbody retry-yes-or-no
-        (ros::ros-info ask-sentence)
+        (if ask-sentence (ros::ros-info ask-sentence))
         ; (finish-output t)
         (setq user-response
               (string-upcase
-                (send self :get-user-response :timeout timeout)))
+                (send self :get-user-response
+                      :timeout timeout :from-stamp from-stamp)))
         (cond
           ((or (string= user-response "YES")
                (string= user-response "Y"))
@@ -87,13 +97,14 @@
              (go retry-yes-or-no))))))
   (:ros-index-choose
     (ask-sentence min-index max-index
-      &key (use-default t) (default-index 0) (timeout nil))
+      &key (use-default t) (default-index 0) (timeout nil) (from-stamp nil))
     (let ((user-response))
       (tagbody retry-index-choose
-        (ros::ros-info ask-sentence)
+        (if ask-sentence (ros::ros-info ask-sentence))
         ; (finish-output t)
         (setq user-response
-              (send self :get-user-response :timeout timeout))
+              (send self :get-user-response
+                    :timeout timeout :from-stamp from-stamp))
         (if (or (string= user-response "")
                 (equal user-response :timeout))
           (if use-default

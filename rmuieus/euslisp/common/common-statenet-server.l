@@ -398,36 +398,42 @@
       (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
       (setf (cdr (assoc :teach-executed-action userdata)) nil)
       t))
-  ;; TODO (knorth55): enable stop teaching state in while loop
   (:wait-device-user-input (userdata)
-    (ros::ros-info "Waiting for device input")
-    (while t
-      (if device-groupnames
-        (dolist (device-groupname device-groupnames)
-          (ros::spin-once device-groupname)))
-      (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
-             (update-p
-               (eval (append '(or)
-                              (send-all devices :update-device-orientation))))
-             (device-states
-               (if update-p (send-all devices :get-device-state)))
-             (contact-positions
-               (mapcar
-                 #'(lambda (device-state)
-                     (cadr (assoc :contact-positions device-state)))
-                 device-states))
-             (motion-symbols
-               (send devplanner :get-motion-symbols
-                     contact-positions
-                     :scene-states prev-scene-states))
-             (update-motion-symbol-queues
-                (send devexecutor :update-motion-symbol-queues motion-symbols))
-             (checked-motion-symbols
-               (send devexecutor :check-motion-symbol-queues motion-symbols)))
-        (if (not (every #'null checked-motion-symbols))
-          (progn
-            (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
-            (return-from :wait-device-user-input t))))))
+    (let ((from-stamp (ros::time-now))
+          (prev-scene-states (cdr (assoc :teach-state userdata))))
+      (send stinteractor :reset-interactor)
+      (ros::ros-info "Waiting for device input or user interruption")
+      (while t
+        (if device-groupnames
+          (dolist (device-groupname device-groupnames)
+            (ros::spin-once device-groupname)))
+        (if server-groupname
+          (ros::spin-once server-groupname))
+        (if (send stinteractor :ros-wait-user-interrupt
+                  nil :timeout 0.05 :from-stamp from-stamp)
+          (return-from :wait-device-user-input nil))
+        (let* ((update-p
+                 (eval (append '(or)
+                                (send-all devices :update-device-orientation))))
+               (device-states
+                 (if update-p (send-all devices :get-device-state)))
+               (contact-positions
+                 (mapcar
+                   #'(lambda (device-state)
+                       (cadr (assoc :contact-positions device-state)))
+                   device-states))
+               (motion-symbols
+                 (send devplanner :get-motion-symbols
+                       contact-positions
+                       :scene-states prev-scene-states))
+               (update-motion-symbol-queues
+                  (send devexecutor :update-motion-symbol-queues motion-symbols))
+               (checked-motion-symbols
+                 (send devexecutor :check-motion-symbol-queues motion-symbols)))
+          (if (not (every #'null checked-motion-symbols))
+            (progn
+              (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
+              (return-from :wait-device-user-input t)))))))
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))
            (checked-motion-symbols (cdr (assoc :teach-motion-symbols userdata)))
