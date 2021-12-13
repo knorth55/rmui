@@ -216,7 +216,7 @@
                        (setq default-index next-gr-index))
                      (setq next-gr-index (+ next-gr-index 1))))
                  ;; -1 index for teaching
-                 (ros::ros-info "(-1) teach new action")
+                 (ros::ros-info "(-1) teach new action or finish the task")
                  (setq chosen-index
                        (send self :ask-user-index-choose
                              next-gr-actions :use-default t
@@ -228,9 +228,15 @@
                                   (cons :next (elt next-gr-actions chosen-index)))
                      (return-from :ask-user-state-decision
                                   (cons :replan (elt next-gr-actions chosen-index))))
-                   (if (send self :ask-user-start-teach :timeout timeout)
-                     (return-from :ask-user-state-decision (cons :teach nil))
-                     (go retry-ask-user-state-decision)))))
+                   (cond
+                     ((send self :ask-user-start-teach)
+                      (return-from :ask-user-state-decision (cons :teach nil)))
+                     ((send self :ask-user-finish-task)
+                      (return-from :ask-user-state-decision (cons :finish nil)))
+                     ((send self :ask-user-abortion)
+                      (return-from :ask-user-state-decision (cons :abort nil)))
+                     (t (go retry-ask-user-state-decision))
+                     ))))
               ;; if next action is only one
               ;; ask if execute or not -> ask if teach or not -> ask if abort or not
               ((= (length next-gr-actions) 1)
@@ -240,13 +246,17 @@
                    (ros::ros-info (format nil "current-state: ~A" current-state))
                    (ros::ros-info (format nil "next-action  : ~A" next-action))
                    (ros::ros-info (format nil "next-state   : ~A" next-state))
-                   (if (send self :ask-user-next-action next-action :timeout timeout)
-                     (return-from :ask-user-state-decision (cons :next next-action))
-                     (if (send self :ask-user-start-teach :timeout timeout)
-                       (return-from :ask-user-state-decision (cons :teach nil))
-                       (if (send self :ask-user-abortion :timeout timeout)
-                         (return-from :ask-user-state-decision (cons :abort nil))
-                         (go retry-ask-user-state-decision)))))))
+                   (cond
+                     ((send self :ask-user-next-action next-action :timeout timeout)
+                      (return-from :ask-user-state-decision (cons :next next-action)))
+                     ((send self :ask-user-start-teach)
+                      (return-from :ask-user-state-decision (cons :teach nil)))
+                     ((send self :ask-user-finish-task)
+                      (return-from :ask-user-state-decision (cons :finish nil)))
+                     ((send self :ask-user-abortion)
+                      (return-from :ask-user-state-decision (cons :abort nil)))
+                     (t (go retry-ask-user-state-decision))
+                     ))))
               (t nil))))
         (cons :pass nil))))
   (:ask-user-teach-decision (&key (timeout nil))
