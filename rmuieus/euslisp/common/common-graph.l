@@ -92,6 +92,15 @@
       (add-transition sm node-name abort-name nil))))
 
 
+(defun add-state-goal-nodes (sm goals)
+  (dolist (gl goals)
+    (let ((from-name (car gl))
+          (goal-name (cadr gl))
+          (state-func (caddr gl)))
+      (add-state-node sm from-name state-func)
+      (add-transition sm from-name goal-name :finish))))
+
+
 (defun add-teach-goal-nodes (sm goals)
   (dolist (gl goals)
     (let ((teach-name (car gl))
@@ -169,6 +178,7 @@
          (abort-name "(:abort)")
          (goals (list goal-state))
          (state-aborts nil)
+         (state-goals nil)
          (action-aborts nil)
          (teach-goals nil))
     (dolist (node (send gr :nodes))
@@ -194,16 +204,18 @@
                  (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
             (add-action-node-trans sm from-name node-name to-name state-func action-func
                                    :smach-transition t :add-t-transition nil)
+            (setq state-aborts
+                  (append state-aborts (list (list from-name abort-name state-func))))
+            (setq state-goals
+                  (append state-goals (list (list from-name goal-state state-func))))
+            (setq action-aborts
+                  (append action-aborts (list (list node-name abort-name action-func))))
             (if teach-func
               (progn
                 (add-teach-node-trans sm from-name teach-name state-func teach-func)
                 (setq teach-goals
                       (append teach-goals
                               (list (list teach-name goal-state teach-func))))))
-            (setq state-aborts
-                  (append state-aborts (list (list from-name abort-name state-func))))
-            (setq action-aborts
-                  (append action-aborts (list (list node-name abort-name action-func))))
             ))))
     ;; start-state
     (send sm :start-state start-state)
@@ -214,7 +226,8 @@
     ;; aborts
     (add-state-abort-nodes sm state-aborts)
     (add-action-abort-nodes sm action-aborts)
-    ;; teach-goals
+    ;; goals
+    (add-state-goal-nodes sm state-goals)
     (add-teach-goal-nodes sm teach-goals)
     ;; ros-info
     (ros::ros-info (format nil "convert-graph-to-smach: smach start-state is ~A."
@@ -234,6 +247,7 @@
         (goal-state "(:goal)")
         (abort-name "(:abort)")
         (state-aborts nil)
+        (state-goals nil)
         (action-aborts nil)
         (teach-goals nil))
     (if no-loop
@@ -254,14 +268,15 @@
               :add-t-transition t)
             (setq state-aborts
                   (append state-aborts (list (list from-name abort-name state-func))))
+            (setq state-goals
+                  (append state-goals (list (list from-name goal-state state-func))))
             (setq action-aborts
                   (append action-aborts (list (list node-name abort-name action-func))))
             (if teach-func
               (progn
                 (add-teach-node-trans sm from-name teach-name state-func teach-func)
                 (setq teach-goals
-                      (append teach-goals
-                              (list (list teach-name goal-state teach-func))))))
+                      (append teach-goals (list (list teach-name goal-state teach-func))))))
             (setq current-state-sym to-state-sym))))
       (dolist (trans-a trans-alist)
         (let* ((trans-list (cdr trans-a))
@@ -282,12 +297,13 @@
               (setq trans-index (+ trans-index 1))))
           (setq state-aborts
                 (append state-aborts (list (list from-name abort-name state-func))))
+          (setq state-goals
+                (append state-goals (list (list from-name goal-state state-func))))
           (if teach-func
             (progn
               (add-teach-node-trans sm from-name teach-name state-func teach-func)
               (setq teach-goals
-                    (append teach-goals
-                            (list (list teach-name goal-state teach-func))))))
+                    (append teach-goals (list (list teach-name goal-state teach-func))))))
           )))
     ;; start-state
     (add-node sm start-state
@@ -307,7 +323,8 @@
     ;; aborts
     (add-state-abort-nodes sm state-aborts)
     (add-action-abort-nodes sm action-aborts)
-    ;; teach goals
+    ;; goals
+    (add-state-goal-nodes sm state-goals)
     (add-teach-goal-nodes sm teach-goals)
     sm))
 
