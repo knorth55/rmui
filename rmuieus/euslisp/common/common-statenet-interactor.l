@@ -172,12 +172,14 @@
                        (send current-sm-node :arc-list)))))
       (if (and next-sm-actions gr-acts)
         (let* ((next-gr-actions
-                 (mapcar #'(lambda (act) (read-from-string (car act)))
-                         gr-acts))
+                 (mapcar
+                   #'(lambda (act) (read-from-string (car act)))
+                   gr-acts))
                (next-gr-states
-                 (mapcar #'(lambda (act)
-                             (convert-string-to-sym (send (cdr act) :name)))
-                         gr-acts))
+                 (mapcar
+                   #'(lambda (act)
+                       (convert-string-to-sym (send (cdr act) :name)))
+                   gr-acts))
                (next-sm-action-syms
                  (mapcar
                    #'(lambda (next-sm-action)
