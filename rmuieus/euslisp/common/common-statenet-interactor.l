@@ -246,7 +246,19 @@
                          (return-from :ask-user-state-decision (cons :abort nil))
                          (go retry-ask-user-state-decision)))))))
               (t nil))))
-        (cons :pass nil)))))
+        (cons :pass nil))))
+  (:ask-user-teach-decision (&key (timeout nil))
+    (let* ((finish-teach-p
+             (send self :ask-user-finish-teach))
+           (finish-task-p
+             (if finish-teach-p
+               (send self :ask-user-finish-task))))
+      (if finish-teach-p
+        (if finish-task-p
+          (return-from :ask-user-teach-decision :finish)
+          (return-from :ask-user-teach-decision t))
+        (return-from :ask-user-teach-decision nil))))
+  )
 
 
 (provide :common-statenet-interactor "common-statenet-interactor.l")

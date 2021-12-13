@@ -456,15 +456,17 @@
       (setf (cdr (assoc :teach-state userdata)) scene-states)
       (setf (cdr (assoc :teach-executed-action userdata)) executed-action)
       t))
-  (:ask-user-finish-teach (userdata)
-    (let ((finish-teach-p (send stinteractor :ask-user-finish-teach)))
-      (if finish-teach-p
+  (:ask-user-teach-decision (userdata)
+    (let ((user-decision (send stinteractor :ask-user-teach-decision)))
+      (if user-decision
         (progn
           (ros::ros-warn "Finishing teaching")
           (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
-          (setf (cdr (assoc :teach-executed-action userdata)) nil))
+          (setf (cdr (assoc :teach-executed-action userdata)) nil)
+          (if (equal user-decision :finish)
+            (ros::ros-warn "Finishing the task")))
         (ros::ros-warn "Continue teaching"))
-      finish-teach-p))
+      user-decision))
   (:replan-in-teach (userdata)
     (ros::ros-warn "replanning...")
     (let* ((start-state (cdr (assoc :teach-state userdata)))
@@ -499,7 +501,7 @@
           (wait-device-node-name "(wait-device-user-input)")
           (execute-node-name "(execute-device-user-input)")
           (update-teach-node-name "(update-from-teach-execution)")
-          (ask-finish-node-name "(ask-user-finish-teach)")
+          (ask-finish-node-name "(ask-user-teach-decision)")
           (replan-node-name "(replan-in-teach)")
           (reset-device-node-name "(reset-device)"))
       (add-teach-node sub-sm ask-ready-node-name
@@ -520,7 +522,7 @@
                       :update-teach-node)
       (add-teach-node sub-sm ask-finish-node-name
                       `(lambda-closure nil 0 0 (userdata)
-                                       (send ,self :ask-user-finish-teach userdata)))
+                                       (send ,self :ask-user-teach-decision userdata)))
       (add-teach-node sub-sm replan-node-name
                       `(lambda-closure nil 0 0 (userdata)
                                        (send ,self :replan-in-teach userdata)))
