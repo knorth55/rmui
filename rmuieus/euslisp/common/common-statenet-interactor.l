@@ -126,9 +126,9 @@
             (format nil "Waiting for user interuption: ~A seconds" timeout)))
       (send self :ros-wait-user-interrupt ask-sentence
             :timeout timeout)))
-  (:ask-user-teaching (&key (timeout nil))
+  (:ask-user-start-teach (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to teach a new action? : ")))
+            (format nil "Do you want to start teaching new actions? : ")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-next-action (next-action &key (timeout nil))
@@ -141,7 +141,7 @@
             (format nil "Are you sure to abort the execution ? : ")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
-  (:ask-user-decision (sm gr &key (timeout nil))
+  (:ask-user-state-decision (sm gr &key (timeout nil))
     (let* ((current-sm-node (send sm :active-state))
            (current-state (read-from-string (send current-sm-node :name)))
            (current-gr-node (send gr :search-node-from-pddl-state current-state))
@@ -176,7 +176,7 @@
                                as))
                         next-sm-action))
                    next-sm-actions)))
-          (tagbody retry-ask-user-decision
+          (tagbody retry-ask-user-state-decision
             (cond
               ;; if next actions are multiples
               ;; ask which action to execute -> ask if teach or not
@@ -207,13 +207,13 @@
                              :timeout timeout))
                  (if (>= chosen-index 0)
                    (if (equal default-index chosen-index)
-                     (return-from :ask-user-decision
+                     (return-from :ask-user-state-decision
                                   (cons :next (elt next-gr-actions chosen-index)))
-                     (return-from :ask-user-decision
+                     (return-from :ask-user-state-decision
                                   (cons :replan (elt next-gr-actions chosen-index))))
-                   (if (send self :ask-user-teaching :timeout timeout)
-                     (return-from :ask-user-decision (cons :teach nil))
-                     (go retry-ask-user-decision)))))
+                   (if (send self :ask-user-start-teach :timeout timeout)
+                     (return-from :ask-user-state-decision (cons :teach nil))
+                     (go retry-ask-user-state-decision)))))
               ;; if next action is only one
               ;; ask if execute or not -> ask if teach or not -> ask if abort or not
               ((= (length next-gr-actions) 1)
@@ -224,12 +224,12 @@
                    (ros::ros-info (format nil "next-action  : ~A" next-action))
                    (ros::ros-info (format nil "next-state   : ~A" next-state))
                    (if (send self :ask-user-next-action next-action :timeout timeout)
-                     (return-from :ask-user-decision (cons :next next-action))
-                     (if (send self :ask-user-teaching :timeout timeout)
-                       (return-from :ask-user-decision (cons :teach nil))
+                     (return-from :ask-user-state-decision (cons :next next-action))
+                     (if (send self :ask-user-start-teach :timeout timeout)
+                       (return-from :ask-user-state-decision (cons :teach nil))
                        (if (send self :ask-user-abortion :timeout timeout)
-                         (return-from :ask-user-decision (cons :abort nil))
-                         (go retry-ask-user-decision)))))))
+                         (return-from :ask-user-state-decision (cons :abort nil))
+                         (go retry-ask-user-state-decision)))))))
               (t nil))))
         (cons :pass nil)))))
 
