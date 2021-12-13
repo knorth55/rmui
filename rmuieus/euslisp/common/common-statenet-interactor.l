@@ -256,7 +256,7 @@
       (if finish-teach-p
         (if finish-task-p
           (return-from :ask-user-teach-decision :finish)
-          (return-from :ask-user-teach-decision t))
+          (return-from :ask-user-teach-decision :replan))
         (return-from :ask-user-teach-decision nil))))
   )
 
