@@ -1348,17 +1348,13 @@
 
 ;; rotate motion
 
-(defun get-rotate-height
-  (&key (current-angle) (prev-z) (cube-norm-length)
-        (initial-angle 0) (rotate-axis :x) (rotate-type :push))
-  (unless (or (eq rotate-axis :x) (eq rotate-axis :y))
+(defun get-rotate-distance
+  (&key (current-angle) (cube-norm-length) (initial-angle 0) (rotate-axis :x))
+  (unless (or (eq rotate-axis :x) (eq rotate-axis :y) (eq rotate-axis :z))
     (ros::ros-error (format nil "rotate-axis is invalid: ~A" rotate-axis))
-    (return-from get-rotate-height nil))
-  (cond
-    ((or (eq rotate-axis :x) (eq rotate-axis :y))
-     (* (sin (abs (+ initial-angle current-angle)))
-        (/ cube-norm-length 2.0)))
-    (t nil)))
+    (return-from get-rotate-distance nil))
+  (* (sin (abs (+ initial-angle current-angle)))
+     (/ cube-norm-length 2.0)))
 
 
 (defun rotate-motion
@@ -1373,6 +1369,7 @@
               (cube-height nil)
               (cube-depth nil)
               (cube-width nil)
+              (use-rotate-distance t)
               (robot *robot*)
               (ri *ri*)
               (cube *box0*)
@@ -1389,14 +1386,15 @@
     (ros::ros-error "robot is not contacted to cube")
     (return-from rotate-motion nil))
   (let* ((av)
-         (rotate-height)
-         (prev-rotate-height)
+         (rotate-distance)
+         (prev-rotate-distance)
          (rotate-step (if (> rotate-angle 0) 0.1 -0.1))
          (rotate-count 0)
          (max-rotate-count (floor (/ rotate-angle rotate-step)))
          (cube-norm-length
            (cond ((eq rotate-axis :x) (norm (float-vector cube-width cube-height)))
                  ((eq rotate-axis :y) (norm (float-vector cube-depth cube-height)))
+                 ((eq rotate-axis :z) (norm (float-vector cube-width cube-depth)))
                  (t nil)))
          (initial-angle
            (+ initial-rotate-angle
@@ -1406,39 +1404,43 @@
                        (t -1.0))
                  (cond ((eq rotate-axis :x) (atan (/ cube-height cube-width)))
                        ((eq rotate-axis :y) (atan (/ cube-height cube-depth)))
+                       ((eq rotate-axis :z) (atan (/ cube-depth cube-width)))
                        (t 0)))))
          (current-angle 0)
-         (current-z (elt (send cube :worldpos) 2))
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
          (rotate-avs nil)
          (rotate-tms nil)
          (larm-target-coords nil)
          (rarm-target-coords nil))
-    (when (or (eq rotate-axis :x) (eq rotate-axis :y))
-      (setq prev-rotate-height
-            (get-rotate-height :current-angle current-angle
-                               :prev-z current-z
-                               :cube-norm-length cube-norm-length
-                               :initial-angle initial-angle
-                               :rotate-axis rotate-axis
-                               :rotate-type rotate-type)))
+    (if use-rotate-distance
+      (setq prev-rotate-distance
+            (get-rotate-distance
+              :current-angle current-angle
+              :cube-norm-length cube-norm-length
+              :initial-angle initial-angle
+              :rotate-axis rotate-axis)))
     (block :rotate-motion-step
       (while (> max-rotate-count rotate-count)
         (setq current-angle (+ current-angle rotate-step))
         (send cube :rotate rotate-step rotate-axis :world)
-        (when (or (eq rotate-axis :x) (eq rotate-axis :y))
-          (setq rotate-height
-                (get-rotate-height :current-angle current-angle
-                                   :prev-z current-z
-                                   :cube-norm-length cube-norm-length
-                                   :initial-angle initial-angle
-                                   :rotate-axis rotate-axis
-                                   :rotate-type rotate-type))
-          (send cube :translate
-                (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
-          (setq current-z (+ current-z (- rotate-height prev-rotate-height)))
-          (setq prev-rotate-height rotate-height))
+        (if use-rotate-distance
+          (progn
+            (setq rotate-distance
+                  (get-rotate-distance
+                    :current-angle current-angle
+                    :cube-norm-length cube-norm-length
+                    :initial-angle initial-angle
+                    :rotate-axis rotate-axis))
+            (cond
+              ((or (eq rotate-axis :x)(eq rotate-axis :y))
+               (send cube :translate
+                     (float-vector 0 0 (- rotate-distance prev-rotate-distance)) :world))
+              ((eq rotate-axis :z)
+               (send cube :translate
+                     (float-vector (- rotate-distance prev-rotate-distance) 0 0) :world))
+              (t nil))
+            (setq prev-rotate-distance rotate-distance)))
         (setq larm-target-coords
               (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
         (setq rarm-target-coords
@@ -1455,18 +1457,23 @@
           (return-from :rotate-motion-step nil))
         (setq rotate-count (+ rotate-count 1)))
       (send cube :rotate (- rotate-angle current-angle) rotate-axis :world)
-      (when (or (eq rotate-axis :x) (eq rotate-axis :y))
-        (setq current-angle rotate-angle)
-        (setq rotate-height
-              (get-rotate-height :current-angle current-angle
-                                 :prev-z current-z
-                                 :cube-norm-length cube-norm-length
-                                 :initial-angle initial-angle
-                                 :rotate-axis rotate-axis
-                                 :rotate-type rotate-type))
-        (send cube :translate
-              (float-vector 0 0 (- rotate-height prev-rotate-height)) :world)
-        (setq current-z (+ current-z (- rotate-height prev-rotate-height))))
+      (setq current-angle rotate-angle)
+      (if use-rotate-distance
+        (progn
+          (setq rotate-distance
+                (get-rotate-distance
+                  :current-angle current-angle
+                  :cube-norm-length cube-norm-length
+                  :initial-angle initial-angle
+                  :rotate-axis rotate-axis))
+          (cond
+            ((or (eq rotate-axis :x) (eq rotate-axis :y))
+             (send cube :translate
+                   (float-vector 0 0 (- rotate-distance prev-rotate-distance)) :world))
+            ((eq rotate-axis :z)
+             (send cube :translate
+                   (float-vector (- rotate-distance prev-rotate-distance) 0 0) :world))
+            (t nil))))
       (setq larm-target-coords
             (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
       (setq rarm-target-coords

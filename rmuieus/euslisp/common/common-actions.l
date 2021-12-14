@@ -189,8 +189,11 @@
   (apply #'dualarm-hold-down-action args))
 
 
-(defun dualarm-push-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                 &allow-other-keys)
+(defun dualarm-push-rotate-ccw-x45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :bottom-left-contact)
                     (equal rarm-contact-state :top-right-contact))
@@ -215,8 +218,11 @@
     (if executed t nil)))
 
 
-(defun dualarm-push-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                &allow-other-keys)
+(defun dualarm-push-rotate-cw-x45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :bottom-right-contact))
@@ -303,30 +309,73 @@
   (apply #'dualarm-push-rotate-cw-x90-action args))
 
 
-(defun dualarm-push-rotate-ccw-z45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                 &allow-other-keys)
-  (let ((executed nil))
+(defun dualarm-push-rotate-ccw-z45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
+  (let* ((initial-rotate-angle
+           (if (and (equal larm-contact-state :front-left-contact)
+                    (equal rarm-contact-state :back-right-contact))
+             (/ -pi 4.0) 0))
+         (cube-rpy (float-vector initial-rotate-angle 0 0))
+         (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
+         (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
+         (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (executed nil))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
-                 (append (list :rotate-angle (/ pi 4.0) :rotate-axis :z) args)))
+                 (append
+                   (list :rotate-angle (/ pi 4.0)
+                         :rotate-axis :z
+                         :initial-rotate-angle initial-rotate-angle
+                         :cube-height cube-height
+                         :cube-width cube-width
+                         :cube-depth cube-depth
+                         ; :use-rotate-distance t
+                         :use-rotate-distance nil)
+                   args)))
     (dissoc-cube :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
-(defun dualarm-push-rotate-cw-z45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                &allow-other-keys)
-  (let ((executed nil))
+(defun dualarm-push-rotate-cw-z45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
+  (let* ((initial-rotate-angle
+           (if (and (equal larm-contact-state :back-left-contact)
+                    (equal rarm-contact-state :front-right-contact))
+             (/ pi 4.0) 0))
+         (cube-rpy (float-vector initial-rotate-angle 0 0))
+         (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
+         (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
+         (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (executed nil))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
-                 (append (list :rotate-angle (/ -pi 4.0) :rotate-axis :z) args)))
+                 (append
+                   (list :rotate-angle (/ -pi 4.0)
+                         :rotate-axis :z
+                         :initial-rotate-angle initial-rotate-angle
+                         :cube-height cube-height
+                         :cube-width cube-width
+                         :cube-depth cube-depth
+                         ; :use-rotate-distance t
+                         :use-rotate-distance nil)
+                   args)))
     (dissoc-cube :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
-(defun dualarm-support-rotate-ccw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                    &allow-other-keys)
+(defun dualarm-support-rotate-ccw-x45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :top-right-contact))
@@ -351,8 +400,11 @@
     (if executed t nil)))
 
 
-(defun dualarm-support-rotate-cw-x45-action (&rest args &key (ri *ri*) (cube *box0*)
-                                                   &allow-other-keys)
+(defun dualarm-support-rotate-cw-x45-action
+  (&rest args &key (ri *ri*) (cube *box0*)
+                   (larm-contact-state :left-contact)
+                   (rarm-contact-state :right-contact)
+                   &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :top-left-contact)
                     (equal rarm-contact-state :top-right-contact))

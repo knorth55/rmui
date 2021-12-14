@@ -277,6 +277,8 @@
                             :table-height table-height
                             :wall-front-limit wall-front-limit
                             :wall-left-limit wall-left-limit
+                            :larm-contact-state larm-contact-state
+                            :rarm-contact-state rarm-contact-state
                             ))))
             (if robotviewer (send robotviewer :draw-objects))
             (send self :reset-executor)
@@ -296,6 +298,8 @@
                           :table-height pilot-table-height
                           :wall-front-limit pilot-wall-front-limit
                           :wall-left-limit pilot-wall-left-limit
+                          :larm-contact-state larm-contact-state
+                          :rarm-contact-state rarm-contact-state
                           )))
                 (if pilotviewer (send pilotviewer :draw-objects))
                 (setq execute-symbol
