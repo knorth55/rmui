@@ -1,5 +1,7 @@
 (((or (and (equal larm-motion-symbol :left-push)
            (equal prev-larm-contact-state :released))
+      (and (equal larm-motion-symbol :left-right-push-hold)
+           (equal prev-larm-contact-state :released))
       (and (equal larm-motion-symbol :push-rotate-ccw-x45)
            (equal prev-larm-contact-state :bottom-left-contact))
       (and (equal larm-motion-symbol :push-rotate-cw-x45)

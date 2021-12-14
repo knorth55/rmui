@@ -1,5 +1,7 @@
 (((or (and (equal rarm-motion-symbol :right-push)
            (equal prev-rarm-contact-state :released))
+      (and (equal rarm-motion-symbol :left-right-push-hold)
+           (equal prev-rarm-contact-state :released))
       (and (equal rarm-motion-symbol :push-rotate-ccw-x45)
            (equal prev-rarm-contact-state :top-right-contact))
       (and (equal rarm-motion-symbol :push-rotate-cw-x45)

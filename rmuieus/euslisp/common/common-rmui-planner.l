@@ -90,6 +90,7 @@
                    (equal rarm-motion-symbol :push-hold-up)
                    (find :bottom-contact cube-contact-state))
             (setq push-hold-up-index i))
+          ;; next to
           (if (and (equal rarm-contact-state :right-contact)
                    (equal larm-motion-symbol :left-push))
             (setq left-push-index i))
@@ -102,10 +103,17 @@
           (if (and (equal larm-contact-state :back-contact)
                    (equal rarm-motion-symbol :front-push))
             (setq front-push-index i))
+          ;; wall push
           ;; TODO: priority ?
           (if (and (equal larm-motion-symbol :left-push)
                    (equal rarm-motion-symbol :left-wall-push-next-to))
             (setq larm-motion-symbol nil))
+          ;; push hold
+          (if (and (equal larm-motion-symbol :left-push)
+                   (equal rarm-motion-symbol :right-push))
+            (progn
+              (setq larm-motion-symbol :left-right-push-hold)
+              (setq rarm-motion-symbol :left-right-push-hold)))
           (setq motion-symbols
                 (append motion-symbols
                         (list (list larm-motion-symbol rarm-motion-symbol))))))
@@ -162,7 +170,7 @@
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols push-hold-up-index)) nil)
                (setf (cadr (elt motion-symbols push-hold-up-index)) nil))
-              ;; next-to
+              ;; next to
               ((and left-push-index
                     (not (equal left-push-index i))
                     (equal (elt cube-contact-state left-push-index) :released)

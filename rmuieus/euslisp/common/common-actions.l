@@ -105,6 +105,18 @@
     (if executed t nil)))
 
 
+(defun dualarm-left-right-push-hold-action (&rest args)
+  (let ((executed nil))
+    (setq executed
+          (apply #'push-hold-motion
+                 (append
+                   (list :push-axis :y
+                         :push-position :center
+                         :approach-direction :back)
+                   args)))
+    (if executed t nil)))
+
+
 (defun dualarm-push-hold-up-action (&rest args)
   (apply #'dualarm-hold-up-action args))
 
