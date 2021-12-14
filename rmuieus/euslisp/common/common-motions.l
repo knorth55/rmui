@@ -1415,13 +1415,14 @@
          (rotate-tms nil)
          (larm-target-coords nil)
          (rarm-target-coords nil))
-    (setq prev-rotate-height
-          (get-rotate-height :current-angle current-angle
-                             :prev-z current-z
-                             :cube-norm-length cube-norm-length
-                             :initial-angle initial-angle
-                             :rotate-axis rotate-axis
-                             :rotate-type rotate-type))
+    (when (or (eq rotate-axis :x) (eq rotate-axis :y))
+      (setq prev-rotate-height
+            (get-rotate-height :current-angle current-angle
+                               :prev-z current-z
+                               :cube-norm-length cube-norm-length
+                               :initial-angle initial-angle
+                               :rotate-axis rotate-axis
+                               :rotate-type rotate-type)))
     (block :rotate-motion-step
       (while (> max-rotate-count rotate-count)
         (setq current-angle (+ current-angle rotate-step))
