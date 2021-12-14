@@ -36,6 +36,10 @@
           pilot-wall-left-limit
           use-torso
           move-robot
+          last-executed-action
+          last-executed-action-name
+          last-failed-action
+          last-failed-action-name
           )
   )
 
@@ -89,6 +93,10 @@
 
     (send self :reset-executor)
     self)
+  (:last-executed-action () (copy-seq last-executed-action))
+  (:last-executed-action-name () (copy-seq last-executed-action-name))
+  (:last-failed-action () (copy-seq last-failed-action))
+  (:last-failed-action-name () (copy-seq last-failed-action-name))
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
       (if (>= (length motion-symbol-queue) motion-symbol-length)
@@ -251,6 +259,9 @@
                          larm-motion-symbol rarm-motion-symbol))
                  (action-name (if action-name-and-action (car action-name-and-action)))
                  (action (if action-name-and-action (cadr action-name-and-action))))
+            (if (and (equal action last-failed-action)
+                     (not (equal action last-executed-action)))
+              (ros::ros-error "Executing the last failed action again..."))
             ;; robot execution
             (setq executed
                   (eval (append
@@ -268,6 +279,7 @@
                             :wall-left-limit wall-left-limit
                             ))))
             (if robotviewer (send robotviewer :draw-objects))
+            (send self :reset-executor)
             (if executed
               (progn
                 ;; pilot viewer
@@ -294,13 +306,26 @@
                         (larm-motion-symbol (list larm-motion-symbol nil))
                         (rarm-motion-symbol (list nil rarm-motion-symbol))
                         (t nil)))
-                (send self :reset-executor)
+                (setq last-executed-action (copy-seq action))
+                (setq last-executed-action-name (copy-seq action-name))
+                (setq last-failed-action nil)
+                (setq last-failed-action-name nil)
                 (return-from :execute-checked-motion-symbol
                              (list execute-symbol action-name action)))
               (progn
-                (send self :reset-executor)
+                (setq last-executed-action nil)
+                (setq last-executed-action-name nil)
+                (setq last-failed-action (copy-seq action))
+                (setq last-failed-action-name (copy-seq action-name))
                 (return-from :execute-checked-motion-symbol nil))
-              ))))))
+              )))
+        (progn
+          (setq last-executed-action nil)
+          (setq last-executed-action-name nil)
+          (setq last-failed-action nil)
+          (setq last-failed-action-name nil)
+          (return-from :execute-checked-motion-symbol nil))
+        )))
   ;; run update, check and execute in one method
   (:execute-motion-symbols
     (motion-symbols &key (scene-states))
