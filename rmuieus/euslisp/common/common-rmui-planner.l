@@ -109,6 +109,16 @@
             (progn
               (setq larm-motion-symbol :left-right-push-hold)
               (setq rarm-motion-symbol :left-right-push-hold)))
+          (if (and (equal larm-motion-symbol :front-left-push)
+                   (equal rarm-motion-symbol :back-right-push))
+            (progn
+              (setq larm-motion-symbol :front-left-back-right-push-hold)
+              (setq rarm-motion-symbol :front-left-back-right-push-hold)))
+          (if (and (equal larm-motion-symbol :back-left-push)
+                   (equal rarm-motion-symbol :front-right-push))
+            (progn
+              (setq larm-motion-symbol :back-left-front-right-push-hold)
+              (setq rarm-motion-symbol :back-left-front-right-push-hold)))
           ;; hold release
           (if (and (equal larm-motion-symbol :push-release)
                    (equal rarm-motion-symbol :push-release))

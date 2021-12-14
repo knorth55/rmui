@@ -117,6 +117,48 @@
     (if executed t nil)))
 
 
+(defun dualarm-front-left-back-right-push-hold-action
+  (&rest args &key (cube *box0*) &allow-other-keys)
+  (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
+         (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
+         (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
+         (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (executed nil))
+    (setq executed
+          (apply #'push-hold-motion
+                 (append
+                   (list :push-axis :y
+                         :push-position :center
+                         :approach-direction :back
+                         :cube-height cube-height
+                         :cube-width cube-width
+                         :cube-depth cube-depth
+                         :cube-rpy cube-rpy)
+                   args)))
+    (if executed t nil)))
+
+
+(defun dualarm-back-left-front-right-push-hold-action
+  (&rest args &key (cube *box0*) &allow-other-keys)
+  (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
+         (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
+         (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
+         (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (executed nil))
+    (setq executed
+          (apply #'push-hold-motion
+                 (append
+                   (list :push-axis :y
+                         :push-position :center
+                         :approach-direction :back
+                         :cube-height cube-height
+                         :cube-width cube-width
+                         :cube-depth cube-depth
+                         :cube-rpy cube-rpy)
+                   args)))
+    (if executed t nil)))
+
+
 (defun dualarm-hold-release-action (&rest args)
   (apply #'push-release-action (append (list :arms) args)))
 
