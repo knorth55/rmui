@@ -109,16 +109,31 @@
             (progn
               (setq larm-motion-symbol :left-right-push-hold)
               (setq rarm-motion-symbol :left-right-push-hold)))
+          (if (and (equal larm-motion-symbol :left-top-approach-push)
+                   (equal rarm-motion-symbol :right-top-approach-push))
+            (progn
+              (setq larm-motion-symbol :left-right-top-approach-push-hold)
+              (setq rarm-motion-symbol :left-right-top-approach-push-hold)))
           (if (and (equal larm-motion-symbol :front-left-push)
                    (equal rarm-motion-symbol :back-right-push))
             (progn
               (setq larm-motion-symbol :front-left-back-right-push-hold)
               (setq rarm-motion-symbol :front-left-back-right-push-hold)))
+          (if (and (equal larm-motion-symbol :front-left-top-approach-push)
+                   (equal rarm-motion-symbol :back-right-top-approach-push))
+            (progn
+              (setq larm-motion-symbol :front-left-back-right-top-approach-push-hold)
+              (setq rarm-motion-symbol :front-left-back-right-top-approach-push-hold)))
           (if (and (equal larm-motion-symbol :back-left-push)
                    (equal rarm-motion-symbol :front-right-push))
             (progn
               (setq larm-motion-symbol :back-left-front-right-push-hold)
               (setq rarm-motion-symbol :back-left-front-right-push-hold)))
+          (if (and (equal larm-motion-symbol :back-left-top-approach-push)
+                   (equal rarm-motion-symbol :front-right-top-approach-push))
+            (progn
+              (setq larm-motion-symbol :back-left-front-right-top-approach-push-hold)
+              (setq rarm-motion-symbol :back-left-front-right-top-approach-push-hold)))
           ;; hold release
           (if (and (equal larm-motion-symbol :push-release)
                    (equal rarm-motion-symbol :push-release))
@@ -265,6 +280,30 @@
            (front-wall-contact-state
              (cadr (assoc :front-wall-contact-state scene-state)))
            (contact-surface (mapcar #'car contact-position))
+           (left-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :left) (cadr x) nil))
+                                contact-position)))
+           (front-left-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :front-left) (cadr x) nil))
+                                contact-position)))
+           (back-left-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :back-left) (cadr x) nil))
+                                contact-position)))
+           (right-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :right) (cadr x) nil))
+                                contact-position)))
+           (front-right-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :front-right) (cadr x) nil))
+                                contact-position)))
+           (back-right-contact-position
+             (remove-if #'null
+                        (mapcar #'(lambda (x) (if (equal (car x) :back-right) (cadr x) nil))
+                                contact-position)))
            (bottom-contact-position
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
