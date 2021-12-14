@@ -294,8 +294,13 @@
                         (larm-motion-symbol (list larm-motion-symbol nil))
                         (rarm-motion-symbol (list nil rarm-motion-symbol))
                         (t nil)))
-                (list execute-symbol action-name action)
-                )))))))
+                (send self :reset-executor)
+                (return-from :execute-checked-motion-symbol
+                             (list execute-symbol action-name action)))
+              (progn
+                (send self :reset-executor)
+                (return-from :execute-checked-motion-symbol nil))
+              ))))))
   ;; run update, check and execute in one method
   (:execute-motion-symbols
     (motion-symbols &key (scene-states))
