@@ -61,33 +61,36 @@
     (setq dump-dir nil)
     (setq scene-states-list (list initial-scene-states)))
   (:initial-scene-states ()
-    (mapcar #'(lambda (x) (mapcar #'copy-seq x))
-            (car scene-states-list)))
+    (copy-tree (car scene-states-list)))
   (:last-scene-states ()
-    (mapcar #'(lambda (x) (mapcar #'copy-seq x))
-            (car (last scene-states-list))))
+    (copy-tree (car (last scene-states-list))))
   (:last-executed-action-name ()
     (car (car (last executed-actions))))
   (:last-executed-action ()
-    (copy-seq (cadr (car (last executed-actions)))))
+    (copy-tree (cadr (car (last executed-actions)))))
   (:statenet-graph () statenet-gr)
   (:pddl-graph () pddl-gr)
   (:executed-actions () executed-actions)
   (:scene-states-list () scene-states-list)
   (:append-executed-actions (action-name action)
-    (let ((executed-action (list action-name action)))
-      (setq executed-actions (append executed-actions (list executed-action)))))
+    (let ((executed-action (list action-name (copy-tree action))))
+      (setq executed-actions
+            (append executed-actions (list executed-action)))))
   (:append-scene-states-list (scene-states)
-    (setq scene-states-list (append scene-states-list (list scene-states))))
+    (setq scene-states-list
+          (append scene-states-list (list (copy-tree scene-states)))))
   (:add-action-state-in-pddl-graph (action prev-scene-states scene-states)
-    (add-action-state-in-graph pddl-gr action prev-scene-states scene-states))
+    (add-action-state-in-graph
+      pddl-gr (copy-tree action)
+      (copy-tree prev-scene-states) (copy-tree scene-states)))
   (:add-action-state-in-statenet-graph (action prev-scene-states scene-states)
-    (add-action-state-in-graph statenet-gr action prev-scene-states scene-states))
+    (add-action-state-in-graph
+      statenet-gr (copy-tree action)
+      (copy-tree prev-scene-states) (copy-tree scene-states)))
   (:update-scene-states (motion-symbols-and-actions)
     (if (null motion-symbols-and-actions) (return-from :update-scene-states nil))
     (let* ((prev-scene-states (send self :last-scene-states))
-           (scene-states
-             (mapcar #'(lambda (x) (mapcar #'copy-seq x)) prev-scene-states))
+           (scene-states (copy-tree prev-scene-states))
            (execute-action-names
              (make-list (length motion-symbols-and-actions) :initial-element nil))
            (execute-actions
@@ -152,9 +155,9 @@
                (rarm-execute-motion-symbol (cadr execute-motion-symbol))
                (prev-scene-state (elt prev-scene-states execute-cube-index))
                (prev-cube-contact-state
-                 (copy-seq (cadr (assoc :cube-contact-state prev-scene-state)))))
+                 (copy-tree (cadr (assoc :cube-contact-state prev-scene-state)))))
           (setf (elt execute-action-names execute-cube-index) execute-action-name)
-          (setf (elt execute-actions execute-cube-index) (copy-seq execute-action))
+          (setf (elt execute-actions execute-cube-index) (copy-tree execute-action))
           (cond
             ;; pile-up
             ((and (not (find :bottom-contact prev-cube-contact-state))
@@ -234,9 +237,9 @@
            (prev-object-location-state
              (cadr (assoc :object-location-state prev-scene-state)))
            (prev-object-rotation-state
-             (copy-seq (cadr (assoc :object-rotation-state prev-scene-state))))
+             (copy-tree (cadr (assoc :object-rotation-state prev-scene-state))))
            (prev-cube-contact-state
-             (copy-seq (cadr (assoc :cube-contact-state prev-scene-state))))
+             (copy-tree (cadr (assoc :cube-contact-state prev-scene-state))))
            (prev-left-wall-contact-state
              (cadr (assoc :left-wall-contact-state prev-scene-state)))
            (prev-front-wall-contact-state

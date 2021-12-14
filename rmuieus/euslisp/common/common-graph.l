@@ -252,7 +252,7 @@
         (action-aborts nil)
         (teach-goals nil))
     (if no-loop
-      (let ((current-state-sym (copy-seq first-state-sym)))
+      (let ((current-state-sym (copy-tree first-state-sym)))
         (while (null (equal current-state-sym last-state-sym))
           (let* ((trans-a (assoc current-state-sym trans-alist :test #'equal))
                  (trans (car (cdr trans-a)))
@@ -346,18 +346,18 @@
                    (position-if #'(lambda (x) (and x (listp x))) action-syms))
                  (action-sym
                    (if cube-index
-                     (let ((as (copy-seq (elt action-syms cube-index))))
+                     (let ((as (copy-tree (elt action-syms cube-index))))
                        (setq as (remove-key-from-action as :move-robot))
                        (setq as (remove-key-from-action as :use-torso))
                        as)
-                     (copy-seq action-syms)))
+                     (copy-tree action-syms)))
                  (action-func-sym
                    (if cube-index
-                     (let ((afs (copy-seq action-sym)))
+                     (let ((afs (copy-tree action-sym)))
                        (setq afs (override-key-value-in-action afs :move-robot move-robot))
                        (setq afs (override-key-value-in-action afs :use-torso use-torso))
                        afs)
-                     (copy-seq action-sym)))
+                     (copy-tree action-sym)))
                  (action-func
                    `(lambda-closure
                       nil 0 0 (userdata)
@@ -408,7 +408,7 @@
   (collabo-path &key (robot *robot*) (ri *ri*) (cubes *boxes*)
                      (vw *irtviewer*) (use-torso 0.001) (move-robot t))
   (let ((trans-alist nil)
-        (collabo-nodes (copy-seq collabo-path)))
+        (collabo-nodes (copy-tree collabo-path)))
     (while (> (length collabo-nodes) 1)
       (let* ((from-node (car collabo-nodes))
              (from-node-type (cadr (assoc :node-type from-node)))
@@ -426,18 +426,18 @@
                (position-if #'(lambda (x) (and x (listp x))) action-syms))
              (action-sym
                (if cube-index
-                 (let ((as (copy-seq (elt action-syms cube-index))))
+                 (let ((as (copy-tree (elt action-syms cube-index))))
                    (setq as (remove-key-from-action as :move-robot))
                    (setq as (remove-key-from-action as :use-torso))
                    as)
-                 (copy-seq action-syms)))
+                 (copy-tree action-syms)))
              (action-func-sym
                (if cube-index
-                 (let ((afs (copy-seq action-sym)))
+                 (let ((afs (copy-tree action-sym)))
                    (setq afs (override-key-value-in-action afs :move-robot move-robot))
                    (setq afs (override-key-value-in-action afs :use-torso use-torso))
                    afs)
-                 (copy-seq action-sym)))
+                 (copy-tree action-sym)))
              (action-func
                `(lambda-closure
                   nil 0 0 (userdata)

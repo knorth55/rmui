@@ -393,8 +393,9 @@
       (ros::ros-info "Initializing teach device")
       (send devexecutor :reset-executor)
       (send devupdater :reset-updater
-            :initial-scene-states (copy-seq teach-start-state))
-      (setf (cdr (assoc :teach-state userdata)) (copy-seq teach-start-state))
+            :initial-scene-states (copy-tree teach-start-state))
+      (setf (cdr (assoc :teach-state userdata))
+            (copy-tree teach-start-state))
       (setf (cdr (assoc :teach-motion-symbols userdata)) nil)
       (setf (cdr (assoc :teach-executed-action userdata)) nil)
       t))
@@ -491,7 +492,7 @@
           (ros::ros-error "replanning failed...")
           (ros::ros-error "cannot find a valid path to the goal-state")
           (setf (cdr (assoc :teach-start-state userdata))
-                (copy-seq (cdr (assoc :teach-state userdata))))
+                (copy-tree (cdr (assoc :teach-state userdata))))
           (ros::ros-error "go back to teach state")
           (return-from :replan-in-teach nil)))))
   (:reset-device (userdata)
@@ -623,7 +624,7 @@
             ((equal node-type :state-node) :state)
             (t node-type))
           (list :node-type node-type)
-          (list :state-action state-action)
+          (list :state-action (copy-tree state-action))
           (list :start-stamp start-stamp)
           (list :end-stamp end-stamp)))))
   (:execute-statenet-cb (goal)
@@ -648,7 +649,7 @@
               (ros::ros-warn "allow_update_start_state is set." )
               (ros::ros-warn "Updating start-state from ~A to ~A."
                              start-state current-state)
-              (setq start-state (copy-seq current-state)))
+              (setq start-state (copy-tree current-state)))
             (progn
               (ros::ros-error
                 "Aborting execution because start-state and current-state are different.")

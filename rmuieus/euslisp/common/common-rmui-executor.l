@@ -93,10 +93,10 @@
 
     (send self :reset-executor)
     self)
-  (:last-executed-action () (copy-seq last-executed-action))
-  (:last-executed-action-name () (copy-seq last-executed-action-name))
-  (:last-failed-action () (copy-seq last-failed-action))
-  (:last-failed-action-name () (copy-seq last-failed-action-name))
+  (:last-executed-action () (copy-tree last-executed-action))
+  (:last-executed-action-name () (copy-tree last-executed-action-name))
+  (:last-failed-action () (copy-tree last-failed-action))
+  (:last-failed-action-name () (copy-tree last-failed-action-name))
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
       (if (>= (length motion-symbol-queue) motion-symbol-length)
@@ -310,8 +310,8 @@
                         (larm-motion-symbol (list larm-motion-symbol nil))
                         (rarm-motion-symbol (list nil rarm-motion-symbol))
                         (t nil)))
-                (setq last-executed-action (copy-seq action))
-                (setq last-executed-action-name (copy-seq action-name))
+                (setq last-executed-action (copy-tree action))
+                (setq last-executed-action-name (copy-tree action-name))
                 (setq last-failed-action nil)
                 (setq last-failed-action-name nil)
                 (return-from :execute-checked-motion-symbol
@@ -319,8 +319,8 @@
               (progn
                 (setq last-executed-action nil)
                 (setq last-executed-action-name nil)
-                (setq last-failed-action (copy-seq action))
-                (setq last-failed-action-name (copy-seq action-name))
+                (setq last-failed-action (copy-tree action))
+                (setq last-failed-action-name (copy-tree action-name))
                 (return-from :execute-checked-motion-symbol nil))
               )))
         (progn

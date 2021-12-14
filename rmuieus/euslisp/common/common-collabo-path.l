@@ -22,7 +22,7 @@
            (setq end-stamp-list (list end-stamp))
            (setq current-n
                  (mapcar
-                   #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
+                   #'(lambda (x) (if (listp x) (copy-tree x) x)) n)))
           ;; continue
           ((and (null (equal n last-n))
                 (equal prev-node-type node-type)
@@ -55,7 +55,7 @@
                  (reduce #'max end-stamp-list))
            (setq last-n
                  (mapcar
-                   #'(lambda (x) (if (listp x) (copy-seq x) x)) n))
+                   #'(lambda (x) (if (listp x) (copy-tree x) x)) n))
            (setf (cadr (assoc :start-stamp last-n)) start-stamp)
            (setf (cadr (assoc :end-stamp last-n)) end-stamp)
            (setq simple-collabo-path
@@ -72,7 +72,7 @@
            (setq end-stamp-list (list end-stamp))
            (setq current-n
                  (mapcar
-                   #'(lambda (x) (if (listp x) (copy-seq x) x)) n)))
+                   #'(lambda (x) (if (listp x) (copy-tree x) x)) n)))
           )
         (setq prev-node-type node-type)
         (setq prev-state-action state-action)))

@@ -56,7 +56,7 @@
                        (* timeout 1e9)))
              (return-from :get-user-response :timeout))
            (ros::spin-once groupname))
-         (let ((tmp-response (copy-seq response)))
+         (let ((tmp-response (copy-tree response)))
            (send self :reset-interactor)
            tmp-response)))
       (t nil)))
