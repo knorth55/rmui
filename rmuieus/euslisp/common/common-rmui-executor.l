@@ -217,8 +217,10 @@
             (progn
               (setf (elt motion-symbols-and-actions i) motion-symbol-and-action)
               (return-from :execute-checked-motion-symbols
-                           motion-symbols-and-actions)))))
-      motion-symbols-and-actions))
+                           (if (every #'null motion-symbols-and-actions)
+                             nil motion-symbols-and-actions))))))
+      (if (every #'null motion-symbols-and-actions)
+        nil motion-symbols-and-actions)))
   (:execute-checked-motion-symbol
     (checked-motion-symbol &key (scene-state) (pilot-device) (box))
     (let* ((larm-contact-state
