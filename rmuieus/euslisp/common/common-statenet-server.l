@@ -820,11 +820,18 @@
                (abortp (equal (read-from-string (subseq final-state 0 8)) '(:abort)))
                (goalp (equal (read-from-string (subseq final-state 0 7)) '(:goal)))
                (successp (and goalp (null abortp)))
-               (end-stamp (ros::time- (ros::time-now) start-stamp)))
+               (end-stamp (ros::time- (ros::time-now) start-stamp))
+               (executed-goal-state
+                 (cadr (assoc :goal-state (cdr (assoc :task executed-collabo-path))))))
           (setf (cadr (assoc :result (cdr (assoc :task executed-collabo-path))))
                 successp)
           (setf (cadr (assoc :end-stamp (cdr (assoc :task executed-collabo-path))))
                 (send end-stamp :to-sec))
+          (if (null (equal executed-goal-state current-state))
+            (progn
+              (ros::ros-warn "Goal state updated.")
+              (setf (cadr (assoc :goal-state (cdr (assoc :task executed-collabo-path))))
+                    current-state)))
           (send self :dump-collabo-statenet)
           (send self :dump-executed-collabo-path
                 executed-collabo-path execute-stamp)
