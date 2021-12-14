@@ -1184,7 +1184,8 @@
     ;; lift down
     (block :hold-lift-down-motion-step
       (while (> max-height-count height-count)
-        (send cube :translate (float-vector cube-pos-x-step cube-pos-y-step height-step))
+        (send cube :translate
+              (float-vector cube-pos-x-step cube-pos-y-step height-step) :world)
         (setq larm-target-coords
               (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
         (setq rarm-target-coords
@@ -1251,7 +1252,8 @@
     (setq cube-pos-z-step (/ cube-pos-z-diff max-move-count))
     (block :hold-move-motion-step
       (while (> max-move-count move-count)
-        (send cube :translate (float-vector cube-pos-x-step cube-pos-y-step cube-pos-z-step))
+        (send cube :translate
+              (float-vector cube-pos-x-step cube-pos-y-step cube-pos-z-step) :world)
         (setq larm-target-coords
               (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
         (setq rarm-target-coords
