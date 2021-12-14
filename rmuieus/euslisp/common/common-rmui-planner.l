@@ -103,17 +103,23 @@
           (if (and (equal larm-contact-state :back-contact)
                    (equal rarm-motion-symbol :front-push))
             (setq front-push-index i))
-          ;; wall push
-          ;; TODO: priority ?
-          (if (and (equal larm-motion-symbol :left-push)
-                   (equal rarm-motion-symbol :left-wall-push-next-to))
-            (setq larm-motion-symbol nil))
           ;; push hold
           (if (and (equal larm-motion-symbol :left-push)
                    (equal rarm-motion-symbol :right-push))
             (progn
               (setq larm-motion-symbol :left-right-push-hold)
               (setq rarm-motion-symbol :left-right-push-hold)))
+          ;; hold release
+          (if (and (equal larm-motion-symbol :push-release)
+                   (equal rarm-motion-symbol :push-release))
+            (progn
+              (setq larm-motion-symbol :hold-release)
+              (setq rarm-motion-symbol :hold-release)))
+          ;; wall push
+          ;; TODO: priority ?
+          (if (and (equal larm-motion-symbol :left-push)
+                   (equal rarm-motion-symbol :left-wall-push-next-to))
+            (setq larm-motion-symbol nil))
           (setq motion-symbols
                 (append motion-symbols
                         (list (list larm-motion-symbol rarm-motion-symbol))))))

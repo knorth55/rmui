@@ -117,6 +117,10 @@
     (if executed t nil)))
 
 
+(defun dualarm-hold-release-action (&rest args)
+  (apply #'push-release-action (append (list :arms) args)))
+
+
 (defun dualarm-push-hold-up-action (&rest args)
   (apply #'dualarm-hold-up-action args))
 
@@ -329,10 +333,6 @@
                    args)))
     (dissoc-cube :arms :ri ri :cube cube)
     (if executed t nil)))
-
-
-(defun dualarm-push-release-action (&rest args)
-  (apply #'push-release-action (append (list :arms) args)))
 
 
 (defun dualarm-push-hold-pile-up-action (&rest args &key (ri *ri*) (cube *box0*)
