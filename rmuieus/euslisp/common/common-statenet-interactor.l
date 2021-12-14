@@ -167,9 +167,19 @@
             (format nil "Do you want to finish teaching new actions? : ")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
+  (:ask-user-continue-teach (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Do you want to continue teaching new actions? : ")))
+      (send self :ros-yes-or-no-p ask-sentence
+            :use-default nil :timeout timeout)))
   (:ask-user-finish-task (&key (timeout nil))
     (let ((ask-sentence
             (format nil "Do you want to finish the task? : ")))
+      (send self :ros-yes-or-no-p ask-sentence
+            :use-default nil :timeout timeout)))
+  (:ask-user-continue-task (&key (timeout nil))
+    (let ((ask-sentence
+            (format nil "Do you want to continue the task? : ")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-state-decision (sm gr &key (timeout nil))
@@ -276,16 +286,16 @@
               (t nil))))
         (cons :pass nil))))
   (:ask-user-teach-decision (&key (timeout nil))
-    (let* ((finish-teach-p
-             (send self :ask-user-finish-teach))
-           (finish-task-p
-             (if finish-teach-p
-               (send self :ask-user-finish-task))))
-      (if finish-teach-p
-        (if finish-task-p
-          (return-from :ask-user-teach-decision :finish)
-          (return-from :ask-user-teach-decision :replan))
-        (return-from :ask-user-teach-decision nil))))
+    (let* ((continue-teach-p
+             (send self :ask-user-continue-teach))
+           (continue-task-p
+             (if (null continue-teach-p)
+               (send self :ask-user-continue-task))))
+      (if continue-teach-p
+        (return-from :ask-user-teach-decision nil)
+        (if continue-task-p
+          (return-from :ask-user-teach-decision :replan)
+          (return-from :ask-user-teach-decision :finish)))))
   )
 
 
