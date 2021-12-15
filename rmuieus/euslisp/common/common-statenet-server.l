@@ -276,7 +276,7 @@
           (setq tmp-sm
                 (send self :plan-state-machine start-state goal-state
                       :first-action first-action :no-loop no-loop))))
-      (list tmp-sm trained-executed-collabo-paths)))
+      (if tmp-sm (list tmp-sm trained-executed-collabo-paths))))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
     (send stplanner :generate-smach-from-state
           statenet-gr start-state goal-state
@@ -316,7 +316,7 @@
       (if (and duration-threshold (null duration))
         (return-from :interrupt-wait t))
       ;; duration is long, move to ask user input
-      (if (and duration duration-threshold
+      (if (and duration-threshold duration
                (> duration duration-threshold))
         (progn
          (ros::ros-info "Duration: ~A" duration)
@@ -702,6 +702,7 @@
                          (if trained-executed-collabo-paths t nil)))))
              (execute-stamp (get-iso-stamp)))
         (setq sm (car planning-result))
+
         ;; check if sm is nil
         (if (null sm)
           (progn
