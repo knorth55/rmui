@@ -94,7 +94,9 @@
     (let* ((sm (instance state-machine :init))
            (start-state "(:start)")
            (goal-state "(:goal)")
+           (action-sym '(statenet-action-init))
            (state-name (format nil "~A" state-sym))
+           (state-action-name (format nil "~A" (list action-sym state-sym)))
            (teach-state-sym
              (if (equal state-sym '(:init)) reset-state state-sym))
            (teach-sym (get-teach-node-sym teach-state-sym))
@@ -107,10 +109,13 @@
       (add-teach-goal-nodes sm (list (list teach-name goal-state teach-func)))
       (if (equal state-sym '(:init))
         (progn
-          (add-action-node sm state-name
-                           `(lambda-closure nil 0 0 (userdata) (statenet-action-init) t))
+          (add-state-node sm state-name
+                          `(lambda-closure nil 0 0 (userdata) t))
+          (add-action-node sm state-action-name
+                           `(lambda-closure nil 0 0 (userdata) ,action-sym t))
           (add-transition sm start-state state-name t)
-          (add-transition sm state-name teach-name t))
+          (add-transition sm state-name state-action-name t)
+          (add-transition sm state-action-name teach-name t))
         (add-transition sm start-state teach-name t))
       sm))
   )
