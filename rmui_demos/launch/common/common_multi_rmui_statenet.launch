@@ -62,4 +62,7 @@
     </node>
   </group>
 
+  <!-- audio & speech -->
+  <include file="$(find rmui_demos)/launch/common/common_speech.launch" />
+
 </launch>
