@@ -89,7 +89,31 @@
            (sm (if solution
                  (send self :convert-solution-to-state-machine
                        solution :no-loop no-loop))))
-      sm)))
+      sm))
+  (:generate-teach-smach-from-state (state-sym &key (reset-state *reset-state*))
+    (let* ((sm (instance state-machine :init))
+           (start-state "(:start)")
+           (goal-state "(:goal)")
+           (state-name (format nil "~A" state-sym))
+           (teach-state-sym
+             (if (equal state-sym '(:init)) reset-state state-sym))
+           (teach-sym (get-teach-node-sym teach-state-sym))
+           (teach-name (format nil "~A" teach-sym)))
+      (add-teach-node sm teach-name teach-func)
+      (add-node sm start-state
+                `(lambda-closure nil 0 0 (userdata) t) nil)
+      (send sm :start-state start-state)
+      (send sm :goal-state (list goal-state))
+      (add-teach-goal-nodes sm (list (list teach-name goal-state teach-func)))
+      (if (equal state-sym '(:init))
+        (progn
+          (add-action-node sm state-name
+                           `(lambda-closure nil 0 0 (userdata) (statenet-action-init) t))
+          (add-transition sm start-state state-name t)
+          (add-transition sm state-name teach-name t))
+        (add-transition sm start-state teach-name t))
+      sm))
+  )
 
 
 (provide :common-statenet-planner "common-statenet-planner.l")

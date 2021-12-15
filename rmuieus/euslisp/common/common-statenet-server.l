@@ -32,6 +32,7 @@
           ri
           robotviewer
           pilotviewer
+          skip-interaction
           ;; statenet
           slvr
           sm
@@ -109,6 +110,7 @@
       (setq ri rbti)
       (setq robotviewer rbtvw)
       (setq pilotviewer pltvw)
+      (setq skip-interaction skip-intr-p)
 
       (setq device-topic-namespace
             (if (> (length device-namespaces) 1)
@@ -702,16 +704,23 @@
                          (if trained-executed-collabo-paths t nil)))))
              (execute-stamp (get-iso-stamp)))
         (setq sm (car planning-result))
-
         ;; check if sm is nil
         (if (null sm)
-          (progn
-            (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
-            (send result :result :success nil)
-            (send result :result :final_state :state (format nil "~A" current-state))
-            (send self :set-aborted result)
-            (return-from :execute-statenet-cb nil)))
-
+          (if skip-interaction
+            (progn
+              (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
+              (send result :result :success nil)
+              (send result :result :final_state :state (format nil "~A" current-state))
+              (send self :set-aborted result)
+              (return-from :execute-statenet-cb nil))
+            (progn
+              (ros::ros-warn "Planning failed... Start teaching...")
+              (setf (cdr (assoc :teach-start-state userdata))
+                    (if (equal start-state '(:init))
+                      reset-state start-state))
+              (setq sm
+                    (send stplanner :generate-teach-smach-from-state
+                          start-state :reset-state reset-state)))))
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
         (while (ros::ok)
