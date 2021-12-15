@@ -30,7 +30,6 @@
             (mapcar #'(lambda (x) (if (listp x) (remove '|n| x) x))
                     node-sym))))
 
-
 (defun add-node (sm name func node-type &optional (duration nil))
   (let ((node-func
           (if (equal 'send (car func))
@@ -65,6 +64,14 @@
     (if (and antype n)
       (send n :put :action-node-type antype))
     n))
+
+
+(defun get-teach-node-name (state-sym)
+  (format nil "~A" (get-teach-node-sym state-sym)))
+
+
+(defun get-teach-node-sym (state-sym)
+  (list '(:teach) state-sym))
 
 
 (defun add-teach-node (sm name teach-func &optional (tntype nil))
@@ -202,7 +209,7 @@
                  (to-node (cdr act))
                  (to-state-sym (convert-string-to-sym (send to-node :name)))
                  (to-name (format nil "~A" to-state-sym))
-                 (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
+                 (teach-name (format nil "~A" (get-teach-node-name from-state-sym))))
             (add-action-node-trans sm from-name node-name to-name state-func action-func
                                    :smach-transition t :add-t-transition nil)
             (setq state-aborts
@@ -261,7 +268,7 @@
                  (node-name (cdr (assoc :node-name trans :test #'equal)))
                  (action-func (cdr (assoc :action-func trans :test #'equal)))
                  (to-state-sym (cdr (assoc :to-state-sym trans :test #'equal)))
-                 (teach-name (format nil "~A" (list '(:teach) from-state-sym))))
+                 (teach-name (format nil "~A" (get-teach-node-name from-state-sym))))
             (add-nodes-from-trans
               sm trans :state-func state-func
               :smach-transition
@@ -283,7 +290,7 @@
         (let* ((trans-list (cdr trans-a))
                (from-state-sym (car trans-a))
                (from-name (format nil "~A" from-state-sym))
-               (teach-name (format nil "~A" (list '(:teach) from-state-sym)))
+               (teach-name (format nil "~A" (get-teach-node-name from-state-sym)))
                (trans-index 0))
           (dolist (trans trans-list)
             (let ((node-name (cdr (assoc :node-name trans :test #'equal)))
