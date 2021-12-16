@@ -145,7 +145,7 @@
             (instance statenet-interactor :init
                       :namespace server-namespace
                       :groupname server-groupname
-                      :mode :ros-service))
+                      :mode :ros-topic))
 
       (setq devices nil)
       (dotimes (i (length device-namespaces))
