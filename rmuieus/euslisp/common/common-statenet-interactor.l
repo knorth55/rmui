@@ -1,5 +1,7 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 
+(ros::roseus-add-msgs "speech_recognition_msgs")
+(ros::roseus-add-srvs "speech_recognition_msgs")
 (ros::roseus-add-msgs "std_msgs")
 
 
@@ -7,16 +9,19 @@
   :super propertied-object
   :slots (namespace
           groupname
+          speech-service-name
           mode
           response
           response-stamp)
   )
 
 (defmethod statenet-interactor
-  (:init (&key ((:mode md) :ros) ((:namespace ns) nil) ((:groupname gpn)))
+  (:init (&key ((:mode md) :ros-topic) ((:namespace ns) nil) ((:groupname gpn))
+               ((:speech-service-name ssrvn) "/speech_recognition"))
     (setq mode md)
     (setq namespace ns)
     (setq groupname gpn)
+    (setq speech-service-name ssrvn)
     (if groupname (ros::create-nodehandle groupname))
     (if groupname
       (ros::subscribe
@@ -36,12 +41,12 @@
       (progn
         (setq response (send msg :data))
         (setq response-stamp (ros::time-now)))))
-  (:get-user-response (&key (mode :ros) (timeout nil) (from-stamp nil))
+  (:get-user-response (&key (timeout nil) (from-stamp nil))
     (cond
       ;; timeout is not valid for read-line
       ((equal mode :read-line)
        (read-line t))
-      ((equal mode :ros)
+      ((equal mode :ros-topic)
        (let ((start-stamp (ros::time-now)))
          (setq from-stamp
                (if from-stamp from-stamp (ros::time-now)))
@@ -56,14 +61,30 @@
                        (* timeout 1e9)))
              (return-from :get-user-response :timeout))
            (ros::spin-once groupname))
-         (let ((tmp-response (copy-tree response)))
-           (send self :reset-interactor)
-           tmp-response)))
+         (copy-seq response)))
+      ;; timeout is not supported in service
+      ((equal mode :ros-service)
+       (tagbody retry-speech-service-call
+         (let ((speech-req
+                 (instance speech_recognition_msgs::SpeechRecognitionRequest :init))
+               (speech-res nil))
+           (ros::ros-info "Waiting for user speech input")
+           (send speech-req :quiet t)
+           (setq speech-res
+                 (ros::service-call speech-service-name speech-req))
+           (setq response
+                 (if speech-res (car (send speech-res :result :transcript))))
+           (setq response-stamp
+                 (if response (ros::time-now)))
+           (if response
+             (return-from :get-user-response (copy-seq response))
+             (go retry-speech-service-call)))))
       (t nil)))
   (:ros-wait-user-interrupt (ask-sentence &key (timeout nil) (from-stamp nil))
     (let ((user-response))
       (if ask-sentence (ros::ros-info ask-sentence))
       ; (finish-output t)
+      (send self :reset-interactor)
       (setq user-response
             (send self :get-user-response
                   :timeout timeout :from-stamp from-stamp))
@@ -75,6 +96,7 @@
       (tagbody retry-yes-or-no
         (if ask-sentence (ros::ros-info ask-sentence))
         ; (finish-output t)
+        (send self :reset-interactor)
         (setq user-response
               (string-upcase
                 (send self :get-user-response
@@ -102,10 +124,14 @@
       (tagbody retry-index-choose
         (if ask-sentence (ros::ros-info ask-sentence))
         ; (finish-output t)
+        (send self :reset-interactor)
         (setq user-response
-              (send self :get-user-response
-                    :timeout timeout :from-stamp from-stamp))
+              (string-upcase
+                (send self :get-user-response
+                      :timeout timeout :from-stamp from-stamp)))
         (if (or (string= user-response "")
+                (string= user-response "YES")
+                (string= user-response "Y")
                 (equal user-response :timeout))
           (if use-default
             (return-from :ros-index-choose default-index)
@@ -121,7 +147,7 @@
               (return-from :ros-index-choose resp-num)
               (progn
                 (ros::ros-error
-                  (format nil "Please answer with a valid number: ~A to ~A"
+                  (format nil "Please answer with a valid number: ~A to ~A or yes"
                           min-index max-index))
                 (go retry-index-choose))))))))
   (:ask-user-index-choose
@@ -130,7 +156,7 @@
             (format nil "Default action: (~A) ~A"
                            default-index (elt actions default-index)))
           (ask-sentence
-            (format nil "Which action do you choose ? (Default: ~A)" default-index)))
+            (format nil "Which action do you choose ? (Default: ~A or yes)" default-index)))
       (if use-default (ros::ros-info info-sentence))
       (send self :ros-index-choose ask-sentence
             -1 (- (length actions) 1)
