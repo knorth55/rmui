@@ -1,4 +1,5 @@
 (require :room73b2-askul-1200x700-desk-0 "models/room73b2-askul-1200x700-desk-0-object.l")
+(require :collision-object-publisher "package://pr2eus_moveit/euslisp/collision-object-publisher.l")
 
 
 (defun get-initial-scene-states (&optional (n-box))
