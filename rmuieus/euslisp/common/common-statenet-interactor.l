@@ -9,7 +9,7 @@
   :super propertied-object
   :slots (namespace
           groupname
-          speech-service-name
+          speech-server-name
           mode
           response
           response-stamp)
@@ -17,11 +17,11 @@
 
 (defmethod statenet-interactor
   (:init (&key ((:mode md) :ros-topic) ((:namespace ns) nil) ((:groupname gpn))
-               ((:speech-service-name ssrvn) "/speech_recognition"))
+               ((:speech-server-name ssrvn) "/speech_recognition"))
     (setq mode md)
     (setq namespace ns)
     (setq groupname gpn)
-    (setq speech-service-name ssrvn)
+    (setq speech-server-name ssrvn)
     (if groupname (ros::create-nodehandle groupname))
     (if groupname
       (ros::subscribe
@@ -71,7 +71,7 @@
            (ros::ros-info "Waiting for user speech input")
            (send speech-req :quiet t)
            (setq speech-res
-                 (ros::service-call speech-service-name speech-req))
+                 (ros::service-call speech-server-name speech-req))
            (setq response
                  (if speech-res (car (send speech-res :result :transcript))))
            (setq response-stamp
