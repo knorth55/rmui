@@ -63,6 +63,8 @@
   </group>
 
   <!-- audio & speech -->
-  <include file="$(find rmui_demos)/launch/common/common_speech.launch" />
+  <include file="$(find rmui_demos)/launch/common/common_speech.launch">
+    <arg name="string_topic" value="/statenet_server/user_response" />
+  </include>
 
 </launch>

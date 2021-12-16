@@ -3,6 +3,7 @@
 (ros::roseus-add-msgs "speech_recognition_msgs")
 (ros::roseus-add-srvs "speech_recognition_msgs")
 (ros::roseus-add-msgs "std_msgs")
+(ros::roseus-add-srvs "std_srvs")
 
 
 (defclass statenet-interactor
@@ -10,6 +11,7 @@
   :slots (namespace
           groupname
           speech-server-name
+          use-speech-recognition
           mode
           response
           response-stamp)
@@ -17,10 +19,12 @@
 
 (defmethod statenet-interactor
   (:init (&key ((:mode md) :ros-topic) ((:namespace ns) nil) ((:groupname gpn))
+               ((:use-speech-recognition use-speech) t)
                ((:speech-server-name ssrvn) "/speech_recognition"))
     (setq mode md)
     (setq namespace ns)
     (setq groupname gpn)
+    (setq use-speech-recognition use-speech)
     (setq speech-server-name ssrvn)
     (if groupname (ros::create-nodehandle groupname))
     (if groupname
@@ -41,6 +45,18 @@
       (progn
         (setq response (send msg :data))
         (setq response-stamp (ros::time-now)))))
+  (:start-speech-recognition ()
+    (let ((start-service-name
+           (format nil "~A/start" speech-server-name)))
+      (ros::ros-info "Start speech recognition")
+      (ros::service-call start-service-name
+                         (instance std_srvs::EmptyRequest :init))))
+  (:stop-speech-recognition ()
+    (let ((stop-service-name
+           (format nil "~A/stop" speech-server-name)))
+      (ros::ros-info "Stop speech recognition")
+      (ros::service-call stop-service-name
+                         (instance std_srvs::EmptyRequest :init))))
   (:get-user-response (&key (timeout nil) (from-stamp nil))
     (cond
       ;; timeout is not valid for read-line
@@ -48,6 +64,8 @@
        (read-line t))
       ((equal mode :ros-topic)
        (let ((start-stamp (ros::time-now)))
+         (if use-speech-recognition
+           (send self :start-speech-recognition))
          (setq from-stamp
                (if from-stamp from-stamp (ros::time-now)))
          (ros::rate 50)
@@ -59,9 +77,13 @@
                          (ros::time- (ros::time-now) start-stamp)
                          :to-nsec)
                        (* timeout 1e9)))
-             (return-from :get-user-response :timeout))
+             (progn
+               (send self :stop-speech-recognition)
+               (return-from :get-user-response :timeout)))
            (ros::spin-once groupname))
-         (copy-seq response)))
+         (if use-speech-recognition
+           (send self :stop-speech-recognition))
+         (return-from :get-user-response (copy-seq response))))
       ;; timeout is not supported in service
       ((equal mode :ros-service)
        (tagbody retry-speech-service-call
