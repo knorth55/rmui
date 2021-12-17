@@ -8,24 +8,34 @@
 
 (defclass statenet-interactor
   :super propertied-object
-  :slots (namespace
+  :slots (mode
+          namespace
           groupname
-          speech-server-name
+          ri
+          use-speak-inform
           use-speech-recognition
-          mode
+          speech-server-name
+          soundplay-topic-name
           response
           response-stamp)
   )
 
 (defmethod statenet-interactor
   (:init (&key ((:mode md) :ros-topic) ((:namespace ns) nil) ((:groupname gpn))
+               ((:ri rbti) *ri*)
+               ((:use-speak-inform use-speak) t)
                ((:use-speech-recognition use-speech) t)
+               ((:soundplay-topic-name sptname) "remotesound")
                ((:speech-server-name ssrvn) "/speech_recognition"))
     (setq mode md)
     (setq namespace ns)
     (setq groupname gpn)
+    (setq ri rbti)
+    (setq use-speak-inform use-speak)
     (setq use-speech-recognition use-speech)
+    (setq soundplay-topic-name sptname)
     (setq speech-server-name ssrvn)
+
     (if groupname (ros::create-nodehandle groupname))
     (if groupname
       (ros::subscribe
@@ -103,10 +113,16 @@
              (return-from :get-user-response (copy-seq response))
              (go retry-speech-service-call)))))
       (t nil)))
+  (:ros-ask-inform (ask-sentence)
+    (ros::ros-info ask-sentence)
+    (if use-speak-inform
+      (send ri :speak ask-sentence
+            :topic-name soundplay-topic-name :wait nil)))
   (:ros-wait-user-interrupt
     (ask-sentence &key (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
-      (if ask-sentence (ros::ros-info ask-sentence))
+      (if ask-sentence
+        (send self :ros-ask-inform ask-sentence))
       ; (finish-output t)
       (send self :reset-interactor)
       (setq user-response
@@ -120,7 +136,8 @@
                        (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (tagbody retry-yes-or-no
-        (if ask-sentence (ros::ros-info ask-sentence))
+        (if ask-sentence
+          (send self :ros-ask-inform ask-sentence))
         ; (finish-output t)
         (send self :reset-interactor)
         (setq user-response
@@ -149,7 +166,8 @@
       &key (use-default t) (default-index 0) (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (tagbody retry-index-choose
-        (if ask-sentence (ros::ros-info ask-sentence))
+        (if ask-sentence
+          (send self :ros-ask-inform ask-sentence))
         ; (finish-output t)
         (send self :reset-interactor)
         (setq user-response

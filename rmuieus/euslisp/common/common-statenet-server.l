@@ -143,9 +143,14 @@
                       ))
       (setq stinteractor
             (instance statenet-interactor :init
+                      :mode :ros-topic
                       :namespace server-namespace
                       :groupname server-groupname
-                      :mode :ros-topic))
+                      :ri rbti
+                      :use-speak-inform t
+                      :use-speech-recognition t
+                      :soundplay-topic-name "remotesound"
+                      :speech-server-name "/speech_recognition"))
 
       (setq devices nil)
       (dotimes (i (length device-namespaces))
