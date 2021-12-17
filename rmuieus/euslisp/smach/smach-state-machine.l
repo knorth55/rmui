@@ -3,15 +3,18 @@
 
 (defmethod state-machine
   (:bottom-active-state (&optional top-active-state)
-    (if (not top-active-state)
+    (if (null top-active-state)
       (setq top-active-state active-state))
-    (if (listp top-active-state)
+    (ros::ros-error (format nil "top-active-state: ~A" top-active-state))
+    (if (and top-active-state (listp top-active-state))
       (flatten
         (mapcar #'(lambda (x) (send self :bottom-active-state x))
                 top-active-state))
-      (if (send top-active-state :submachine)
-        (send (send top-active-state :submachine)
-              :bottom-active-state)
+      (if (and top-active-state (send top-active-state :submachine))
+        (let ((sub-active-state
+                (send (send top-active-state :submachine) :bottom-active-state)))
+          (if sub-active-state
+            sub-active-state top-active-state))
         top-active-state)))
   (:append-goal-state (gs)
     (if (atom gs) (setq gs (list gs)))
