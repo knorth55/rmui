@@ -1,4 +1,6 @@
 <launch>
+  <arg name="robot_name" default="baxter" />
+
   <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="rmui_name" default="rmui0" />
@@ -20,6 +22,7 @@
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
 
+  <param name="robot/name" value="$(arg robot_name)"/>
   <param name="robot/type" value="baxter"/>
 
   <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">

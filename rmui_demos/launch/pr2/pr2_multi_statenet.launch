@@ -1,4 +1,6 @@
 <launch>
+  <arg name="robot_name" default="pr1040" />
+
   <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="dummy" default="false" />
@@ -21,6 +23,7 @@
   <arg name="wall" default="false" />
   <arg name="align_axis" default="y" />
 
+  <param name="robot/name" value="$(arg robot_name)"/>
   <param name="robot/type" value="pr2"/>
 
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
