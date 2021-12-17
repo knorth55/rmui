@@ -21,6 +21,8 @@
   <arg name="wall" default="false" />
   <arg name="align_axis" default="y" />
 
+  <param name="robot/type" value="baxter"/>
+
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
     <arg name="robot" value="baxter" />
     <arg name="collabo" value="$(arg collabo)" />
