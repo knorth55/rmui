@@ -106,26 +106,32 @@
 
 
 (defun dualarm-left-right-push-hold-action
-  (&rest args &key (approach-direction :back) &allow-other-keys)
+  (&rest args &key (approach-direction :back) (push-position :center)
+                   (hold-type :tight)
+              &allow-other-keys)
   (let ((executed nil))
     (setq executed
           (apply #'push-hold-motion
                  (append
                    (list :push-axis :y
-                         :push-position :center
-                         :approach-direction
-                         approach-direction)
+                         :push-position push-position
+                         :hold-type hold-type
+                         :approach-direction approach-direction)
                    args)))
     (if executed t nil)))
 
 
 (defun dualarm-left-right-top-approach-push-hold-action (&rest args)
   (apply #'dualarm-left-right-push-hold-action
-         (append (list :approach-direction :top) args)))
+         (append (list :approach-direction :top
+                       :push-position :center
+                       :hold-type :light) args)))
 
 
 (defun dualarm-front-left-back-right-push-hold-action
-  (&rest args &key (cube *box0*) (approach-direction :back) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-direction :back) (push-position :center)
+                   (hold-type :tight)
+              &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -135,9 +141,9 @@
           (apply #'push-hold-motion
                  (append
                    (list :push-axis :y
-                         :push-position :center
-                         :approach-direction
-                         approach-direction
+                         :push-position push-position
+                         :hold-type hold-type
+                         :approach-direction approach-direction
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -148,11 +154,15 @@
 
 (defun dualarm-front-left-back-right-top-approach-push-hold-action (&rest args)
   (apply #'dualarm-front-left-back-right-push-hold-action
-         (append (list :approach-direction :top) args)))
+         (append (list :approach-direction :top
+                       :push-position :center
+                       :hold-type :light) args)))
 
 
 (defun dualarm-back-left-front-right-push-hold-action
-  (&rest args &key (cube *box0*) (approach-direction :back) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-direction :back) (push-position :center)
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -162,9 +172,9 @@
           (apply #'push-hold-motion
                  (append
                    (list :push-axis :y
-                         :push-position :center
-                         :approach-direction
-                         approach-direction
+                         :push-position push-position
+                         :hold-type hold-type
+                         :approach-direction approach-direction
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -175,7 +185,9 @@
 
 (defun dualarm-back-left-front-right-top-approach-push-hold-action (&rest args)
   (apply #'dualarm-back-left-front-right-push-hold-action
-         (append (list :approach-direction :top) args)))
+         (append (list :approach-direction :top
+                       :push-position :center
+                       :hold-type :light) args)))
 
 
 (defun dualarm-hold-release-action (&rest args)
@@ -489,17 +501,20 @@
 ;; larm actions
 
 (defun larm-left-push-action
-  (&rest args &key (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let ((executed nil))
     (setq executed
           (apply #'push-motion
                  (append
                    (list :larm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :left)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :approach-arm :larm)
                    args)))
     (if executed t nil)))
@@ -507,7 +522,9 @@
 
 (defun larm-left-top-approach-push-action (&rest args)
   (apply #'larm-left-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun larm-front-push-action (&rest args)
@@ -571,7 +588,10 @@
 
 
 (defun larm-front-left-push-action
-  (&rest args &key (cube *box0*) (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -582,10 +602,10 @@
                  (append
                    (list :larm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :left)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -597,11 +617,16 @@
 
 (defun larm-front-left-push-top-approach-action (&rest args)
   (apply #'larm-front-left-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun larm-back-left-push-action
-  (&rest args &key (cube *box0*) (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -612,10 +637,10 @@
                  (append
                    (list :larm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :left)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -627,7 +652,9 @@
 
 (defun larm-back-left-push-top-approach-action (&rest args)
   (apply #'larm-back-left-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun larm-left-move-push-action (&rest args)
@@ -701,17 +728,20 @@
 ;; rarm actions
 
 (defun rarm-right-push-action
-  (&rest args &key (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let ((executed nil))
     (setq executed
           (apply #'push-motion
                  (append
                    (list :rarm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :right)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :approach-arm :rarm)
                    args)))
     (if executed t nil)))
@@ -719,7 +749,9 @@
 
 (defun rarm-right-top-approach-push-action (&rest args)
   (apply #'rarm-right-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun rarm-front-push-action (&rest args)
@@ -783,7 +815,10 @@
 
 
 (defun rarm-front-right-push-action
-  (&rest args &key (cube *box0*) (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -794,10 +829,10 @@
                  (append
                    (list :rarm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :right)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -809,11 +844,16 @@
 
 (defun rarm-front-right-top-approach-push-action (&rest args)
   (apply #'rarm-front-right-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun rarm-back-right-push-action
-  (&rest args &key (cube *box0*) (approach-directions (list :back)) &allow-other-keys)
+  (&rest args &key (cube *box0*) (approach-directions (list :back))
+                   (push-positions (list :center))
+                   (hold-type :tight)
+                   &allow-other-keys)
   (let* ((cube-rpy (float-vector (/ -pi 4.0) 0 0))
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
@@ -824,10 +864,10 @@
                  (append
                    (list :rarm
                          :push-axes (list :y)
-                         :push-positions (list :center)
+                         :push-positions push-positions
+                         :hold-type hold-type
                          :push-directions (list :right)
-                         :approach-directions
-                         approach-directions
+                         :approach-directions approach-directions
                          :cube-height cube-height
                          :cube-width cube-width
                          :cube-depth cube-depth
@@ -839,7 +879,9 @@
 
 (defun rarm-back-right-top-approach-push-action (&rest args)
   (apply #'rarm-back-right-push-action
-         (append (list :approach-directions (list :top)) args)))
+         (append (list :approach-directions (list :top)
+                       :push-positions (list :center)
+                       :hold-type :light) args)))
 
 
 (defun rarm-right-move-push-action (&rest args)
