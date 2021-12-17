@@ -674,14 +674,16 @@
           (return-from :execute-statenet-cb t)))
       ;; execute state machine
       ;; modified from (exec-state-machine *sm* nil :hz 1.0)
-      (let* ((userdata (list (cons :start-state start-state)
-                             (cons :goal-state goal-state)
-                             (cons :user-decision nil)
-                             (cons :replan-start-state nil)
-                             (cons :teach-start-state nil)
-                             (cons :teach-state nil)
-                             (cons :teach-motion-symbols nil)
-                             (cons :teach-executed-action nil)))
+      (let* ((userdata
+               (list
+                 (cons :start-state start-state)
+                 (cons :goal-state goal-state)
+                 (cons :user-decision nil)
+                 (cons :replan-start-state nil)
+                 (cons :teach-start-state nil)
+                 (cons :teach-state nil)
+                 (cons :teach-motion-symbols nil)
+                 (cons :teach-executed-action nil)))
              (hz 10.0)
              (planning-result
                (if (null (equal goal-state '(:teach)))
@@ -722,6 +724,7 @@
               (setq sm
                     (send stplanner :generate-teach-smach-from-state
                           start-state :reset-state reset-state)))))
+        ;; start smach state machine
         (unix::usleep (round (* 1e6 0.5)))
         (send self :initialize-state-machine userdata)
         (while (ros::ok)
