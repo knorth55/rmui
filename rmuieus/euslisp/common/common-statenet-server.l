@@ -406,6 +406,7 @@
           (prev-scene-states (cdr (assoc :teach-state userdata))))
       (send stinteractor :reset-interactor)
       (ros::ros-info "Waiting for device input or user interruption")
+      (send stinteractor :start-speech-recognition)
       (while t
         (if device-groupnames
           (dolist (device-groupname device-groupnames)
@@ -413,8 +414,11 @@
         (if server-groupname
           (ros::spin-once server-groupname))
         (if (send stinteractor :ros-wait-user-interrupt
-                  nil :timeout 0.05 :from-stamp from-stamp)
-          (return-from :wait-device-user-input nil))
+                  nil :timeout 0.05 :from-stamp from-stamp
+                  :toggle-server nil)
+          (progn
+            (send stinteractor :stop-speech-recognition)
+            (return-from :wait-device-user-input nil)))
         (let* ((update-p
                  (eval (append '(or)
                                 (send-all devices :update-device-orientation))))
@@ -436,6 +440,7 @@
           (if (not (every #'null checked-motion-symbols))
             (progn
               (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
+              (send stinteractor :stop-speech-recognition)
               (return-from :wait-device-user-input t)))))))
   (:execute-device-user-input (userdata)
     (let* ((prev-scene-states (cdr (assoc :teach-state userdata)))

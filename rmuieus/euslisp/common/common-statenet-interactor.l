@@ -57,14 +57,14 @@
       (ros::ros-info "Stop speech recognition")
       (ros::service-call stop-service-name
                          (instance std_srvs::EmptyRequest :init))))
-  (:get-user-response (&key (timeout nil) (from-stamp nil))
+  (:get-user-response (&key (timeout nil) (from-stamp nil) (toggle-server t))
     (cond
       ;; timeout is not valid for read-line
       ((equal mode :read-line)
        (read-line t))
       ((equal mode :ros-topic)
        (let ((start-stamp (ros::time-now)))
-         (if use-speech-recognition
+         (if (and use-speech-recognition toggle-server)
            (send self :start-speech-recognition))
          (setq from-stamp
                (if from-stamp from-stamp (ros::time-now)))
@@ -78,10 +78,11 @@
                          :to-nsec)
                        (* timeout 1e9)))
              (progn
-               (send self :stop-speech-recognition)
+               (if toggle-server
+                 (send self :stop-speech-recognition))
                (return-from :get-user-response :timeout)))
            (ros::spin-once groupname))
-         (if use-speech-recognition
+         (if (and use-speech-recognition toggle-server)
            (send self :stop-speech-recognition))
          (return-from :get-user-response (copy-seq response))))
       ;; timeout is not supported in service
@@ -102,18 +103,21 @@
              (return-from :get-user-response (copy-seq response))
              (go retry-speech-service-call)))))
       (t nil)))
-  (:ros-wait-user-interrupt (ask-sentence &key (timeout nil) (from-stamp nil))
+  (:ros-wait-user-interrupt
+    (ask-sentence &key (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (if ask-sentence (ros::ros-info ask-sentence))
       ; (finish-output t)
       (send self :reset-interactor)
       (setq user-response
             (send self :get-user-response
-                  :timeout timeout :from-stamp from-stamp))
+                  :timeout timeout :from-stamp from-stamp
+                  :toggle-server toggle-server))
       (return-from :ros-wait-user-interrupt
                    (null (equal user-response :timeout)))))
-  (:ros-yes-or-no-p (ask-sentence &key (use-default t) (default t)
-                                       (timeout nil) (from-stamp nil))
+  (:ros-yes-or-no-p
+    (ask-sentence &key (use-default t) (default t)
+                       (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (tagbody retry-yes-or-no
         (if ask-sentence (ros::ros-info ask-sentence))
@@ -122,7 +126,8 @@
         (setq user-response
               (string-upcase
                 (send self :get-user-response
-                      :timeout timeout :from-stamp from-stamp)))
+                      :timeout timeout :from-stamp from-stamp
+                      :toggle-server toggle-server)))
         (cond
           ((or (string= user-response "YES")
                (string= user-response "Y"))
@@ -141,7 +146,7 @@
              (go retry-yes-or-no))))))
   (:ros-index-choose
     (ask-sentence min-index max-index
-      &key (use-default t) (default-index 0) (timeout nil) (from-stamp nil))
+      &key (use-default t) (default-index 0) (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (tagbody retry-index-choose
         (if ask-sentence (ros::ros-info ask-sentence))
@@ -150,7 +155,8 @@
         (setq user-response
               (string-upcase
                 (send self :get-user-response
-                      :timeout timeout :from-stamp from-stamp)))
+                      :timeout timeout :from-stamp from-stamp
+                      :toggle-server toggle-server)))
         (if (or (string= user-response "")
                 (string= user-response "YES")
                 (string= user-response "Y")
