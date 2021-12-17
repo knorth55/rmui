@@ -31,15 +31,14 @@
                     node-sym))))
 
 (defun add-node (sm name func node-type &optional (duration nil))
-  (let ((node-func
-          (if (equal 'send (car func))
-            (eval func) func)))
-    (if (null (send sm :node name))
-      (let ((n (instance state :init name node-func)))
-        (send n :put :node-type node-type)
-        (if duration (send n :put :duration duration))
-        (send sm :add-node n)
-        n))))
+  (if (null (send sm :node name))
+    (let* ((node-func
+             (if (equal 'send (car func)) (eval func) func))
+           (n (instance state :init name node-func)))
+      (send n :put :node-type node-type)
+      (if duration (send n :put :duration duration))
+      (send sm :add-node n)
+      n)))
 
 
 (defun add-transition (sm from-name to-name arc-key)
