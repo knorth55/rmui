@@ -8,6 +8,7 @@
   <author email="shingogo.5511@gmail.com">Shingo Kitagawa</author>
   <buildtool_depend>catkin</buildtool_depend>
 
+  <run_depend>app_manager</run_depend>
   <run_depend>ar_track_alvar</run_depend>
   <run_depend>depth_image_proc</run_depend>
   <run_depend>image_transport</run_depend>
@@ -19,5 +20,6 @@
   <test_depend>rostest</test_depend>
 
   <export>
+    <app_manager app_dir="${prefix}/apps"/>
   </export>
 </package>

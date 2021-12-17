@@ -1,0 +1,3 @@
+<launch>
+  <node name="baxter_teach" pkg="rmui_demos" type="baxter_teach.l" required="true" />
+</launch>
