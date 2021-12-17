@@ -684,8 +684,9 @@
                              (cons :teach-executed-action nil)))
              (hz 10.0)
              (planning-result
-               (send self :plan-state-machine-with-trained-paths
-                       start-state goal-state :first-action nil :no-loop t))
+               (if (null (equal goal-state '(:teach)))
+                 (send self :plan-state-machine-with-trained-paths
+                       start-state goal-state :first-action nil :no-loop t)))
              (trained-executed-collabo-paths (cadr planning-result))
              (executed-collabo-path
                (list
