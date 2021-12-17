@@ -5,7 +5,6 @@
   (:bottom-active-state (&optional top-active-state)
     (if (null top-active-state)
       (setq top-active-state active-state))
-    (ros::ros-error (format nil "top-active-state: ~A" top-active-state))
     (if (and top-active-state (listp top-active-state))
       (flatten
         (mapcar #'(lambda (x) (send self :bottom-active-state x))
