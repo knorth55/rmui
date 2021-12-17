@@ -107,6 +107,7 @@
       (send sm :start-state start-state)
       (send sm :goal-state (list goal-state))
       (add-teach-goal-nodes sm (list (list teach-name goal-state teach-func)))
+      (add-transition sm teach-name goal-state t)
       (if (equal state-sym '(:init))
         (progn
           (add-state-node sm state-name
