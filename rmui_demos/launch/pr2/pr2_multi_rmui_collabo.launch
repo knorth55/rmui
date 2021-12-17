@@ -20,8 +20,7 @@
   <arg name="wall" default="false" />
   <arg name="align_axis" default="y" />
 
-  <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
-    <arg name="robot" value="pr2" />
+  <include file="$(find rmui_demos)/launch/pr2/pr2_multi_statenet.launch">
     <arg name="rmui" value="$(arg rmui)" />
     <arg name="collabo" value="true" />
     <arg name="dummy" value="$(arg dummy)" />

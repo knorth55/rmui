@@ -1,4 +1,5 @@
 <launch>
+  <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="rmui_name" default="rmui0" />
   <arg name="dummy" default="false" />
@@ -21,7 +22,7 @@
 
   <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">
     <arg name="robot" value="pr2" />
-    <arg name="collabo" value="false" />
+    <arg name="collabo" value="$(arg collabo)" />
     <arg name="rmui" value="$(arg rmui)" />
     <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="dummy" value="$(arg dummy)" />
