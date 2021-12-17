@@ -49,8 +49,12 @@
 
 (defun statenet-action-client-main (state &key (n-box nil) (server-name "/statenet_server"))
   (load-statenet-state state)
+  (ros::rate 10)
   (if (not n-box)
-    (setq n-box (round (ros::get-param (format nil "~A/n_box" server-name)))))
+    (while (null n-box)
+      (let ((n-box-param (ros::get-param (format nil "~A/n_box" server-name))))
+        (if n-box-param (setq n-box (round n-box-param)))
+        (ros::sleep))))
   (set-statenet-reset-state n-box)
   (setq *client*
         (instance statenet-action-client :init
