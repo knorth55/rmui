@@ -615,7 +615,7 @@
     (if executed t nil)))
 
 
-(defun larm-front-left-push-top-approach-action (&rest args)
+(defun larm-front-left-top-approach-push-action (&rest args)
   (apply #'larm-front-left-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
@@ -650,7 +650,7 @@
     (if executed t nil)))
 
 
-(defun larm-back-left-push-top-approach-action (&rest args)
+(defun larm-back-left-top-approach-push-action (&rest args)
   (apply #'larm-back-left-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
