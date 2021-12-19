@@ -271,6 +271,9 @@
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-state-decision (sm gr &key (timeout nil))
+    ;; ask teaching first
+    (if (send self :ask-user-start-teach)
+      (return-from :ask-user-state-decision (cons :teach nil)))
     (let* ((current-sm-node (send sm :active-state))
            (current-state (read-from-string (send current-sm-node :name)))
            (current-gr-node (send gr :search-node-from-pddl-state current-state))
