@@ -3,7 +3,7 @@
   <arg name="audio_info_topic" default="/audio_info_remote" />
   <arg name="voice_topic" default="/speech_to_text" />
   <arg name="string_topic" default="/text_string" />
-  <arg name="duration" default="10" />
+  <arg name="duration" default="5" />
   <arg name="n_channel" default="1" />
   <arg name="depth" default="16" />
   <arg name="sample_rate" default="16000" />
