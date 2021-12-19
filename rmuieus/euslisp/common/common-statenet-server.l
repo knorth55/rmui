@@ -680,6 +680,7 @@
                              start-state current-state)
               (setq start-state (copy-tree current-state)))
             (progn
+              (send stinteractor :ros-speak-error "I aborted the task execution.")
               (ros::ros-error
                 "Aborting execution because start-state and current-state are different.")
               (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
@@ -690,6 +691,7 @@
       ;; check start-state and goal-state
       (if (equal start-state goal-state)
         (progn
+          (send stinteractor :ros-speak-warn "I skipped the task execution.")
           (ros::ros-warn
             (format nil "start-state and goal-state are same: ~A = ~A"
                     start-state goal-state))
@@ -738,6 +740,7 @@
         (if (null sm)
           (if skip-interaction
             (progn
+              (send stinteractor :ros-speak-error "I aborted the task execution.")
               (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
               (send result :result :success nil)
               (send result :result :final_state :state (format nil "~A" current-state))
@@ -761,6 +764,7 @@
           ;; check if sm is not nil for replanning
           (if (null sm)
             (progn
+              (send stinteractor :ros-speak-error "I aborted the task execution.")
               (send self :dump-collabo-statenet)
               (send result :result :stamp
                     (ros::time- (ros::time-now) start-stamp))
@@ -808,6 +812,7 @@
             ;; cancel
             (if (send self :is-preempt-requested)
               (progn
+                (send stinteractor :ros-speak-warn "I stopped the task execution.")
                 (send self :dump-collabo-statenet)
                 (send result :result :stamp (ros::time- (ros::time-now) start-stamp))
                 (send result :result :success nil)
@@ -883,6 +888,9 @@
               (ros::ros-warn "Goal state updated.")
               (setf (cadr (assoc :goal-state (cdr (assoc :task executed-collabo-path))))
                     current-state)))
+          (if successp
+            (send stinteractor :ros-speak-info "I completed the task execution.")
+            (send stinteractor :ros-speak-info "I failed the task execution."))
           (send self :dump-collabo-statenet)
           (send self :dump-executed-collabo-path
                 executed-collabo-path execute-stamp)
