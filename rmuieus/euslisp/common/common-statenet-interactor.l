@@ -113,16 +113,26 @@
              (return-from :get-user-response (copy-seq response))
              (go retry-speech-service-call)))))
       (t nil)))
-  (:ros-ask-inform (ask-sentence)
-    (ros::ros-info ask-sentence)
+  (:ros-speak-info (sentence)
+    (ros::ros-info sentence)
     (if use-speak-inform
-      (send ri :speak ask-sentence
+      (send ri :speak sentence
+            :topic-name soundplay-topic-name :wait nil)))
+  (:ros-speak-warn (sentence)
+    (ros::ros-warn sentence)
+    (if use-speak-inform
+      (send ri :speak sentence
+            :topic-name soundplay-topic-name :wait nil)))
+  (:ros-speak-error (sentence)
+    (ros::ros-error sentence)
+    (if use-speak-inform
+      (send ri :speak sentence
             :topic-name soundplay-topic-name :wait nil)))
   (:ros-wait-user-interrupt
     (ask-sentence &key (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (if ask-sentence
-        (send self :ros-ask-inform ask-sentence))
+        (send self :ros-speak-info ask-sentence))
       ; (finish-output t)
       (send self :reset-interactor)
       (setq user-response
@@ -137,7 +147,7 @@
     (let ((user-response))
       (tagbody retry-yes-or-no
         (if ask-sentence
-          (send self :ros-ask-inform ask-sentence))
+          (send self :ros-speak-info ask-sentence))
         ; (finish-output t)
         (send self :reset-interactor)
         (setq user-response
@@ -157,17 +167,18 @@
            (if use-default
              (return-from :ros-yes-or-no-p default)
              (progn
-               (ros::ros-error "Please answer with yes or no.")
+               (send self :ros-speak-error "Please answer with yes or no.")
                (go retry-yes-or-no))))
-          (t (ros::ros-error "Please answer with yes or no.")
-             (go retry-yes-or-no))))))
+          (t
+           (send self :ros-speak-error "Please answer with yes or no.")
+           (go retry-yes-or-no))))))
   (:ros-index-choose
     (ask-sentence min-index max-index
       &key (use-default t) (default-index 0) (timeout nil) (from-stamp nil) (toggle-server t))
     (let ((user-response))
       (tagbody retry-index-choose
         (if ask-sentence
-          (send self :ros-ask-inform ask-sentence))
+          (send self :ros-speak-info ask-sentence))
         ; (finish-output t)
         (send self :reset-interactor)
         (setq user-response
@@ -175,16 +186,21 @@
                 (send self :get-user-response
                       :timeout timeout :from-stamp from-stamp
                       :toggle-server toggle-server)))
+        (if (or (string= use-response "TEACHING")
+                (string= use-response "TEACH"))
+          (setq use-response -1))
         (if (or (string= user-response "")
                 (string= user-response "YES")
                 (string= user-response "Y")
-                (equal user-response :timeout))
+                (string= user-response "NEXT"))
+          (setq use-response default-index))
+        (if (equal user-response :timeout)
           (if use-default
             (return-from :ros-index-choose default-index)
             (progn
-              (ros::ros-error
-                (format nil "Please answer with a valid number: ~A to ~A"
-                        min-index max-index))
+              (send self :ros-speak-error
+                    (format nil "Please answer with a valid number from ~A to ~A."
+                            min-index max-index))
               (go retry-index-choose)))
           (let ((resp-num (read-from-string user-response)))
             (if (and (integerp resp-num)
@@ -192,17 +208,17 @@
                      (<= resp-num max-index))
               (return-from :ros-index-choose resp-num)
               (progn
-                (ros::ros-error
-                  (format nil "Please answer with a valid number: ~A to ~A or yes"
-                          min-index max-index))
+                (send self :ros-speak-error
+                      (format nil "Please answer with a valid number from ~A to ~A, or yes."
+                              min-index max-index))
                 (go retry-index-choose))))))))
   (:ask-user-index-choose
     (actions &key (use-default t) (default-index 0) (timeout nil))
     (let ((info-sentence
             (format nil "Default action: (~A) ~A"
-                           default-index (elt actions default-index)))
+                    default-index (elt actions default-index)))
           (ask-sentence
-            (format nil "Which action do you choose ? (Default: ~A or yes)" default-index)))
+            (format nil "Which action do you choose? Default is ~A or yes." default-index)))
       (if use-default (ros::ros-info info-sentence))
       (send self :ros-index-choose ask-sentence
             -1 (- (length actions) 1)
@@ -211,47 +227,47 @@
             :timeout timeout)))
   (:ask-user-interrupt (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Waiting for user interuption: ~A seconds" timeout)))
+            (format nil "Waiting for user interuption in ~A seconds." timeout)))
       (send self :ros-wait-user-interrupt ask-sentence
             :timeout timeout)))
   (:ask-user-start-teach (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to start teaching new actions? : ")))
+            (format nil "Do you want to start teaching new actions?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-next-action (next-action &key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to start next action ~A ? : " next-action)))
+            (format nil "Do you want to start next action ~A?" next-action)))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default t :default t :timeout timeout)))
   (:ask-user-abortion (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Are you sure to abort the execution ? : ")))
+            (format nil "Are you sure to abort the execution?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-ready-device (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Are you ready for teaching ? : ")))
+            (format nil "Are you ready for teaching?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-finish-teach (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to finish teaching new actions? : ")))
+            (format nil "Do you want to finish teaching new actions?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-continue-teach (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to continue teaching new actions? : ")))
+            (format nil "Do you want to continue teaching new actions?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-finish-task (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to finish the task? : ")))
+            (format nil "Do you want to finish the task?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-continue-task (&key (timeout nil))
     (let ((ask-sentence
-            (format nil "Do you want to continue the task? : ")))
+            (format nil "Do you want to continue the task?")))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default nil :timeout timeout)))
   (:ask-user-state-decision (sm gr &key (timeout nil))
