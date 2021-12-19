@@ -324,11 +324,13 @@
     ;; start and goal
     (let* ((first-name (format nil "~A" first-state-sym))
            (last-name (format nil "~A" last-state-sym)))
-      (add-state-node sm first-name state-func)
+      (add-state-node sm first-name state-func
+                      nil :first-state-node)
       (add-transition sm start-state first-name t)
       (add-node sm goal-state
                 `(lambda-closure nil 0 0 (userdata) t) nil)
-      (add-state-node sm last-name state-func)
+      (add-state-node sm last-name state-func
+                      nil :last-state-node)
       (add-transition sm last-name goal-state t))
     ;; aborts
     (add-state-abort-nodes sm state-aborts)

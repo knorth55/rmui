@@ -318,7 +318,17 @@
   (:interrupt-wait (userdata)
     (let* ((current-sm-node (send sm :active-state))
            (duration (send current-sm-node :get :duration))
+           (node-sym (read-from-string (send current-sm-node :name)))
+           (state-node-type
+             (send current-sm-node :get :state-node-type))
            (interrupt-p nil))
+      ;; skip interruption at the first state node
+      (if (and (equal state-node-type :first-state-node)
+               (equal node-sym '(:init)))
+        (return-from :interrupt-wait nil))
+      ;; skip interruption at the last state node
+      (if (equal state-node-type :last-state-node)
+        (return-from :interrupt-wait nil))
       ;; first time node, move to ask user input
       (if (and duration-threshold (null duration))
         (return-from :interrupt-wait t))
