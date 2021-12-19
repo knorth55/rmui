@@ -174,6 +174,8 @@
     &key (data-dir *training-object-statenet-path*)
     (path nil) (filename "merged-statenet-graph.l"))
   (let ((filepath (if path path (format nil "~A/~A" data-dir filename))))
+    (if (null (probe-file data-dir))
+      (unix::system (format nil "mkdir -p ~A" data-dir)))
     (dump-structure filepath merged-statenet-graph)))
 
 
