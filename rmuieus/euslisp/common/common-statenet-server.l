@@ -210,7 +210,8 @@
   (:statenet-planner () stplanner)
   (:state-machine () sm)
   (:add-action-state-in-statenet-graph (action prev-scene-states scene-states)
-    (add-action-state-in-graph statenet-gr action prev-scene-states scene-states))
+    (if statenet-gr
+      (add-action-state-in-graph statenet-gr action prev-scene-states scene-states)))
   (:dump-collabo-statenet ()
     (if (null dump-statenet-dir)
       (setq dump-statenet-dir
@@ -236,8 +237,11 @@
                        `(lambda-closure nil 0 0 (event)
                                         (send ,self :execute-cb))))
   (:show-statenet-pdf ()
-    (send statenet-gr :write-to-pdf "rmui_statenet.pdf")
-    (piped-fork "xdg-open rmui_statenet.pdf"))
+    (if statenet-gr
+      (progn
+        (send statenet-gr :write-to-pdf "rmui_statenet.pdf")
+        (piped-fork "xdg-open rmui_statenet.pdf"))
+      (ros::ros-error "statenet is not loaded.")))
   (:show-smach-pdf ()
     (send sm :current-draw-mode)
     (send sm :write-to-pdf "rmui_smach.pdf")
@@ -285,10 +289,11 @@
                       :first-action first-action :no-loop no-loop))))
       (if tmp-sm (list tmp-sm trained-executed-collabo-paths))))
   (:plan-state-machine (start-state goal-state &key (first-action nil) (no-loop nil))
-    (send stplanner :generate-smach-from-state
-          statenet-gr start-state goal-state
-          :first-action first-action
-          :no-loop no-loop))
+    (if statenet-gr
+      (send stplanner :generate-smach-from-state
+            statenet-gr start-state goal-state
+            :first-action first-action
+            :no-loop no-loop)))
   (:convert-collabo-path-to-state-machine (collabo-path &key (no-loop nil))
     (send stplanner :convert-collabo-path-to-state-machine collabo-path :no-loop no-loop))
   (:next-in-state (userdata)
