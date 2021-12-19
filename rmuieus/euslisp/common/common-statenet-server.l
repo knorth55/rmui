@@ -345,7 +345,7 @@
          (return-from :interrupt-wait t)))
       (send stinteractor :reset-interactor)
       (setq interrupt-p
-            (send stinteractor :ask-user-interrupt :timeout interrupt-timeout))
+            (send stinteractor :ask-user-interrupt :timeout interrupt-timeout :speak-wait t))
       (return-from :interrupt-wait interrupt-p)))
   (:ask-user-state-decision (userdata)
     (send stinteractor :reset-interactor)
@@ -425,9 +425,11 @@
     (let ((from-stamp (ros::time-now))
           (prev-scene-states (cdr (assoc :teach-state userdata))))
       (send stinteractor :reset-interactor)
-      (ros::ros-info "Waiting for device input or user interruption")
+      (send stinteractor :ros-speak-info
+            "Waiting for device input or user interruption.")
       (send stinteractor :start-speech-recognition)
       (while t
+        (send insp :publish-structure)
         (if device-groupnames
           (dolist (device-groupname device-groupnames)
             (ros::spin-once device-groupname)))
