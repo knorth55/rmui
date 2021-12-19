@@ -4,7 +4,8 @@
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
-(defvar *table-z* -720)
+;; (defvar *table-z* -720)
+(defvar *table-z* -900)
 (defvar *box-pos-x* 600)
 (defvar *contact-offset* (float-vector -150 0 50))
 (defvar *larm-softhand* (make-cube 120 120 120))
