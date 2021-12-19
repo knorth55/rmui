@@ -754,8 +754,17 @@
               (return-from :execute-statenet-cb nil)))
           (let* ((top-active-state (send sm :active-state))
                  (bottom-active-state (car (send sm :bottom-active-state)))
-                 (node-type
+                 (top-node-type
                    (send top-active-state :get :node-type))
+                 (bottom-node-type
+                   (send bottom-active-state :get :node-type))
+                 (node-type
+                   (prog1
+                     top-node-type
+                     (if (null (equal top-node-type bottom-node-type))
+                       (ros::ros-warn
+                         (format nil "node-type are different in submachine: ~A != ~A"
+                                 top-node-type bottom-node-type)))))
                  (teach-node-type
                    (if (equal node-type :teach-node)
                      (send bottom-active-state :get :teach-node-type)))
