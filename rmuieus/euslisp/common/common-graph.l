@@ -53,15 +53,17 @@
   (sm name &optional (state-func `(lambda-closure nil 0 0 (userdata) t))
                      (duration nil) (sntype nil))
   (let ((n (add-node sm name state-func :state-node duration)))
-    (if (and sntype n)
-      (send n :put :state-node-type sntype))
+    (if sntype
+      (send (send sm :node name)
+            :put :state-node-type sntype))
     n))
 
 
 (defun add-action-node (sm name action-func &optional (antype nil))
   (let ((n (add-node sm name action-func :action-node)))
-    (if (and antype n)
-      (send n :put :action-node-type antype))
+    (if antype
+      (send (send sm :node name)
+            :put :action-node-type antype))
     n))
 
 
@@ -75,8 +77,9 @@
 
 (defun add-teach-node (sm name teach-func &optional (tntype nil))
   (let ((n (add-node sm name teach-func :teach-node)))
-    (if (and tntype n)
-      (send n :put :teach-node-type tntype))
+    (if tntype
+      (send (send sm :node name)
+            :put :teach-node-type tntype))
     n))
 
 
