@@ -6,3 +6,7 @@
     local-name: knorth55/rmui
     uri: git@github.com:knorth55/rmui.git
     version: master
+- git:
+    local-name: jsk-ros-pkg/jsk_roseus
+    uri: https://github.com/jsk-ros-pkg/jsk_roseus.git
+    version: knorth55/fix-pickle-dump
