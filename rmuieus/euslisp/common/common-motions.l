@@ -672,7 +672,7 @@
 
 (defun get-push-release-target-coords (arm &key (robot *robot*))
   (let ((target-coords (send (get-contact-coords arm :robot robot) :copy-worldcoords)))
-    (send target-coords :translate (float-vector 0 0 -50))
+    (send target-coords :translate (float-vector 0 0 -100))
     target-coords))
 
 
