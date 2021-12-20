@@ -679,6 +679,7 @@
 (defun push-release-and-reset-motion
   (arm &rest args &key (move-robot t) (tm 3000) (use-torso 0.001)
                        (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                       (cubes *boxes*)
                        &allow-other-keys)
   (let ((avs)
         (released)
@@ -697,11 +698,16 @@
                                      :robot robot :ri ri :vw vw)))
     (if (and released reseted)
       (when move-robot
-        (send ri :angle-vector-sequence
-              (append (car released) (car reseted))
-              (append (cadr released) (cadr reseted))
+        (send ri :angle-vector-raw
+              (car (car released)) (car (cadr released))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation)
+        (add-cubes-collision-object :cubes cubes :robot robot :ri ri)
+        (send ri :angle-vector
+              (car (car reseted)) (car (cadr reseted))
+              (get-arm-controller :arms :use-torso use-torso) 0)
+        (send ri :wait-interpolation)
+        (delete-cubes-collision-object :cubes cubes :ri ri))
       (progn
         (send robot :angle-vector prev-av)))
     (send vw :draw-objects)
