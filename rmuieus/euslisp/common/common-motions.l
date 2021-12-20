@@ -361,7 +361,7 @@
       ((eq push-axis :x)
        (let ((x-offset
                (* (if (eq push-direction :front) 1.0 -1.0)
-                  (+ (/ cube-depth 2.0) (if (eq motion-type :approach) 50 0)))))
+                  (+ (/ cube-depth 2.0) (if (eq motion-type :approach) 100 0)))))
          (cond
            ((or (and (eq arm :larm) (eq approach-direction :left))
                 (and (eq arm :rarm) (eq approach-direction :right)))
@@ -387,7 +387,7 @@
       ((eq push-axis :y)
        (let ((y-offset
                (* (if (eq push-direction :left) 1.0 -1.0)
-                  (+ (/ cube-width 2.0) (if (eq motion-type :approach) 50 0)))))
+                  (+ (/ cube-width 2.0) (if (eq motion-type :approach) 100 0)))))
          (cond
            ((eq approach-direction :back)
             (let ((x-offset hold-offset)
