@@ -8,6 +8,10 @@
 
 (if (not (assoc :init-org (send pr2-interface :methods)))
   (rplaca (assoc :init (send pr2-interface :methods)) :init-org))
+;: (if (not (assoc :angle-vector-org (send pr2-interface :methods)))
+;:   (rplaca (assoc :angle-vector (send pr2-interface :methods)) :angle-vector-org))
+;: (if (not (assoc :angle-vector-sequence-org (send pr2-interface :methods)))
+;:   (rplaca (assoc :angle-vector-sequence (send pr2-interface :methods)) :angle-vector-sequence-org))
 
 
 (defmethod pr2-robot
@@ -62,7 +66,12 @@
   (:dualarm-controller ()
     (append
       (send self :larm-controller)
-      (send self :rarm-controller))))
+      (send self :rarm-controller)))
+  (:angle-vector-raw (&rest args)
+    (send* self :angle-vector args))
+  (:angle-vector-sequence-raw (&rest args)
+    (send* self :angle-vector-sequence args))
+  )
 
 
 (defun get-arm-controller (arm &key (use-torso t))

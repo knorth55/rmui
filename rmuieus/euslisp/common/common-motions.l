@@ -1492,7 +1492,8 @@
         (return-from :rotate-motion-step nil)))
     (if av
       (when move-robot
-        (send ri :angle-vector-sequence rotate-avs rotate-tms
+        ;; raw usage
+        (send ri :angle-vector-sequence-raw rotate-avs rotate-tms
               (get-arm-controller :arms :use-torso use-torso) 0)
         (send ri :wait-interpolation))
       (progn
