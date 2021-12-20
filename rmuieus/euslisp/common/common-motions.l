@@ -179,10 +179,12 @@
 
 (defun add-cube-collision-object (&key (cube *box0*) (robot *robot*) (ri *ri*))
   (if (and ri (not (send ri :simulation-modep)))
-    (send *co* :add-object cube
-          :frame-id (send robot :get :base-frame-id)
-          :relative-pose (send (send cube :worldcoords) :copy-worldcoords)
-          :object-id (send cube :name))))
+    (progn
+      (send *co* :add-object cube
+            :frame-id (send robot :get :base-frame-id)
+            :relative-pose (send (send cube :worldcoords) :copy-worldcoords)
+            :object-id (send cube :name))
+      (unix::usleep (round (* 0.1 1e6))))))
 
 
 (defun add-cubes-collision-object (&key (cubes *boxes*) (robot *robot*) (ri *ri*))
