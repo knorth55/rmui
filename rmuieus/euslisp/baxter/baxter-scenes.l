@@ -8,8 +8,8 @@
 (defvar *table-z* -900)
 (defvar *box-pos-x* 600)
 (defvar *contact-offset* (float-vector -150 0 50))
-(defvar *larm-softhand* (make-cube 120 120 120))
-(defvar *rarm-softhand* (make-cube 120 120 120))
+(defvar *larm-softhand* (make-cube 120 120 100))
+(defvar *rarm-softhand* (make-cube 120 120 100))
 
 ;; functions
 
