@@ -36,7 +36,7 @@
         (box-shapes
           (list
             (cons :ctb (list 270 420 220))  ;; ctb
-            (cons :jetson (list 220 210 200))  ;; jetson box
+            (cons :jetson (list 220 200 200))  ;; jetson box
             (cons :cardboardbox (list 350 350 300))  ;; cardboard box
             (cons :trashbox (list 270 370 500))  ;; trash box
             (cons :shredder (list 150 280 320))  ;; shredder
