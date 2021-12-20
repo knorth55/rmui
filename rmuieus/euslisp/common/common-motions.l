@@ -185,9 +185,17 @@
           :object-id (send cube :name))))
 
 
+(defun add-cubes-collision-object (&key (cubes *boxes*) (robot *robot*) (ri *ri*))
+  (dolist (cb cubes) (add-cube-collision-object :cube cb :robot robot :ri ri)))
+
+
 (defun delete-cube-collision-object (&key (cube *box0*) (ri *ri*))
   (if (and ri (not (send ri :simulation-modep)))
     (send *co* :delete-object cube)))
+
+
+(defun delete-cubes-collision-object (&key (cubes *boxes*) (ri *ri*))
+  (dolist (cb cubes) (delete-cube-collision-object :cube cb :ri ri)))
 
 
 (defun get-cube-length (axis &key (cube-rpy (float-vector 0 0 0)) (cube *box0*))
@@ -560,6 +568,7 @@
             (robot *robot*)
             (ri *ri*)
             (cube *box0*)
+            (cubes *boxes*)
             (vw *irtviewer*)
             &allow-other-keys)
   (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
@@ -637,12 +646,12 @@
               :robot robot :ri ri :cube cube :vw vw)))
     (if (and approached pushed)
       (when move-robot
-        (add-cube-collision-object :cube cube :robot robot :ri ri)
+        (add-cubes-collision-object :cubes cubes :robot robot :ri ri)
         (send ri :angle-vector
               (car (car approached)) (car (cadr approached))
               (get-arm-controller :arms :use-torso use-torso) 0)
         (send ri :wait-interpolation)
-        (delete-cube-collision-object :cube cube :ri ri)
+        (delete-cubes-collision-object :cubes cubes :ri ri)
         (send ri :angle-vector-raw
               (car (car pushed)) (car (cadr pushed))
               (get-arm-controller :arms :use-torso use-torso) 0)
