@@ -637,9 +637,14 @@
               :robot robot :ri ri :cube cube :vw vw)))
     (if (and approached pushed)
       (when move-robot
-        (send ri :angle-vector-sequence
-              (append (car approached) (car pushed))
-              (append (cadr approached) (cadr pushed))
+        (add-cube-collision-object :cube cube :robot robot :ri ri)
+        (send ri :angle-vector
+              (car (car approached)) (car (cadr approached))
+              (get-arm-controller :arms :use-torso use-torso) 0)
+        (send ri :wait-interpolation)
+        (delete-cube-collision-object :cube cube :ri ri)
+        (send ri :angle-vector-raw
+              (car (car pushed)) (car (cadr pushed))
               (get-arm-controller :arms :use-torso use-torso) 0)
         (send ri :wait-interpolation))
       (progn
