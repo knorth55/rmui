@@ -125,7 +125,7 @@
   (apply #'dualarm-left-right-push-hold-action
          (append (list :approach-direction :top
                        :push-position :center
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun dualarm-front-left-back-right-push-hold-action
@@ -156,7 +156,7 @@
   (apply #'dualarm-front-left-back-right-push-hold-action
          (append (list :approach-direction :top
                        :push-position :center
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun dualarm-back-left-front-right-push-hold-action
@@ -187,7 +187,7 @@
   (apply #'dualarm-back-left-front-right-push-hold-action
          (append (list :approach-direction :top
                        :push-position :center
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun dualarm-hold-release-action (&rest args)
@@ -524,7 +524,7 @@
   (apply #'larm-left-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun larm-front-push-action (&rest args)
@@ -619,7 +619,7 @@
   (apply #'larm-front-left-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun larm-back-left-push-action
@@ -654,7 +654,7 @@
   (apply #'larm-back-left-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun larm-left-move-push-action (&rest args)
@@ -751,7 +751,7 @@
   (apply #'rarm-right-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun rarm-front-push-action (&rest args)
@@ -846,7 +846,7 @@
   (apply #'rarm-front-right-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun rarm-back-right-push-action
@@ -881,7 +881,7 @@
   (apply #'rarm-back-right-push-action
          (append (list :approach-directions (list :top)
                        :push-positions (list :center)
-                       :hold-type :light) args)))
+                       :hold-type -100) args)))
 
 
 (defun rarm-right-move-push-action (&rest args)
