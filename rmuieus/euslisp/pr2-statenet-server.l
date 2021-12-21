@@ -16,8 +16,9 @@
 (defvar *interrupt-timeout* 5)
 (defvar *prx-threshold* 500)
 (defvar *prx-position-threshold* 0.5)
-(defvar *motion-symbol-length* 15)
-; (defvar *motion-symbol-length* 5)
+;; (defvar *motion-symbol-length* 15)
+;; (defvar *motion-symbol-length* 10)
+(defvar *motion-symbol-length* 5)
 (defvar *use-torso* 0.001)
 
 

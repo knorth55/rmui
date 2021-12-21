@@ -428,7 +428,9 @@
       (send stinteractor :ros-speak-info
             "Waiting for device input or user interruption.")
       (send stinteractor :start-speech-recognition)
-      (while t
+      (ros::rate 10)
+      (while (ros::ok)
+        (ros::sleep)
         (send insp :publish-structure)
         (if device-groupnames
           (dolist (device-groupname device-groupnames)
@@ -459,6 +461,10 @@
                   (send devexecutor :update-motion-symbol-queues motion-symbols))
                (checked-motion-symbols
                  (send devexecutor :check-motion-symbol-queues motion-symbols)))
+          (ros::ros-info
+            (format nil "motion-symbols         : ~A" motion-symbols))
+          (ros::ros-info
+            (format nil "checked-motion-symbols : ~A" checked-motion-symbols))
           (if (not (every #'null checked-motion-symbols))
             (progn
               (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
