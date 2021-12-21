@@ -30,8 +30,14 @@
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
-  <node pkg="tf" type="static_transform_publisher" name="rmui1_static_transform_publisher"
-        args="0 0.5 0 0 0 0 1 rmui_world rmui1_world 100" />
+  <group if="$(eval arg('n_box') >= 3)">
+    <node pkg="tf" type="static_transform_publisher" name="rmui1_static_transform_publisher"
+          args="0 0.5 0 0 0 0 1 rmui_world rmui1_world 100" />
+  </group>
+  <group unless="$(eval arg('n_box') >= 3)">
+    <node pkg="tf" type="static_transform_publisher" name="rmui1_static_transform_publisher"
+          args="0 0.3 0 0 0 0 1 rmui_world rmui1_world 100" />
+  </group>
 
   <!-- rmui2 -->
   <include file="$(find rmui_demos)/launch/common/common_rmui_base.launch">
@@ -42,8 +48,14 @@
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
   </include>
-  <node pkg="tf" type="static_transform_publisher" name="rmui2_static_transform_publisher"
-        args="0 -0.5 0 0 0 0 1 rmui_world rmui2_world 100" />
+  <group if="$(eval arg('n_box') >= 3)">
+    <node pkg="tf" type="static_transform_publisher" name="rmui2_static_transform_publisher"
+          args="0 -0.5 0 0 0 0 1 rmui_world rmui2_world 100" />
+  </group>
+  <group unless="$(eval arg('n_box') >= 3)">
+    <node pkg="tf" type="static_transform_publisher" name="rmui2_static_transform_publisher"
+          args="0 -0.3 0 0 0 0 1 rmui_world rmui2_world 100" />
+  </group>
 
   <!-- gui -->
   <group if="$(arg gui)">

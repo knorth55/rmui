@@ -16,6 +16,7 @@
           use-speech-recognition
           speech-server-name
           soundplay-topic-name
+          ask-sentence-topic-name
           response
           response-stamp)
   )
@@ -36,6 +37,9 @@
     (setq soundplay-topic-name sptname)
     (setq speech-server-name ssrvn)
 
+    (setq ask-sentence-topic-name
+          (if namespace (format nil "~A/user_ask_sentence" namespace) "/user_ask_sentence"))
+    (ros::advertise ask-sentence-topic-name std_msgs::String 1)
     (if groupname (ros::create-nodehandle groupname))
     (if groupname
       (ros::subscribe
@@ -113,21 +117,24 @@
              (return-from :get-user-response (copy-seq response))
              (go retry-speech-service-call)))))
       (t nil)))
+  (:ros-speak-base (sentence &key (wait nil))
+    (let ((ask-string-msg
+            (instance std_msgs::String :init :data sentence)))
+      (ros::publish ask-sentence-topic-name ask-string-msg)
+      (send ri :speak sentence
+            :topic-name soundplay-topic-name :wait wait)))
   (:ros-speak-info (sentence &key (wait nil))
     (ros::ros-info sentence)
     (if use-speak-inform
-      (send ri :speak sentence
-            :topic-name soundplay-topic-name :wait wait)))
+      (send self :ros-speak-base sentence :wait wait)))
   (:ros-speak-warn (sentence &key (wait nil))
     (ros::ros-warn sentence)
     (if use-speak-inform
-      (send ri :speak sentence
-            :topic-name soundplay-topic-name :wait wait)))
+      (send self :ros-speak-base sentence :wait wait)))
   (:ros-speak-error (sentence &key (wait nil))
     (ros::ros-error sentence)
     (if use-speak-inform
-      (send ri :speak sentence
-            :topic-name soundplay-topic-name :wait wait)))
+      (send self :ros-speak-base sentence :wait wait)))
   (:ros-wait-user-interrupt
     (ask-sentence &key (timeout nil) (from-stamp nil) (toggle-server t) (speak-wait nil))
     (let ((user-response))
