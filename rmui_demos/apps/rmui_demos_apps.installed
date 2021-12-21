@@ -3,5 +3,7 @@ apps:
     display: Baxter teaching
   - app: rmui_demos/baxter_multi_pileup
     display: Baxter multi object pileup
-  - app: rmui_demos/baxter_multi_rotate_pileup
-    display: Baxter multi object rotate & pileup
+  - app: rmui_demos/baxter_multi_rotate_z90_pileup
+    display: Baxter multi object rotate z90 & pileup
+  - app: rmui_demos/baxter_multi_rotate_z180_pileup
+    display: Baxter multi object rotate z180 & pileup

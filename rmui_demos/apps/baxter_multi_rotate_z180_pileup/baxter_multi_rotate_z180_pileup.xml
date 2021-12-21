@@ -1,0 +1,3 @@
+<launch>
+  <node name="baxter_multi_rotate_z180_pileup" pkg="rmui_demos" type="baxter_multi_rotate_z180_pileup.l" required="true" />
+</launch>
