@@ -41,7 +41,7 @@ Args:
         (format strm "digraph ~A {~%" title)
         (dolist (target-node nodes)
           (let* ((target-node-name (send target-node :name))
-                 (target-node-sym (read-from-string target-node-name)))
+                 (target-node-sym (if target-node-name (read-from-string target-node-name))))
             (format strm "   ")
             (format strm "~A [label = \"~A\" ~A];~%"
                     (graphviz-node-name target-node)
