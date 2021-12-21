@@ -73,7 +73,7 @@
       :robot robot :ri ri :cubes boxes
       :vw robotviewer :use-torso use-torso
       :move-robot move-robot))
-  (:convert-collabo-path-to-state-machine (collabo-path &key (no-loop))
+  (:convert-collabo-path-to-state-machine (collabo-path &key (no-loop nil))
     (convert-collabo-path-to-smach
       (if (equal :task (car (car collabo-path)))
         (cdr collabo-path) collabo-path)
