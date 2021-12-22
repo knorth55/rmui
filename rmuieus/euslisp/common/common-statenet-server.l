@@ -449,18 +449,22 @@
                (device-states
                  (if update-p (send-all devices :get-device-state)))
                (contact-positions
-                 (mapcar
-                   #'(lambda (device-state)
-                       (cadr (assoc :contact-positions device-state)))
-                   device-states))
+                 (if device-states
+                   (mapcar
+                     #'(lambda (device-state)
+                         (cadr (assoc :contact-positions device-state)))
+                   device-states)))
                (motion-symbols
-                 (send devplanner :get-motion-symbols
-                       contact-positions
-                       :scene-states prev-scene-states))
+                 (if contact-positions
+                   (send devplanner :get-motion-symbols
+                         contact-positions
+                         :scene-states prev-scene-states)))
                (update-motion-symbol-queues
-                  (send devexecutor :update-motion-symbol-queues motion-symbols))
+                 (if motion-symbols
+                   (send devexecutor :update-motion-symbol-queues motion-symbols)))
                (checked-motion-symbols
-                 (send devexecutor :check-motion-symbol-queues motion-symbols)))
+                 (if update-motion-symbol-queues
+                   (send devexecutor :check-motion-symbol-queues motion-symbols))))
           (ros::ros-info
             (format nil "motion-symbols         : ~A" motion-symbols))
           (ros::ros-info
@@ -478,7 +482,8 @@
                    checked-motion-symbols
                    :scene-states prev-scene-states))
            (update-scene-p
-             (send devupdater :update-scene-states executed-symbols-and-actions)))
+             (if executed-symbols-and-actions
+               (send devupdater :update-scene-states executed-symbols-and-actions))))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))

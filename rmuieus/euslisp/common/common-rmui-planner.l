@@ -42,6 +42,7 @@
     self)
   (:get-motion-symbols
     (contact-positions &key (scene-states))
+    (if (null contact-positions) (return-from :get-motion-symbols nil))
     (let ((motion-symbols nil)
           (push-hold-down-index nil)
           (push-hold-up-index nil)

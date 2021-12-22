@@ -122,20 +122,24 @@
            (device-states
              (if update-p (send-all devices :get-device-state)))
            (contact-positions
-             (mapcar
-               #'(lambda (device-state)
-                   (cadr (assoc :contact-positions device-state)))
-               device-states))
+             (if device-states
+               (mapcar
+                 #'(lambda (device-state)
+                     (cadr (assoc :contact-positions device-state)))
+                 device-states)))
            (motion-symbols
-             (send planner :get-motion-symbols
-                   contact-positions
-                   :scene-states prev-scene-states))
+             (if contact-positions
+               (send planner :get-motion-symbols
+                     contact-positions
+                     :scene-states prev-scene-states)))
            (executed-symbols-and-actions
-             (send executor :execute-motion-symbols
-                   motion-symbols
-                   :scene-states prev-scene-states))
+             (if motion-symbols
+               (send executor :execute-motion-symbols
+                     motion-symbols
+                     :scene-states prev-scene-states)))
            (update-scene-p
-             (send updater :update-scene-states executed-symbols-and-actions))
+             (if executed-symbols-and-actions
+               (send updater :update-scene-states executed-symbols-and-actions)))
            (dump-p (if update-scene-p (send updater :dump-files)))
            (executed-symbol update-scene-p)
            (scene-states (send updater :last-scene-states))

@@ -154,6 +154,7 @@
       (setq motion-symbol-queues
             (append motion-symbol-queues (list (list nil nil))))))
   (:update-motion-symbol-queues (motion-symbols)
+    (if (null motion-symbols) (return-from :update-motion-symbol-queues nil))
     ;; update motion symbol queue
     (dotimes (i (length motion-symbols))
       (let ((motion-symbol-queue
@@ -175,6 +176,7 @@
                   rarm-motion-symbol-queue rarm-motion-symbol))
       (list larm-motion-symbol-queue rarm-motion-symbol-queue)))
   (:check-motion-symbol-queues (motion-symbols)
+    (if (null motion-symbols) (return-from :check-motion-symbol-queues nil))
     (let ((checked-motion-symbols
             (make-list (length motion-symbols) :initial-element nil)))
       (dotimes (i (length motion-symbols))
@@ -209,6 +211,7 @@
         (list larm-motion-symbol rarm-motion-symbol) nil)))
   (:execute-checked-motion-symbols
     (checked-motion-symbols &key (scene-states))
+    (if (null checked-motion-symbols) (return-from :execute-checked-motion-symbols nil))
     (let ((motion-symbols-and-actions
             (make-list (length checked-motion-symbols) :initial-element nil)))
       ;; execute motion symbols
@@ -333,6 +336,7 @@
   ;; run update, check and execute in one method
   (:execute-motion-symbols
     (motion-symbols &key (scene-states))
+    (if (null motion-symbols) (return-from :execute-motion-symbols nil))
     (let* ((update-motion-symbol-queues
              (send self :update-motion-symbol-queues motion-symbols))
            (checked-motion-symbols
