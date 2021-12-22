@@ -350,7 +350,10 @@
       (let ((ac (send sn :action)))
         (if ac
           (let* ((from-state-sym (convert-string-to-sym (send (send ac :from) :name)))
+                 (from-name (format nil "~A" from-state-sym))
                  (to-state-sym (convert-string-to-sym (send (send ac :to) :name)))
+                 (to-name (format nil "~A" to-state-sym))
+                 ;; action
                  (action-name (send ac :name))
                  (action-syms (read-from-string action-name))
                  (cube-index
@@ -397,8 +400,6 @@
                  (node-name
                    (format nil "~A"
                            (list action-func-sym-list from-state-sym)))
-                 (from-name (format nil "~A" from-state-sym))
-                 (to-name (format nil "~A" to-state-sym))
                  (trans (list (cons :from-name from-name)
                               (cons :from-state-sym from-state-sym)
                               (cons :from-duration nil)
@@ -430,6 +431,16 @@
                (if (and from-start-stamp from-end-stamp)
                  (- from-end-stamp from-start-stamp)))
              (from-name (format nil "~A" from-state-sym))
+             (to-node (caddr collabo-nodes))
+             (to-node-type (cadr (assoc :node-type to-node)))
+             (to-state-sym (cadr (assoc :state-action to-node)))
+             (to-start-stamp (cadr (assoc :start-stamp to-node)))
+             (to-end-stamp (cadr (assoc :end-stamp to-node)))
+             (to-duration
+               (if (and to-start-stamp to-end-stamp)
+                 (- to-end-stamp to-start-stamp)))
+             (to-name (format nil "~A" to-state-sym))
+             ;; action
              (action-node (cadr collabo-nodes))
              (action-node-type (cadr (assoc :node-type action-node)))
              (action-syms (cadr (assoc :state-action action-node)))
@@ -476,15 +487,6 @@
              (node-name
                (format nil "~A"
                        (list action-func-sym-list from-state-sym)))
-             (to-node (caddr collabo-nodes))
-             (to-node-type (cadr (assoc :node-type to-node)))
-             (to-state-sym (cadr (assoc :state-action to-node)))
-             (to-start-stamp (cadr (assoc :start-stamp to-node)))
-             (to-end-stamp (cadr (assoc :end-stamp to-node)))
-             (to-duration
-               (if (and to-start-stamp to-end-stamp)
-                 (- to-end-stamp to-start-stamp)))
-             (to-name (format nil "~A" to-state-sym))
              (trans (list (cons :from-name from-name)
                           (cons :from-duration from-duration)
                           (cons :node-name node-name)
