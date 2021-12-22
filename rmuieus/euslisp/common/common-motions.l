@@ -726,7 +726,7 @@
     (return-from push-release-motion nil))
   (let ((av)
         (release-distance-max -100)
-        (release-distance-step -10))
+        (release-distance-step -20))
     (dotimes (release-distance-index
                (round (/ release-distance-max release-distance-step)))
       (let ((release-distance
