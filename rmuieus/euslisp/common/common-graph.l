@@ -488,6 +488,7 @@
                (format nil "~A"
                        (list action-func-sym-list from-state-sym)))
              (trans (list (cons :from-name from-name)
+                          (cons :from-state-sym from-state-sym)
                           (cons :from-duration from-duration)
                           (cons :node-name node-name)
                           (cons :action-sym action-sym-list)
