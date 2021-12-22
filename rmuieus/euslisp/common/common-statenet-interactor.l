@@ -194,14 +194,14 @@
                 (send self :get-user-response
                       :timeout timeout :from-stamp from-stamp
                       :toggle-server toggle-server)))
-        (if (or (string= use-response "TEACHING")
-                (string= use-response "TEACH"))
-          (setq use-response -1))
+        (if (or (string= user-response "TEACHING")
+                (string= user-response "TEACH"))
+          (setq user-response -1))
         (if (or (string= user-response "")
                 (string= user-response "YES")
                 (string= user-response "Y")
                 (string= user-response "NEXT"))
-          (setq use-response default-index))
+          (setq user-response default-index))
         (if (equal user-response :timeout)
           (if use-default
             (return-from :ros-index-choose default-index)
