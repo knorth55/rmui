@@ -117,7 +117,7 @@
   (:server-cb (&rest args)
     (let* ((prev-scene-states (send updater :last-scene-states))
            (update-p
-             (eval (append '(or)
+             (eval (append '(and)
                             (send-all devices :update-device-orientation))))
            (device-states
              (if update-p (send-all devices :get-device-state)))

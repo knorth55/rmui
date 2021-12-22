@@ -444,7 +444,7 @@
             (send stinteractor :stop-speech-recognition)
             (return-from :wait-device-user-input nil)))
         (let* ((update-p
-                 (eval (append '(or)
+                 (eval (append '(and)
                                 (send-all devices :update-device-orientation))))
                (device-states
                  (if update-p (send-all devices :get-device-state)))
