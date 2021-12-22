@@ -301,6 +301,8 @@
                 sm trans :state-func state-func
                 :smach-transition
                 (format nil "~A" (cdr (assoc :action-sym trans :test #'equal)))
+                ;; use the last executed motion for default transition
+                ;; TODO: support loop execution of the same motion
                 :add-t-transition (equal trans-index 0))
               (setq action-aborts
                     (append action-aborts (list (list node-name abort-name action-func))))
