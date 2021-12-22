@@ -670,9 +670,10 @@
 
 ;; push release motion
 
-(defun get-push-release-target-coords (arm &key (robot *robot*))
+(defun get-push-release-target-coords (arm &key (robot *robot*) (release-distance -100))
   (let ((target-coords (send (get-contact-coords arm :robot robot) :copy-worldcoords)))
-    (send target-coords :translate (float-vector 0 0 -100))
+    (send target-coords :translate
+          (float-vector 0 0 release-distance))
     target-coords))
 
 
@@ -723,19 +724,37 @@
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from push-release-motion nil))
-  (let ((av))
-    (if (eq arm :arms)
-      (let ((larm-target-coords (get-push-release-target-coords :larm :robot robot))
-            (rarm-target-coords (get-push-release-target-coords :rarm :robot robot)))
-        (setq av
-              (solve-ik-rotation-relax
-                :arms (list larm-target-coords rarm-target-coords)
-                :use-torso use-torso :robot robot)))
-      (let ((target-coords (get-push-release-target-coords arm :robot robot)))
-        (setq av
-              (solve-ik-rotation-relax
-                arm target-coords
-                :use-torso use-torso :robot robot))))
+  (let ((av)
+        (release-distance-max -100)
+        (release-distance-step -10))
+    (dotimes (release-distance-index
+               (round (/ release-distance-max release-distance-step)))
+      (let ((release-distance
+              (- release-distance-max
+                 (* release-distance-index
+                    release-distance-step))))
+        (if (eq arm :arms)
+          (let ((larm-target-coords
+                  (get-push-release-target-coords
+                    :larm :robot robot
+                    :release-distance release-distance))
+                (rarm-target-coords
+                  (get-push-release-target-coords
+                    :rarm :robot robot
+                    :release-distance release-distance)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    :arms (list larm-target-coords rarm-target-coords)
+                    :use-torso use-torso :robot robot)))
+          (let ((target-coords
+                  (get-push-release-target-coords
+                    arm :robot robot
+                    :release-distance release-distance)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    arm target-coords
+                    :use-torso use-torso :robot robot)))))
+      (if av (return)))
     (when (and av move-robot)
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
