@@ -1,6 +1,4 @@
 <launch>
-  <arg name="robot_name" default="pr1040" />
-
   <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="rmui_name" default="rmui0" />
@@ -22,8 +20,7 @@
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
 
-  <param name="robot/name" value="$(arg robot_name)"/>
-  <param name="robot/type" value="pr2"/>
+  <arg name="launch_app_manager" default="true" />
 
   <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">
     <arg name="robot" value="pr2" />
@@ -44,4 +41,8 @@
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>
+
+  <include file="$(find rmui_demos)/launch/pr2/pr2_local_app_manager.launch"
+           if="$(arg launch_app_manager)"/>
+
 </launch>

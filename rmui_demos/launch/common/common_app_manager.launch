@@ -1,0 +1,14 @@
+<launch>
+  <arg name="master_address" />
+  <arg name="master_port" />
+
+  <!-- app manager -->
+  <include file="$(find jsk_robot_startup)/lifelog/app_manager.launch" >
+    <arg name="master" value="true"/>
+    <arg name="master_address" value="$(arg master_address)"/>
+    <arg name="master_port" value="$(arg master_port)"/>
+    <arg name="use_applist" value="false" />
+    <arg name="respawn" value="false" />
+    <arg name="basic" value="false" />
+  </include>
+</launch>

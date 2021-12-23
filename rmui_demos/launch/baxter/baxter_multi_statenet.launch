@@ -1,6 +1,4 @@
 <launch>
-  <arg name="robot_name" default="baxter" />
-
   <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="dummy" default="false" />
@@ -23,8 +21,7 @@
   <arg name="wall" default="false" />
   <arg name="align_axis" default="y" />
 
-  <param name="robot/name" value="$(arg robot_name)"/>
-  <param name="robot/type" value="baxter"/>
+  <arg name="launch_app_manager" default="true" />
 
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
     <arg name="robot" value="baxter" />
@@ -46,4 +43,8 @@
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>
+
+  <include file="$(find rmui_demos)/launch/baxter/baxter_local_app_manager.launch"
+           if="$(arg launch_app_manager)"/>
+
 </launch>

@@ -67,11 +67,4 @@
     <arg name="string_topic" value="/statenet_server/user_response" />
   </include>
 
-  <!-- app manager -->
-  <include file="$(find jsk_robot_startup)/lifelog/app_manager.launch" >
-    <arg name="use_applist" value="false" />
-    <arg name="respawn" value="false" />
-    <arg name="basic" value="false" />
-  </include>
-
 </launch>
