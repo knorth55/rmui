@@ -1,2 +1,9 @@
 published_topics: {}
 subscribed_topics: {}
+# published_topics:
+#   /statenet_server/execute/goal: rmui_msgs/ExecuteStatenetActionGoal
+#   /statenet_server/execute/cancel: actionlib_msgs/GoalID
+# subscribed_topics:
+#   /statenet_server/execute/result: rmui_msgs/ExecuteStatenetActionResult
+#   /statenet_server/execute/feedback: rmui_msgs/ExecuteStatenetActionFeedback
+#   /statenet_server/execute/status: actionlib_msgs/GoalStatusArray
