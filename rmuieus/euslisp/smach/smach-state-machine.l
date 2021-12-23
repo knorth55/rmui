@@ -1,4 +1,5 @@
 (require :state-machine "package://roseus_smach/src/state-machine.l")
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 
 
 (defmethod state-machine
@@ -49,14 +50,8 @@ Args:
                     (cond
                       ((and (or (equal :action-node (send target-node :get :node-type))
                                 (equal :teach-node (send target-node :get :node-type)))
-                            (listp target-node-sym)
-                            ; (listp (car (cadr target-node-sym)))
-                            )
-                       (format nil "~A" (car target-node-sym))
-                       ; (format nil "(~A\\n~A)"
-                       ;         (car target-node-sym)
-                       ;         (convert-scene-state-to-string (cadr target-node-sym)))
-                       )
+                            (listp target-node-sym))
+                       (format nil "~A" (car target-node-sym)))
                       ((and (equal :state-node (send target-node :get :node-type))
                             (listp target-node-sym)
                             (listp (car target-node-sym)))
