@@ -231,9 +231,9 @@
         :data-dir collabo-statenet-dir
         :execute-stamp execute-stamp)))
   (:execute-cb ()
-   (if (send self :goal)
-     (send self :execute-statenet-cb (send self :goal)))
-   (send-super :execute-cb))
+    (if (send self :goal)
+      (send self :execute-statenet-cb (send self :goal)))
+    (send-super :execute-cb))
   (:init-timer ()
     (ros::create-timer 0.1 #'send self :current-state-publish-timer-cb)
     (ros::create-timer 0.1 #'send self :visualize-update-cb)
