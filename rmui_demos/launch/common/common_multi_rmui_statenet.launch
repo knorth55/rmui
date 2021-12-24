@@ -65,6 +65,8 @@
   <!-- audio & speech -->
   <include file="$(find rmui_demos)/launch/common/common_speech.launch">
     <arg name="string_topic" value="/statenet_server/user_response" />
+    <arg name="voice_topic" value="/speech_to_text_google" />
+    <arg name="auto_start" default="true"  />
   </include>
 
 </launch>

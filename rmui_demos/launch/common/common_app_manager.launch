@@ -2,6 +2,8 @@
   <arg name="master_address" />
   <arg name="master_port" />
 
+  <arg name="launch_dialogflow" default="false" />
+
   <!-- app manager -->
   <include file="$(find jsk_robot_startup)/lifelog/app_manager.launch" >
     <arg name="master" value="true"/>
@@ -13,4 +15,19 @@
     <arg name="enable_app_replacement" value="false"/>
     <arg name="skip_topic_remapping" value="true"/>
   </include>
+
+  <!-- dialogflow -->
+  <include if="$(arg launch_dialogflow)"
+           file="$(find dialogflow_task_executive)/launch/dialogflow_task_executive.launch">
+    <arg name="run_app_manager" value="false" />
+  </include>
+  <rosparam ns="dialogflow_client">
+    soundplay_action_name: remotesound
+    volume: 0.8
+    language: en-US
+    hotword:
+      - hello
+      - hi
+      - hey
+  </rosparam>
 </launch>
