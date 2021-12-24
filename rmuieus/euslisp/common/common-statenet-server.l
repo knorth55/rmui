@@ -11,6 +11,7 @@
 (require :common-rmui-planner "package://rmuieus/euslisp/common/common-rmui-planner.l")
 (require :common-rmui-updater "package://rmuieus/euslisp/common/common-rmui-updater.l")
 
+(ros::roseus-add-msgs "std_msgs")
 (ros::roseus-add-msgs "rmui_msgs")
 
 
@@ -195,7 +196,10 @@
                                  :namespace device-topic-namespace
                                  :boxes bxs))
 
-      (ros::set-param (format nil "~A/n_box" server-namespace) (length bxs))
+      (ros::advertise "~n_box" std_msgs::Int8 1 t)
+      (unix::usleep (round 1e5))
+      (ros::publish "~n_box" (instance std_msgs::Int8 :data (length bxs)))
+
       ;; state
       (setq initial-state '(:init))
       (setq current-state '(:init))

@@ -7,3 +7,4 @@ subscribed_topics:
   /statenet_server/execute/result: rmui_msgs/ExecuteStatenetActionResult
   /statenet_server/execute/feedback: rmui_msgs/ExecuteStatenetActionFeedback
   /statenet_server/execute/status: actionlib_msgs/GoalStatusArray
+  /statenet_server/n_box: std_msgs/Int8

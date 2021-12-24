@@ -1,5 +1,6 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 
+(ros::roseus-add-msgs "std_msgs")
 (ros::roseus-add-msgs "rmui_msgs")
 
 
@@ -52,8 +53,15 @@
   (ros::rate 10)
   (if (not n-box)
     (while (null n-box)
-      (let ((n-box-param (ros::get-param (format nil "~A/n_box" server-name))))
-        (if n-box-param (setq n-box (round n-box-param)))
+      (let* ((n-box-topic-name
+               (format nil "~A/n_box" server-name))
+             (n-box-msg
+               (one-shot-subscribe
+                 n-box-topic-name std_msgs::Int8 :timeout 10000)))
+        (if n-box-msg
+          (setq n-box (send n-box-msg :data))
+          (ros::ros-error
+            (format nil "Waiting for ~A subscription" n-box-topic-name)))
         (ros::sleep))))
   (set-statenet-reset-state n-box)
   (setq *client*
