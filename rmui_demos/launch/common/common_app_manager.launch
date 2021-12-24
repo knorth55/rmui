@@ -10,5 +10,7 @@
     <arg name="use_applist" value="false" />
     <arg name="respawn" value="false" />
     <arg name="basic" value="false" />
+    <arg name="enable_app_replacement" value="false"/>
+    <arg name="skip_topic_remapping" value="true"/>
   </include>
 </launch>
