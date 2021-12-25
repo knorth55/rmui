@@ -1,3 +1,4 @@
 <launch>
-  <node name="baxter_multi_rotate_z90_pileup" pkg="rmui_demos" type="baxter_multi_rotate_z90_pileup.l" required="true" />
+  <node name="baxter_multi_rotate_z90_pileup" pkg="rmui_demos" 
+        type="baxter_multi_rotate_z90_pileup.l" required="true" output="screen" />
 </launch>

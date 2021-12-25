@@ -5,4 +5,10 @@
 
 (ros::roseus "baxter_teach")
 (setq *res* (main "teach"))
-(unix::exit 0)
+(if (and *res* (send *res* :success))
+  (progn
+    (ros::ros-info "Succeeded")
+    (unix::exit 0))
+  (progn
+    (ros::ros-error "Failed")
+    (unix::exit 1)))
