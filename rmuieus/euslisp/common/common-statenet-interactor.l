@@ -1,9 +1,9 @@
 (require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
+(require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 
 (ros::roseus-add-msgs "speech_recognition_msgs")
 (ros::roseus-add-srvs "speech_recognition_msgs")
 (ros::roseus-add-msgs "std_msgs")
-(ros::roseus-add-srvs "std_srvs")
 
 
 (defclass statenet-interactor
@@ -62,15 +62,11 @@
   (:start-speech-recognition ()
     (let ((start-service-name
            (format nil "~A/start" speech-server-name)))
-      (ros::ros-info "Start speech recognition")
-      (ros::service-call start-service-name
-                         (instance std_srvs::EmptyRequest :init))))
+      (start-speech-recognition start-service-name)))
   (:stop-speech-recognition ()
     (let ((stop-service-name
            (format nil "~A/stop" speech-server-name)))
-      (ros::ros-info "Stop speech recognition")
-      (ros::service-call stop-service-name
-                         (instance std_srvs::EmptyRequest :init))))
+      (stop-speech-recognition stop-service-name)))
   (:get-user-response (&key (timeout nil) (from-stamp nil) (toggle-server t))
     (cond
       ;; timeout is not valid for read-line
@@ -210,7 +206,7 @@
                     (format nil "Please answer with a valid number from ~A to ~A."
                             min-index max-index))
               (go retry-index-choose)))
-          (let ((resp-num (read-from-string user-response)))
+          (let ((resp-num (if user-response (read-from-string user-response))))
             (if (and (integerp resp-num)
                      (>= resp-num min-index)
                      (<= resp-num max-index))
