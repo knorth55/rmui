@@ -13,7 +13,7 @@
     <arg name="respawn" value="false" />
     <arg name="basic" value="false" />
     <arg name="enable_app_replacement" value="false"/>
-    <arg name="skip_topic_remapping" value="true"/>
+    <arg name="enable_topic_remapping" value="false"/>
   </include>
 
   <!-- dialogflow -->
