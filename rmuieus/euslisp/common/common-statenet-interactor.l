@@ -190,32 +190,36 @@
                 (send self :get-user-response
                       :timeout timeout :from-stamp from-stamp
                       :toggle-server toggle-server)))
-        (if (or (string= user-response "TEACHING")
-                (string= user-response "TEACH"))
-          (setq user-response -1))
-        (if (or (string= user-response "")
-                (string= user-response "YES")
-                (string= user-response "Y")
-                (string= user-response "NEXT"))
-          (setq user-response default-index))
-        (if (equal user-response :timeout)
-          (if use-default
-            (return-from :ros-index-choose default-index)
-            (progn
-              (send self :ros-speak-error
-                    (format nil "Please answer with a valid number from ~A to ~A."
-                            min-index max-index))
-              (go retry-index-choose)))
-          (let ((resp-num (if user-response (read-from-string user-response))))
-            (if (and (integerp resp-num)
-                     (>= resp-num min-index)
-                     (<= resp-num max-index))
-              (return-from :ros-index-choose resp-num)
+        (cond
+          ((or (string= user-response "TEACHING")
+               (string= user-response "TEACH")
+               (string= user-response "NO")
+               (string= user-response "N"))
+            (return-from :ros-index-choose -1))
+          ((or (string= user-response "")
+               (string= user-response "YES")
+               (string= user-response "Y")
+               (string= user-response "NEXT"))
+            (return-from :ros-index-choose default-index))
+          ((equal user-response :timeout)
+            (if use-default
+              (return-from :ros-index-choose default-index)
               (progn
                 (send self :ros-speak-error
-                      (format nil "Please answer with a valid number from ~A to ~A, or yes."
+                      (format nil "Please answer with a valid number from ~A to ~A."
                               min-index max-index))
-                (go retry-index-choose))))))))
+                (go retry-index-choose))))
+          (t
+            (let ((resp-num (if user-response (read-from-string user-response))))
+              (if (and (integerp resp-num)
+                       (>= resp-num min-index)
+                       (<= resp-num max-index))
+                (return-from :ros-index-choose resp-num)
+                (progn
+                  (send self :ros-speak-error
+                        (format nil "Please answer with a valid number from ~A to ~A, or yes."
+                                min-index max-index))
+                  (go retry-index-choose)))))))))
   (:ask-user-index-choose
     (actions &key (use-default t) (default-index 0) (timeout nil) (speak-wait nil))
     (let ((info-sentence
