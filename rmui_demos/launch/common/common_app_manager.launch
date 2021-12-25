@@ -20,11 +20,13 @@
   <include if="$(arg launch_dialogflow)"
            file="$(find dialogflow_task_executive)/launch/dialogflow_task_executive.launch">
     <arg name="run_app_manager" value="false" />
+    <arg name="soundplay_action_name" value="remotesound" />
+    <arg name="volume" value="0.8" />
+    <arg name="language" value="en-US" />
+    <arg name="use_yaml" value="true" />
+    <arg name="yaml_file" value="/var/lib/robot/baxter_dialogflow_credential.yaml" />
   </include>
   <rosparam ns="dialogflow_client">
-    soundplay_action_name: remotesound
-    volume: 0.8
-    language: en-US
     hotword:
       - hello
       - hi
