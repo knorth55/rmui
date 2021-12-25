@@ -363,8 +363,8 @@
                      (return-from :ask-user-state-decision
                                   (cons :replan (elt next-gr-actions chosen-index))))
                    (cond
-                     ((send self :ask-user-start-teach)
-                      (return-from :ask-user-state-decision (cons :teach nil)))
+                     ; ((send self :ask-user-start-teach)
+                     ;  (return-from :ask-user-state-decision (cons :teach nil)))
                      ((send self :ask-user-finish-task)
                       (send self :ros-speak-warn "Finishing the task.")
                       (return-from :ask-user-state-decision (cons :finish nil)))
@@ -384,8 +384,8 @@
                    (cond
                      ((send self :ask-user-next-action next-action :timeout timeout)
                       (return-from :ask-user-state-decision (cons :next next-action)))
-                     ((send self :ask-user-start-teach)
-                      (return-from :ask-user-state-decision (cons :teach nil)))
+                     ; ((send self :ask-user-start-teach)
+                     ;  (return-from :ask-user-state-decision (cons :teach nil)))
                      ((send self :ask-user-finish-task)
                       (send self :ros-speak-warn "Finishing the task.")
                       (return-from :ask-user-state-decision (cons :finish nil)))
