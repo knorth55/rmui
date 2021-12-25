@@ -246,7 +246,7 @@
             (format nil "Do you want to start next action ~A?" next-action)))
       (send self :ros-yes-or-no-p ask-sentence
             :use-default t :default t :timeout timeout
-            :speak-wait speak-wai)))
+            :speak-wait speak-wait)))
   (:ask-user-abortion (&key (timeout nil) (speak-wait nil))
     (let ((ask-sentence
             (format nil "Are you sure to abort the execution?")))
