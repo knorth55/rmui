@@ -21,6 +21,7 @@
   <arg name="align_axis" default="y" />
 
   <arg name="launch_app_manager" default="true" />
+  <arg name="launch_dialogflow" default="true" />
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_multi_statenet.launch">
     <arg name="rmui" value="$(arg rmui)" />
@@ -41,5 +42,6 @@
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
     <arg name="launch_app_manager" value="$(arg launch_app_manager)" />
+    <arg name="launch_dialogflow" value="$(arg launch_dialogflow)" />
   </include>
 </launch>

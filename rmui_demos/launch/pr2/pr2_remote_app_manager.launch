@@ -1,6 +1,7 @@
 <launch>
   <arg name="master_address" default="pr1040" />
   <arg name="master_port" default="11311" />
+  <arg name="launch_dialogflow" default="true" />
 
   <param name="robot/name" value="pr1040_remote"/>
   <param name="robot/type" value="pr2"/>
@@ -8,5 +9,6 @@
   <include file="$(find rmui_demos)/launch/common/common_app_manager.launch">
     <arg name="master_address" value="$(arg master_address)"/>
     <arg name="master_port" value="$(arg master_port)"/>
+    <arg name="launch_dialogflow" value="$(arg launch_dialogflow)" />
   </include>
 </launch>

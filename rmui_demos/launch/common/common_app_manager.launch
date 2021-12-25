@@ -2,7 +2,7 @@
   <arg name="master_address" />
   <arg name="master_port" />
 
-  <arg name="launch_dialogflow" default="false" />
+  <arg name="launch_dialogflow" default="true" />
 
   <!-- app manager -->
   <include file="$(find jsk_robot_startup)/lifelog/app_manager.launch" >

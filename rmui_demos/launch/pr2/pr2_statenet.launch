@@ -21,6 +21,7 @@
   <arg name="wall" default="false" />
 
   <arg name="launch_app_manager" default="true" />
+  <arg name="launch_dialogflow" default="true" />
 
   <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">
     <arg name="robot" value="pr2" />
@@ -43,6 +44,8 @@
   </include>
 
   <include file="$(find rmui_demos)/launch/pr2/pr2_local_app_manager.launch"
-           if="$(arg launch_app_manager)"/>
+           if="$(arg launch_app_manager)">
+    <arg name="launch_dialogflow" value="$(arg launch_dialogflow)" />
+  </include>
 
 </launch>
