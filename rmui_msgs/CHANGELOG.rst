@@ -2,6 +2,15 @@
 Changelog for package rmui_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* change action name
+* add final state
+* add StatenetState msgs
+* add stamp in result
+* add ExecuteStatenet.action
+* Contributors: Shingo Kitagawa
+
 1.0.3 (2021-08-07)
 ------------------
 

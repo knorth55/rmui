@@ -2,6 +2,41 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update rviz config
+* show user ask sentence in rviz
+* update debug gui
+* use xacro
+* update rviz config
+* change threshold
+* change touch_prx_threshold
+* fix typo
+* support multi device
+* fix typo
+* change rviz scene publisher topic name
+* update simple ws281x
+* change world frame id
+* add rmui2 files
+* add rmui2 launch
+* update rmui launch
+* add rmui_dummy
+* rename launch files
+* use rmui0_link
+* use average proximity sensor data
+* add shutdown switch script
+* flake8
+* add mtc2_local
+* add rmui1 description
+* add rmui1
+* add mtc2 in machine
+* add env-loader.sh
+* change to use touch_prx_threshold
+* update simple_ws281x.py
+* add rmui_msgs as build_depend
+* add quit button for dummy node
+* Contributors: Shingo Kitagawa
+
 1.0.3 (2021-08-07)
 ------------------
 * add rmui_local.launch

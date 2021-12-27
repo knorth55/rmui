@@ -2,6 +2,600 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* do not ask teach again
+* fix ros-index-choose
+* fix typo
+* run mux after starting
+* fix indent
+* pass n_box as topic
+* refactor smach-state-machine.l
+* return-from functions when input is nil
+* check all update device
+* fix typo
+* add comment
+* change release ik step
+* fix common-graph
+* refactor
+* solve ik in release-distance
+* skip target-node-name if nil
+* set default
+* update apps
+* update statenet server
+* show user ask sentence in rviz
+* add collision for push release
+* change release distance
+* sleep after collision service call
+* update jetson box
+* update parameters
+* add all cube collision
+* change hold-type
+* add cube for collision in push motion
+* change approach distance
+* use raw for rotate cube motion
+* make collision box smaller
+* speak when task is finished
+* speak wait interrupt
+* fix common-action name
+* mkdir when dir does not exists
+* add conditions for statenet
+* skip interruption in last-state-node and first-state-node
+* update add node-type
+* change interrupt timeout
+* update baxter-scenes
+* ask teachin first
+* refactor interactor
+* check node-type
+* remove debug line
+* use top active node-type
+* fix bottom-active-state
+* remove unnecessary eval
+* ask human with sound
+* update motions
+* wait until param
+* fix generate-teach smach
+* add toggle-server for get-user-response
+* refactor statenet-server
+* add (:teach) state for teaching
+* use topic speech recognition
+* fix typo
+* use ros-topic
+* rename variable
+* add interactor with service
+* fix generate-teach-smach
+* start teachin when planning failed
+* add get-teach-node-name
+* refactor common-statenet-server
+* add top-approach state
+* use copy-tree
+* updte goal-state when updated
+* refactor interactor
+* add new statenet task
+* fix common-motions
+* add top approach
+* fix rotate motion
+* add dualarm-front/back-left-front/back-right-push-hold
+* add dualarm-hold-release
+* add dualarm-left-right-push-hold
+* fix common-motions
+* last-failed last-executed action
+* reset executor
+* return nil
+* fix common-motions
+* fix common-motions
+* add interrupt in device wait
+* add reset-interactor
+* update interactor
+* refactor
+* add :finish
+* add next-node-name
+* add state goal nodes
+* use :finish
+* update state state-machine
+* fix typo in common-graph.l
+* fix typo
+* update duration
+* finish task
+* add ask-user-teach-decision
+* add ask user device, finish teach, and finish task
+* refactor methods in statenet
+* no duration wait
+* fix typo
+* fix comment
+* euslint
+* fix common-statenet-server
+* fix teach update
+* add bottom-active-state
+* use lamda-closure
+* change optional key
+* print dump dirnames
+* update common-io
+* save executed collabo path in teach
+* add additional node-type
+* add no-loop in convert-collabo-path-to-state-machine
+* add aborts in action
+* refactor common-graph
+* refactor common-statenet-server
+* fix common-statenet-server
+* fix common-rmui-updater
+* add last-executed-action methods
+* add append-executed-collabo-path
+* add plan-state-machine-with-trained-paths
+* refactor
+* update teach-state
+* add reset-updater
+* reset-executor
+* go back to teach state when teach replan failed
+* update common-actions
+* add push-release-and-reset-motion
+* add vw in reset-cube-manip-motion
+* update statenet in teach
+* fix dualarm-push-release-action
+* add method in common-rmui-updater
+* set current-draw-mode
+* refactor smach graph pdf and add smach-state-machine.l
+* pass statenet-graph to planner
+* add todo
+* remove init from merged statenet
+* load statenet in collabo
+* add teach functions
+* add reset-motion-symbol-queues
+* update parameters
+* rename variables
+* split execute-motion-symbols
+* add teach-start-state in userdata
+* fix common-statenet-interactor
+* fix typo
+* update statenet-server
+* update common motions
+* update baxter-scenes
+* fix hold-lift-down motion
+* fix pr2-motins
+* euslint
+* use raw ik in baxter for speed up
+* return executed in common-actions
+* move pilot only when robot executed
+* fix typo in push-motion-step
+* add arguments
+* add common-collabo-path.l
+* update condition in common-statenset-server
+* refactor statenet pdf
+* add wall args
+* add wall-p key
+* update state
+* add wall contact state
+* update motion symbol length
+* fix wall-p
+* set wall-p nil
+* refactor hold motion
+* update baxter scenes
+* fix common-scenes
+* fix typo
+* add align_axis args
+* add align-axis key
+* add n_box args
+* add align axis
+* add new box type
+* update cube motion
+* add even case
+* commentout collision avoidance
+* fix push motion
+* add cube collision object method
+* add object-id
+* add base-frame-id
+* euslint
+* update baxter reset-manip pose
+* add attached object for gripper
+* return t
+* add get-arm-controller
+* fix baxter contact coords
+* remove listp
+* fix conditions
+* set priority for wall motion
+* fix conditions
+* update scenes
+* add wall release motion
+* euslint
+* update output
+* update conditions
+* update action names
+* refactor solve-ik-rotation-relax
+* add motion/action wall next to
+* add wall contact state
+* add wall limit
+* set wall limit parameters
+* set table-height
+* add wall scene
+* add common-utils.l
+* fix typo in pr2-motions.l
+* fix typo
+* if func starts with send eval else not
+* remove unused slot
+* refactor common-graph
+* simplify collabo path
+* fix ask function
+* update convert graph scripts
+* fix action-func-sym
+* fix simplify collabo path
+* refactor skip interaction
+* not teach submachine when skip interaction
+* support collabo-path for multiple cubes
+* use :pu and :get
+* fix typo
+* set output screen
+* fix cons userdata
+* disable collabo training
+* add nextto state
+* remove comments
+* support multiple cube for statenet server
+* fix typo
+* change args in hold-release-motion
+* fix args in common-motions.l
+* add use-torso move-robot slots
+* update comment
+* add collabo arg in statenet server launch
+* add skip-interaction key
+* add statenet-action-client main
+* update statenet state
+* update action and action-names
+* update statenet state
+* support multi cube statenet
+* add multi statenet_server launch
+* rename function
+* merge common-rmui-planninga and common-rmui-server
+* change threshold
+* fix typo common-actions
+* fix typo
+* fix next-to motion and action
+* update next-to motion and action
+* fix typo in common-motions
+* update conditions
+* fix typo
+* return only when executed
+* add push-next-to action and motion
+* fix typo
+* format common-rmui-server
+* fix hold-pile-up motion action
+* fix typo
+* update multi cube pile up
+* remove todo
+* fix typo
+* fix yaml
+* add release condition for bottom cube contact
+* add lift-up from pile-up
+* support used case in planner
+* fix typo in common-rmui-executor
+* fix typo in hold-pile-up motion
+* implement hold-pile-up-motion
+* set used when arms contacts other box
+* fix eval bug
+* support multi cube demo in get-motion-symbols
+* add action args in motion symbol
+* fix hold-release-motion
+* add dualarm-motion-init
+* fix motion-init args
+* update push conditions
+* fix top push
+* add get-device-state in rmui-device
+* add box_type arg
+* refactor to support multiple devices
+* contact-positions -> contact-position
+* rename functions
+* euslint
+* update planning
+* support multiple device: motion-init
+* update device position
+* fix comment
+* add ri in start/stop grasp
+* fix typo
+* add multiple pilot device
+* show boxes
+* use slot variables
+* refactor scene functions
+* add multi planning launch
+* get multi device contact positions
+* fix typo in rmui-device
+* support multiple device in common-statenet-server
+* add devices and namespaces
+* update todo comments
+* add arg rmui-names
+* add :rmui-names key
+* show pilot first
+* fix typo
+* fix use-torso ik
+* add table arg
+* check if ri is not nil
+* add common-rmui-planning
+* add use-torso and move-robot
+* add use-torso in get-contact-link-list
+* add comment
+* update pilot end coords
+* support human viewer
+* update motion-init in pddl-util
+* fix typo
+* add pilot-action-init
+* add vw arg in common-motions.l
+* use apply in common-actions.l
+* euslint
+* change cube -> box
+* add cube args in motion and action
+* update motion-init
+* update common-rmui-executor
+* draw pilot viewers
+* add robot and ri arg in motion and action
+* add pilot scene
+* refactor scenes
+* use require
+* set title for Viewer
+* fix typo
+* change world frame id
+* add rmui_name
+* add rmui-name
+* add user interrupt in statenet
+* add ask-user-interrupt
+* update let name
+* return timeout when timeout
+* fix typo
+* add duration in smach node
+* add ros-warn
+* save task is new or not
+* refactor convert-solution-to-smach
+* add :convert-collabo-path-to-state-machine
+* fix simplify-collabo-path method
+* add convert-trans-alist-to-smach and convert-solution-to-trans-alist
+* refactor: add space
+* add convert-solution-to-state-machine
+* add statenet-dualarm-init-state
+* special case for init
+* add simplify method
+* change action name
+* sort by directory name
+* update stamp
+* fix typo
+* refactor indent
+* store end stamp
+* update ros::rate
+* dump collabo path
+* rename to collabo path and add load functions
+* update default param
+* update .gitignore
+* refactor timeout
+* refactor
+* refactor common-statenet-server
+* use statenet-interactor
+* add statenet-interactor
+* fix state machine hz
+* refactor rmui_statenet_server.launch
+* add rqt_ez_publisher
+* add ask ros mode
+* save executed-state-actions in same dir
+* add execute-stamp key
+* save executed-state-actions with stamp
+* fix ask-userinput
+* dump executed-state-actions
+* update .gitignore
+* refactor
+* rename abort and goal state name
+* add-goal-nodes
+* rename state names
+* dump files when replan succeeded
+* run rm when exists
+* dump collabo statenet in common-statenet-server.l
+* update .gitignore
+* add collabo-statenet-dir
+* add data-dir for dump and load functions
+* add object_statenet path
+* update common-statenet-server
+* format
+* set teach-start-state
+* fix add-transition
+* add next-in-statenet-state
+* add-transition
+* fix next node append
+* fix smach viewer bug
+* add show-pdf in statenet-server
+* add get-statenet-teach-submachine
+* rename function
+* add get-statenet-state-submachine
+* split state-state-func into two
+* change the order of sm publish-structure
+* add :state-machine
+* refactor
+* check if func is lambda-closure or not
+* use cons for used-decision
+* support sub statemachine
+* fix typo
+* refactor common-statenet-server
+* refactor
+* use spin-once
+* add spin-once with device-groupname
+* add groupname in common-rmui-server
+* add rmui-device and rmui-planner
+* add spin-once with groupname
+* add groupname in rmui-device
+* use if
+* add rmui updater
+* refactor common-rmui-server
+* update formating
+* use contact-states for communication
+* split common-rmui-planner to three files
+* fix typo
+* add common-statenet-planner
+* rename to common-rmui-planner.l
+* refactor common-statenet-server
+* support namespace nil
+* fix typo
+* rename files
+* make class for rmui-device and rmui-planners
+* add dualarm-push-release-action
+* move get-iso-stamp
+* solver -> slvr
+* add comments
+* add plan-state-machine method
+* add :teach-node in common-statenet-server
+* teach-func support
+* refactor common-graph
+* refactor common-statenet.l
+* add reset-state
+* refactor ask-user-decision
+* use timer for execute-cb
+* move main in separate files
+* add statenet-action-client
+* make common-statenet-server as object
+* refactor ask functions
+* add ask-user-index-choose
+* add use-default
+* change tagbody
+* add :teach
+* add new ask functions
+* fix ask-user-abortion
+* refactor ros-index-choose
+* filter next-sm-actions
+* add todo comment
+* update replan, next algorithm and add pass
+* no-loop fo first solution
+* euslint
+* implement replan
+* add no-loop arg in convert-solution-to-smach
+* implement wait user input function
+* return final_state in statenet server
+* add rmui_msgs as build_depend
+* return if aborted or not
+* add aborts state
+* refactor convert-graph-to-statenet
+* resolve name conflicts
+* add state-func in common-graph
+* add execute-reset-statenet
+* refactor server
+* move reset-state
+* add get-current-state
+* add current_state publish
+* add StatenetState msgs
+* load statenet-util in common-statenet
+* fix typo
+* rename launch
+* rename to statenet server
+* add common-statenet-server and client
+* set nil for start and goal state
+* update comment
+* change start-state and goal-state
+* add-state-node and add-action-node
+* refactor common-statnet
+* refactor common-statenet.l
+* add server-name key
+* override add-arc-from-to
+* save merged statenet graph
+* add pddl problem
+* rename file
+* fix typo
+* add more statenet state
+* euslint
+* rename: pddl-common -> pddl-util
+* add pr2/baxter-execute-statenet
+* add call-execute-statenet
+* add statenet action server
+* use ros::roseus-add-msgs
+* refactor common-statenet.l
+* rename files
+* solve from statenet graph
+* add load-training-statenet-graph
+* add convert-solution-to-smach
+* remove unused line
+* change to use merged graph
+* add merge-statenet-graphs
+* load common-io in common-graph
+* do not use graph
+* move add-action-state-in-graph in common-graph
+* add load-all functions
+* add path key in load/dump functions
+* refactor dump functions
+* do not set in load functions
+* add get-dumpdir-list
+* add link-latest-dump-dir
+* euslint
+* save statenet in planners
+* add statenet-graph.l
+* rename files
+* remove unused line
+* remove pprint
+* add state and action node in smach
+* add common-graph and common-io
+* euslint
+* add convert-graph-to-smach
+* refactor common-planners
+* add pdf flag
+* fix typo in pr2_rmui_trained_execute.launch
+* change function name
+* add initial-state
+* add rotation state
+* add stamp arg in trained execute launch
+* fix typo in common-planners.l
+* add timestamp in training save dir
+* update common-planners.l
+* add trained execute launch
+* add rest args
+* add init state at the top
+* euslint
+* add pr2/baxter-trained-execute
+* return t in common actions
+* save pddl-graph in rmui
+* refactor common-planners
+* refactor common-planners.l
+* add scene-states.l in .gitignore
+* save scene-states
+* refactor common-planners
+* move .gitignore
+* save training-data in execution
+* add training_data
+* add *executed-actions*
+* rename pddl euslisp files
+* refactor common-conditions.l
+* evaluate motion symbol to execute actions
+* refactor pddl state
+* remove return-from from common conditions
+* move conditions
+* change default problem
+* add pddl problems
+* ad baxter/pr2 rmui pddl launch
+* refactor pddl rmui euslisp codes
+* refactor prx-utils.l
+* get smallest diff position
+* move parameters
+* use exec-state-machine
+* refactor common-actions.l
+* use common-actions in conditions
+* fix format
+* add main arg in launch
+* add pddl and ffha in package.xml
+* move pddl execution files
+* add rmui-pddl-actions.l
+* euslint
+* add pr2 and baxter solve_dualarm_liftup
+* use common-actions.l in solve-dualarm-liftup.l
+* rename solve-rmui to solve-dualarm-liftup.l
+* add common-actions.l
+* refactor solve-rmui.l
+* load common-motions in common-planners
+* use smach for execution
+* refactor code
+* add zrotate in pddl
+* add side
+* add failed nodes
+* add simple pddl
+* euslint
+* refactor common-planners.l
+* remove unused shebang
+* add common-conditions.l
+* split contact state conditions
+* split execute_motion_symbols conditions
+* rename to get_motion_symbols
+* move to get_motion_symbol
+* split into conditions file
+* refactor common-motions.l
+* remove unused comment out
+* Contributors: Shingo Kitagawa
+
 1.0.3 (2021-08-07)
 ------------------
 
