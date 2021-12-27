@@ -2,8 +2,8 @@
 Changelog for package rmui_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-12-27)
+------------------
 * add rmui2 files
 * add rmui1 description
 * Contributors: Shingo Kitagawa

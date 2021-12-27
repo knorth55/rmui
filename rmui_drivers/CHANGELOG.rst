@@ -2,8 +2,8 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-12-27)
+------------------
 * update rviz config
 * show user ask sentence in rviz
 * update debug gui

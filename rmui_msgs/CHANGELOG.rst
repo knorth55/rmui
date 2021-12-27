@@ -2,8 +2,8 @@
 Changelog for package rmui_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-12-27)
+------------------
 * change action name
 * add final state
 * add StatenetState msgs

@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-12-27)
+------------------
 * change parameter name
 * return success code
 * initialize in app

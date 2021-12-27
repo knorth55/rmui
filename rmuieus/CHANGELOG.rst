@@ -2,8 +2,8 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-12-27)
+------------------
 * do not ask teach again
 * fix ros-index-choose
 * fix typo
