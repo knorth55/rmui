@@ -17,7 +17,9 @@
 (defun robot-scene-init (&key (table-objects) (table-pos))
   (setq *baxter* (instance baxter-robot-safe :init))
   (setq *robot* *baxter*)
-  (setq *ri* (instance baxter-interface :init :objects table-objects))
+  ;; (setq *ri* (instance baxter-interface :init :objects table-objects))
+  (setq *ri* (instance eus_vive::baxter-interface :init :objects table-objects
+                       :lgripper :softhand :rgripper :softhand))
   (let ((larm-ee-frame-id "left_wrist")
         (rarm-ee-frame-id "right_wrist")
         (larm-contact-coords

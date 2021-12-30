@@ -3,7 +3,8 @@
 (require :common-utils "package://rmuieus/euslisp/common/common-utils.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :baxter-scenes "package://rmuieus/euslisp/baxter/baxter-scenes.l")
-(require :baxter-interface "package://baxtereus/baxter-interface.l")
+;; (require :baxter-interface "package://baxtereus/baxter-interface.l")
+(require :baxter-interface "package://eus_vive/euslisp/lib/baxter-interface.l")
 
 
 (defmethod baxter-robot
