@@ -1,0 +1,8 @@
+(((:device-name "rmui1")
+  (:box-type :jetson)
+  (:pos (0 -150 0))
+  (:rot (0 0 0)))
+ ((:device-name "rmui2")
+  (:box-type :jetson)
+  (:pos (0 150 0))
+  (:rot (0 0 0))))
