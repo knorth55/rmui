@@ -17,7 +17,7 @@
   <arg name="n_box" default="3" />
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="align_axis" default="y" />
+  <arg name="align_axis" default="x" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />

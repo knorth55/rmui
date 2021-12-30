@@ -17,7 +17,7 @@
   <arg name="main" default="true" />
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="align_axis" default="y" />
+  <arg name="align_axis" default="x" />
 
   <include file="$(find rmui_demos)/launch/baxter/baxter_multi_rmui.launch">
     <arg name="dummy" value="true" />

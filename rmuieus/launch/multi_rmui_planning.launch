@@ -4,7 +4,7 @@
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
   <arg name="n_box" default="3" />
-  <arg name="align_axis" default="y" />
+  <arg name="align_axis" default="x" />
 
   <arg name="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
        if="$(eval arg('n_box') >= 3)" />

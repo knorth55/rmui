@@ -18,7 +18,7 @@
   <arg name="pdf" default="true" />
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="align_axis" default="y" />
+  <arg name="align_axis" default="x" />
 
   <arg name="launch_app_manager" default="true" />
   <arg name="launch_dialogflow" default="true" />
