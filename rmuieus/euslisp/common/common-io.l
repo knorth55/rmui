@@ -10,8 +10,8 @@
   (format nil "~A/object_statenet" *training-data-path*))
 (defvar *training-collabo-statenet-path*
   (format nil "~A/collabo_statenet" *training-data-path*))
-(defvar *config-path*
-  (ros::resolve-ros-path "package://rmuieus/config"))
+(defvar *scene-path*
+  (ros::resolve-ros-path "package://rmuieus/euslisp/scene"))
 
 
 (defun get-iso-stamp ()
@@ -264,9 +264,9 @@
 
 
 (defun load-scene-alist
-  (config-name &key (data-dir *config-path*))
-  (let ((filepath (format nil "~A/~A.l" data-dir config-name)))
-    (with-open-file (config-f filepath)
+  (scene-name &key (data-dir *scene-path*))
+  (let ((filepath (format nil "~A/~A.l" data-dir scene-name)))
+    (with-open-file (scene-f filepath)
       (read config-f))))
 
 
