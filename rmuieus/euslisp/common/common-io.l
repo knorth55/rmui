@@ -10,6 +10,8 @@
   (format nil "~A/object_statenet" *training-data-path*))
 (defvar *training-collabo-statenet-path*
   (format nil "~A/collabo_statenet" *training-data-path*))
+(defvar *config-path*
+  (ros::resolve-ros-path "package://rmuieus/config"))
 
 
 (defun get-iso-stamp ()
@@ -259,6 +261,13 @@
                       :stamp dump-dirname
                       :sort-predicate sort-predicate))))
     executed-collabo-path))
+
+
+(defun load-config
+  (config-name &key (data-dir *config-path*))
+  (let ((filepath (format nil "~A/~A.l" data-dir config-name)))
+    (with-open-file (config-f filepath)
+      (read config-f))))
 
 
 (provide :common-io "common-io.l")
