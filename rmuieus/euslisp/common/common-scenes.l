@@ -25,14 +25,9 @@
     scene-states))
 
 
-(defun box-scene-init (&key (n-box 1) (box-types :ctb)
-                            (box-distance 100) (align-axis :y))
+(defun box-scene-init (scene-alist)
   (let ((boxes nil)
         (colors (list :red :green :blue :yellow :pink :purple))
-        (box-types
-          (if (listp box-types)
-            box-types
-            (make-list n-box :initial-element box-types)))
         (box-shapes
           (list
             (cons :ctb (list 270 420 220))  ;; ctb
@@ -42,34 +37,31 @@
             (cons :shredder (list 150 280 320))  ;; shredder
             (cons :toybox (list 200 200 200))  ;; toy box for debugging
             )))
-    (dotimes (i n-box)
-      (let* ((box-id (format nil "box~A" i))
-             (box-type (elt box-types i))
+    (dotimes (i (length scene-alist))
+      (let* ((scene-a (elt scene-alist i))
+             (box-id (format nil "box~A" i))
+             (box-type (cadr (assoc :box-type scene-a)))
              (box-shape (cdr (assoc box-type box-shapes)))
              (box (apply #'make-cube (append box-shape (list :name box-id))))
-             (box-pos-x
-               (+ *box-pos-x*
-                 (if (equal align-axis :x)
-                   (* i (+ (x-of-cube box) box-distance))
-                   0)))
-             (box-pos-y
-               (if (equal align-axis :y)
-                 (if (oddp n-box)
-                   (* (if (oddp i) 1 -1)
-                      (floor (/ (+ i 1) 2))
-                      (+ (y-of-cube box) box-distance))
-                   (* (if (oddp i) 1 -1)
-                      (+ 0.5 (floor (/ i 2)))
-                      (+ (y-of-cube box) box-distance)))
-                 0))
-             (box-pos-z (+ (+ *table-z* *table-height*) (/ (z-of-cube box) 2.0)))
-             (box-pos (float-vector box-pos-x box-pos-y box-pos-z)))
+             (box-pos-a (cadr (assoc :box-pos scene-a)))
+             (box-rpy-a (cadr (assoc :box-rpy scene-a)))
+             (box-pos-x (+ *box-pos-x* (elt box-pos-a 0)))
+             (box-pos-y (elt box-pos-a 1))
+             (box-pos-z (+ (+ *table-z* *table-height*)
+                           (/ (z-of-cube box) 2.0)
+                           (elt box-pos-a 2)))
+             (box-pos (float-vector box-pos-x box-pos-y box-pos-z))
+             (box-rpy (float-vector (elt box-rpy-a 0)
+                                    (elt box-rpy-a 1)
+                                    (elt box-rpy-a 2))))
         (send box :set-color (elt colors (mod i 6)))
         (send box :reset-coords)
         (send box :worldcoords)
-        (send box :newcoords (make-coords :pos box-pos))
+        (send box :newcoords
+              (make-coords :pos box-pos :rpy box-rpy))
         (send box :worldcoords)
         (send box :put :initial-pos (copy-seq box-pos))
+        (send box :put :initial-rpy (copy-seq box-rpy))
         (eval `(defvar ,(read-from-string (format nil "*box~A*" i)) box))
         (setq boxes (append boxes (list box)))
         ))
@@ -124,37 +116,33 @@
     ))
 
 
-(defun pilot-device-scene-init (&key (n-device 1) (device-distance 100) (align-axis :y))
+(defun pilot-device-scene-init (scene-alist)
   (let ((pilot-devices nil)
         (colors (list :red :green :blue :yellow :pink :purple)))
-    (dotimes (i n-device)
-      (let* ((pilot-device-id (format nil "pilot-device~A" i))
+    (dotimes (i (length scene-alist))
+      (let* ((scene-a (elt scene-alist i))
+             (pilot-device-id (format nil "pilot-device~A" i))
              (pilot-device (make-cube 100 100 100 :name pilot-device-id))
-             (pilot-device-pos-x
-               (+ *pilot-device-pos-x*
-                 (if (equal align-axis :x)
-                   (* i (+ (x-of-cube pilot-device) device-distance))
-                   0)))
-             (pilot-device-pos-y
-               (if (equal align-axis :y)
-                 (if (oddp n-device)
-                   (* (if (oddp i) 1 -1)
-                      (floor (/ (+ i 1) 2))
-                      (+ (y-of-cube pilot-device) device-distance))
-                   (* (if (oddp i) 1 -1)
-                      (+ 0.5 (floor (/ i 2)))
-                      (+ (y-of-cube pilot-device) device-distance)))
-                 0))
+             (device-pos-a (cadr (assoc :device-pos scene-a)))
+             (device-rpy-a (cadr (assoc :device-rpy scene-a)))
+             (pilot-device-pos-x (+ *pilot-device-pos-x* (elt device-pos-a 0)))
+             (pilot-device-pos-y (elt device-pos-a 1))
              (pilot-device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
-                                    (/ (z-of-cube pilot-device) 2.0)))
+                                    (/ (z-of-cube pilot-device) 2.0)
+                                    (elt device-pos-a 2)))
              (pilot-device-pos
-               (float-vector pilot-device-pos-x pilot-device-pos-y pilot-device-pos-z)))
+               (float-vector pilot-device-pos-x pilot-device-pos-y pilot-device-pos-z))
+             (pilot-device-rpy (float-vector (elt device-rpy-a 0)
+                                             (elt device-rpy-a 1)
+                                             (elt device-rpy-a 2))))
         (send pilot-device :set-color (elt colors (mod i 6)))
         (send pilot-device :reset-coords)
         (send pilot-device :worldcoords)
-        (send pilot-device :newcoords (make-coords :pos pilot-device-pos))
+        (send pilot-device :newcoords
+              (make-coords :pos pilot-device-pos :rpy pilot-device-rpy))
         (send pilot-device :worldcoords)
         (send pilot-device :put :initial-pos (copy-seq pilot-device-pos))
+        (send pilot-device :put :initial-rpy (copy-seq pilot-device-rpy))
         (eval `(defvar ,(read-from-string (format nil "*pilot-device~A*" i)) pilot-device))
         (setq pilot-devices (append pilot-devices (list pilot-device)))
         ))
@@ -285,14 +273,13 @@
   t)
 
 
-(defun scene-init (&key (table-pos-y 0) (n-box 1) (box-types :ctb)
-                        (wall-p t) (align-axis :y))
+(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil))
+  (if (null scene-alist)
+    (setq scene-alist (load-scene-alist "one_ctb")))
   (let ((table-objects nil))
     (table-scene-init table-pos-y)
     (setq table-objects (list *table*))
-    (box-scene-init
-      :n-box n-box :box-types box-types
-      :align-axis align-axis)
+    (box-scene-init scene-alist)
     (setq table-objects (append table-objects *boxes*))
     (wall-scene-init)
     (if wall-p
@@ -308,13 +295,13 @@
     (objects (append (list *robot*) table-objects) *irtviewer*)))
 
 
-(defun pilot-scene-init (&key (table-pos-y 0) (n-device 1) (wall-p t)
-                              (align-axis :y))
+(defun pilot-scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil))
+  (if (null scene-alist)
+    (setq scene-alist (load-scene-alist "one_ctb")))
   (let ((table-objects nil))
     (pilot-table-scene-init table-pos-y)
     (setq table-objects (list *pilot-table*))
-    (pilot-device-scene-init
-      :n-device n-device :align-axis align-axis)
+    (pilot-device-scene-init scene-alist)
     (setq table-objects
           (append table-objects *pilot-devices*))
     (pilot-wall-scene-init)

@@ -1,6 +1,7 @@
 #!/usr/bin/env roseus
 
-(require :baxter-interface "package://baxtereus/baxter-interface.l")
+; (require :baxter-interface "package://baxtereus/baxter-interface.l")
+(require :baxter-interface "package://eus_vive/euslisp/lib/baxter-interface.l")
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 

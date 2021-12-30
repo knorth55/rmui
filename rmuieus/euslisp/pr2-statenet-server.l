@@ -22,11 +22,10 @@
 (defvar *use-torso* 0.001)
 
 
-(defun main (&key (pdf nil) (rmui-names (list "rmui0")) (box-types :ctb)
-                  (wall-p nil) (align-axis :y) (skip-interaction nil))
+(defun main (&key (pdf nil) (scene-name "one_ctb")
+                  (wall-p nil) (skip-interaction nil))
   (ros::roseus "pr2_statenet_server")
-  (statenet-server-main :pdf pdf :rmui-names rmui-names
-                        :skip-interaction skip-interaction
-                        :box-types box-types
+  (statenet-server-main :pdf pdf
+                        :scene-name scene-name
                         :wall-p wall-p
-                        :align-axis align-axis))
+                        :skip-interaction skip-interaction))

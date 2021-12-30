@@ -1,5 +1,4 @@
 <launch>
-  <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
@@ -16,17 +15,16 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
-  <arg name="pdf" default="true" />
-  <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="align_axis" default="x" />
+  <arg name="scene_name" default="x_aligned_two_jetsons" />
+  <arg name="pdf" default="true" />
+  <arg name="collabo" default="false" />
 
   <arg name="launch_app_manager" default="true" />
   <arg name="launch_dialogflow" default="true" />
 
   <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
     <arg name="robot" value="baxter" />
-    <arg name="collabo" value="$(arg collabo)" />
     <arg name="rmui" value="$(arg rmui)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
@@ -38,9 +36,9 @@
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
-    <arg name="box_type" value="$(arg box_type)" />
+    <arg name="collabo" value="$(arg collabo)" />
     <arg name="wall" value="$(arg wall)" />
-    <arg name="align_axis" value="$(arg align_axis)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>

@@ -1,23 +1,13 @@
 <launch>
   <arg name="robot" default="pr2" />
   <arg name="main" default="true" />
-  <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="n_box" default="2" />
-  <arg name="align_axis" default="x" />
+  <arg name="scene_name" default="x_aligned_two_jetsons" />
 
-  <arg name="rmui_names" value="(list \&quot;rmui0\&quot; \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
-       if="$(eval arg('n_box') >= 3)" />
-  <arg name="rmui_names" value="(list \&quot;rmui1\&quot; \&quot;rmui2\&quot;)"
-       unless="$(eval arg('n_box') >= 3)" />
-
-  <arg name="wall_flag" value="t" if="$(arg wall)" />
-  <arg name="wall_flag" value="nil" unless="$(arg wall)" />
-
-  <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
-        args="&quot;(main :rmui-names $(arg rmui_names)
-                          :wall-p $(arg wall_flag)
-                          :box-types :$(arg box_type)
-                          :align-axis :$(arg align_axis))&quot;"
-        if="$(arg main)" required="true" output="screen" />
+  <include file="$(find rmuieus)/launch/rmui_planning.launch">
+    <arg name="robot" value="$(arg robot)" />
+    <arg name="main" value="$(arg main)" />
+    <arg name="wall" value="$(arg wall)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
+  </include>
 </launch>

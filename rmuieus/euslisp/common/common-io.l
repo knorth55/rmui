@@ -263,7 +263,7 @@
     executed-collabo-path))
 
 
-(defun load-config
+(defun load-scene-alist
   (config-name &key (data-dir *config-path*))
   (let ((filepath (format nil "~A/~A.l" data-dir config-name)))
     (with-open-file (config-f filepath)

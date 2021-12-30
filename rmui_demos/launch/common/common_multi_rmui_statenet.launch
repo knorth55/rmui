@@ -4,6 +4,7 @@
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
+  <arg name="n_box" default="2" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />
@@ -12,12 +13,10 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
+  <arg name="wall" default="false" />
+  <arg name="scene_name" default="x_aligned_two_jetsons" />
   <arg name="pdf" default="true" />
   <arg name="collabo" default="true" />
-  <arg name="n_box" default="2" />
-  <arg name="box_type" default="ctb" />
-  <arg name="wall" default="false" />
-  <arg name="align_axis" default="x" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
@@ -39,10 +38,8 @@
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
     <arg name="collabo" value="$(arg collabo)" />
-    <arg name="n_box" value="$(arg n_box)" />
-    <arg name="box_type" value="$(arg box_type)" />
     <arg name="wall" value="$(arg wall)" />
-    <arg name="align_axis" value="$(arg align_axis)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
   </include>
 
   <!-- rosbag -->

@@ -13,8 +13,8 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
-  <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
+  <arg name="scene_name" default="one_ctb" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
@@ -36,9 +36,8 @@
   <include file="$(find rmuieus)/launch/rmui_planning.launch">
     <arg name="robot" value="$(arg robot)" />
     <arg name="main" value="$(arg main)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
-    <arg name="box_type" value="$(arg box_type)" />
     <arg name="wall" value="$(arg wall)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
   </include>
 
   <!-- rosbag -->

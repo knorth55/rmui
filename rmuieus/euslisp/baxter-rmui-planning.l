@@ -16,10 +16,6 @@
 (defvar *use-torso* nil)
 
 
-(defun main (&key (rmui-names (list "rmui0")) (box-types :ctb)
-                  (wall-p nil) (align-axis :y))
+(defun main (&key (scene-name "one_ctb") (wall-p nil))
   (ros::roseus "baxter_rmui_planning")
-  (rmui-server-main :rmui-names rmui-names
-                    :box-types box-types
-                    :wall-p wall-p
-                    :align-axis align-axis))
+  (rmui-server-main :scene-name scene-name :wall-p wall-p))

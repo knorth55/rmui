@@ -16,9 +16,9 @@
   <arg name="compress" default="false" doc="whether compress rosbag or not." />
 
   <arg name="main" default="true" />
-  <arg name="pdf" default="true" />
-  <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
+  <arg name="scene_name" default="one_ctb" />
+  <arg name="pdf" default="true" />
 
   <arg name="launch_app_manager" default="true" />
   <arg name="launch_dialogflow" default="true" />
@@ -37,8 +37,8 @@
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
-    <arg name="box_type" value="$(arg box_type)" />
     <arg name="wall" value="$(arg wall)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />
   </include>

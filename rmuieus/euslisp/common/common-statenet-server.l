@@ -933,66 +933,63 @@
   )
 
 
-(defun statenet-server-main (&key (pdf nil) (rmui-names (list "rmui0"))
-                                  (box-types :ctb) (wall-p nil) (align-axis :y)
-                                  (skip-interaction nil))
-  (if (not (listp rmui-names))
-    (setq rmui-names (list rmui-names)))
-  (set-rmui-parameters rmui-names)
-  (scene-init :table-pos-y 0
-              :n-box (length rmui-names)
-              :box-types box-types
-              :wall-p wall-p
-              :align-axis align-axis)
-  (motion-init :move-robot t
-               :robot *robot*
-               :ri *ri*
-               :cubes *boxes*
-               :vw *irtviewer*)
-  (pilot-scene-init :table-pos-y 0
-                    :n-device (length rmui-names)
-                    :wall-p wall-p
-                    :align-axis align-axis)
-  (motion-init :move-robot nil
-               :robot *pilot*
-               :ri nil
-               :cubes *pilot-devices*
-               :vw *pilotviewer*)
+(defun statenet-server-main (&key (pdf nil) (scene-name "one_ctb")
+                                  (wall-p nil) (skip-interaction nil))
+  (let* ((scene-alist (load-scene-alist scene-name))
+         (rmui-names (mapcar #'(lambda (x) (cadr (assoc :device-name x))) scene-alist)))
+    (if (not (listp rmui-names)) (setq rmui-names (list rmui-names)))
+    (set-rmui-parameters rmui-names)
+    (scene-init :table-pos-y 0
+                :scene-alist scene-alist
+                :wall-p wall-p)
+    (motion-init :move-robot t
+                 :robot *robot*
+                 :ri *ri*
+                 :cubes *boxes*
+                 :vw *irtviewer*)
+    (pilot-scene-init :table-pos-y 0
+                      :scene-alist scene-alist
+                      :wall-p wall-p)
+    (motion-init :move-robot nil
+                 :robot *pilot*
+                 :ri nil
+                 :cubes *pilot-devices*
+                 :vw *pilotviewer*)
 
-  ;; TODO (knorth55): change initial state from argument
-  (set-statenet-reset-state (length rmui-names))
-  (setq *server*
-        (instance statenet-action-server :init
-                  :reset-state *reset-state*
-                  :device-namespaces *device-namespaces*
-                  :device-groupnames *device-groupnames*
-                  :object-statenet-dir *training-object-statenet-path*
-                  :collabo-statenet-dir *training-collabo-statenet-path*
-                  :duration-threshold *duration-threshold*
-                  :interrupt-timeout *interrupt-timeout*
-                  :prx-threshold *prx-threshold*
-                  :prx-position-threshold *prx-position-threshold*
-                  :device-frame-ids *device-frame-ids*
-                  :device-world-frame-ids *device-world-frame-ids*
-                  :solver-class *solver-class*
-                  :motion-symbol-length *motion-symbol-length*
-                  :robot *robot*
-                  :ri *ri*
-                  :boxes *boxes*
-                  :robotviewer *irtviewer*
-                  :table-z *table-z*
-                  :table-height *table-height*
-                  :pilot *pilot*
-                  :pilot-devices *pilot-devices*
-                  :pilotviewer *pilotviewer*
-                  :pilot-table-z *pilot-table-z*
-                  :pilot-table-height *pilot-table-height*
-                  :use-torso *use-torso*
-                  :move-robot t
-                  :show-pdf pdf
-                  :skip-interaction skip-interaction))
-  (ros::rate 10)
-  (while (ros::ok) (send *server* :spin-once)))
+    ;; TODO (knorth55): change initial state from argument
+    (set-statenet-reset-state (length rmui-names))
+    (setq *server*
+          (instance statenet-action-server :init
+                    :reset-state *reset-state*
+                    :device-namespaces *device-namespaces*
+                    :device-groupnames *device-groupnames*
+                    :object-statenet-dir *training-object-statenet-path*
+                    :collabo-statenet-dir *training-collabo-statenet-path*
+                    :duration-threshold *duration-threshold*
+                    :interrupt-timeout *interrupt-timeout*
+                    :prx-threshold *prx-threshold*
+                    :prx-position-threshold *prx-position-threshold*
+                    :device-frame-ids *device-frame-ids*
+                    :device-world-frame-ids *device-world-frame-ids*
+                    :solver-class *solver-class*
+                    :motion-symbol-length *motion-symbol-length*
+                    :robot *robot*
+                    :ri *ri*
+                    :boxes *boxes*
+                    :robotviewer *irtviewer*
+                    :table-z *table-z*
+                    :table-height *table-height*
+                    :pilot *pilot*
+                    :pilot-devices *pilot-devices*
+                    :pilotviewer *pilotviewer*
+                    :pilot-table-z *pilot-table-z*
+                    :pilot-table-height *pilot-table-height*
+                    :use-torso *use-torso*
+                    :move-robot t
+                    :show-pdf pdf
+                    :skip-interaction skip-interaction))
+    (ros::rate 10)
+    (while (ros::ok) (send *server* :spin-once))))
 
 
 (provide :common-statenet-server "common-statenet-server.l")
