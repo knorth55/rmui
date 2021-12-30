@@ -5,7 +5,7 @@
   <arg name="collabo" default="true" />
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
-  <arg name="n_box" default="3" />
+  <arg name="n_box" default="2" />
   <arg name="align_axis" default="x" />
 
   <arg name="pdf_flag" value="t" if="$(arg pdf)" />

@@ -4,7 +4,7 @@
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
-  <arg name="n_box" default="3" />
+  <arg name="n_box" default="2" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
   <arg name="gui" default="true" />

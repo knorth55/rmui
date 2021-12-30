@@ -14,7 +14,7 @@
   <arg name="main" default="true" />
   <arg name="pdf" default="true" />
   <arg name="collabo" default="true" />
-  <arg name="n_box" default="3" />
+  <arg name="n_box" default="2" />
   <arg name="box_type" default="ctb" />
   <arg name="wall" default="false" />
   <arg name="align_axis" default="x" />
