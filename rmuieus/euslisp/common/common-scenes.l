@@ -36,6 +36,7 @@
             (cons :trashbox (list 270 370 500))  ;; trash box
             (cons :shredder (list 150 280 320))  ;; shredder
             (cons :toybox (list 200 200 200))  ;; toy box for debugging
+            (cons :toyobject (list 100 100 100)) ;; toy object for debugging
             )))
     (dotimes (i (length scene-alist))
       (let* ((scene-a (elt scene-alist i))
