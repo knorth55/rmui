@@ -23,7 +23,7 @@
   <arg name="launch_app_manager" default="true" />
   <arg name="launch_dialogflow" default="true" />
 
-  <include file="$(find rmui_demos)/launch/common/common_multi_rmui_statenet.launch">
+  <include file="$(find rmui_demos)/launch/common/common_rmui_statenet.launch">
     <arg name="robot" value="baxter" />
     <arg name="rmui" value="$(arg rmui)" />
     <arg name="dummy" value="$(arg dummy)" />

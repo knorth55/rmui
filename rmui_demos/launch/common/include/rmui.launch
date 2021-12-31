@@ -1,0 +1,34 @@
+<launch>
+  <arg name="n_box" />
+
+  <arg name="rmui_name" default="rmui0" />
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="gui" default="true" />
+
+  <group if="$(eval arg('n_box') > 1)">
+   <include file="$(find rmui_demos)/launch/common/include/multi_rmui.launch">
+      <arg name="n_box" value="$(arg n_box)" />
+      <arg name="dummy" value="$(arg dummy)" />
+      <arg name="launch_device" value="$(arg launch_device)" />
+      <arg name="n_board" value="$(arg n_board)" />
+      <arg name="duration" value="$(arg duration)" />
+      <arg name="gui" value="$(arg gui)" />
+    </include>
+  </group>
+  <group unless="$(eval arg('n_box') > 1)">
+    <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
+      <arg name="rmui_name" value="$(arg rmui_name)" />
+      <arg name="dummy" value="$(arg dummy)" />
+      <arg name="launch_device" value="$(arg launch_device)" />
+      <arg name="n_board" value="$(arg n_board)" />
+      <arg name="duration" value="$(arg duration)" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="launch_static_transform" value="true" />
+    </include>
+  </group>
+
+</launch>

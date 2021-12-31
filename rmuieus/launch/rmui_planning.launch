@@ -1,8 +1,9 @@
 <launch>
-  <arg name="robot" default="pr2" />
+  <arg name="robot" />
+  <arg name="scene_name" />
+
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
-  <arg name="scene_name" default="one_ctb" />
 
   <arg name="wall_flag" value="t" if="$(arg wall)" />
   <arg name="wall_flag" value="nil" unless="$(arg wall)" />

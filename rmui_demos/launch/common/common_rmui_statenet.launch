@@ -1,5 +1,8 @@
 <launch>
   <arg name="robot" />
+  <arg name="scene_name" />
+  <arg name="n_box" />
+
   <arg name="rmui" default="true" />
   <arg name="rmui_name" default="rmui0" />
   <arg name="dummy" default="false" />
@@ -14,34 +17,31 @@
 
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
-  <arg name="scene_name" default="one_ctb" />
   <arg name="pdf" default="true" />
   <arg name="collabo" default="true" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
 
-  <group if="$(arg rmui)">
-    <include file="$(find rmui_demos)/launch/common/common_rmui_base.launch">
-      <arg name="rmui_name" value="$(arg rmui_name)" />
-      <arg name="n_board" value="$(arg n_board)" />
-      <arg name="duration" value="$(arg duration)" />
-      <arg name="gui" value="$(arg gui)" />
-      <arg name="dummy" value="$(arg dummy)" />
-      <arg name="launch_device" value="$(arg launch_device)" />
-    </include>
-    <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
-          args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
-  </group>
+  <!-- rmui-->
+  <include file="$(find rmui_demos)/launch/common/include/rmui.launch" if="$(arg rmui)">
+    <arg name="n_box" value="$(arg n_box)" />
+    <arg name="rmui_name" value="$(arg rmui_name)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+  </include>
 
   <!-- eus -->
   <include file="$(find rmuieus)/launch/rmui_statenet_server.launch">
     <arg name="robot" value="$(arg robot)" />
+    <arg name="scene_name" value="$(arg scene_name)" />
     <arg name="main" value="$(arg main)" />
     <arg name="pdf" value="$(arg pdf)" />
     <arg name="wall" value="$(arg wall)" />
     <arg name="collabo" value="$(arg collabo)" />
-    <arg name="scene_name" value="$(arg scene_name)" />
   </include>
 
   <!-- rosbag -->
@@ -50,6 +50,7 @@
     <arg name="compress" value="$(arg compress)" />
   </include>
 
+  <!-- TODO: multiple markers -->
   <!-- marker -->
   <group if="$(arg marker)">
     <include file="$(find rmui_demos)/launch/$(arg robot)/$(arg robot)_ar_tracker.launch" />
@@ -62,8 +63,10 @@
   </group>
 
   <!-- audio & speech -->
-  <include file="$(find rmui_demos)/launch/common/common_speech.launch">
+  <include file="$(find rmui_demos)/launch/common/include/speech_recognition.launch">
     <arg name="string_topic" value="/statenet_server/user_response" />
+    <arg name="voice_topic" value="/speech_to_text_google" />
+    <arg name="auto_start" default="true"  />
   </include>
 
 </launch>
