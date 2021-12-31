@@ -17,6 +17,15 @@
   (reset-motion :robot robot :ri ri :move-robot move-robot :vw vw))
 
 
+(defun get-grasp-coords (arm &key (robot *robot*))
+  (cond ((eq arm :larm) (send robot :get :larm-grasp-coords))
+        ((eq arm :rarm) (send robot :get :rarm-grasp-coords))
+        ((eq arm :arms)
+         (list (get-grasp-coords :larm :robot robot)
+               (get-grasp-coords :rarm :robot robot)))
+        (t nil)))
+
+
 (defun get-contact-coords (arm &key (robot *robot*))
   (cond ((eq arm :larm) (send robot :get :larm-contact-coords))
         ((eq arm :rarm) (send robot :get :rarm-contact-coords))
@@ -26,57 +35,77 @@
         (t nil)))
 
 
-(defun get-contact-link-list (arm &key (robot *robot*) (use-torso t))
+(defun get-ee-coords (arm &key (ee-type :contact) (robot *robot*))
+  (cond ((equal ee-type :contact)
+         (get-contact-coords arm :robot robot))
+        ((equal ee-type :grasp)
+         (get-grasp-coords arm :robot robot))
+        (t nil)))
+
+
+(defun get-ee-link-list (arm &key (use-torso t) (ee-type :contact) (robot *robot*))
   (send robot :link-list
-        (send (get-contact-coords arm :robot robot) :parent)
+        (send (get-ee-coords arm :ee-type ee-type :robot robot) :parent)
         (if (not use-torso) (car (send robot arm)))))
 
 
-(defun get-contact-ik-args (arm &key (rotation-axis t) (use-torso t) (robot *robot*))
+(defun get-ee-ik-args (arm &key (rotation-axis t) (use-torso t) (ee-type :contact)
+                                (robot *robot*))
   (if (eq arm :arms)
     (list
-      :move-target (list (get-contact-coords :larm :robot robot)
-                         (get-contact-coords :rarm :robot robot))
-      :link-list (list (get-contact-link-list :larm :robot robot
-                                              :use-torso use-torso)
-                       (get-contact-link-list :rarm :robot robot
-                                              :use-torso use-torso))
+      :move-target (list (get-ee-coords :larm :ee-type ee-type :robot robot)
+                         (get-ee-coords :rarm :ee-type ee-type :robot robot))
+      :link-list (list (get-ee-link-list :larm
+                                         :use-torso use-torso
+                                         :ee-type ee-type
+                                         :robot robot)
+                       (get-ee-link-list :rarm
+                                         :use-torso use-torso
+                                         :ee-type ee-type
+                                         :robot robot))
       :rotation-axis (list rotation-axis rotation-axis)
       :use-torso use-torso)
     (list
-      :move-target (list (get-contact-coords arm :robot robot))
-      :link-list (list (get-contact-link-list arm :robot robot
-                                              :use-torso use-torso))
+      :move-target (list (get-ee-coords arm :ee-type ee-type :robot robot))
+      :link-list (list (get-ee-link-list arm
+                                         :use-torso use-torso
+                                         :ee-type ee-type
+                                         :robot robot))
       :rotation-axis (list rotation-axis)
       :use-torso use-torso)))
 
 
-(defun solve-ik (arm target-coords &key (rotation-axis t) (use-torso t) (robot *robot*))
+(defun solve-ik (arm target-coords &key (rotation-axis t) (use-torso t) (ee-type :contact)
+                                        (robot *robot*))
   (send* robot :inverse-kinematics
          (cond
            ((eq arm :arms) target-coords)
            ((eq arm :larm)
             (list target-coords
-                  (send (get-contact-coords :rarm :robot robot)
+                  (send (get-ee-coords :rarm :ee-type ee-type :robot robot)
                         :copy-worldcoords)))
            ((eq arm :rarm)
-            (list (send (get-contact-coords :larm :robot robot)
+            (list (send (get-ee-coords :larm :ee-type ee-type :robot robot)
                         :copy-worldcoords)
                   target-coords))
            (t nil))
-         (get-contact-ik-args :arms
-                              :rotation-axis rotation-axis
-                              :use-torso use-torso
-                              :robot robot)))
+         (get-ee-ik-args :arms
+                         :rotation-axis rotation-axis
+                         :use-torso use-torso
+                         :ee-type ee-type
+                         :robot robot)))
 
 
-(defun solve-ik-rotation-relax (arm target-coords &key (use-torso t) (robot *robot*))
+(defun solve-ik-rotation-relax (arm target-coords &key (use-torso t) (ee-type :contact)
+                                                       (robot *robot*))
   (let (av)
     (setq av (solve-ik arm target-coords
-                       :rotation-axis t :use-torso use-torso :robot robot))
+                       :rotation-axis t :use-torso use-torso :ee-type ee-type
+                       :robot robot))
     (if (not av)
       (setq av (solve-ik arm target-coords
-                         :rotation-axis :z :use-torso use-torso :robot robot)))
+                         :rotation-axis :z :use-torso use-torso :ee-type ee-type
+                         :robot robot)))
     av))
 
 
@@ -106,25 +135,25 @@
     (send cube :put coords-name nil)))
 
 
-(defun assoc-cube (arm &key (ri *ri*) (cube *box0*))
+(defun assoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (assoc-cube-step a :ri ri :cube cube)))
+    (assoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun assoc-cube-step (arm &key (ri *ri*) (cube *box0*))
+(defun assoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
-    (send (get-contact-coords arm :robot (send ri :robot))
+    (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :assoc (car (send ri :find-object (send cube :name))))))
 
 
-(defun dissoc-cube (arm &key (ri *ri*) (cube *box0*))
+(defun dissoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
-    (dissoc-cube-step a :ri ri :cube cube)))
+    (dissoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun dissoc-cube-step (arm &key (ri *ri*) (cube *box0*))
+(defun dissoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
-    (send (get-contact-coords arm :robot (send ri :robot))
+    (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :dissoc (car (send ri :find-object (send cube :name))))))
 
 
@@ -281,11 +310,20 @@
 
 
 (defun get-contact-cube-coords (arm &key (cube *box0*))
-  (cond ((eq arm :larm) (send cube :get :larm-contact-coords))
-        ((eq arm :rarm) (send cube :get :rarm-contact-coords))
+  (cond ((eq arm :larm) (get-contact-coords :larm :cube cube))
+        ((eq arm :rarm) (get-contact-coords :rarm :cube cube))
         ((eq arm :arms)
          (list (get-contact-cube-coords :larm :cube cube)
                (get-contact-cube-coords :rarm :cube cube)))
+        (t nil)))
+
+
+(defun get-grasp-cube-coords (arm &key (cube *box0*))
+  (cond ((eq arm :larm) (get-grasp-coords :larm :cube cube))
+        ((eq arm :rarm) (get-grasp-coords :rarm :cube cube))
+        ((eq arm :arms)
+         (list (get-grasp-cube-coords :larm :cube cube)
+               (get-grasp-cube-coords :rarm :cube cube)))
         (t nil)))
 
 
