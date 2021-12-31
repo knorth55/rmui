@@ -51,13 +51,17 @@
 
 
 (defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
-  (setq args (remove-key-from-args args :ri))
-  (send* ri :start-grasp arm :wait wait args))
+  (if (null (send ri :simulation-modep))
+    (progn
+      (setq args (remove-key-from-args args :ri))
+      (send* ri :start-grasp arm :wait wait args))))
 
 
 (defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
-  (setq args (remove-key-from-args args :ri))
-  (send* ri :stop-grasp arm :wait wait args))
+  (if (null (send ri :simulation-modep))
+    (progn
+      (setq args (remove-key-from-args args :ri))
+      (send* ri :stop-grasp arm :wait wait args))))
 
 
 (provide :baxter-motions "baxter-motions.l")
