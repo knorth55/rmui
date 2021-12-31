@@ -153,23 +153,23 @@
     (send cube :put coords-name nil)))
 
 
-(defun assoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun assoc-cube-ri (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
     (assoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun assoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun assoc-cube-ri-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
     (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :assoc (car (send ri :find-object (send cube :name))))))
 
 
-(defun dissoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun dissoc-cube-ri (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
     (dissoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun dissoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun dissoc-cube-ri-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
     (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :dissoc (car (send ri :find-object (send cube :name))))))

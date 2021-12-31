@@ -87,7 +87,7 @@
 (defun move-push-action (arm &rest args &key (ri *ri*) (cube *box0*)
                              &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube arm :ri ri :cube cube)
+    (assoc-cube-ri arm :ri ri :cube cube)
     (setq executed
           (apply #'push-move-motion
                  (append
@@ -95,7 +95,7 @@
                          :push-axis :y
                          :move-distance (if (eq arm :larm) -200.0 200.0))
                          args)))
-    (dissoc-cube arm :ri ri :cube cube)
+    (dissoc-cube-ri arm :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -110,10 +110,10 @@
 (defun dualarm-hold-up-action (&rest args &key (ri *ri*) (cube *box0*)
                                      &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'hold-lift-up-motion (append (list :lift-height 200) args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -217,10 +217,10 @@
 (defun dualarm-hold-down-action (&rest args &key (ri *ri*) (cube *box0*)
                                        &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'hold-lift-down-motion args))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -246,7 +246,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -257,7 +257,7 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -275,7 +275,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -286,7 +286,7 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -298,7 +298,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -309,7 +309,7 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -329,7 +329,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -340,7 +340,7 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -366,7 +366,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -379,7 +379,7 @@
                          ; :use-rotate-distance t
                          :use-rotate-distance nil)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -397,7 +397,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
                  (append
@@ -410,7 +410,7 @@
                          ; :use-rotate-distance t
                          :use-rotate-distance nil)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -428,7 +428,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'support-rotate-motion
                  (append
@@ -439,7 +439,7 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -457,7 +457,7 @@
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
          (executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed
           (apply #'support-rotate-motion
                  (append
@@ -468,16 +468,16 @@
                          :cube-width cube-width
                          :cube-depth cube-depth)
                    args)))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
 (defun dualarm-push-hold-pile-up-action (&rest args &key (ri *ri*) (cube *box0*)
                                                &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :arms :ri ri :cube cube)
+    (assoc-cube-ri :arms :ri ri :cube cube)
     (setq executed (apply #'hold-pile-up-motion args))
-    (dissoc-cube :arms :ri ri :cube cube)
+    (dissoc-cube-ri :arms :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -485,16 +485,16 @@
                                                      (wall-front-limit *wall-front-limit*)
                                                      &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :larm :ri ri :cube cube)
+    (assoc-cube-ri :larm :ri ri :cube cube)
     (setq executed (apply #'push-front-wall-next-to-motion (append (list :arms) args)))
-    (dissoc-cube :larm :ri ri :cube cube)
+    (dissoc-cube-ri :larm :ri ri :cube cube)
     (if executed t nil)))
 
 
 (defun dualarm-front-wall-push-release-action (&rest args &key (ri *ri*) (cube *box0*)
                                                      &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :larm :ri ri :cube cube)
+    (assoc-cube-ri :larm :ri ri :cube cube)
     (setq executed
           (apply #'hold-move-motion
                  (append
@@ -506,7 +506,7 @@
                      :cube-pos-z
                      (elt (send cube :worldpos) 2))
                    args)))
-    (dissoc-cube :larm :ri ri :cube cube)
+    (dissoc-cube-ri :larm :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -716,28 +716,28 @@
 (defun larm-right-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                              &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :larm :ri ri :cube cube)
+    (assoc-cube-ri :larm :ri ri :cube cube)
     (setq executed
           (apply #'push-next-to-motion
                  (append
                    (list :larm
                          :push-axis :y)
                    args)))
-    (dissoc-cube :larm :ri ri :cube cube)
+    (dissoc-cube-ri :larm :ri ri :cube cube)
     (if executed t nil)))
 
 
 (defun larm-front-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                              &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :larm :ri ri :cube cube)
+    (assoc-cube-ri :larm :ri ri :cube cube)
     (setq executed
           (apply #'push-next-to-motion
                  (append
                    (list :larm
                          :push-axis :x)
                    args)))
-    (dissoc-cube :larm :ri ri :cube cube)
+    (dissoc-cube-ri :larm :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -947,28 +947,28 @@
 (defun rarm-left-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                              &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :rarm :ri ri :cube cube)
+    (assoc-cube-ri :rarm :ri ri :cube cube)
     (setq executed
           (apply #'push-next-to-motion
                  (append
                    (list :rarm
                          :push-axis :y)
                    args)))
-    (dissoc-cube :rarm :ri ri :cube cube)
+    (dissoc-cube-ri :rarm :ri ri :cube cube)
     (if executed t nil)))
 
 
 (defun rarm-back-push-next-to-action (&rest args &key (ri *ri*) (cube *box0*)
                                              &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :rarm :ri ri :cube cube)
+    (assoc-cube-ri :rarm :ri ri :cube cube)
     (setq executed
           (apply #'push-next-to-motion
                  (append
                    (list :rarm
                          :push-axis :x)
                    args)))
-    (dissoc-cube :rarm :ri ri :cube cube)
+    (dissoc-cube-ri :rarm :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -976,10 +976,10 @@
                                                  (wall-left-limit *wall-left-limit*)
                                                  &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :rarm :ri ri :cube cube)
+    (assoc-cube-ri :rarm :ri ri :cube cube)
     (setq executed
           (apply #'push-left-wall-next-to-motion (append (list :rarm) args)))
-    (dissoc-cube :rarm :ri ri :cube cube)
+    (dissoc-cube-ri :rarm :ri ri :cube cube)
     (if executed t nil)))
 
 
@@ -987,10 +987,10 @@
                                                   (wall-front-limit *wall-front-limit*)
                                                   &allow-other-keys)
   (let ((executed nil))
-    (assoc-cube :rarm :ri ri :cube cube)
+    (assoc-cube-ri :rarm :ri ri :cube cube)
     (setq executed
           (apply #'push-front-wall-next-to-motion (append (list :rarm) args)))
-    (dissoc-cube :rarm :ri ri :cube cube)
+    (dissoc-cube-ri :rarm :ri ri :cube cube)
     (if executed t nil)))
 
 
