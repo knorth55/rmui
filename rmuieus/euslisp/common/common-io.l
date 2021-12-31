@@ -267,7 +267,7 @@
   (scene-name &key (data-dir *scene-path*))
   (let ((filepath (format nil "~A/~A.l" data-dir scene-name)))
     (with-open-file (scene-f filepath)
-      (read config-f))))
+      (read scene-f))))
 
 
 (provide :common-io "common-io.l")
