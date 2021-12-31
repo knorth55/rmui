@@ -79,7 +79,8 @@
                                         :device-frame-id device-frame-id
                                         :device-world-frame-id device-world-frame-id))))))
       (setq planner (instance rmui-planner :init
-                              :namespace topic-namespace))
+                              :namespace topic-namespace
+                              :boxes bxs))
       (setq executor
             (instance rmui-executor :init
                       :namespace topic-namespace

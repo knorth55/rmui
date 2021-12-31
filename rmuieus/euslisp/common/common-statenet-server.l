@@ -169,7 +169,8 @@
                                         :device-world-frame-id device-world-frame-id
                                         :groupname device-groupname))))))
       (setq devplanner (instance rmui-planner :init
-                                 :namespace device-topic-namespace))
+                                 :namespace device-topic-namespace
+                                 :boxes bxs))
       (setq devexecutor
             (instance rmui-executor :init
                       :namespace device-topic-namespace

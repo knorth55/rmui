@@ -16,6 +16,7 @@
 (defclass rmui-planner
   :super propertied-object
   :slots (namespace
+          boxes
           waiting-visualize-topic-name
           moving-visualize-topic-name
           larm-get-motion-symbol-conditions
@@ -25,8 +26,10 @@
 
 
 (defmethod rmui-planner
-  (:init (&key ((:namespace ns)))
+  (:init (&key ((:namespace ns))
+               ((:boxes bxs)))
     (setq namespace (if ns ns ""))
+    (setq boxes bxs)
     (setq waiting-visualize-topic-name
           (format nil "~A/output/status/waiting" namespace))
     (setq moving-visualize-topic-name
@@ -56,11 +59,13 @@
                (larm-motion-symbol
                  (send self :get-motion-symbol :larm
                        contact-position
-                       :scene-state scene-state))
+                       :scene-state scene-state
+                       :box (elt boxes i)))
                (rarm-motion-symbol
                  (send self :get-motion-symbol :rarm
                        contact-position
-                       :scene-state scene-state))
+                       :scene-state scene-state
+                       :box (elt boxes i)))
                (larm-contact-state
                  (cadr (assoc :larm-contact-state scene-state)))
                (rarm-contact-state
@@ -263,7 +268,7 @@
             )))
       motion-symbols))
   (:get-motion-symbol
-    (arm contact-position &key (scene-state))
+    (arm contact-position &key (scene-state) (box))
     (let* ((larm-contact-state
              (cadr (assoc :larm-contact-state scene-state)))
            (rarm-contact-state
@@ -309,6 +314,8 @@
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
                                 contact-position)))
+           ;; TODO: grasp for several objects
+           (grasp-p (equal (send box :get :box-type) :toyobject))
            (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbol-conditions)
                                  ((equal arm :rarm) rarm-get-motion-symbol-conditions)
                                  (t nil)))
