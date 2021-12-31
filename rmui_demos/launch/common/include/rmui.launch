@@ -19,7 +19,7 @@
       <arg name="gui" value="$(arg gui)" />
     </include>
   </group>
-  <group unless="$(eval arg('n_box') > 1)">
+  <group if="$(eval arg('n_box') == 1)">
     <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
       <arg name="rmui_name" value="$(arg rmui_name)" />
       <arg name="dummy" value="$(arg dummy)" />
