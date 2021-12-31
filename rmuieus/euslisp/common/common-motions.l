@@ -109,6 +109,24 @@
     av))
 
 
+(defun grasp-cube (arm &key (cube *box0*) (robot *robot*))
+  (if (eq arm :arms) (return-from grasp-cube nil))
+  (let* ((coords-name (if (eq arm :larm) :larm-grasp-coords :rarm-grasp-coords))
+         (grasp-coords
+           (make-cascoords :name coords-name
+                           :coords (send (get-grasp-coords arm :robot robot)
+                                         :copy-worldcoords))))
+    (send cube :assoc grasp-coords)
+    (send cube :put coords-name grasp-coords)))
+
+
+(defun ungrasp-cube (arm &key (cube *box0*))
+  (if (eq arm :arms) (return-from ungrasp-cube nil))
+  (let ((coords-name (if (eq arm :larm) :larm-grasp-coords :rarm-grasp-coords)))
+    (send cube :dissoc (send cube :get coords-name))
+    (send cube :put coords-name nil)))
+
+
 (defun contact-cube (arm &key (cube *box0*) (robot *robot*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
     (contact-cube-step a :cube cube :robot robot)))
