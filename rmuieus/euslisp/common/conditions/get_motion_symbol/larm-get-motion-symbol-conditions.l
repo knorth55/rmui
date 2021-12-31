@@ -63,7 +63,7 @@
        (null (find :top-contact cube-contact-state))
        (find :top contact-surface)
        (find :bottom contact-surface)
-       grasp-p 
+       grasp-p
        (equal grasp-arm :larm))
   :top-grasp)
  ((and (equal larm-contact-state :released)
