@@ -15,17 +15,28 @@
   (let* ((larm-contact-coords
            (send (send *pilot* :larm-end-coords) :copy-worldcoords))
          (rarm-contact-coords
+           (send (send *pilot* :rarm-end-coords) :copy-worldcoords))
+         (larm-grasp-coords
+           (send (send *pilot* :larm-end-coords) :copy-worldcoords))
+         (rarm-grasp-coords
            (send (send *pilot* :rarm-end-coords) :copy-worldcoords)))
     (send larm-contact-coords :rotate pi/2 :y)
     (send larm-contact-coords :rotate pi/2 :x)
     (send rarm-contact-coords :rotate pi/2 :y)
     (send rarm-contact-coords :rotate -pi/2 :x)
+    (send larm-grasp-coords :rotate pi/2 :y)
+    (send larm-grasp-coords :rotate pi/2 :x)
+    (send rarm-grasp-coords :rotate pi/2 :y)
+    (send rarm-grasp-coords :rotate -pi/2 :x)
     (pilot-robot-scene-init-base
       :table-pos table-pos
       :larm-ee-frame-id :larm-human-wrist-roll
       :rarm-ee-frame-id :rarm-human-wrist-roll
       :larm-contact-coords larm-contact-coords
-      :rarm-contact-coords rarm-contact-coords)))
+      :rarm-contact-coords rarm-contact-coords
+      :larm-grasp-coords larm-grasp-coords
+      :rarm-grasp-coords rarm-grasp-coords
+      )))
 
 
 (provide :human-scenes "human-scenes.l")

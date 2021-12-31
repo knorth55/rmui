@@ -209,7 +209,9 @@
                                          (larm-ee-frame-id)
                                          (rarm-ee-frame-id)
                                          (larm-contact-coords)
-                                         (rarm-contact-coords))
+                                         (rarm-contact-coords)
+                                         (larm-grasp-coords)
+                                         (rarm-grasp-coords))
   (if (null larm-contact-coords)
     (setq larm-contact-coords
           (send (send *pilot* :larm-end-coords) :copy-worldcoords)))
@@ -226,7 +228,16 @@
   (send *pilot* :put :rarm-contact-coords
         (make-cascoords :name :rarm-contact-coords
                         :parent (send *pilot* :link rarm-ee-frame-id)
-                        :coords rarm-contact-coords)))
+                        :coords rarm-contact-coords))
+  (send *pilot* :put :larm-grasp-coords
+        (make-cascoords :name :larm-grasp-coords
+                        :parent (send *pilot* :link larm-ee-frame-id)
+                        :coords larm-grasp-coords))
+  (send *pilot* :put :rarm-grasp-coords
+        (make-cascoords :name :rarm-grasp-coords
+                        :parent (send *pilot* :link rarm-ee-frame-id)
+                        :coords rarm-grasp-coords))
+  )
 
 
 (defun robot-scene-init-base (&key (table-pos)
@@ -246,6 +257,13 @@
   (if (null rarm-contact-coords)
     (setq rarm-contact-coords
           (send (send *robot* :rarm-end-coords) :copy-worldcoords)))
+  (if (null larm-grasp-coords)
+    (setq larm-grasp-coords
+          (send (send *robot* :larm-end-coords) :copy-worldcoords)))
+  (if (null rarm-grasp-coords)
+    (setq rarm-grasp-coords
+          (send (send *robot* :rarm-end-coords) :copy-worldcoords)))
+
   (send larm-contact-coords :translate *contact-offset*)
   (send rarm-contact-coords :translate *contact-offset*)
 
