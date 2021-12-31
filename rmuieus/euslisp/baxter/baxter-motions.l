@@ -54,14 +54,32 @@
   (if (null (send ri :simulation-modep))
     (progn
       (setq args (remove-key-from-args args :ri))
-      (send* ri :start-grasp arm :wait wait args))))
+      (send* ri :start-grasp arm :wait wait args)
+      (let ((gripper-type (send ri :get-gripper-type arm))
+            (softhand-p
+              (if (listp gripper-type)
+                (some (mapcar
+                        #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
+                        gripper-type))
+                (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
+        (if (and wait softhand-p) (unix::sleep 2)))
+      )))
 
 
 (defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
   (if (null (send ri :simulation-modep))
     (progn
       (setq args (remove-key-from-args args :ri))
-      (send* ri :stop-grasp arm :wait wait args))))
+      (send* ri :stop-grasp arm :wait wait args)
+      (let ((gripper-type (send ri :get-gripper-type arm))
+            (softhand-p
+              (if (listp gripper-type)
+                (some (mapcar
+                        #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
+                        gripper-type))
+                (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
+        (if (and wait softhand-p) (unix::sleep 2)))
+      )))
 
 
 (provide :baxter-motions "baxter-motions.l")
