@@ -24,7 +24,7 @@
     <arg name="volume" value="0.8" />
     <arg name="language" value="en-US" />
     <arg name="use_yaml" value="true" />
-    <arg name="yaml_file" value="/var/lib/robot/baxter_dialogflow_credential.yaml" />
+    <arg name="yaml_file" value="/var/lib/robot/baxter_dialogflow_credentials.yaml" />
   </include>
   <rosparam ns="dialogflow_client">
     hotword:
