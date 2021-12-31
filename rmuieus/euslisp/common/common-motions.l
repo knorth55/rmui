@@ -724,6 +724,137 @@
             (append (cadr approached) (cadr pushed))))))
 
 
+(defun get-grasp-target-coords
+  (arm &key (motion-type :grasp)
+            (grasp-direction :top)
+            (grasp-type :tight)
+            (cube-pos nil)
+            (cube-rpy (float-vector 0 0 0))
+            (cube-height nil)
+            (cube-width nil)
+            (cube-depth nil)
+            (cube *box0*))
+  (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
+  (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
+  (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
+  (if (not cube-depth) (setq cube-depth (get-cube-depth :cube cube)))
+  (unless (or (eq arm :larm) (eq arm :rarm))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
+    (return-from get-grasp-target-coords nil))
+  (let ((target-coords (make-coords :pos (copy-seq cube-pos) :rpy (copy-seq cube-rpy)))
+        (grasp-offset (cond ((equal grasp-type :tight) 50)
+                            ((equal grasp-type :normal) 0)
+                            ((equal grasp-type :light) -50)
+                            ((numberp grasp-type) grasp-type)
+                            (t nil))))
+    ;; TODO: implement more grasp motion
+    (cond
+      ((equal grasp-direction :top)
+       (let ((x-offset 0)
+             (y-offset 0)
+             (z-offset
+               (+ (/ cube-height 2.0)
+                  (if (eq motion-type :approach) 100 (* -1 grasp-offset)))))
+         (send target-coords :translate (float-vector x-offset y-offset z-offset) :world)
+         (send target-coords :rotate pi/2 :y)
+         target-coords))
+      (t (return-from get-grasp-target-coords nil)))
+    ))
+
+
+(defun grasp-motion
+  (arm &rest args
+       &key (grasp-direction :top)
+            (grasp-type :tight)
+            (move-robot t)
+            (approach-tm 3000)
+            (grasp-tm 3000)
+            (use-torso 0.001)
+            (cube-pos nil)
+            (cube-rpy (float-vector 0 0 0))
+            (cube-height nil)
+            (cube-width nil)
+            (cube-depth nil)
+            (robot *robot*)
+            (ri *ri*)
+            (cube *box0*)
+            (cubes *boxes*)
+            (vw *irtviewer*)
+            &allow-other-keys)
+  (if (not cube-pos) (setq cube-pos (send (send cube :copy-worldcoords) :worldpos)))
+  (if (not cube-height) (setq cube-height (get-cube-height :cube cube)))
+  (if (not cube-width) (setq cube-width (get-cube-width :cube cube)))
+  (if (not cube-depth) (setq cube-depth (get-cube-depth :cube cube)))
+  (unless (or (eq arm :larm) (eq arm :rarm))
+    (ros::ros-error (format nil "arm is invalid: ~A" arm))
+    (return-from grasp-motion nil))
+  (let* ((approach-av)
+         (approach-target-coords
+           (get-grasp-target-coords
+             arm
+             :motion-type :approach
+             :grasp-direction grasp-direction
+             :grasp-type grasp-type
+             :cube-pos cube-pos
+             :cube-rpy cube-rpy
+             :cube-height cube-height
+             :cube-width cube-width
+             :cube-depth cube-depth
+             :cube cube))
+         (grasp-av)
+         (grasp-target-coords
+           (get-grasp-target-coords
+             arm
+             :motion-type :grasp
+             :grasp-direction grasp-direction
+             :grasp-type grasp-type
+             :cube-pos cube-pos
+             :cube-rpy cube-rpy
+             :cube-height cube-height
+             :cube-width cube-width
+             :cube-depth cube-depth
+             :cube cube))
+         (prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords)))
+    (unless (and approach-target-coords grasp-target-coords)
+      (ros::ros-error "approach target coords is invalid: ~A" approach-target-coords)
+      (ros::ros-error "grasp target coords is invalid   : ~A" grasp-target-coords)
+      (return-from :grasp-motion nil))
+    (setq approach-av
+          (solve-ik-rotation-relax
+            arm approach-target-coords
+            :use-torso use-torso
+            :ee-type :grasp
+            :robot robot))
+    (when approach-av
+      (setq grasp-av
+            (solve-ik-rotation-relax
+              arm grasp-target-coords
+              :use-torso use-torso
+              :ee-type :grasp
+              :robot robot)))
+    (if (and approach-av grasp-av)
+      (when move-robot
+        (add-cubes-collision-object :cubes cubes :robot robot :ri ri)
+        (send ri :angle-vector approach-av approach-tm
+              (get-arm-controller :arms :use-torso use-torso) 0)
+        (send ri :wait-interpolation)
+        (delete-cubes-collision-object :cubes cubes :ri ri)
+        (send ri :angle-vector-raw grasp-av grasp-tm
+              (get-arm-controller :arms :use-torso use-torso) 0)
+        (send ri :wait-interpolation)
+        (start-grasp arm :ri ri)
+        )
+      (progn
+        (send robot :angle-vector prev-av)
+        (send cube :newcoords prev-cube-coords)
+        (send cube :worldcoords)))
+    (when (and approach-av grasp-av)
+      (grasp-cube arm :cube cube :robot robot)
+      (list (list approach-av grasp-av)
+            (list approach-tm grasp-tm)))))
+
+
 ;; push release motion
 
 (defun get-push-release-target-coords (arm &key (robot *robot*) (release-distance -100))

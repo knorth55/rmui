@@ -78,8 +78,8 @@
           (apply #'grasp-motion
                  (append
                    (list arm
-                         :grasp-position :center
-                         :grasp-direction :top)
+                         :grasp-direction :top
+                         :grasp-type :tight)
                    args)))
     (if executed t nil)))
 
