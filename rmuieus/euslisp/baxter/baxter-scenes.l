@@ -26,6 +26,10 @@
         (larm-contact-coords
           (send (send *robot* :larm-end-coords) :copy-worldcoords))
         (rarm-contact-coords
+          (send (send *robot* :rarm-end-coords) :copy-worldcoords))
+        (larm-grasp-coords
+          (send (send *robot* :larm-end-coords) :copy-worldcoords))
+        (rarm-grasp-coords
           (send (send *robot* :rarm-end-coords) :copy-worldcoords)))
     (send larm-contact-coords :rotate pi/2 :x)
     (send rarm-contact-coords :rotate -pi/2 :x)
@@ -35,6 +39,8 @@
       :rarm-ee-frame-id rarm-ee-frame-id
       :larm-contact-coords larm-contact-coords
       :rarm-contact-coords rarm-contact-coords
+      :larm-grasp-coords larm-grasp-coords
+      :rarm-grasp-coords rarm-grasp-coords
       :base-frame-id "base")
     (if (not (send *ri* :simulation-modep))
       (progn

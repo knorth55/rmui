@@ -234,6 +234,8 @@
                                    (rarm-ee-frame-id)
                                    (larm-contact-coords)
                                    (rarm-contact-coords)
+                                   (larm-grasp-coords)
+                                   (rarm-grasp-coords)
                                    (base-frame-id))
   ;; (send (send *robot* :larm :end-coords) :translate *contact-offset*)
   ;; (send (send *robot* :rarm :end-coords) :translate *contact-offset*)
@@ -247,6 +249,7 @@
   (send larm-contact-coords :translate *contact-offset*)
   (send rarm-contact-coords :translate *contact-offset*)
 
+  ;; contact coords
   (send *robot* :put :larm-contact-coords
         (make-cascoords :name :larm-contact-coords
                         :parent (send *robot* :link larm-ee-frame-id)
@@ -263,6 +266,24 @@
         (make-cascoords :name :rarm-contact-coords
                         :parent (send (send *ri* :robot) :link rarm-ee-frame-id)
                         :coords rarm-contact-coords))
+
+  ;; grasp coords
+  (send *robot* :put :larm-grasp-coords
+        (make-cascoords :name :larm-grasp-coords
+                        :parent (send *robot* :link larm-ee-frame-id)
+                        :coords larm-grasp-coords))
+  (send *robot* :put :rarm-grasp-coords
+        (make-cascoords :name :rarm-grasp-coords
+                        :parent (send *robot* :link rarm-ee-frame-id)
+                        :coords rarm-grasp-coords))
+  (send (send *ri* :robot) :put :larm-grasp-coords
+        (make-cascoords :name :larm-grasp-coords
+                        :parent (send (send *ri* :robot) :link larm-ee-frame-id)
+                        :coords larm-grasp-coords))
+  (send (send *ri* :robot) :put :rarm-grasp-coords
+        (make-cascoords :name :rarm-grasp-coords
+                        :parent (send (send *ri* :robot) :link rarm-ee-frame-id)
+                        :coords rarm-grasp-coords))
 
   (send *robot* :put :base-frame-id base-frame-id)
   (if (send *ri* :simulation-modep)
