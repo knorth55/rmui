@@ -1392,7 +1392,7 @@
          (prev-cube-coords (send cube :copy-worldcoords))
          (height-step 50)
          (height-count 0)
-         (max-height-count (+ (floor (/ lift-height height-step)) 1))
+         (max-height-count (+ (floor (/ (abs lift-height) height-step)) 1))
          (avs nil)
          (tms nil))
     (setq height-step (/ lift-height max-height-count))
@@ -1567,9 +1567,9 @@
          (cube-pos-z-step)
          (max-move-count
            (+ (max
-                (floor (/ cube-pos-x-diff move-step))
-                (floor (/ cube-pos-y-diff move-step))
-                (floor (/ cube-pos-z-diff move-step)))
+                (floor (/ (abs cube-pos-x-diff) move-step))
+                (floor (/ (abs cube-pos-y-diff) move-step))
+                (floor (/ (abs cube-pos-z-diff) move-step)))
               1))
          (avs nil)
          (tms nil))
