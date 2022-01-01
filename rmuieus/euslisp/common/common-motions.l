@@ -1541,11 +1541,12 @@
   (apply #'lift-down-motion (append (list arm :ee-type :grasp) args)))
 
 
-(defun hold-move-motion (&rest args
-                               &key (cube-pos-x nil) (cube-pos-y nil) (cube-pos-z nil)
-                                    (move-robot t) (tm 1000) (use-torso 0.001)
-                                    (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                    &allow-other-keys)
+(defun lift-move-motion
+  (arm &rest args &key (cube-pos-x nil) (cube-pos-y nil) (cube-pos-z nil)
+                       (move-robot t) (ee-type :contact)
+                       (tm 1000) (use-torso 0.001)
+                       (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                       &allow-other-keys)
   (unless cube-pos-x
     (setq cube-pos-x (elt (send cube :get :initial-pos) 0)))
   (unless cube-pos-y
@@ -1556,8 +1557,6 @@
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
          (cube-pos (send prev-cube-coords :worldpos))
-         (larm-target-coords nil)
-         (rarm-target-coords nil)
          (move-step 50)
          (move-count 0)
          (cube-pos-x-diff (- cube-pos-x (elt cube-pos 0)))
@@ -1577,24 +1576,41 @@
     (setq cube-pos-x-step (/ cube-pos-x-diff max-move-count))
     (setq cube-pos-y-step (/ cube-pos-y-diff max-move-count))
     (setq cube-pos-z-step (/ cube-pos-z-diff max-move-count))
-    (block :hold-move-motion-step
+    (block :lift-move-motion-step
       (while (> max-move-count move-count)
         (send cube :translate
               (float-vector cube-pos-x-step cube-pos-y-step cube-pos-z-step) :world)
-        (setq larm-target-coords
-              (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
-        (setq rarm-target-coords
-              (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-        (setq av
-              (solve-ik-rotation-relax
-                :arms (list larm-target-coords rarm-target-coords)
-                :use-torso use-torso :robot robot))
+        (if (equal arm :arms)
+          (let ((larm-target-coords
+                  (send (get-ee-cube-coords
+                          :larm :cube cube :ee-type ee-type)
+                        :copy-worldcoords))
+                (rarm-target-coords
+                  (send (get-ee-cube-coords
+                          :rarm :cube cube :ee-type ee-type)
+                        :copy-worldcoords)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    :arms (list larm-target-coords rarm-target-coords)
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot)))
+          (let ((target-coords
+                  (send (get-ee-cube-coords
+                          arm :cube cube :ee-type ee-type)
+                        :copy-worldcoords)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    arm target-coords
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot))))
         (send vw :draw-objects)
         (if av
           (progn
             (setq avs (append avs (list av)))
             (setq tms (append tms (list tm))))
-          (return-from :hold-move-motion-step nil))
+          (return-from :lift-move-motion-step nil))
         (setq move-count (+ move-count 1))))
     (if av
       (when move-robot
@@ -1609,12 +1625,21 @@
     (when av (list avs tms))))
 
 
-(defun hold-pile-up-motion (&rest args
-                                  &key (cubes *boxes*) (cube-index 0)
-                                       (move-robot t) (tm 1000) (use-torso 0.001)
-                                       (robot *robot*) (ri *ri*) (cube *box0*)
-                                       (vw *irtviewer*)
-                                       &allow-other-keys)
+(defun hold-lift-move-motion (&rest args)
+  (apply #'lift-move-motion (append (list :arms :ee-type :contact) args)))
+
+
+(defun grasp-lift-move-motion (arm &rest args)
+  (apply #'lift-move-motion (append (list arm :ee-type :grasp) args)))
+
+
+(defun pile-up-motion
+  (arm &rest args &key (cubes *boxes*) (cube-index 0)
+                       (move-robot t) (ee-type :contact)
+                       (tm 1000) (use-torso 0.001)
+                       (robot *robot*) (ri *ri*) (cube *box0*)
+                       (vw *irtviewer*)
+                       &allow-other-keys)
   (let* ((avs)
          (lifted-up)
          (moved)
@@ -1634,17 +1659,19 @@
          (lift-height nil)
          (lift-height-offset 100))
     (setq lifted-up
-          (hold-lift-up-motion
+          (lift-up-motion
+            arm :ee-type ee-type
             :lift-height (- (+ target-cube-top-z lift-height-offset)
                             (- (elt cube-pos 2) (/ cube-height 2.0)))
             :move-robot nil :tm tm :use-torso use-torso
             :robot robot :ri ri :cube cube :vw vw))
     (setq cube-pos (send (send (send cube :worldcoords) :copy-worldcoords) :worldpos))
-    (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0))
-                         target-cube-top-z))
+    (setq lift-height
+          (- (- (elt cube-pos 2) (/ cube-height 2.0)) target-cube-top-z))
     (when lifted-up
       (setq moved
-            (hold-move-motion
+            (lift-move-motion
+              arm :ee-type ee-type
               :cube-pos-x (elt target-cube-pos 0)
               :cube-pos-y (elt target-cube-pos 1)
               :cube-pos-z (elt cube-pos 2)
@@ -1652,7 +1679,8 @@
               :robot robot :ri ri :cube cube :vw vw)))
     (when moved
       (setq lifted-down
-            (hold-lift-down-motion
+            (lift-down-motion
+              arm :ee-type ee-type
               :lift-height lift-height
               :cube-pos-x (elt target-cube-pos 0)
               :cube-pos-y (elt target-cube-pos 1)
@@ -1673,6 +1701,14 @@
     (when (and lifted-up moved lifted-down)
       (list (append (car lifted-up) (car moved) (car lifted-down))
             (append (cadr lifted-up) (cadr moved) (cadr lifted-down))))))
+
+
+(defun hold-pile-up-motion (&rest args)
+  (apply #'pile-up-motion (append (list :arms :ee-type :contact) args)))
+
+
+(defun grasp-pile-up-motion (arm &rest args)
+  (apply #'pile-up-motion (append (list arm :ee-type :grasp) args)))
 
 
 ;; rotate motion

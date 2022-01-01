@@ -159,7 +159,7 @@
           (setf (elt execute-action-names execute-cube-index) execute-action-name)
           (setf (elt execute-actions execute-cube-index) (copy-tree execute-action))
           (cond
-            ;; pile-up
+            ;; hold pile-up
             ((and (not (find :bottom-contact prev-cube-contact-state))
                   (listp larm-execute-motion-symbol)
                   (equal (car larm-execute-motion-symbol) :push-hold-pile-up)
@@ -171,10 +171,38 @@
                (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
                           execute-cube-index)
                      :top-contact)))
-            ;; lift-up from pile-up
+            ;; grasp pile-up
+            ((and (not (find :bottom-contact prev-cube-contact-state))
+                  (listp larm-execute-motion-symbol)
+                  (equal (car larm-execute-motion-symbol) :grasp-pile-up))
+             (let ((cube-index
+                     (elt larm-execute-motion-symbol
+                          (+ 1 (position :cube-index larm-execute-motion-symbol)))))
+               (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
+                          execute-cube-index)
+                     :top-contact)))
+            ((and (not (find :bottom-contact prev-cube-contact-state))
+                  (listp rarm-execute-motion-symbol)
+                  (equal (car rarm-execute-motion-symbol) :grasp-pile-up))
+             (let ((cube-index
+                     (elt rarm-execute-motion-symbol
+                          (+ 1 (position :cube-index rarm-execute-motion-symbol)))))
+               (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
+                          execute-cube-index)
+                     :top-contact)))
+            ;; lift-up from hold pile-up
             ((and (find :bottom-contact prev-cube-contact-state)
                   (equal larm-execute-motion-symbol :push-hold-up)
                   (equal rarm-execute-motion-symbol :push-hold-up))
+             (let ((cube-index
+                     (position :bottom-contact prev-cube-contact-state)))
+               (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
+                          execute-cube-index)
+                     :released)))
+            ;; lift-up from grasp pile-up
+            ((and (find :bottom-contact prev-cube-contact-state)
+                  (or (equal larm-execute-motion-symbol :grasp-up)
+                      (equal rarm-execute-motion-symbol :grasp-up)))
              (let ((cube-index
                      (position :bottom-contact prev-cube-contact-state)))
                (setf (elt (cadr (assoc :cube-contact-state (elt scene-states cube-index)))
@@ -293,7 +321,7 @@
                (t prev-front-wall-contact-state)))
            )
       (cond
-        ;; pile up
+        ;; hold pile-up
         ((and (not (find :bottom-contact prev-cube-contact-state))
               (listp larm-motion-symbol)
               (equal (car larm-motion-symbol) :push-hold-pile-up)
@@ -303,10 +331,34 @@
                     (elt larm-motion-symbol
                          (+ 1 (position :cube-index larm-motion-symbol))))
                :bottom-contact))
-        ;; lift up from pile-up
+        ;; grasp pile-up
+        ((and (not (find :bottom-contact prev-cube-contact-state))
+              (listp larm-motion-symbol)
+              (equal (car larm-motion-symbol) :grasp-pile-up)
+              )
+         (setf (elt cube-contact-state
+                    (elt larm-motion-symbol
+                         (+ 1 (position :cube-index larm-motion-symbol))))
+               :bottom-contact))
+        ((and (not (find :bottom-contact prev-cube-contact-state))
+              (listp rarm-motion-symbol)
+              (equal (car rarm-motion-symbol) :grasp-pile-up)
+              )
+         (setf (elt cube-contact-state
+                    (elt rarm-motion-symbol
+                         (+ 1 (position :cube-index rarm-motion-symbol))))
+               :bottom-contact))
+        ;; lift up from hold pile-up
         ((and (find :bottom-contact prev-cube-contact-state)
               (equal larm-motion-symbol :push-hold-up)
               (equal rarm-motion-symbol :push-hold-up))
+         (setf (elt cube-contact-state
+                    (position :bottom-contact cube-contact-state))
+               :released))
+        ;; lift up from grasp pile-up
+        ((and (find :bottom-contact prev-cube-contact-state)
+              (or (equal larm-motion-symbol :grasp-up)
+                  (equal rarm-motion-symbol :grasp-up)))
          (setf (elt cube-contact-state
                     (position :bottom-contact cube-contact-state))
                :released))

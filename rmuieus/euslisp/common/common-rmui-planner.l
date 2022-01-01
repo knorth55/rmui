@@ -49,12 +49,17 @@
     (let ((motion-symbols nil)
           (push-hold-down-index nil)
           (push-hold-up-index nil)
+          (grasp-down-index nil)
+          (grasp-down-arm nil)
+          (grasp-up-index nil)
+          (grasp-up-arm nil)
           (left-push-index nil)
           (right-push-index nil)
           (front-push-index nil)
           (back-push-index nil))
       (dotimes (i (length contact-positions))
-        (let* ((contact-position (elt contact-positions i))
+        (let* ((box (elt boxes i))
+               (contact-position (elt contact-positions i))
                (scene-state (elt scene-states i))
                (larm-motion-symbol
                  (send self :get-motion-symbol :larm
@@ -73,8 +78,9 @@
                (floor-contact-state
                  (cadr (assoc :floor-contact-state scene-state)))
                (cube-contact-state
-                 (cadr (assoc :cube-contact-state scene-state))))
-          ;; pile up
+                 (cadr (assoc :cube-contact-state scene-state)))
+               (grasp-arm (if (> (elt (send box :worldpos) 1) 0) :larm :rarm)))
+          ;; hold pile up
           (if (and (or (and (equal larm-contact-state :front-contact)
                             (equal rarm-contact-state :back-contact))
                        (and (equal larm-contact-state :back-contact)
@@ -85,7 +91,15 @@
                    (equal rarm-motion-symbol :push-hold-down)
                    (not (find :bottom-contact cube-contact-state)))
             (setq push-hold-down-index i))
-          ;; lift up from pile up
+          ;; grasp pile up
+          (if (and (or (and (equal larm-contact-state :top-grasp)
+                            (equal larm-motion-symbol :grasp-down))
+                       (and (equal rarm-contact-state :top-grasp)
+                            (equal rarm-motion-symbol :grasp-down)))
+                   (not (find :bottom-contact cube-contact-state)))
+            (setq grasp-down-index i)
+            (setq grasp-down-arm grasp-arm))
+          ;; lift up from hold pile up
           (if (and (or (and (equal larm-contact-state :front-contact)
                             (equal rarm-contact-state :back-contact))
                        (and (equal larm-contact-state :back-contact)
@@ -96,6 +110,14 @@
                    (equal rarm-motion-symbol :push-hold-up)
                    (find :bottom-contact cube-contact-state))
             (setq push-hold-up-index i))
+          ;; lift up from grasp pile up
+          (if (and (or (and (equal larm-contact-state :top-grasp)
+                            (equal larm-motion-symbol :grasp-up))
+                       (and (equal rarm-contact-state :top-grasp)
+                            (equal rarm-motion-symbol :grasp-up)))
+                   (find :bottom-contact cube-contact-state))
+            (setq grasp-up-index i)
+            (setq grasp-up-arm grasp-arm))
           ;; next to
           (if (and (equal rarm-contact-state :right-contact)
                    (equal larm-motion-symbol :left-push))
@@ -156,6 +178,8 @@
                         (list (list larm-motion-symbol rarm-motion-symbol))))))
       (if (or push-hold-down-index
               push-hold-up-index
+              grasp-down-index
+              grasp-up-index
               left-push-index
               right-push-index
               front-push-index
@@ -178,7 +202,7 @@
                  (front-wall-contact-state
                    (cadr (assoc :front-wall-contact-state scene-state))))
             (cond
-              ;; pile-up
+              ;; hold pile-up
               ((and push-hold-down-index
                     (not (equal push-hold-down-index i))
                     (equal (elt cube-contact-state push-hold-down-index) :released)
@@ -194,7 +218,24 @@
                      (list :push-hold-pile-up :cube-index i))
                (setf (cadr (elt motion-symbols push-hold-down-index))
                      (list :push-hold-pile-up :cube-index i)))
-              ;; lift up from pile up
+              ;; grasp pile-up
+              ((and grasp-down-index
+                    (not (equal grasp-down-index i))
+                    (equal (elt cube-contact-state grasp-down-index) :released)
+                    (not (find :top-contact cube-contact-state))
+                    ;; top-push
+                    (or (equal floor-contact-state :bottom-contact)
+                        (equal floor-contact-state :bottom-left-side-contact)
+                        (equal floor-contact-state :bottom-right-side-contact)
+                        (find :bottom-contact cube-contact-state))
+                    (find :top contact-surface)
+                    (find :bottom contact-surface))
+               (if (equal grasp-down-arm :larm)
+                 (setf (car (elt motion-symbols grasp-down-index))
+                       (list :grasp-pile-up :cube-index i))
+                 (setf (cadr (elt motion-symbols grasp-down-index))
+                       (list :grasp-pile-up :cube-index i))))
+              ;; lift up from hold pile up
               ((and push-hold-up-index
                     (not (equal push-hold-up-index i))
                     ;; top-push
@@ -207,6 +248,20 @@
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols push-hold-up-index)) nil)
                (setf (cadr (elt motion-symbols push-hold-up-index)) nil))
+              ;; lift up from grasp pile up
+              ((and grasp-up-index
+                    (not (equal grasp-up-index i))
+                    ;; top-push
+                    (equal (elt cube-contact-state grasp-up-index) :top-contact)
+                    (or (equal floor-contact-state :bottom-contact)
+                        (equal floor-contact-state :bottom-left-side-contact)
+                        (equal floor-contact-state :bottom-right-side-contact)
+                        (find :bottom-contact cube-contact-state))
+                    (find :top contact-surface)
+                    (find :bottom contact-surface))
+               (if (equal grasp-up-arm :larm)
+                 (setf (car (elt motion-symbols grasp-up-index)) nil)
+                 (setf (cadr (elt motion-symbols grasp-up-index)) nil)))
               ;; next to
               ((and left-push-index
                     (not (equal left-push-index i))
