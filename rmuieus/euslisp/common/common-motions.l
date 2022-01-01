@@ -1481,8 +1481,8 @@
       (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0)) (+ table-z table-height))))
     (setq max-height-count (+ (floor (/ lift-height height-step)) 1))
     (setq height-step (/ (* -1.0 lift-height) max-height-count))
-    (setq cube-pos-x-step (/ (- cube-pos-x (elt cube-pos 0) max-height-count)))
-    (setq cube-pos-y-step (/ (- cube-pos-y (elt cube-pos 1) max-height-count)))
+    (setq cube-pos-x-step (/ (- cube-pos-x (elt cube-pos 0)) max-height-count))
+    (setq cube-pos-y-step (/ (- cube-pos-y (elt cube-pos 1)) max-height-count))
     ;; lift down
     (block :lift-down-motion-step
       (while (> max-height-count height-count)
