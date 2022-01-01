@@ -76,6 +76,16 @@
        grasp-p
        (equal grasp-arm :larm))
   :grasp-release)
+ ((and (equal larm-contact-state :top-grasp)
+       (or (equal floor-contact-state :bottom-contact)
+           (equal floor-contact-state :bottom-left-side-contact)
+           (equal floor-contact-state :bottom-right-side-contact)
+           (find :bottom-contact cube-contact-state))
+       (find :top contact-surface)
+       (null (find :bottom contact-surface))
+       grasp-p
+       (equal grasp-arm :larm))
+  :grasp-up)
  ((and (equal larm-contact-state :released)
        (null (equal rarm-contact-state :top-left-contact))
        (equal floor-contact-state :released)

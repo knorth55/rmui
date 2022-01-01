@@ -153,23 +153,23 @@
     (send cube :put coords-name nil)))
 
 
-(defun assoc-cube-ri (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun assoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
     (assoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun assoc-cube-ri-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun assoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
     (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :assoc (car (send ri :find-object (send cube :name))))))
 
 
-(defun dissoc-cube-ri (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun dissoc-cube (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (dolist (a (if (eq arm :arms) (list :larm :rarm) (list arm)))
     (dissoc-cube-step a :ee-type ee-type :ri ri :cube cube)))
 
 
-(defun dissoc-cube-ri-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
+(defun dissoc-cube-step (arm &key (ee-type :contact) (ri *ri*) (cube *box0*))
   (if (and ri (send ri :simulation-modep))
     (send (get-ee-coords arm :ee-type ee-type :robot (send ri :robot))
           :dissoc (car (send ri :find-object (send cube :name))))))
@@ -327,9 +327,17 @@
   (get-cube-coords :bottom :cube cube))
 
 
+(defun get-ee-cube-coords (arm &key (ee-type :contact) (cube *box0*))
+  (cond ((equal ee-type :contact)
+         (get-contact-cube-coords arm :cube cube))
+        ((equal ee-type :grasp)
+         (get-grasp-cube-coords arm :cube cube))
+        (t nil)))
+
+
 (defun get-contact-cube-coords (arm &key (cube *box0*))
-  (cond ((eq arm :larm) (get-contact-coords :larm :cube cube))
-        ((eq arm :rarm) (get-contact-coords :rarm :cube cube))
+  (cond ((eq arm :larm) (send cube :get :larm-contact-coords))
+        ((eq arm :rarm) (send cube :get :rarm-contact-coords))
         ((eq arm :arms)
          (list (get-contact-cube-coords :larm :cube cube)
                (get-contact-cube-coords :rarm :cube cube)))
@@ -337,8 +345,8 @@
 
 
 (defun get-grasp-cube-coords (arm &key (cube *box0*))
-  (cond ((eq arm :larm) (get-grasp-coords :larm :cube cube))
-        ((eq arm :rarm) (get-grasp-coords :rarm :cube cube))
+  (cond ((eq arm :larm) (send cube :get :larm-grasp-coords))
+        ((eq arm :rarm) (send cube :get :rarm-grasp-coords))
         ((eq arm :arms)
          (list (get-grasp-cube-coords :larm :cube cube)
                (get-grasp-cube-coords :rarm :cube cube)))
@@ -1374,17 +1382,14 @@
 
 ;; hold lift up & down motion
 
-(defun hold-lift-up-motion (&rest args
-                                  &key (lift-height 100) (move-robot t)
-                                       (tm 1000) (use-torso 0.001)
-                                       (robot *robot*) (ri *ri*)
-                                       (cube *box0*) (vw *irtviewer*)
-                                       &allow-other-keys)
+(defun lift-up-motion
+  (arm &rest args &key (lift-height 100) (move-robot t) (ee-type :contact)
+                       (tm 1000) (use-torso 0.001)
+                       (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                       &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
          (prev-cube-coords (send cube :copy-worldcoords))
-         (larm-target-coords nil)
-         (rarm-target-coords nil)
          (height-step 50)
          (height-count 0)
          (max-height-count (+ (floor (/ lift-height height-step)) 1))
@@ -1392,23 +1397,40 @@
          (tms nil))
     (setq height-step (/ lift-height max-height-count))
     ;; lift up
-    (block :hold-lift-up-motion-step
+    (block :lift-up-motion-step
       (while (> max-height-count height-count)
         (send cube :translate (float-vector 0 0 height-step) :world)
-        (setq larm-target-coords
-              (send (get-contact-cube-coords :larm :cube cube) :copy-worldcoords))
-        (setq rarm-target-coords
-              (send (get-contact-cube-coords :rarm :cube cube) :copy-worldcoords))
-        (setq av
-              (solve-ik-rotation-relax
-                :arms (list larm-target-coords rarm-target-coords)
-                :use-torso use-torso :robot robot))
+        (if (equal arm :arms)
+          (let ((larm-target-coords
+                  (send (get-ee-cube-coords
+                          :larm :cube cube :ee-type ee-type)
+                        :copy-worldcoords))
+                (rarm-target-coords
+                  (send (get-ee-cube-coords
+                          :rarm :cube cube :ee-type ee-type)
+                        :copy-worldcoords)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    :arms (list larm-target-coords rarm-target-coords)
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot)))
+          (let ((target-coords
+                  (send (get-ee-cube-coords
+                          arm :cube cube :ee-type ee-type)
+                        :copy-worldcoords)))
+            (setq av
+                  (solve-ik-rotation-relax
+                    arm target-coords
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot))))
         (send vw :draw-objects)
         (if av
           (progn
             (setq avs (append avs (list av)))
             (setq tms (append tms (list tm))))
-          (return-from :hold-lift-up-motion-step nil))
+          (return-from :lift-up-motion-step nil))
         (setq height-count (+ height-count 1))))
     (if av
       (when move-robot
@@ -1421,6 +1443,14 @@
         (send cube :worldcoords)))
     (send vw :draw-objects)
     (when av (list avs tms))))
+
+
+(defun hold-lift-up-motion (&rest args)
+  (apply #'lift-up-motion (append (list :arms :ee-type :contact) args)))
+
+
+(defun grasp-lift-up-motion (arm &rest args)
+  (apply #'lift-up-motion (append (list arm :ee-type :grasp) args)))
 
 
 (defun hold-lift-down-motion (&rest args
