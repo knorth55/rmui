@@ -1473,64 +1473,82 @@
          (height-step 50)
          (height-count 0)
          (max-height-count)
-         (cube-pos-x-step)
-         (cube-pos-y-step)
+         (execute-move
+           (or (> (round (abs (- cube-pos-x (elt cube-pos 0)))) 0)
+               (> (round (abs (- cube-pos-y (elt cube-pos 1)))) 0)))
+         (moved nil)
          (avs nil)
          (tms nil))
     (unless lift-height
       (setq lift-height (- (- (elt cube-pos 2) (/ cube-height 2.0)) (+ table-z table-height))))
-    (setq max-height-count (+ (floor (/ lift-height height-step)) 1))
+    (setq max-height-count (+ (floor (/ (abs lift-height) height-step)) 1))
     (setq height-step (/ (* -1.0 lift-height) max-height-count))
-    (setq cube-pos-x-step (/ (- cube-pos-x (elt cube-pos 0)) max-height-count))
-    (setq cube-pos-y-step (/ (- cube-pos-y (elt cube-pos 1)) max-height-count))
+    (if execute-move
+      (setq moved
+            (lift-move-motion
+              arm :ee-type ee-type
+              :cube-pos-x cube-pos-x
+              :cube-pos-y cube-pos-y
+              :cube-pos-z (elt cube-pos 2)
+              :move-robot nil :tm tm :use-torso use-torso
+              :robot robot :ri ri :cube cube :vw vw)))
     ;; lift down
-    (block :lift-down-motion-step
-      (while (> max-height-count height-count)
-        (send cube :translate
-              (float-vector cube-pos-x-step cube-pos-y-step height-step) :world)
-        (if (equal arm :arms)
-          (let ((larm-target-coords
-                  (send (get-ee-cube-coords
-                          :larm :cube cube :ee-type ee-type)
-                        :copy-worldcoords))
-                (rarm-target-coords
-                  (send (get-ee-cube-coords
-                          :rarm :cube cube :ee-type ee-type)
-                        :copy-worldcoords)))
-            (setq av
-                  (solve-ik-rotation-relax
-                    :arms (list larm-target-coords rarm-target-coords)
-                    :use-torso use-torso
-                    :ee-type ee-type
-                    :robot robot)))
-          (let ((target-coords
-                  (send (get-ee-cube-coords
-                          arm :cube cube :ee-type ee-type)
-                        :copy-worldcoords)))
-            (setq av
-                  (solve-ik-rotation-relax
-                    arm target-coords
-                    :use-torso use-torso
-                    :ee-type ee-type
-                    :robot robot))))
-        (send vw :draw-objects)
-        (if av
-          (progn
-            (setq avs (append avs (list av)))
-            (setq tms (append tms (list tm))))
-          (return-from :lift-down-motion-step nil))
-        (setq height-count (+ height-count 1))))
+    (if (or (null execute-move)
+            (and execute-move moved))
+      (block :lift-down-motion-step
+        (while (> max-height-count height-count)
+          (send cube :translate (float-vector 0 0 height-step) :world)
+          (if (equal arm :arms)
+            (let ((larm-target-coords
+                    (send (get-ee-cube-coords
+                            :larm :cube cube :ee-type ee-type)
+                          :copy-worldcoords))
+                  (rarm-target-coords
+                    (send (get-ee-cube-coords
+                            :rarm :cube cube :ee-type ee-type)
+                          :copy-worldcoords)))
+              (setq av
+                    (solve-ik-rotation-relax
+                      :arms (list larm-target-coords rarm-target-coords)
+                      :use-torso use-torso
+                      :ee-type ee-type
+                      :robot robot)))
+            (let ((target-coords
+                    (send (get-ee-cube-coords
+                            arm :cube cube :ee-type ee-type)
+                          :copy-worldcoords)))
+              (setq av
+                    (solve-ik-rotation-relax
+                      arm target-coords
+                      :use-torso use-torso
+                      :ee-type ee-type
+                      :robot robot))))
+          (send vw :draw-objects)
+          (if av
+            (progn
+              (setq avs (append avs (list av)))
+              (setq tms (append tms (list tm))))
+            (return-from :lift-down-motion-step nil))
+          (setq height-count (+ height-count 1)))))
     (if av
       (when move-robot
-        (send ri :angle-vector-sequence avs tms
-              (get-arm-controller :arms :use-torso use-torso) 0)
+        (if execute-move
+          (send ri :angle-vector-sequence
+                (append (car moved) avs)
+                (append (cadr moved) tms)
+                (get-arm-controller :arms :use-torso use-torso) 0)
+          (send ri :angle-vector-sequence avs tms
+                (get-arm-controller :arms :use-torso use-torso) 0))
         (send ri :wait-interpolation))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
     (send vw :draw-objects)
-    (when av (list avs tms))))
+    (when av
+      (if execute-move
+        (list (append (car moved) avs) (append (cadr moved) tms))
+        (list avs tms)))))
 
 
 (defun hold-lift-down-motion (&rest args)
