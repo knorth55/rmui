@@ -49,8 +49,8 @@
         (if (not use-torso) (car (send robot arm)))))
 
 
-(defun get-ee-ik-args (arm &key (rotation-axis t) (use-torso t) (ee-type :contact)
-                                (robot *robot*))
+(defun get-ee-ik-args
+  (arm &key (rotation-axis t) (use-torso t) (ee-type :contact) (robot *robot*))
   (if (eq arm :arms)
     (list
       :move-target (list (get-ee-coords :larm :ee-type ee-type :robot robot)
@@ -75,8 +75,8 @@
       :use-torso use-torso)))
 
 
-(defun solve-ik (arm target-coords &key (rotation-axis t) (use-torso t) (ee-type :contact)
-                                        (robot *robot*))
+(defun solve-ik
+  (arm target-coords &key (rotation-axis t) (use-torso t) (ee-type :contact) (robot *robot*))
   (send* robot :inverse-kinematics
          (cond
            ((eq arm :arms) target-coords)
@@ -96,8 +96,8 @@
                          :robot robot)))
 
 
-(defun solve-ik-rotation-relax (arm target-coords &key (use-torso t) (ee-type :contact)
-                                                       (robot *robot*))
+(defun solve-ik-rotation-relax
+  (arm target-coords &key (use-torso t) (ee-type :contact) (robot *robot*))
   (let (av)
     (setq av (solve-ik arm target-coords
                        :rotation-axis t :use-torso use-torso :ee-type ee-type
@@ -855,17 +855,34 @@
             (list approach-tm grasp-tm)))))
 
 
-;; push release motion
+;; release motion
+
+(defun get-release-target-coords
+  (arm &key (ee-type :contact) (release-distance -100) (robot *robot*))
+  (cond
+    ((equal ee-type :contact)
+     (get-push-release-target-coords
+       arm :release-distance release-distance :robot robot))
+    ((equal ee-type :grasp)
+     (get-grasp-release-target-coords
+       arm :release-distance release-distance :robot robot))
+    (t nil)))
+
 
 (defun get-push-release-target-coords (arm &key (robot *robot*) (release-distance -100))
   (let ((target-coords (send (get-contact-coords arm :robot robot) :copy-worldcoords)))
-    (send target-coords :translate
-          (float-vector 0 0 release-distance))
+    (send target-coords :translate (float-vector 0 0 release-distance))
     target-coords))
 
 
-(defun push-release-and-reset-motion
-  (arm &rest args &key (move-robot t) (tm 3000) (use-torso 0.001)
+(defun get-grasp-release-target-coords (arm &key (robot *robot*) (release-distance -100))
+  (let ((target-coords (send (get-grasp-coords arm :robot robot) :copy-worldcoords)))
+    (send target-coords :translate (float-vector release-distance 0 0))
+    target-coords))
+
+
+(defun release-and-reset-motion
+  (arm &rest args &key (move-robot t) (tm 3000) (use-torso 0.001) (ee-type :contact)
                        (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                        (cubes *boxes*)
                        &allow-other-keys)
@@ -874,16 +891,19 @@
         (reseted)
         (prev-av (send robot :angle-vector)))
     (setq released
-          (push-release-motion arm
-                               :move-robot nil :tm tm
-                               :use-torso use-torso
-                               :robot robot :ri ri :cube cube :vw vw))
+          (release-motion
+            arm
+            :move-robot nil :tm tm
+            :use-torso use-torso
+            :ee-type ee-type
+            :robot robot :ri ri :cube cube :vw vw))
     (when released
       (setq reseted
-            (reset-cube-manip-motion arm
-                                     :move-robot nil :tm tm
-                                     :use-torso use-torso
-                                     :robot robot :ri ri :vw vw)))
+            (reset-cube-manip-motion
+              arm
+              :move-robot nil :tm tm
+              :use-torso use-torso
+              :robot robot :ri ri :vw vw)))
     (if (and released reseted)
       (when move-robot
         (send ri :angle-vector-raw
@@ -904,13 +924,21 @@
             (append (cadr released) (cadr reseted))))))
 
 
-(defun push-release-motion (arm &rest args
-                                &key (move-robot t) (tm 3000) (use-torso 0.001)
-                                     (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
-                                     &allow-other-keys)
+(defun push-release-and-reset-motion (arm &rest args)
+  (apply #'release-and-reset-motion (append (list arm :ee-type :contact) args)))
+
+
+(defun grasp-release-and-reset-motion (arm &rest args)
+  (apply #'release-and-reset-motion (append (list arm :ee-type :grasp) args)))
+
+
+(defun release-motion
+  (arm &rest args &key (move-robot t) (tm 3000) (use-torso 0.001) (ee-type :contact)
+                       (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
+                       &allow-other-keys)
   (unless (or (eq arm :larm) (eq arm :rarm) (eq arm :arms))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
-    (return-from push-release-motion nil))
+    (return-from release-motion nil))
   (let ((av)
         (release-distance-max -100)
         (release-distance-step -20))
@@ -918,29 +946,38 @@
                (round (/ release-distance-max release-distance-step)))
       (let ((release-distance
               (- release-distance-max
-                 (* release-distance-index
-                    release-distance-step))))
+                 (* release-distance-index release-distance-step))))
         (if (eq arm :arms)
           (let ((larm-target-coords
-                  (get-push-release-target-coords
-                    :larm :robot robot
-                    :release-distance release-distance))
+                  (get-release-target-coords
+                    :larm
+                    :release-distance release-distance
+                    :ee-type ee-type
+                    :robot robot))
                 (rarm-target-coords
-                  (get-push-release-target-coords
-                    :rarm :robot robot
-                    :release-distance release-distance)))
+                  (get-release-target-coords
+                    :rarm
+                    :release-distance release-distance
+                    :ee-type ee-type
+                    :robot robot)))
             (setq av
                   (solve-ik-rotation-relax
                     :arms (list larm-target-coords rarm-target-coords)
-                    :use-torso use-torso :robot robot)))
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot)))
           (let ((target-coords
-                  (get-push-release-target-coords
-                    arm :robot robot
-                    :release-distance release-distance)))
+                  (get-release-target-coords
+                    arm
+                    :release-distance release-distance
+                    :ee-type ee-type
+                    :robot robot)))
             (setq av
                   (solve-ik-rotation-relax
                     arm target-coords
-                    :use-torso use-torso :robot robot)))))
+                    :use-torso use-torso
+                    :ee-type ee-type
+                    :robot robot)))))
       (if av (return)))
     (when (and av move-robot)
       (send ri :angle-vector av tm
@@ -950,6 +987,14 @@
     (when av
       (discontact-cube arm :cube cube)
       (list (list av) (list tm)))))
+
+
+(defun push-release-motion (arm &rest args)
+  (apply #'release-motion (append (list arm :ee-type :contact) args)))
+
+
+(defun grasp-release-motion (arm &rest args)
+  (apply #'release-motion (append (list arm :ee-type :grasp) args)))
 
 
 ;; push hold motion
