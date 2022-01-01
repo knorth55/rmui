@@ -99,6 +99,15 @@
     (if executed t nil)))
 
 
+(defun grasp-down-action (arm &rest args &key (ri *ri*) (cube *box0*) &allow-other-keys)
+  (let ((executed nil))
+    (assoc-cube arm :ri ri :cube cube)
+    (setq executed
+          (apply #'grasp-lift-down-motion (append (list arm) args)))
+    (dissoc-cube arm :ri ri :cube cube)
+    (if executed t nil)))
+
+
 (defun move-push-action (arm &rest args &key (ri *ri*) (cube *box0*)
                              &allow-other-keys)
   (let ((executed nil))
@@ -578,6 +587,10 @@
   (apply #'grasp-up-action (append (list :larm) args)))
 
 
+(defun larm-grasp-down-action (&rest args)
+  (apply #'grasp-down-action (append (list :larm) args)))
+
+
 (defun larm-top-left-push-action (&rest args &key (cube *box0*)
                                         &allow-other-keys)
   (let* ((cube-rpy (float-vector 0 0 (/ pi 4.0)))
@@ -815,6 +828,10 @@
 
 (defun rarm-grasp-up-action (&rest args)
   (apply #'grasp-up-action (append (list :rarm) args)))
+
+
+(defun rarm-grasp-down-action (&rest args)
+  (apply #'grasp-down-action (append (list :rarm) args)))
 
 
 (defun rarm-top-right-push-action (&rest args &key (cube *box0*)
