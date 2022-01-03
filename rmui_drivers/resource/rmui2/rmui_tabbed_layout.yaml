@@ -1,25 +1,12 @@
 tabbed_layout:
-  tab_list: ['imu', 'contact', 'rotate', 'bottom_contact', 'system']
+  tab_list:
+    - imu
+    - system
   imu:
     name: 'IMU'
     namespace: push
     type: push
     yaml_file: 'package://rmui_drivers/resource/rmui2/imu_button_layout.yaml'
-  contact:
-    name: 'Contact'
-    namespace: push
-    type: push
-    yaml_file: 'package://rmui_drivers/resource/rmui2/contact_button_layout.yaml'
-  rotate:
-    name: 'Rotate'
-    namespace: push
-    type: push
-    yaml_file: 'package://rmui_drivers/resource/rmui2/rotate_button_layout.yaml'
-  bottom_contact:
-    name: 'Bottom contact'
-    namespace: push
-    type: push
-    yaml_file: 'package://rmui_drivers/resource/rmui2/contact_sensor_button_layout.yaml'
   system:
     name: 'System'
     namespace: push

@@ -57,6 +57,12 @@
           pkg="jsk_rqt_plugins" type="rqt_tabbed_buttons" output="screen" clear_params="true">
       <rosparam command="load" file="$(find rmui_drivers)/resource/$(arg group_name)/rmui_tabbed_layout.yaml" />
     </node>
+    <group if="$(arg dummy)">
+      <node name="$(anon dummy_button)"
+            pkg="jsk_rqt_plugins" type="rqt_tabbed_buttons" output="screen" clear_params="true">
+        <rosparam command="load" file="$(find rmui_drivers)/resource/$(arg group_name)/rmui_dummy_tabbed_layout.yaml" />
+      </node>
+    </group>
   </group>
 
 </launch>

@@ -71,6 +71,15 @@
       <rosparam command="load" unless="$(eval arg('n_box') >= 3)"
                 file="$(find rmui_drivers)/resource/rmui1_to_rmui2_tabbed_layout.yaml" />
     </node>
+    <group if="$(arg dummy)">
+      <node name="$(anon dummy_button)"
+            pkg="jsk_rqt_plugins" type="rqt_tabbed_buttons" output="screen" clear_params="true">
+        <rosparam command="load" if="$(eval arg('n_box') >= 3)"
+                  file="$(find rmui_drivers)/resource/rmui0_to_rmui2_dummy_tabbed_layout.yaml" />
+        <rosparam command="load" unless="$(eval arg('n_box') >= 3)"
+                  file="$(find rmui_drivers)/resource/rmui1_to_rmui2_dummy_tabbed_layout.yaml" />
+      </node>
+    </group>
   </group>
 
 </launch>
