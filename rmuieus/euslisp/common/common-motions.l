@@ -810,7 +810,9 @@
   (unless (or (eq arm :larm) (eq arm :rarm))
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from grasp-motion nil))
-  (let* ((approach-av)
+  (let* ((prev-av (send robot :angle-vector))
+         (prev-cube-coords (send cube :copy-worldcoords))
+         (approach-av)
          (approach-target-coords
            (get-grasp-target-coords
              arm
@@ -835,9 +837,7 @@
              :cube-height cube-height
              :cube-width cube-width
              :cube-depth cube-depth
-             :cube cube))
-         (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords)))
+             :cube cube)))
     (unless (and approach-target-coords grasp-target-coords)
       (ros::ros-error "approach target coords is invalid: ~A" approach-target-coords)
       (ros::ros-error "grasp target coords is invalid   : ~A" grasp-target-coords)
