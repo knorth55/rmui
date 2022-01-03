@@ -238,14 +238,10 @@
              (cadr (assoc :larm-contact-state scene-state)))
            (rarm-contact-state
              (cadr (assoc :rarm-contact-state scene-state)))
-           (floor-contact-state
-             (cadr (assoc :floor-contact-state scene-state)))
-           (object-location-state
-             (cadr (assoc :object-location-state scene-state)))
-           (object-rotation-state
-             (cadr (assoc :object-rotation-state scene-state)))
            (larm-motion-symbol (car checked-motion-symbol))
            (rarm-motion-symbol (cadr checked-motion-symbol))
+           (cube-contact-state
+             (cadr (assoc :cube-contact-state scene-state)))
            (executed nil)
            (execute-symbol nil))
       ;; execute motion symbols
@@ -282,6 +278,7 @@
                             :wall-left-limit wall-left-limit
                             :larm-contact-state larm-contact-state
                             :rarm-contact-state rarm-contact-state
+                            :cube-contact-state cube-contact-state
                             ))))
             (if robotviewer (send robotviewer :draw-objects))
             (send self :reset-executor)
@@ -303,6 +300,7 @@
                           :wall-left-limit pilot-wall-left-limit
                           :larm-contact-state larm-contact-state
                           :rarm-contact-state rarm-contact-state
+                          :cube-contact-state cube-contact-state
                           )))
                 (if pilotviewer (send pilotviewer :draw-objects))
                 (setq execute-symbol

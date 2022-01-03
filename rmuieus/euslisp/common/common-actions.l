@@ -90,8 +90,14 @@
     (if executed t nil)))
 
 
-(defun grasp-up-action (arm &rest args &key (ri *ri*) (cube *box0*) &allow-other-keys)
+(defun grasp-up-action
+  (arm &rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-contact-state)
+                  &allow-other-keys)
   (let ((executed nil))
+    ;; pile up dissoc
+    (let ((cube-index (position :bottom-contact cube-contact-state)))
+      (if cube-index
+        (dissoc-two-cubes (elt cubes cube-index) cube :ri ri)))
     (assoc-cube arm :ri ri :cube cube)
     (setq executed
           (apply #'grasp-lift-up-motion (append (list arm :lift-height 200) args)))
@@ -143,9 +149,14 @@
 
 ;; dualarm actions
 
-(defun dualarm-hold-up-action (&rest args &key (ri *ri*) (cube *box0*)
-                                     &allow-other-keys)
+(defun dualarm-hold-up-action
+  (&rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-contact-state)
+              &allow-other-keys)
   (let ((executed nil))
+    ;; pile up dissoc
+    (let ((cube-index (position :bottom-contact cube-contact-state)))
+      (if cube-index
+        (dissoc-two-cubes (elt cubes cube-index) cube :ri ri)))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'hold-lift-up-motion (append (list :lift-height 200) args)))
