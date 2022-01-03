@@ -22,7 +22,8 @@
   :super ros::simple-action-server
   :slots (namespace
           server-namespace
-          server-groupname
+          interactor-groupname
+          visualize-groupname
           groupname
           show-pdf
           object-statenet-dir
@@ -58,7 +59,8 @@
 (defmethod statenet-action-server
   (:init (&key ((:namespace ns) "~execute")
                ((:server-namespace srvns) "/statenet_server")
-               ((:server-groupname srvgpn) "statenet_server")
+               ((:interactor-groupname itrgpn) "statenet_interactor")
+               ((:visualize-groupname visgpn) "statenet_visualizer")
                ((:groupname gpn))
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
                ((:reset-state rs) *reset-state*)
@@ -97,7 +99,8 @@
       (send-super :init ns sp :groupname gpn)
       (setq namespace ns)
       (setq server-namespace srvns)
-      (setq server-groupname srvgpn)
+      (setq interactor-groupname itrgpn)
+      (setq visualize-groupname visgpn)
       (setq groupname gpn)
       (setq reset-state rs)
       (setq device-namespaces devnss)
@@ -146,7 +149,7 @@
             (instance statenet-interactor :init
                       :mode :ros-topic
                       :namespace server-namespace
-                      :groupname server-groupname
+                      :groupname interactor-groupname
                       :ri rbti
                       :use-speak-inform t
                       :use-speech-recognition t
@@ -236,8 +239,11 @@
       (send self :execute-statenet-cb (send self :goal)))
     (send-super :execute-cb))
   (:init-timer ()
-    (ros::create-timer 0.1 #'send self :current-state-publish-timer-cb)
-    (ros::create-timer 0.1 #'send self :visualize-update-cb)
+    (ros::create-nodehandle visualize-groupname)
+    (ros::create-timer 0.1 #'send self :current-state-publish-timer-cb
+                       :groupname visualize-groupname)
+    (ros::create-timer 0.1 #'send self :visualize-update-cb
+                       :groupname visualize-groupname)
     (ros::create-timer 0.1
                        `(lambda-closure nil 0 0 (event)
                                         (send ,self :execute-cb))))
@@ -440,8 +446,10 @@
         (if device-groupnames
           (dolist (device-groupname device-groupnames)
             (ros::spin-once device-groupname)))
-        (if server-groupname
-          (ros::spin-once server-groupname))
+        (if interactor-groupname
+          (ros::spin-once interactor-groupname))
+        (if visualize-groupname
+          (ros::spin-once visualize-groupname))
         (if (send stinteractor :ros-wait-user-interrupt
                   nil :timeout 0.05 :from-stamp from-stamp
                   :toggle-server nil)
@@ -928,8 +936,10 @@
     (if device-groupnames
       (dolist (device-groupname device-groupnames)
         (ros::spin-once device-groupname)))
-    (if server-groupname
-      (ros::spin-once server-groupname))
+    (if interactor-groupname
+      (ros::spin-once interactor-groupname))
+    (if visualize-groupname
+      (ros::spin-once visualize-groupname))
     (send-super :spin-once))
   )
 
