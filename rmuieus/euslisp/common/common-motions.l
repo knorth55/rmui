@@ -175,6 +175,20 @@
           :dissoc (car (send ri :find-object (send cube :name))))))
 
 
+(defun assoc-two-cubes (cube target-cube &key (ri *ri*))
+  (send cube :assoc target-cube)
+  (if (and ri (send ri :simulation-modep))
+    (send (car (send ri :find-object (send cube :name)))
+          :assoc (car (send ri :find-object (send target-cube :name))))))
+
+
+(defun dissoc-two-cubes (cube target-cube &key (ri *ri*))
+  (send cube :dissoc target-cube)
+  (if (and ri (send ri :simulation-modep))
+    (send (car (send ri :find-object (send cube :name)))
+          :dissoc (car (send ri :find-object (send target-cube :name))))))
+
+
 (defun add-cube-coords (&key (cube *box0*))
   (let* ((cube-depth (x-of-cube cube))
          (cube-width (y-of-cube cube))
