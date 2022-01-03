@@ -93,11 +93,11 @@
 (defun grasp-up-action
   (arm &rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-contact-state)
                   &allow-other-keys)
-  (let ((executed nil))
+  (let ((bottom-cube-index (position :bottom-contact cube-contact-state))
+        (executed nil))
     ;; pile up dissoc
-    (let ((cube-index (position :bottom-contact cube-contact-state)))
-      (if cube-index
-        (dissoc-two-cubes (elt cubes cube-index) cube :ri ri)))
+    (if bottom-cube-index
+      (dissoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (assoc-cube arm :ri ri :cube cube)
     (setq executed
           (apply #'grasp-lift-up-motion (append (list arm :lift-height 200) args)))
@@ -152,11 +152,11 @@
 (defun dualarm-hold-up-action
   (&rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-contact-state)
               &allow-other-keys)
-  (let ((executed nil))
+  (let ((bottom-cube-index (position :bottom-contact cube-contact-state))
+        (executed nil))
     ;; pile up dissoc
-    (let ((cube-index (position :bottom-contact cube-contact-state)))
-      (if cube-index
-        (dissoc-two-cubes (elt cubes cube-index) cube :ri ri)))
+    (if bottom-cube-index
+      (dissoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'hold-lift-up-motion (append (list :lift-height 200) args)))
@@ -400,9 +400,10 @@
 
 
 (defun dualarm-push-rotate-ccw-z45-action
-  (&rest args &key (ri *ri*) (cube *box0*)
+  (&rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*)
                    (larm-contact-state :left-contact)
                    (rarm-contact-state :right-contact)
+                   (cube-contact-state)
                    &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :front-left-contact)
@@ -412,7 +413,11 @@
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (bottom-cube-index (position :bottom-contact cube-contact-state))
          (executed nil))
+    ;; rotate up dissoc
+    (if bottom-cube-index
+      (dissoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
@@ -427,13 +432,16 @@
                          :use-rotate-distance nil)
                    args)))
     (dissoc-cube :arms :ri ri :cube cube)
+    (if bottom-cube-index
+      (assoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (if executed t nil)))
 
 
 (defun dualarm-push-rotate-cw-z45-action
-  (&rest args &key (ri *ri*) (cube *box0*)
+  (&rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*)
                    (larm-contact-state :left-contact)
                    (rarm-contact-state :right-contact)
+                   (cube-contact-state)
                    &allow-other-keys)
   (let* ((initial-rotate-angle
            (if (and (equal larm-contact-state :back-left-contact)
@@ -443,7 +451,11 @@
          (cube-height (get-cube-height :cube-rpy cube-rpy :cube cube))
          (cube-width (get-cube-width :cube-rpy cube-rpy :cube cube))
          (cube-depth (get-cube-depth :cube-rpy cube-rpy :cube cube))
+         (bottom-cube-index (position :bottom-contact cube-contact-state))
          (executed nil))
+    ;; rotate up dissoc
+    (if bottom-cube-index
+      (dissoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed
           (apply #'push-rotate-motion
@@ -458,6 +470,8 @@
                          :use-rotate-distance nil)
                    args)))
     (dissoc-cube :arms :ri ri :cube cube)
+    (if bottom-cube-index
+      (assoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (if executed t nil)))
 
 
