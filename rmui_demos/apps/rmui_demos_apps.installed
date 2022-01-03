@@ -7,3 +7,5 @@ apps:
     display: Baxter multi object rotate z90 & pileup
   - app: rmui_demos/baxter_multi_rotate_z180_pileup
     display: Baxter multi object rotate z180 & pileup
+  - app: rmui_demos/baxter_multi_tidyup
+    display: Baxter multi object tidyup

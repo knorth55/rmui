@@ -1,0 +1,4 @@
+<launch>
+  <node name="baxter_multi_tidyup" pkg="rmui_demos" type="baxter_multi_tidyup.l"
+        required="true" output="screen" />
+</launch>
