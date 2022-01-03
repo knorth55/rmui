@@ -235,7 +235,7 @@
                        (list :grasp-pile-up :cube-index i))
                  (setf (cadr (elt motion-symbols grasp-down-index))
                        (list :grasp-pile-up :cube-index i))))
-              ;; lift up from hold pile up
+              ;; assert if top contact removed when lift up from hold pile up
               ((and push-hold-up-index
                     (not (equal push-hold-up-index i))
                     ;; top-push
@@ -248,7 +248,7 @@
                     (find :bottom contact-surface))
                (setf (car (elt motion-symbols push-hold-up-index)) nil)
                (setf (cadr (elt motion-symbols push-hold-up-index)) nil))
-              ;; lift up from grasp pile up
+              ;; assert if top contact removed when lift up from grasp pile up
               ((and grasp-up-index
                     (not (equal grasp-up-index i))
                     ;; top-push
