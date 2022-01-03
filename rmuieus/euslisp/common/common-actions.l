@@ -108,12 +108,15 @@
     (if executed t nil)))
 
 
-(defun grasp-pile-up-action (arm &rest args &key (ri *ri*) (cube *box0*) &allow-other-keys)
+(defun grasp-pile-up-action
+  (arm &rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-index) &allow-other-keys)
   (let ((executed nil))
     (assoc-cube arm :ri ri :cube cube)
     (setq executed
           (apply #'grasp-pile-up-motion (append (list arm) args)))
     (dissoc-cube arm :ri ri :cube cube)
+    ;; pile up assoc
+    (assoc-two-cubes (elt cubes cube-index) cube :ri ri)
     (if executed t nil)))
 
 
@@ -505,12 +508,14 @@
     (if executed t nil)))
 
 
-(defun dualarm-push-hold-pile-up-action (&rest args &key (ri *ri*) (cube *box0*)
-                                               &allow-other-keys)
+(defun dualarm-push-hold-pile-up-action
+  (&rest args &key (ri *ri*) (cube *box0*) (cubes *boxes*) (cube-index) &allow-other-keys)
   (let ((executed nil))
     (assoc-cube :arms :ri ri :cube cube)
     (setq executed (apply #'hold-pile-up-motion args))
     (dissoc-cube :arms :ri ri :cube cube)
+    ;; pile up assoc
+    (assoc-two-cubes (elt cubes cube-index) cube :ri ri)
     (if executed t nil)))
 
 
