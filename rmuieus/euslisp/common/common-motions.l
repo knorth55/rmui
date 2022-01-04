@@ -865,7 +865,7 @@
         (send ri :angle-vector-raw grasp-av grasp-tm
               (get-arm-controller :arms :use-torso use-torso) 0)
         (send ri :wait-interpolation)
-        (start-grasp arm :ri ri)
+        (start-grasp arm :ri ri :wait t)
         )
       (progn
         (send robot :angle-vector prev-av)
@@ -928,6 +928,7 @@
               :robot robot :ri ri :vw vw)))
     (if (and released reseted)
       (when move-robot
+        (if (equal ee-type :grasp) (stop-grasp arm :ri ri :wait t))
         (send ri :angle-vector-raw
               (car (car released)) (car (cadr released))
               (get-arm-controller :arms :use-torso use-torso) 0)
@@ -1933,8 +1934,8 @@
   (let ((av (send robot :reset-cube-manip-pose)))
     (send vw :draw-objects)
     (when move-robot
-      ;; (stop-grasp :arms :ri ri)
-      (start-grasp :arms :ri ri)
+      (stop-grasp :arms :ri ri :wait t)
+      ;: (start-grasp :arms :ri ri)
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
       (send ri :wait-interpolation))
