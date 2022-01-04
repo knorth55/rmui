@@ -55,14 +55,15 @@
     (progn
       (setq args (remove-key-from-args args :ri))
       (send* ri :start-grasp arm :wait wait args)
-      (let ((gripper-type (send ri :get-gripper-type arm))
-            (softhand-p
-              (if (listp gripper-type)
-                (some (mapcar
-                        #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
-                        gripper-type))
-                (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
-        (if (and wait softhand-p) (unix::sleep 2)))
+      (if wait
+        (let* ((gripper-type (send ri :get-gripper-type arm))
+               (softhand-p
+                 (if (listp gripper-type)
+                   (some (mapcar
+                           #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
+                           gripper-type))
+                   (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
+          (if softhand-p (unix::sleep 2))))
       )))
 
 
@@ -71,14 +72,15 @@
     (progn
       (setq args (remove-key-from-args args :ri))
       (send* ri :stop-grasp arm :wait wait args)
-      (let ((gripper-type (send ri :get-gripper-type arm))
-            (softhand-p
-              (if (listp gripper-type)
-                (some (mapcar
-                        #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
-                        gripper-type))
-                (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
-        (if (and wait softhand-p) (unix::sleep 2)))
+      (if wait
+        (let* ((gripper-type (send ri :get-gripper-type arm))
+               (softhand-p
+                 (if (listp gripper-type)
+                   (some (mapcar
+                           #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
+                           gripper-type))
+                   (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
+          (if softhand-p (unix::sleep 2))))
       )))
 
 
