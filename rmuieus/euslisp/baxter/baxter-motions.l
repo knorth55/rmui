@@ -50,7 +50,7 @@
     ((eq arm :arms) :default-controller)))
 
 
-(defun start-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
+(defun start-grasp (arm &rest args &key (wait nil) (ri *ri*))
   (if (null (send ri :simulation-modep))
     (progn
       (setq args (remove-key-from-args args :ri))
@@ -63,11 +63,11 @@
                            #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
                            gripper-type))
                    (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
-          (if softhand-p (unix::sleep 2))))
+          (if softhand-p (unix::sleep 5))))
       )))
 
 
-(defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
+(defun stop-grasp (arm &rest args &key (wait nil) (ri *ri*))
   (if (null (send ri :simulation-modep))
     (progn
       (setq args (remove-key-from-args args :ri))
@@ -80,7 +80,7 @@
                            #'(lambda (x) (or (equal x :softhand) (equal x :softhand-v2)))
                            gripper-type))
                    (or (equal gripper-type :softhand) (equal gripper-type :softhand-v2)))))
-          (if softhand-p (unix::sleep 2))))
+          (if softhand-p (unix::sleep 5))))
       )))
 
 
