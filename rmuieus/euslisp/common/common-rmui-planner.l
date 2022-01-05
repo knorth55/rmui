@@ -369,8 +369,8 @@
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :bottom) (cadr x) nil))
                                 contact-position)))
-           ;; TODO: grasp for several objects
-           (grasp-p (equal (send box :get :box-type) :toyobject))
+           (grasp-p
+             (find (send box :get :box-type) (list :toyobject :object) :test #'equal))
            (grasp-arm (if (> (elt (send box :worldpos) 1) 0) :larm :rarm))
            (arm-conditions (cond ((equal arm :larm) larm-get-motion-symbol-conditions)
                                  ((equal arm :rarm) rarm-get-motion-symbol-conditions)
