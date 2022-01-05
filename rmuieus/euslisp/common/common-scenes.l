@@ -44,14 +44,14 @@
 
 
 (defun recognize-tabletop-boxes
-  (&key (stamp (ros::time-now)) (timeout 10) (base-frame-id))
+  (&key (stamp (ros::time-now)) (timeout) (base-frame-id))
   (let* ((decomposer-name "/segmentation_decomposer")
          (bbox-topic (format nil "~A/boxes" decomposer-name))
          (bbox-msg
            (one-shot-subscribe
              bbox-topic
              jsk_recognition_msgs::BoundingBoxArray
-             :timeout (round (* timeout 1000))
+             :timeout (if timeout (round (* timeout 1000)))
              :after-stamp stamp)))
     (if bbox-msg
       (mapcar #'(lambda (bb) (bbox->cube bb :base-frame-id base-frame-id))
