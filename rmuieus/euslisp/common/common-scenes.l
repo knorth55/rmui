@@ -1,6 +1,8 @@
 (require :room73b2-askul-1200x700-desk-0 "models/room73b2-askul-1200x700-desk-0-object.l")
 (require :collision-object-publisher "package://pr2eus_moveit/euslisp/collision-object-publisher.l")
 
+(ros::roseus-add-msgs "jsk_recognition_msgs")
+
 
 (defun get-initial-scene-states (&optional (n-box))
   (let ((scene-states nil)
@@ -23,6 +25,37 @@
                         (list :front-wall-contact-state :released)
                         )))))
     scene-states))
+
+
+(defun bbox->cube (bb &key (base-frame-id))
+  (let* ((dims (ros::tf-point->pos (send bb :dimensions)))
+         (bx (make-cube (elt dims 0) (elt dims 1) (elt dims 2)))
+         (bb-frame-id (send bb :header :frame_id))
+         (bb-coords (ros::tf-pose->coords (send bb :pose)))
+         (bx-coords
+           (if (and base-frame-id
+                    (not (equal base-frame-id bb-frame-id)))
+             (send (send *tfl* :lookup-transform
+                         base-frame-id bb-frame-id (ros::time 0))
+                   :transform bb-coords)
+             bb-coords)))
+    (send bx :newcoords bx-coords)
+    bx))
+
+
+(defun recognize-tabletop-boxes
+  (&key (stamp (ros::time-now)) (timeout 10) (base-frame-id))
+  (let* ((decomposer-name "/segmentation_decomposer")
+         (bbox-topic (format nil "~A/boxes" decomposer-name))
+         (bbox-msg
+           (one-shot-subscribe
+             bbox-topic
+             jsk_recognition_msgs::BoundingBoxArray
+             :timeout (round (* timeout 1000))
+             :after-stamp stamp)))
+    (if bbox-msg
+      (mapcar #'(lambda (bb) (bbox->cube bb :base-frame-id base-frame-id))
+              (send bbox-msg :boxes)))))
 
 
 (defun box-scene-init (scene-alist)
