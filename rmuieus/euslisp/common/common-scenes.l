@@ -130,7 +130,6 @@
                         :box-pos box-pos
                         :box-rpy box-rpy
                         :box-id box-id)))
-       (ros::ros-error "~A" tabletop-boxes)
        (let* ((tabletop-box
                 (car (sort-close-boxes tabletop-boxes :pos box-pos)))
               (tabletop-box-pos
@@ -140,7 +139,6 @@
                 (if tabletop-box
                   (apply #'float-vector
                          (car (rpy-angle (send tabletop-box :worldrot)))))))
-         (ros::ros-error "~A" tabletop-boxes)
          (if tabletop-box
            (progn
              (send tabletop-box :name box-id)
