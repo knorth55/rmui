@@ -154,7 +154,14 @@
 
 (defun sort-close-boxes (boxes &key (pos #f(0 0 0)))
   (let ((sorted-boxes (copy-object boxes)))
-    (sort sorted-boxes #'< #'(lambda (box) (norm (v- (send box :worldpos) pos))))
+    (sort sorted-boxes #'<
+          #'(lambda (box)
+              (let ((box-xy-pos (copy-seq (send box :worldpos)))
+                    (xy-pos (copy-seq pos)))
+                ;; compare only x,y axis
+                (setf (elt box-xy-pos 2) 0)
+                (setf (elt xy-pos 2) 0)
+                (norm (v- box-xy-pos xy-pos)))))
     sorted-boxes))
 
 
