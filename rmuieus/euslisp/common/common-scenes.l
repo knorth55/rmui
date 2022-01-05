@@ -71,7 +71,9 @@
          (bbox-topic-name (format nil "~A/boxes" decomposer-name))
          (bbox-topic-type jsk_recognition_msgs::BoundingBoxArray)
          (bbox-is-publish
-           (wait-for-publisher bbox-topic-name bbox-topic-type))
+           (if (boundp '*ri*)
+             (send *ri* :simulation-modep)
+             (wait-for-publisher bbox-topic-name bbox-topic-type)))
          (bbox-msg
            (if bbox-is-publish
              (one-shot-subscribe
@@ -385,6 +387,8 @@
   (let ((table-objects nil))
     (table-scene-init table-pos-y)
     (setq table-objects (list *table*))
+    (robot-scene-init :table-pos *table-pos*)
+
     (box-scene-init scene-alist)
     (setq table-objects (append table-objects *boxes*))
     (wall-scene-init)
@@ -393,10 +397,9 @@
         (setq table-objects
               (append table-objects
                       (list *left-wall* *front-wall*)))))
-    (robot-scene-init
-      :table-pos *table-pos*
-      :table-objects table-objects)
+
     ;: viewer-init
+    (send *ri* :objects table-objects)
     (make-irtviewer :title "Robot Viewer")
     (objects (append (list *robot*) table-objects) *irtviewer*)))
 
@@ -407,6 +410,8 @@
   (let ((table-objects nil))
     (pilot-table-scene-init table-pos-y)
     (setq table-objects (list *pilot-table*))
+    (pilot-robot-scene-init :table-pos *table-pos*)
+
     (pilot-device-scene-init scene-alist)
     (setq table-objects
           (append table-objects *pilot-devices*))
@@ -416,7 +421,6 @@
         (setq table-objects
               (append table-objects
                       (list *pilot-left-wall* *pilot-front-wall*)))))
-    (pilot-robot-scene-init :table-pos *table-pos*)
     ;: viewer-init
     (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
     (objects (append (list *pilot*) table-objects) *pilotviewer*)))
