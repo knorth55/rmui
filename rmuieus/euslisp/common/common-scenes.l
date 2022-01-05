@@ -85,45 +85,114 @@
               (send bbox-msg :boxes)))))
 
 
-(defun box-scene-init (scene-alist)
-  (let ((boxes nil)
-        (colors (list :red :green :blue :yellow :pink :purple))
-        (box-shapes
-          (list
-            (cons :ctb (list 270 420 220))  ;; ctb
-            (cons :jetson (list 220 200 200))  ;; jetson box
-            (cons :cardboardbox (list 350 350 300))  ;; cardboard box
-            (cons :trashbox (list 270 370 500))  ;; trash box
-            (cons :shredder (list 150 280 320))  ;; shredder
-            (cons :toybox (list 200 200 200))  ;; toy box for debugging
-            (cons :toyobject (list 100 100 100)) ;; toy object for debugging
-            )))
+(defun create-box (&key (box-type) (box-shapes) (box-pos) (box-rpy) (box-id))
+  (let* ((box-shape (cdr (assoc box-type box-shapes)))
+         (box (apply #'make-cube (append box-shape (list :name box-id)))))
+    (setf (elt box-pos 2) (+ (elt box-pos 2) (/ (z-of-cube box) 2.0)))
+    (send box :put :box-type box-type)
+    (send box :reset-coords)
+    (send box :worldcoords)
+    (send box :newcoords (make-coords :pos box-pos :rpy box-rpy))
+    (send box :worldcoords)
+    (send box :put :initial-pos (copy-seq box-pos))
+    (send box :put :initial-rpy (copy-seq box-rpy))
+    box))
+
+
+(defun get-box (&key (box-type) (box-pos) (box-rpy) (box-id) (tabletop-boxes))
+  (let* ((box-shapes
+           (list
+             (cons :ctb (list 270 420 220))  ;; ctb
+             (cons :jetson (list 220 200 200))  ;; jetson box
+             (cons :cardboardbox (list 350 350 300))  ;; cardboard box
+             (cons :trashbox (list 270 370 500))  ;; trash box
+             (cons :shredder (list 150 280 320))  ;; shredder
+             (cons :toybox (list 200 200 200))  ;; toy box for debugging
+             (cons :toyobject (list 100 100 100)) ;; toy object for debugging
+             ))
+         (box-type-names
+           (mapcar #'(lambda (box-shape) (car box-shape)) box-shapes)))
+    (cond
+      ((find box-type box-type-names :test #'equal)
+       (return-from get-box
+                    (create-box
+                      :box-type box-type
+                      :box-shapes box-shapes
+                      :box-pos box-pos
+                      :box-rpy box-rpy
+                      :box-id box-id)))
+      ;; TODO: support more object for recognize
+      ((equal box-type :object)
+       (if (null tabletop-boxes)
+         (return-from get-box
+                      (create-box
+                        :box-type :toyobject
+                        :box-shapes box-shapes
+                        :box-pos box-pos
+                        :box-rpy box-rpy
+                        :box-id box-id)))
+       (ros::ros-error "~A" tabletop-boxes)
+       (let* ((tabletop-box
+                (car (sort-close-boxes tabletop-boxes :pos box-pos)))
+              (tabletop-box-pos
+                (if tabletop-box
+                  (copy-seq (send tabletop-box :worldpos))))
+              (tabletop-box-rpy
+                (if tabletop-box
+                  (apply #'float-vector
+                         (car (rpy-angle (send tabletop-box :worldrot)))))))
+         (ros::ros-error "~A" tabletop-boxes)
+         (if tabletop-box
+           (progn
+             (send tabletop-box :name box-id)
+             (send tabletop-box :put :box-type box-type)
+             (send tabletop-box :put :initial-pos tabletop-box-pos)
+             (send tabletop-box :put :initial-rpy tabletop-box-rpy)
+             tabletop-box)
+           (ros::ros-error "No bbox is recognized close to object position"))))
+      (t
+        (ros::ros-error "Invalid box type: ~A" box-type)
+        (return-from get-box nil)))))
+
+
+(defun sort-close-boxes (boxes &key (pos #f(0 0 0)))
+  (let ((sorted-boxes (copy-object boxes)))
+    (sort sorted-boxes #'< #'(lambda (box) (norm (v- (send box :worldpos) pos))))
+    sorted-boxes))
+
+
+(defun box-scene-init (scene-alist &key (base-frame-id))
+  (let* ((boxes nil)
+         (colors (list :red :green :blue :yellow :pink :purple))
+         ;; TODO: support more object for recognize
+         (recognize-tabletop
+          (find :object
+                (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)
+                :test #'equal))
+         (tabletop-boxes
+           (if recognize-tabletop
+             (recognize-tabletop-boxes :base-frame-id base-frame-id))))
     (dotimes (i (length scene-alist))
       (let* ((scene-a (elt scene-alist i))
              (box-id (format nil "box~A" i))
              (box-type (cadr (assoc :box-type scene-a)))
-             (box-shape (cdr (assoc box-type box-shapes)))
-             (box (apply #'make-cube (append box-shape (list :name box-id))))
              (box-pos-a (cadr (assoc :box-pos scene-a)))
-             (box-rpy-a (cadr (assoc :box-rpy scene-a)))
              (box-pos-x (+ *box-pos-x* (elt box-pos-a 0)))
              (box-pos-y (elt box-pos-a 1))
              (box-pos-z (+ (+ *table-z* *table-height*)
-                           (/ (z-of-cube box) 2.0)
                            (elt box-pos-a 2)))
              (box-pos (float-vector box-pos-x box-pos-y box-pos-z))
+             (box-rpy-a (cadr (assoc :box-rpy scene-a)))
              (box-rpy (float-vector (elt box-rpy-a 0)
                                     (elt box-rpy-a 1)
-                                    (elt box-rpy-a 2))))
-        (send box :put :box-type box-type)
+                                    (elt box-rpy-a 2)))
+             (box (get-box
+                    :box-type box-type
+                    :box-pos box-pos
+                    :box-rpy box-rpy
+                    :box-id box-id
+                    :tabletop-boxes tabletop-boxes)))
         (send box :set-color (elt colors (mod i 6)))
-        (send box :reset-coords)
-        (send box :worldcoords)
-        (send box :newcoords
-              (make-coords :pos box-pos :rpy box-rpy))
-        (send box :worldcoords)
-        (send box :put :initial-pos (copy-seq box-pos))
-        (send box :put :initial-rpy (copy-seq box-rpy))
         (eval `(defvar ,(read-from-string (format nil "*box~A*" i)) box))
         (setq boxes (append boxes (list box)))
         ))
@@ -389,7 +458,7 @@
     (setq table-objects (list *table*))
     (robot-scene-init :table-pos *table-pos*)
 
-    (box-scene-init scene-alist)
+    (box-scene-init scene-alist :base-frame-id *base-frame-id*)
     (setq table-objects (append table-objects *boxes*))
     (wall-scene-init)
     (if wall-p
