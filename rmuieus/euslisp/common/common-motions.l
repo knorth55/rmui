@@ -1018,7 +1018,10 @@
       (send ri :wait-interpolation))
     (send vw :draw-objects)
     (when av
-      (discontact-cube arm :cube cube)
+      (cond
+        ((equal ee-type :contact) (discontact-cube arm :cube cube))
+        ((equal ee-type :grasp) (ungrasp-cube arm :cube cube))
+        (t nil))
       (list (list av) (list tm)))))
 
 
