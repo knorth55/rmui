@@ -8,6 +8,7 @@
 ;; (defvar *table-z* -720)
 (defvar *table-z* -900)
 ;; (defvar *box-pos-x* 550)
+(defvar *base-frame-id* "base")
 (defvar *box-pos-x* 600)
 (defvar *contact-offset* (float-vector -150 0 50))
 (defvar *larm-softhand* (make-cube 120 120 100))
@@ -41,7 +42,7 @@
       :rarm-contact-coords rarm-contact-coords
       :larm-grasp-coords larm-grasp-coords
       :rarm-grasp-coords rarm-grasp-coords
-      :base-frame-id "base")
+      :base-frame-id *base-frame-id*)
     (if (not (send *ri* :simulation-modep))
       (progn
         (send *co* :add-attached-object *larm-softhand*

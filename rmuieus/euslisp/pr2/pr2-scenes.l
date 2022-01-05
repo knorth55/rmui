@@ -5,6 +5,7 @@
 
 
 (defvar *table-z* 0)
+(defvar *base-frame-id* "base_footprint")
 (defvar *box-pos-x* 550)
 (defvar *contact-offset* (float-vector -80 0 0))
 
@@ -32,7 +33,7 @@
       :rarm-contact-coords rarm-contact-coords
       :larm-grasp-coords larm-grasp-coords
       :rarm-grasp-coords rarm-grasp-coords
-      :base-frame-id "base_footprint")))
+      :base-frame-id *base-frame-id*)))
 
 
 (provide :pr2-scenes "pr2-scenes.l")
