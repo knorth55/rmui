@@ -1612,20 +1612,17 @@
          (cube-pos-x-diff (- cube-pos-x (elt cube-pos 0)))
          (cube-pos-y-diff (- cube-pos-y (elt cube-pos 1)))
          (cube-pos-z-diff (- cube-pos-z (elt cube-pos 2)))
-         (cube-pos-x-step)
-         (cube-pos-y-step)
-         (cube-pos-z-step)
          (max-move-count
            (+ (max
                 (floor (/ (abs cube-pos-x-diff) move-step))
                 (floor (/ (abs cube-pos-y-diff) move-step))
                 (floor (/ (abs cube-pos-z-diff) move-step)))
               1))
+         (cube-pos-x-step (/ cube-pos-x-diff max-move-count))
+         (cube-pos-y-step (/ cube-pos-y-diff max-move-count))
+         (cube-pos-z-step (/ cube-pos-z-diff max-move-count))
          (avs nil)
          (tms nil))
-    (setq cube-pos-x-step (/ cube-pos-x-diff max-move-count))
-    (setq cube-pos-y-step (/ cube-pos-y-diff max-move-count))
-    (setq cube-pos-z-step (/ cube-pos-z-diff max-move-count))
     (block :lift-move-motion-step
       (while (> max-move-count move-count)
         (send cube :translate
