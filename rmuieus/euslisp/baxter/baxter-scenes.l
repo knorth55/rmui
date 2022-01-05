@@ -11,8 +11,8 @@
 (defvar *base-frame-id* "base")
 (defvar *box-pos-x* 600)
 (defvar *contact-offset* (float-vector -150 0 50))
-(defvar *larm-softhand* (make-cube 120 120 100))
-(defvar *rarm-softhand* (make-cube 120 120 100))
+(defvar *larm-softhand* (make-cube 120 120 120))
+(defvar *rarm-softhand* (make-cube 120 120 120))
 
 ;; functions
 
@@ -49,7 +49,7 @@
               "left_gripper"
               :frame-id "left_gripper"
               :object-id "left_softhand"
-              :relative-pose (make-coords :pos (float-vector 0 0 50))
+              :relative-pose (make-coords :pos (float-vector 0 0 60))
               :touch-links
               (list "left_hand"
                     "left_hand_accelerometer"
@@ -60,7 +60,7 @@
               "right_gripper"
               :frame-id "right_gripper"
               :object-id "right_softhand"
-              :relative-pose (make-coords :pos (float-vector 0 0 50))
+              :relative-pose (make-coords :pos (float-vector 0 0 60))
               :touch-links
               (list "right_hand"
                     "right_hand_accelerometer"
