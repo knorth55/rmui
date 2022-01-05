@@ -39,6 +39,8 @@
                          base-frame-id bb-frame-id (ros::time 0))
                    :transform bb-coords)
              bb-coords)))
+    ;; CPI decomposer's z is downside
+    (send bx-coords :rotate pi :x)
     (send bx :newcoords bx-coords)
     bx))
 
