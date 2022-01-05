@@ -1399,7 +1399,7 @@
 
 (defun lift-up-motion
   (arm &rest args &key (lift-height 100) (move-robot t) (ee-type :contact)
-                       (tm 1000) (use-torso 0.001)
+                       (tm 1000) (use-torso 0.001) (reset-rpy nil)
                        (robot *robot*) (ri *ri*) (cube *box0*) (vw *irtviewer*)
                        &allow-other-keys)
   (let* ((av)
@@ -1415,6 +1415,10 @@
     (block :lift-up-motion-step
       (while (> max-height-count height-count)
         (send cube :translate (float-vector 0 0 height-step) :world)
+        (if reset-rpy
+          (send cube :newcoords
+                (make-coords :pos (copy-seq (send cube :worldpos))
+                             :rpy (float-vector 0 0 0))))
         (if (equal arm :arms)
           (let ((larm-target-coords
                   (send (get-ee-cube-coords

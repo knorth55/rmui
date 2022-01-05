@@ -100,7 +100,8 @@
       (dissoc-two-cubes (elt cubes bottom-cube-index) cube :ri ri))
     (assoc-cube arm :ri ri :cube cube)
     (setq executed
-          (apply #'grasp-lift-up-motion (append (list arm :lift-height 200) args)))
+          (apply #'grasp-lift-up-motion
+                 (append (list arm :lift-height 200 :reset-rpy t) args)))
     (dissoc-cube arm :ri ri :cube cube)
     (if executed t nil)))
 
