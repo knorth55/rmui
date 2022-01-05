@@ -49,6 +49,7 @@
     (ros::ros-info "Waiting ~A" topic-name)
     (ros::subscribe topic-name topic-type
                     '(lambda-closure nil 0 0 (msg) t))
+    (unix::usleep (* 100 1000))
     (ros::rate 10)
     (while (= (ros::get-num-publishers topic-name) 0)
       (when (and (> topic-count 0) (= (mod topic-count 50) 0))
@@ -71,9 +72,7 @@
          (bbox-topic-name (format nil "~A/boxes" decomposer-name))
          (bbox-topic-type jsk_recognition_msgs::BoundingBoxArray)
          (bbox-is-publish
-           (if (boundp '*ri*)
-             (send *ri* :simulation-modep)
-             (wait-for-publisher bbox-topic-name bbox-topic-type)))
+           (wait-for-publisher bbox-topic-name bbox-topic-type))
          (bbox-msg
            (if bbox-is-publish
              (one-shot-subscribe
