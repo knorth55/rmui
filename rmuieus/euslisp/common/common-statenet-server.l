@@ -94,7 +94,8 @@
                ((:pilot-wall-left-limit pwll) *pilot-wall-left-limit*)
                ((:use-torso utrso) 0.001)
                ((:move-robot mvrbt) t)
-               ((:skip-interaction skip-intr-p) nil))
+               ((:skip-interaction skip-intr-p) nil)
+               ((:transform-listener tflstner)))
     (let ((device-topic-namespace))
       (send-super :init ns sp :groupname gpn)
       (setq namespace ns)
@@ -170,7 +171,9 @@
                                         :prx-position-threshold prx-position-threshold
                                         :device-frame-id device-frame-id
                                         :device-world-frame-id device-world-frame-id
-                                        :groupname device-groupname))))))
+                                        :transform-listener tflstner
+                                        :groupname device-groupname
+                                        ))))))
       (setq devplanner (instance rmui-planner :init
                                  :namespace device-topic-namespace
                                  :boxes bxs))
@@ -949,6 +952,7 @@
   (let* ((scene-alist (load-scene-alist scene-name))
          (rmui-names (mapcar #'(lambda (x) (cadr (assoc :device-name x))) scene-alist)))
     (if (not (listp rmui-names)) (setq rmui-names (list rmui-names)))
+    (setq *tfl* (instance ros::transform-listener :init))
     (set-rmui-parameters rmui-names)
     (scene-init :table-pos-y 0
                 :scene-alist scene-alist
@@ -998,7 +1002,9 @@
                     :use-torso *use-torso*
                     :move-robot t
                     :show-pdf pdf
-                    :skip-interaction skip-interaction))
+                    :skip-interaction skip-interaction
+                    :transform-listener *tfl*
+                    ))
     (ros::rate 10)
     (while (ros::ok) (send *server* :spin-once))))
 

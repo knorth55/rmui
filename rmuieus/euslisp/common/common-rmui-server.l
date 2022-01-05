@@ -55,7 +55,8 @@
                ((:pilot-wall-front-limit pwfl) *pilot-wall-front-limit*)
                ((:pilot-wall-left-limit pwll) *pilot-wall-left-limit*)
                ((:use-torso utrso) 0.001)
-               ((:move-robot mvrbt) t))
+               ((:move-robot mvrbt) t)
+               ((:transform-listener tflstner)))
     (let ((topic-namespace))
       (setq namespaces (if nss nss (list "")))
       (setq ri rbti)
@@ -77,7 +78,9 @@
                                         :prx-threshold prx-threshold
                                         :prx-position-threshold prx-position-threshold
                                         :device-frame-id device-frame-id
-                                        :device-world-frame-id device-world-frame-id))))))
+                                        :device-world-frame-id device-world-frame-id
+                                        :transform-listener tflstner
+                                        ))))))
       (setq planner (instance rmui-planner :init
                               :namespace topic-namespace
                               :boxes bxs))
@@ -209,6 +212,7 @@
   (let* ((scene-alist (load-scene-alist scene-name))
          (rmui-names (mapcar #'(lambda (x) (cadr (assoc :device-name x))) scene-alist)))
     (if (not (listp rmui-names)) (setq rmui-names (list rmui-names)))
+    (setq *tfl* (instance ros::transform-listener :init))
     (set-rmui-parameters rmui-names)
     (scene-init :table-pos-y 0
                 :scene-alist scene-alist
@@ -248,7 +252,9 @@
                     :pilot-table-z *pilot-table-z*
                     :pilot-table-height *pilot-table-height*
                     :use-torso *use-torso*
-                    :move-robot t))
+                    :move-robot t
+                    :transform-listener *tfl*
+                    ))
     (ros::rate 10)
     (ros::ros-info "initialization finished, starting")
     (while (ros::ok) (send *server* :spin-once))))
