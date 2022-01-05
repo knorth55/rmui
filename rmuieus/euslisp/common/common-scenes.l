@@ -43,16 +43,41 @@
     bx))
 
 
+(defun wait-for-publisher
+  (topic-name topic-type &optional (timeout 10))
+  (let ((topic-count 0))
+    (ros::ros-info "Waiting ~A" topic-name)
+    (ros::subscribe topic-name topic-type
+                    '(lambda-closure nil 0 0 (msg) t))
+    (ros::rate 10)
+    (while (= (ros::get-num-publishers topic-name) 0)
+      (when (and (> topic-count 0) (= (mod topic-count 50) 0))
+        (ros::ros-warn "Waiting ~A for ~A seconds"
+                       topic-name (/ topic-count 10)))
+      (when (and timeout
+                 (>= topic-count (* timeout 10)))
+        (ros::ros-warn "[~A] topic is not found" topic-name)
+        (return-from wait-for-publisher nil))
+      (incf topic-count)
+      (unix::usleep (* 100 1000))
+      (ros::spin-once))
+    (ros::unsubscribe topic-name)
+    t))
+
+
 (defun recognize-tabletop-boxes
-  (&key (stamp (ros::time-now)) (timeout) (base-frame-id))
+  (&key (stamp (ros::time-now)) (timeout 10) (base-frame-id))
   (let* ((decomposer-name "/segmentation_decomposer")
-         (bbox-topic (format nil "~A/boxes" decomposer-name))
+         (bbox-topic-name (format nil "~A/boxes" decomposer-name))
+         (bbox-topic-type jsk_recognition_msgs::BoundingBoxArray)
+         (bbox-is-publish
+           (wait-for-publisher bbox-topic-name bbox-topic-type))
          (bbox-msg
-           (one-shot-subscribe
-             bbox-topic
-             jsk_recognition_msgs::BoundingBoxArray
-             :timeout (if timeout (round (* timeout 1000)))
-             :after-stamp stamp)))
+           (if bbox-is-publish
+             (one-shot-subscribe
+               bbox-topic-name bbox-topic-type
+               :timeout (if timeout (round (* timeout 1000)))
+               :after-stamp stamp))))
     (if bbox-msg
       (mapcar #'(lambda (bb) (bbox->cube bb :base-frame-id base-frame-id))
               (send bbox-msg :boxes)))))
