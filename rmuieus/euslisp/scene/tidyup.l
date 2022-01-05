@@ -13,7 +13,7 @@
   (:device-pos (200 0 0))
   (:device-rpy (0 0 0)))
  ((:device-name "rmui2")
-  (:box-type :toyobject)
+  (:box-type :object)
   (:box-pos (0 -300 0))
   (:box-rpy (0 0 0))
   (:device-type :mtc2)
