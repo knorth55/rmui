@@ -1488,7 +1488,7 @@
 (defun lift-down-motion
   (arm &rest args &key (lift-height nil) (cube-pos-x nil) (cube-pos-y nil)
                        (move-robot t) (ee-type :contact)
-                       (tm 1000) (use-torso 0.001)
+                       (tm 500) (use-torso 0.001)
                        (robot *robot*) (ri *ri*) (cube *box0*)
                        (vw *irtviewer*)
                        (table-z *table-z*) (table-height *table-height*)
@@ -1565,12 +1565,13 @@
     (if av
       (when move-robot
         (if execute-move
-          (send ri :angle-vector-sequence
-                (append (car moved) avs)
-                (append (cadr moved) tms)
-                (get-arm-controller :arms :use-torso use-torso) 0)
-          (send ri :angle-vector-sequence avs tms
-                (get-arm-controller :arms :use-torso use-torso) 0))
+          (progn
+            (send ri :angle-vector-sequence-raw
+                  (car moved) (cadr moved)
+                  (get-arm-controller :arms :use-torso use-torso) 0)
+            (send ri :wait-interpolation)))
+        (send ri :angle-vector-sequence-raw avs tms
+              (get-arm-controller :arms :use-torso use-torso) 0)
         (send ri :wait-interpolation))
       (progn
         (send robot :angle-vector prev-av)
