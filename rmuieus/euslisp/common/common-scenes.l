@@ -70,7 +70,7 @@
 
 (defun recognize-tabletop-boxes
   (&key (stamp (ros::time-now)) (timeout 30) (base-frame-id))
-  (let* ((decomposer-name "/segmentation_decomposer")
+  (let* ((decomposer-name "/tabletop_cpi_decomposer")
          (bbox-topic-name (format nil "~A/boxes" decomposer-name))
          (bbox-topic-type jsk_recognition_msgs::BoundingBoxArray)
          (bbox-is-publish
