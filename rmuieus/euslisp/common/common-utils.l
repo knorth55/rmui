@@ -55,9 +55,39 @@
                     node-sym))))
 
 
-(defun convert-scene-state-to-string (scene-state)
-  (if (and scene-state (listp scene-state))
-    (let ((str (make-string-output-stream 128)))
+(defun convert-scene-state-to-string
+  (org-scene-state &key (skip-wall-contact nil) (skip-object-location nil))
+  (if (and org-scene-state (listp org-scene-state))
+    (let ((str (make-string-output-stream 128))
+          (scene-state (copy-tree org-scene-state)))
+      (if (or skip-wall-contact skip-object-location)
+        (dotimes (scene-i (length scene-state))
+          (let* ((scene-a (copy-tree (elt scene-state scene-i)))
+                 (left-wall-contact-state
+                   (if skip-wall-contact
+                     (assoc :left-wall-contact-state scene-a)))
+                 (right-wall-contact-state
+                   (if skip-wall-contact
+                     (assoc :right-wall-contact-state scene-a)))
+                 (front-wall-contact-state
+                   (if skip-wall-contact
+                     (assoc :front-wall-contact-state scene-a)))
+                 (object-location-state
+                   (if skip-object-location
+                     (assoc :object-location-state scene-a))))
+            (if left-wall-contact-state
+              (setq scene-a (remove left-wall-contact-state scene-a)))
+            (if right-wall-contact-state
+              (setq scene-a (remove right-wall-contact-state scene-a)))
+            (if front-wall-contact-state
+              (setq scene-a (remove front-wall-contact-state scene-a)))
+            (if object-location-state
+              (setq scene-a (remove object-location-state scene-a)))
+            (if (or left-wall-contact-state
+                    right-wall-contact-state
+                    front-wall-contact-state
+                    object-location-state)
+              (setf (elt scene-state scene-i) scene-a)))))
       (format str "(")
       (dolist (scst (butlast scene-state))
         (format str "(")
