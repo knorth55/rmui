@@ -26,14 +26,16 @@
                 (mapcar
                   #'(lambda (data-dir)
                       (load-all-statenet-graph :data-dir data-dir))
-                  data-dirs)))))
+                  data-dirs))
+         :reset-state reset-state)))
     (if (null gr)
       (setq gr
             (merge-statenet-graphs
               (mapcar
                 #'(lambda (data-dir)
                     (load-merged-statenet-graph :data-dir data-dir))
-                data-dirs))))
+                data-dirs)
+              :reset-state reset-state)))
     (let ((init-n (send gr :search-node-from-pddl-state '(:init))))
       (if init-n
         (progn

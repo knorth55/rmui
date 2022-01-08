@@ -584,33 +584,109 @@
     (send gr :add-arc-from-to prev-node node (format nil "~A" action))))
 
 
-(defun merge-statenet-graphs (graphs)
-  (merge-graphs graphs statenet-graph))
+(defun merge-statenet-graphs (graphs &key (reset-state nil))
+  (merge-graphs graphs statenet-graph :reset-state reset-state))
 
 
-(defun merge-pddl-graphs (graphs)
-  (merge-graphs graphs pddl-graph))
+(defun merge-pddl-graphs (graphs &key (reset-state nil))
+  (merge-graphs graphs pddl-graph :reset-state reset-state))
 
 
-(defun merge-graphs (graphs graphclass)
+(defun merge-graphs (graphs graphclass &key (reset-state nil))
   (let ((mgr (instance graphclass :init)))
     (dolist (gr graphs)
       (dolist (node (send gr :nodes))
         (let* ((arcs (send node :arc-list))
-               (node-sym (convert-string-to-sym (send node :name)))
+               (node-sym
+                 (change-state-with-reset-state
+                   (convert-string-to-sym (send node :name))
+                   reset-state))
                (mnode (send mgr :search-node-from-pddl-state node-sym)))
           (if (null arcs)
             (if (null mnode)
               (send mgr :add-pddl-state-node node-sym :node-name :pprint))
             (dolist (ac arcs)
-              (let ((from-sym (convert-string-to-sym (send (send ac :from) :name)))
-                    (to-sym (convert-string-to-sym (send (send ac :to) :name)))
-                    (action (read-from-string (send ac :name))))
+              (let ((from-sym
+                      (change-state-with-reset-state
+                        (convert-string-to-sym (send (send ac :from) :name))
+                        reset-state))
+                    (to-sym
+                      (change-state-with-reset-state
+                        (convert-string-to-sym (send (send ac :to) :name))
+                        reset-state))
+                    (action
+                      (change-action-with-reset-state
+                        (read-from-string (send ac :name))
+                        reset-state)))
                 (if (equal node-sym from-sym)
                   (add-action-state-in-graph mgr action from-sym to-sym)
                   (ros::ros-error (format nil "node and arc :from is not same: ~A != ~A"
                                           node-sym from-sym)))))))))
     mgr))
+
+
+(defun change-state-with-reset-state (org-node-sym reset-state)
+  (if reset-state
+    (let* ((n-reset-state (length reset-state))
+           (n-org-node-sym (length org-node-sym))
+           (change-state (null (or (equal org-node-sym '(:init))
+                                   (equal n-reset-state n-org-node-sym)))))
+      (if change-state
+        (let ((node-sym
+                (if (> n-reset-state n-org-node-sym)
+                  (append org-node-sym
+                          (copy-tree (subseq reset-state n-org-node-sym)))
+                  (copy-tree (subseq org-node-sym 0 n-reset-state))))
+              (larm-used nil)
+              (rarm-used nil))
+          (dotimes (node-i (length node-sym))
+            (let* ((node-s (elt node-sym node-i))
+                   (larm-contact-state
+                     (cadr (assoc :larm-contact-state node-s)))
+                   (rarm-contact-state
+                     (cadr (assoc :rarm-contact-state node-s)))
+                   (cube-contact-state
+                     (cadr (assoc :cube-contact-state node-s)))
+                   (n-cube-contact-state (length cube-contact-state)))
+              (cond
+                ((> n-cube-contact-state n-reset-state)
+                 (setf (cadr (assoc :cube-contact-state node-s))
+                       (copy-tree (subseq cube-contact-state 0 n-reset-state))))
+                ((< n-cube-contact-state n-reset-state)
+                 (setf (cadr (assoc :cube-contact-state node-s))
+                       (append cube-contact-state
+                               (make-list (- n-reset-state n-cube-contact-state)
+                                          :initial-element :released))))
+                (t nil))
+              (if (> n-org-node-sym node-i)
+                (progn
+                  (setq larm-used
+                        (or larm-used
+                            (null (equal larm-contact-state :released))))
+                  (setq rarm-used
+                        (or rarm-used
+                            (null (equal larm-contact-state :released)))))
+                (progn
+                  (if larm-used (setf (cadr (assoc :larm-contact-state node-s)) :used))
+                  (if rarm-used (setf (cadr (assoc :rarm-contact-state node-s)) :used))))))
+          node-sym)
+        org-node-sym))
+    org-node-sym))
+
+
+(defun change-action-with-reset-state (org-action reset-state)
+  (if reset-state
+    (let* ((n-reset-state (length reset-state))
+           (n-org-action (length org-action))
+           (change-action (null (or (equal org-action '(statenet-action-init))
+                                    (equal n-reset-state n-org-action)))))
+      (if change-action
+        (if (> n-reset-state n-org-action)
+          (append org-action
+                  (make-list (- n-reset-state n-org-action) :initial-element nil))
+          (copy-tree (subseq org-action 0 n-reset-state)))
+        org-action))
+    org-action))
 
 
 (provide :common-graph "common-graph.l")

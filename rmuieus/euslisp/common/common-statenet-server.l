@@ -35,6 +35,7 @@
           robotviewer
           pilotviewer
           skip-interaction
+          n-box
           ;; statenet
           slvr
           sm
@@ -116,6 +117,7 @@
       (setq robotviewer rbtvw)
       (setq pilotviewer pltvw)
       (setq skip-interaction skip-intr-p)
+      (setq n-box (length bxs))
 
       (setq device-topic-namespace
             (if (> (length device-namespaces) 1)
@@ -205,7 +207,7 @@
 
       (ros::advertise "~n_box" std_msgs::Int8 1 t)
       (unix::usleep (round 1e5))
-      (ros::publish "~n_box" (instance std_msgs::Int8 :data (length bxs)))
+      (ros::publish "~n_box" (instance std_msgs::Int8 :data n-box))
 
       ;; state
       (setq initial-state '(:init))
@@ -690,6 +692,8 @@
               (read-from-string (send goal :goal :start_state :state))
               current-state))
           (goal-state (read-from-string (send goal :goal :goal_state :state)))
+          (allow-update-start-state (send goal :goal :allow_update_start_state))
+          (allow-object-number-difference (send goal :goal :allow_object_number_difference))
           (result (instance rmui_msgs::ExecuteStatenetActionResult :init))
           (feedback (instance rmui_msgs::ExecuteStatenetActionFeedback :init))
           (start-stamp (ros::time-now)))
@@ -701,7 +705,7 @@
           (ros::ros-warn
             (format nil "start-state and current-state are different: ~A != ~A"
                     start-state current-state))
-          (if (send goal :goal :allow_update_start_state)
+          (if allow-update-start-state
             (progn
               (ros::ros-warn "allow_update_start_state is set." )
               (ros::ros-warn "Updating start-state from ~A to ~A."
@@ -716,6 +720,22 @@
               (send result :result :final_state :state (format nil "~A" current-state))
               (send self :set-aborted result)
               (return-from :execute-statenet-cb nil)))))
+      ;; check object number difference
+      (if (and allow-object-number-difference
+               (null (equal (length goal-state) n-box)))
+        (let ((new-goal-state (copy-tree goal-state))
+              (n-goal-state (length goal-state)))
+          (ros::ros-warn "allow_object_number_difference is set.")
+          (ros::ros-warn "object number in goal state is different: ~A != ~A"
+                         n-goal-state n-box)
+          (setq new-goal-state
+                (change-state-with-reset-state
+                  new-goal-state
+                  (if (equal start-state '(:init))
+                    reset-state start-state)))
+          (ros::ros-warn "Updating goal-state from ~A to ~A."
+                         goal-state new-goal-state)
+          (setq goal-state new-goal-state)))
       ;; check start-state and goal-state
       (if (equal start-state goal-state)
         (progn

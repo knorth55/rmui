@@ -39,6 +39,7 @@
       (send goal :goal :start_state :state (format nil "~A" start-state))
       (send goal :goal :goal_state :state (format nil "~A" goal-state))
       (send goal :goal :allow_update_start_state t)
+      (send goal :goal :allow_object_number_difference t)
       (send self :wait-for-server)
       (send self :send-goal goal)
       (send self :wait-for-result)
