@@ -34,9 +34,9 @@
   (let ((key-position (position key args)))
     (if key-position
       (if (>= (length args) (+ 2 key-position))
-        (setq args (subseq args 0 key-position))
-        (setq args (append (subseq args 0 key-position)
-                         (subseq args (+ 2 key-position))))))
+        (setq args (copy-object (subseq args 0 key-position)))
+        (setq args (append (copy-object (subseq args 0 key-position))
+                           (copy-object (subseq args (+ 2 key-position)))))))
     args))
 
 

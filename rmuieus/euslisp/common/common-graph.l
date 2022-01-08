@@ -510,7 +510,8 @@
            (ros::ros-error "action-node: ~A" action-node)
            (ros::ros-error "to-node    : ~A" to-node)))
         ;; state0, action0, state1, action1... -> state1, action1...
-        (setq collabo-nodes (if (> (length collabo-nodes) 2) (subseq collabo-nodes 2)))))
+        (setq collabo-nodes
+              (if (> (length collabo-nodes) 2) (copy-tree (subseq collabo-nodes 2))))))
   trans-alist))
 
 
