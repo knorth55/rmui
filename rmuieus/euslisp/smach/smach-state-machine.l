@@ -55,7 +55,11 @@ Args:
                       ((and (equal :state-node (send target-node :get :node-type))
                             (listp target-node-sym)
                             (listp (car target-node-sym)))
-                       (convert-scene-state-to-string target-node-sym))
+                       ;; TODO: skip for better pdf
+                       (convert-scene-state-to-string
+                         target-node-sym
+                         :skip-wall-contact t
+                         :skip-object-location t))
                       (t target-node-name))
                     (if (send target-node :image)
                         (format nil ", image=\"~A\", imagescale=true" (send target-node :image))
