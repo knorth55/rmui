@@ -48,6 +48,13 @@
     args))
 
 
+(defun convert-string-to-sym (name)
+  (let ((node-sym (read-from-string name)))
+    (remove '|n|
+            (mapcar #'(lambda (x) (if (listp x) (remove '|n| x) x))
+                    node-sym))))
+
+
 (defun convert-scene-state-to-string (scene-state)
   (if (and scene-state (listp scene-state))
     (let ((str (make-string-output-stream 128)))
