@@ -722,6 +722,7 @@
               (return-from :execute-statenet-cb nil)))))
       ;; check object number difference
       (if (and allow-object-number-difference
+               (null (equal goal-state '(:teach)))
                (null (equal (length goal-state) n-box)))
         (let ((new-goal-state (copy-tree goal-state))
               (n-goal-state (length goal-state)))
