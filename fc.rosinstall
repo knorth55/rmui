@@ -18,3 +18,7 @@
     local-name: jsk-ros-pkg/jsk_3rdparty
     uri: https://github.com/knorth55/jsk_3rdparty.git
     version: devel
+- git:
+    local-name: tork-a/visualization_rwt
+    uri: https://github.com/tork-a/visualization_rwt.git
+    version: kinetic-devel

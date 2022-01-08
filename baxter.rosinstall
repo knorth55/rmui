@@ -15,6 +15,10 @@
     uri: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
     version: master 
 - git:
+    local-name: jsk-ros-pkg/jsk_recognition
+    uri: https://github.com/knorth55/jsk_recognition.git
+    version: devel 
+- git:
     local-name: jsk-ros-pkg/jsk_robot
     uri: https://github.com/knorth55/jsk_robot.git
     version: baxter
@@ -22,3 +26,7 @@
     local-name: pazeshun/dynamixel_motor
     uri: https://github.com/pazeshun/dynamixel_motor.git
     version: gripper-v6-devel
+- git:
+    local-name: start-jsk/jsk_apc
+    uri: https://github.com/knorth55/jsk_apc.git
+    version: devel 
