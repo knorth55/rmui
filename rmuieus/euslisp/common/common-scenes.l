@@ -87,6 +87,7 @@
 
 
 (defun create-box (&key (box-type) (box-shapes) (box-pos) (box-rpy) (box-id))
+  (if (null box-rpy) (setq box-rpy (float-vector 0 0 0)))
   (if (null box-shapes)
     (setq box-shapes
           (list (cons :ctb (list 270 420 220))  ;; ctb
@@ -149,22 +150,66 @@
                         :box-rpy box-rpy
                         :box-id box-id)))
        (let* ((tabletop-box
-                (car (sort-close-boxes tabletop-boxes :pos box-pos)))
-              (tabletop-box-pos
-                (if tabletop-box
-                  (copy-seq (send tabletop-box :worldpos))))
-              (tabletop-box-rpy
-                (if tabletop-box
-                  (apply #'float-vector
-                         (car (rpy-angle (send tabletop-box :worldrot)))))))
+                (copy-object (car (sort-close-boxes tabletop-boxes :pos box-pos)))))
          (if tabletop-box
-           (progn
+           (let ((tabletop-box-pos
+                   (copy-seq (send tabletop-box :worldpos)))
+                 (tabletop-box-rpy))
+             ;; TODO: support only z axis rotation
+             (if (equal box-type :largeobject)
+               (let* ((tabletop-box-rotation-angle
+                        (rotation-angle (send tabletop-box :worldrot)))
+                      (tabletop-box-z-angle
+                        (* (if (> (elt (cadr tabletop-box-rotation-angle) 2) 0) 1 -1)
+                           (car tabletop-box-rotation-angle)))
+                      (tabletop-box-coords
+                        (send (send tabletop-box :worldcoords) :copy-worldcoords))
+                      (tabletop-box-x (x-of-cube tabletop-box))
+                      (tabletop-box-y (y-of-cube tabletop-box))
+                      (tabletop-box-z (z-of-cube tabletop-box)))
+                 (cond
+                   ((> tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
+                                               (/ pi 4)))
+                    (setq tabletop-box
+                          (make-cube tabletop-box-y tabletop-box-x tabletop-box-z))
+                    (if box-rpy
+                      (progn
+                        (send tabletop-box :newcoords
+                              (make-coords :pos tabletop-box-pos :rpy box-rpy))
+                        (send tabletop-box :worldcoords))
+                      (progn
+                        (send tabletop-box-coords :rotate (/ -pi 2) :z :world)
+                        (send tabletop-box :newcoords tabletop-box-coords)
+                        (send tabletop-box :worldcoords))))
+                   ((< tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
+                                               (/ -pi 4)))
+                    (setq tabletop-box
+                          (make-cube tabletop-box-y tabletop-box-x tabletop-box-z))
+                    (if box-rpy
+                      (progn
+                        (send tabletop-box :newcoords
+                              (make-coords :pos tabletop-box-pos :rpy box-rpy))
+                        (send tabletop-box :worldcoords))
+                      (progn
+                        (send tabletop-box-coords :rotate (/ pi 2) :z :world)
+                        (send tabletop-box :newcoords tabletop-box-coords)
+                        (send tabletop-box :worldcoords))))
+                   (t
+                     (if box-rpy
+                       (send tabletop-box :newcoords
+                             (make-coords :pos tabletop-box-pos :rpy box-rpy))
+                       (send tabletop-box :worldcoords))))))
+             (setq tabletop-box-rpy
+                   (apply #'float-vector
+                          (car (rpy-angle (send tabletop-box :worldrot)))))
              (send tabletop-box :name box-id)
              (send tabletop-box :put :box-type box-type)
              (send tabletop-box :put :initial-pos tabletop-box-pos)
              (send tabletop-box :put :initial-rpy tabletop-box-rpy)
-             tabletop-box)
-           (ros::ros-error "No bbox is recognized close to object position"))))
+             (return-from get-box tabletop-box))
+           (progn
+             (ros::ros-error "No bbox is recognized close to object position")
+             (return-from get-box nil)))))
       (t
         (ros::ros-error "Invalid box type: ~A" box-type)
         (return-from get-box nil)))))
@@ -204,9 +249,10 @@
                            (elt box-pos-a 2)))
              (box-pos (float-vector box-pos-x box-pos-y box-pos-z))
              (box-rpy-a (cadr (assoc :box-rpy scene-a)))
-             (box-rpy (float-vector (elt box-rpy-a 0)
-                                    (elt box-rpy-a 1)
-                                    (elt box-rpy-a 2)))
+             (box-rpy (if box-rpy-a
+                        (float-vector (elt box-rpy-a 0)
+                                      (elt box-rpy-a 1)
+                                      (elt box-rpy-a 2))))
              (box (get-box
                     :box-type box-type
                     :box-pos box-pos
