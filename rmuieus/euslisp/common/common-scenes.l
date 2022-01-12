@@ -123,7 +123,7 @@
                       :box-rpy box-rpy
                       :box-id box-id)))
       ;; TODO: support more object for recognize
-      ((equal box-type :object)
+      ((find box-type (list :object :largeobject) :test #'equal)
        (if (null tabletop-boxes)
          (return-from get-box
                       (create-box
@@ -172,9 +172,8 @@
          (colors (list :red :green :blue :yellow :pink :purple))
          ;; TODO: support more object for recognize
          (recognize-tabletop
-          (find :object
-                (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)
-                :test #'equal))
+           (some #'(lambda (x) (find x (list :object :largeobject) :test #'equal))
+                 (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)))
          (tabletop-boxes
            (if recognize-tabletop
              (recognize-tabletop-boxes :base-frame-id base-frame-id))))
