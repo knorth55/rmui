@@ -87,6 +87,16 @@
 
 
 (defun create-box (&key (box-type) (box-shapes) (box-pos) (box-rpy) (box-id))
+  (if (null box-shapes)
+    (setq box-shapes
+          (list (cons :ctb (list 270 420 220))  ;; ctb
+                (cons :jetson (list 220 200 200))  ;; jetson box
+                (cons :cardboardbox (list 350 350 300))  ;; cardboard box
+                (cons :trashbox (list 270 370 500))  ;; trash box
+                (cons :shredder (list 150 280 320))  ;; shredder
+                (cons :toybox (list 200 200 200))  ;; toy box for debugging
+                (cons :toyobject (list 100 100 100)) ;; toy object for debugging
+                )))
   (let* ((box-shape (cdr (assoc box-type box-shapes)))
          (box (apply #'make-cube (append box-shape (list :name box-id)))))
     (setf (elt box-pos 2) (+ (elt box-pos 2) (/ (z-of-cube box) 2.0)))
@@ -127,7 +137,13 @@
        (if (null tabletop-boxes)
          (return-from get-box
                       (create-box
-                        :box-type :toyobject
+                        :box-type
+                        (cond
+                          ((equal box-type :object)
+                           :toyobject)
+                          ((equal box-type :largeobject)
+                           :toybox)
+                          (t nil))
                         :box-shapes box-shapes
                         :box-pos box-pos
                         :box-rpy box-rpy
