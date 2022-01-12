@@ -134,16 +134,16 @@
                       :box-rpy box-rpy
                       :box-id box-id)))
       ;; TODO: support more object for recognize
-      ((find box-type (list :object :largeobject) :test #'equal)
+      ((find box-type (list :object :largeobject :stuffedanimal) :test #'equal)
        (if (null tabletop-boxes)
          (return-from get-box
                       (create-box
                         :box-type
                         (cond
+                          ((find box-type (list :largeobject :stuffedanimal) :test #'equal)
+                           :toybox)
                           ((equal box-type :object)
                            :toyobject)
-                          ((equal box-type :largeobject)
-                           :toybox)
                           (t nil))
                         :box-shapes box-shapes
                         :box-pos box-pos
@@ -156,7 +156,7 @@
                    (copy-seq (send tabletop-box :worldpos)))
                  (tabletop-box-rpy))
              ;; TODO: support only z axis rotation
-             (if (equal box-type :largeobject)
+             (if (find box-type (list :largeobject :stuffedanimal) :test #'equal)
                (let* ((tabletop-box-rotation-angle
                         (rotation-angle (send tabletop-box :worldrot)))
                       (tabletop-box-z-angle
@@ -166,12 +166,15 @@
                         (send (send tabletop-box :worldcoords) :copy-worldcoords))
                       (tabletop-box-x (x-of-cube tabletop-box))
                       (tabletop-box-y (y-of-cube tabletop-box))
-                      (tabletop-box-z (z-of-cube tabletop-box)))
+                      (tabletop-box-z (z-of-cube tabletop-box))
+                      (tabletop-box-y-offset (if (equal box-type :stuffedanimal) -50 0)))
                  (cond
                    ((> tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
                                                (/ pi 4)))
                     (setq tabletop-box
-                          (make-cube tabletop-box-y tabletop-box-x tabletop-box-z))
+                          (make-cube tabletop-box-y
+                                     (+ tabletop-box-x tabletop-box-y-offset)
+                                     tabletop-box-z))
                     (if box-rpy
                       (progn
                         (send tabletop-box :newcoords
@@ -184,7 +187,9 @@
                    ((< tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
                                                (/ -pi 4)))
                     (setq tabletop-box
-                          (make-cube tabletop-box-y tabletop-box-x tabletop-box-z))
+                          (make-cube tabletop-box-y
+                                     (+ tabletop-box-x tabletop-box-y-offset)
+                                     tabletop-box-z))
                     (if box-rpy
                       (progn
                         (send tabletop-box :newcoords
@@ -195,10 +200,19 @@
                         (send tabletop-box :newcoords tabletop-box-coords)
                         (send tabletop-box :worldcoords))))
                    (t
+                    (setq tabletop-box
+                          (make-cube tabletop-box-x
+                                     (+ tabletop-box-y tabletop-box-y-offset)
+                                     tabletop-box-z))
                      (if box-rpy
-                       (send tabletop-box :newcoords
-                             (make-coords :pos tabletop-box-pos :rpy box-rpy))
-                       (send tabletop-box :worldcoords))))))
+                       (progn
+                         (send tabletop-box :newcoords
+                               (make-coords :pos tabletop-box-pos :rpy box-rpy))
+                         (send tabletop-box :worldcoords))
+                       (progn
+                         (send tabletop-box :newcoords tabletop-box-coords)
+                         (send tabletop-box :worldcoords))
+                       )))))
              (setq tabletop-box-rpy
                    (apply #'float-vector
                           (car (rpy-angle (send tabletop-box :worldrot)))))
@@ -233,7 +247,7 @@
          (colors (list :red :green :blue :yellow :pink :purple))
          ;; TODO: support more object for recognize
          (recognize-tabletop
-           (some #'(lambda (x) (find x (list :object :largeobject) :test #'equal))
+           (some #'(lambda (x) (find x (list :object :largeobject :stuffedanimal) :test #'equal))
                  (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)))
          (tabletop-boxes
            (if recognize-tabletop
