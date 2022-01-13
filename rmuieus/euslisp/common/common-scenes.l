@@ -5,7 +5,8 @@
 
 
 (defun set-reset-state (&optional (boxes *boxes*))
-  (defvar *reset-state* (get-initial-scene-states boxes)))
+  (defvar *reset-state* (get-initial-scene-states boxes))
+  (ros::ros-info "reset-state: ~A" *reset-state*))
 
 
 (defun get-initial-scene-states (&optional (boxes *boxes*))
@@ -296,6 +297,9 @@
                     :box-rpy box-rpy
                     :box-id box-id
                     :tabletop-boxes tabletop-boxes)))
+        (if (null box-rpy)
+          (setf (cadr (assoc :box-rpy (elt scene-alist i)))
+                (car (rpy-angle (send box :worldrot)))))
         (send box :set-color (elt colors (mod i 6)))
         (eval `(defvar ,(read-from-string (format nil "*box~A*" i)) box))
         (setq boxes (append boxes (list box)))
@@ -365,7 +369,6 @@
              (device-shape (cdr (assoc device-type device-shapes)))
              (device (apply #'make-cube (append device-shape (list :name device-id))))
              (device-pos-a (cadr (assoc :device-pos scene-a)))
-             (device-rpy-a (cadr (assoc :device-rpy scene-a)))
              (device-pos-x (+ *pilot-device-pos-x* (elt device-pos-a 0)))
              (device-pos-y (elt device-pos-a 1))
              (device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
@@ -373,9 +376,15 @@
                               (elt device-pos-a 2)))
              (device-pos
                (float-vector device-pos-x device-pos-y device-pos-z))
-             (device-rpy (float-vector (eval (elt device-rpy-a 0))
-                                       (eval (elt device-rpy-a 1))
-                                       (eval (elt device-rpy-a 2)))))
+             (box-rpy-a (cadr (assoc :box-rpy scene-a)))
+             (device-rpy-a (cadr (assoc :device-rpy scene-a)))
+             (device-rpy (if device-rpy-a
+                           (float-vector (eval (elt device-rpy-a 0))
+                                         (eval (elt device-rpy-a 1))
+                                         (eval (elt device-rpy-a 2)))
+                           (float-vector (eval (elt box-rpy-a 0))
+                                         (eval (elt box-rpy-a 1))
+                                         (eval (elt box-rpy-a 2))))))
         (send device :put :device-type device-type)
         (send device :set-color (elt colors (mod i 6)))
         (send device :reset-coords)
