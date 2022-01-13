@@ -1,0 +1,4 @@
+<launch>
+  <node name="baxter_reset" pkg="rmui_demos" type="baxter_reset.l"
+        required="true" output="screen" />
+</launch>

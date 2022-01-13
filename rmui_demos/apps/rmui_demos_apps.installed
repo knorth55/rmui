@@ -1,6 +1,8 @@
 apps:
   - app: rmui_demos/baxter_teach
     display: Baxter teaching
+  - app: rmui_demos/baxter_reset
+    display: Baxter reset to initial state 
   - app: rmui_demos/baxter_multi_pileup
     display: Baxter multi object pileup
   - app: rmui_demos/baxter_multi_rotate_z90_pileup
