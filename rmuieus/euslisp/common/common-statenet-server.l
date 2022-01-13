@@ -721,6 +721,9 @@
               (send result :result :final_state :state (format nil "~A" current-state))
               (send self :set-aborted result)
               (return-from :execute-statenet-cb nil)))))
+      ;; add reset for goal
+      (if (equal goal-state '(:reset))
+        (setq goal-state (copy-tree reset-state)))
       ;; check object number difference
       (if (and allow-object-number-difference
                (null (equal goal-state '(:teach)))
