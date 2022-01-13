@@ -14,7 +14,7 @@
 (defmethod statenet-action-client
   (:init (&key ((:server-name sn) "/statenet_server")
                ((:spec sp) rmui_msgs::ExecuteStatenetAction)
-               ((:reset-state rs) *reset-state*)
+               ((:reset-state rs) '(:reset))
                &rest args)
     (setq server-name sn)
     (setq reset-state rs)
@@ -64,11 +64,9 @@
           (ros::ros-error
             (format nil "Waiting for ~A subscription" n-box-topic-name)))
         (ros::sleep))))
-  (set-statenet-reset-state n-box)
   (setq *client*
         (instance statenet-action-client :init
-                  :server-name server-name
-                  :reset-state *reset-state*))
+                  :server-name server-name))
   (send *client* :call-execute-statenet *start-state* *goal-state*))
 
 
