@@ -30,17 +30,21 @@
           floor-contact-state-conditions
           object-location-state-conditions
           object-rotation-state-conditions
+          reset-state
           ))
 
 
 (defmethod rmui-updater
   (:init (&key ((:namespace ns))
-               ((:data-dir ddir)
-                *training-object-statenet-path*)
-               ((:boxes bxs)))
+               ((:data-dir ddir) *training-object-statenet-path*)
+               ((:boxes bxs))
+               ((:reset-state rs) *reset-state*))
     (setq namespace (if ns ns ""))
     (setq data-dir ddir)
     (setq boxes bxs)
+    (setq reset-state rs)
+    (if (null reset-state)
+      (setq reset-state (get-initial-scene-states (length boxes))))
 
     ;; update conditions
     (setq larm-contact-state-conditions (load-larm-contact-state-conditions))
@@ -51,7 +55,7 @@
 
     ;; initialize
     ;; TODO (knorth55): change initial state from argument
-    (send self :reset-updater)
+    (send self :reset-updater :initial-scene-states reset-state)
     self)
   (:reset-updater
     (&key (initial-scene-states (get-initial-scene-states (length boxes))))

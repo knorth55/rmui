@@ -203,7 +203,8 @@
                       ))
       (setq devupdater (instance rmui-updater :init
                                  :namespace device-topic-namespace
-                                 :boxes bxs))
+                                 :boxes bxs
+                                 :reset-state reset-state))
 
       (ros::advertise "~n_box" std_msgs::Int8 1 t)
       (unix::usleep (round 1e5))
