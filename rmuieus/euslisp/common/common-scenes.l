@@ -18,6 +18,7 @@
              (box-rotation-angle
                (rotation-angle (send box :worldrot)))
              ;; TODO: support only z axis rotation
+             ;; support only z0 or z45
              (box-z-rotation-state
                (if (and box-rotation-angle
                         (null (= (elt (cadr box-rotation-angle) 2) 0)))
