@@ -194,7 +194,7 @@
                       (tabletop-box-xy-offset
                         (if (equal box-type :stuffedanimal) -100 0))
                       (tabletop-box-z-offset
-                        (if (equal box-type :stuffedanimal) 0 0))
+                        (if (equal box-type :stuffedanimal) -50 0))
                       )
                  (cond
                    ((> tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
@@ -242,7 +242,13 @@
                          (send tabletop-box :worldcoords))
                        (progn
                          (send tabletop-box :newcoords tabletop-box-coords)
-                         (send tabletop-box :worldcoords)))))))
+                         (send tabletop-box :worldcoords))))
+                   (if (null (= tabletop-box-z-offset 0))
+                     (send tabletop-box :translate
+                           (float-vector
+                             0 0 (- (elt (send tabletop-box :worldpos) 2)
+                                    (/ (z-of-cube tabletop-box) 2)))
+                           :world)))))
              (setq tabletop-box-rpy
                    (apply #'float-vector
                           (car (rpy-angle (send tabletop-box :worldrot)))))
