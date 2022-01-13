@@ -4,30 +4,48 @@
 (ros::roseus-add-msgs "jsk_recognition_msgs")
 
 
-(defun set-reset-state (&optional (n-box 1))
-  (defvar *reset-state* (get-initial-scene-states n-box)))
+(defun set-reset-state (&optional (boxes *boxes*))
+  (defvar *reset-state* (get-initial-scene-states boxes)))
 
 
-(defun get-initial-scene-states (&optional (n-box))
-  (let ((scene-states nil)
+(defun get-initial-scene-states (&optional (boxes *boxes*))
+  (let ((n-box (length boxes))
+        (scene-states nil)
         (cube-contact-state nil))
     (dotimes (i n-box)
-      (setq cube-contact-state
-            (make-list n-box :initial-element :released))
-      (setf (elt cube-contact-state i) :never)
-      (setq scene-states
-            (append scene-states
-                    (list
+      (let* ((box (elt boxes i))
+             (box-type (send box :get :box-type))
+             (box-rotation-angle
+               (rotation-angle (send box :worldrot)))
+             ;; TODO: support only z axis rotation
+             (box-z-rotation-state
+               (if (and box-rotation-angle
+                        (null (= (elt (cadr box-rotation-angle) 2) 0)))
+                 (let ((box-z-rotation-angle
+                         (mod (if (> (elt (cadr box-rotation-angle) 2) 0)
+                                (car box-rotation-angle)
+                                (- (* pi 2) (car box-rotation-angle)))
+                              (/ pi 2))))
+                   (if (and (> box-z-rotation-angle (/ pi 8))
+                            (< box-z-rotation-angle (* (/ pi 8) 3)))
+                     :z45 :z0))
+                 :z0)))
+        (setq cube-contact-state
+              (make-list n-box :initial-element :released))
+        (setf (elt cube-contact-state i) :never)
+        (setq scene-states
+              (append scene-states
                       (list
-                        (list :larm-contact-state :released)
-                        (list :rarm-contact-state :released)
-                        (list :floor-contact-state :bottom-contact)
-                        (list :object-location-state :center)
-                        (list :object-rotation-state (list :x0 :y0 :z0))
-                        (list :cube-contact-state cube-contact-state)
-                        (list :left-wall-contact-state :released)
-                        (list :front-wall-contact-state :released)
-                        )))))
+                        (list
+                          (list :larm-contact-state :released)
+                          (list :rarm-contact-state :released)
+                          (list :floor-contact-state :bottom-contact)
+                          (list :object-location-state :center)
+                          (list :object-rotation-state
+                                (list :x0 :y0 box-z-rotation-state))
+                          (list :cube-contact-state cube-contact-state)
+                          (list :left-wall-contact-state :released)
+                          (list :front-wall-contact-state :released)))))))
     scene-states))
 
 
@@ -268,9 +286,9 @@
              (box-pos (float-vector box-pos-x box-pos-y box-pos-z))
              (box-rpy-a (cadr (assoc :box-rpy scene-a)))
              (box-rpy (if box-rpy-a
-                        (float-vector (elt box-rpy-a 0)
-                                      (elt box-rpy-a 1)
-                                      (elt box-rpy-a 2))))
+                        (float-vector (eval (elt box-rpy-a 0))
+                                      (eval (elt box-rpy-a 1))
+                                      (eval (elt box-rpy-a 2)))))
              (box (get-box
                     :box-type box-type
                     :box-pos box-pos
@@ -350,13 +368,13 @@
              (device-pos-x (+ *pilot-device-pos-x* (elt device-pos-a 0)))
              (device-pos-y (elt device-pos-a 1))
              (device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
-                                    (/ (z-of-cube device) 2.0)
-                                    (elt device-pos-a 2)))
+                              (/ (z-of-cube device) 2.0)
+                              (elt device-pos-a 2)))
              (device-pos
                (float-vector device-pos-x device-pos-y device-pos-z))
-             (device-rpy (float-vector (elt device-rpy-a 0)
-                                             (elt device-rpy-a 1)
-                                             (elt device-rpy-a 2))))
+             (device-rpy (float-vector (eval (elt device-rpy-a 0))
+                                       (eval (elt device-rpy-a 1))
+                                       (eval (elt device-rpy-a 2)))))
         (send device :put :device-type device-type)
         (send device :set-color (elt colors (mod i 6)))
         (send device :reset-coords)

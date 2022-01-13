@@ -998,7 +998,7 @@
                  :vw *pilotviewer*)
 
     ;; TODO (knorth55): change initial state from argument
-    (set-reset-state (length rmui-names))
+    (set-reset-state *boxes*)
     (setq *server*
           (instance statenet-action-server :init
                     :reset-state *reset-state*

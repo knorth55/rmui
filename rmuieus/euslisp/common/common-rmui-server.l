@@ -237,7 +237,7 @@
     (ros::ros-info "motion-init finished")
 
     ;; TODO (knorth55): change initial state from argument
-    (set-reset-state (length rmui-names))
+    (set-reset-state *boxes*)
     (setq *server*
           (instance rmui-server :init
                     :namespaces *device-namespaces*

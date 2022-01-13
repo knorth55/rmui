@@ -43,8 +43,6 @@
     (setq data-dir ddir)
     (setq boxes bxs)
     (setq reset-state rs)
-    (if (null reset-state)
-      (setq reset-state (get-initial-scene-states (length boxes))))
 
     ;; update conditions
     (setq larm-contact-state-conditions (load-larm-contact-state-conditions))
@@ -55,10 +53,12 @@
 
     ;; initialize
     ;; TODO (knorth55): change initial state from argument
-    (send self :reset-updater :initial-scene-states reset-state)
+    (send self :reset-updater :initial-scene-states (copy-tree reset-state))
     self)
   (:reset-updater
-    (&key (initial-scene-states (get-initial-scene-states (length boxes))))
+    (&key (initial-scene-states))
+    (if (null initial-scene-states)
+      (setq initial-scene-states (copy-tree reset-state)))
     (setq executed-actions nil)
     (setq pddl-gr (instance pddl-graph :init))
     (setq statenet-gr (instance statenet-graph :init))
