@@ -6,7 +6,6 @@
 (require :statenet-graph "package://rmuieus/euslisp/statenet/statenet-graph.l")
 (require :common-io "package://rmuieus/euslisp/common/common-io.l")
 (require :common-graph "package://rmuieus/euslisp/common/common-graph.l")
-(require :common-statenet "package://rmuieus/euslisp/common/common-statenet.l")
 (require :common-motions "package://rmuieus/euslisp/common/common-motions.l")
 (require :common-actions "package://rmuieus/euslisp/common/common-actions.l")
 (require :common-conditions "package://rmuieus/euslisp/common/common-conditions.l")
@@ -238,7 +237,7 @@
     (ros::ros-info "motion-init finished")
 
     ;; TODO (knorth55): change initial state from argument
-    (set-statenet-reset-state (length rmui-names))
+    (set-reset-state (length rmui-names))
     (setq *server*
           (instance rmui-server :init
                     :namespaces *device-namespaces*

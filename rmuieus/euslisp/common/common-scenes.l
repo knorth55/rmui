@@ -4,6 +4,10 @@
 (ros::roseus-add-msgs "jsk_recognition_msgs")
 
 
+(defun set-reset-state (&optional (n-box 1))
+  (defvar *reset-state* (get-initial-scene-states n-box)))
+
+
 (defun get-initial-scene-states (&optional (n-box))
   (let ((scene-states nil)
         (cube-contact-state nil))

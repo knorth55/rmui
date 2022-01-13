@@ -9,10 +9,6 @@
 (require :common-scenes "package://rmuieus/euslisp/common/common-scenes.l")
 
 
-(defun set-statenet-reset-state (&optional (n-box 1))
-  (defvar *reset-state* (get-initial-scene-states n-box)))
-
-
 (defun add-initial-state (gr reset-state)
   (add-action-state-in-graph gr '(statenet-action-init) '(:init) reset-state))
 
