@@ -190,7 +190,9 @@
                         (send (send tabletop-box :worldcoords) :copy-worldcoords))
                       (tabletop-box-x (x-of-cube tabletop-box))
                       (tabletop-box-y (y-of-cube tabletop-box))
-                      (tabletop-box-z (z-of-cube tabletop-box))
+                      (tabletop-box-z
+                        (- (+ (elt tabletop-box-pos 2) (/ (z-of-cube tabletop-box) 2))
+                           (+ *table-height* *table-z*)))
                       (tabletop-box-xy-offset
                         (if (equal box-type :stuffedanimal) -100 0))
                       (tabletop-box-z-offset
@@ -204,6 +206,8 @@
                             (max 50 (+ tabletop-box-y tabletop-box-xy-offset))
                             (max 50 (+ tabletop-box-x tabletop-box-xy-offset))
                             (max 50 (+ tabletop-box-z tabletop-box-z-offset))))
+                    (setf (elt tabletop-box-pos 2)
+                          (+ (/ (z-of-cube tabletop-box) 2) *table-height* *table-z*))
                     (if box-rpy
                       (progn
                         (send tabletop-box :newcoords
@@ -211,6 +215,7 @@
                         (send tabletop-box :worldcoords))
                       (progn
                         (send tabletop-box-coords :rotate (/ -pi 2) :z :world)
+                        (send tabletop-box-coords :locate tabletop-box-pos :world)
                         (send tabletop-box :newcoords tabletop-box-coords)
                         (send tabletop-box :worldcoords))))
                    ((< tabletop-box-z-angle (+ (if box-rpy (elt box-rpy 0) 0)
@@ -220,6 +225,8 @@
                             (max 50 (+ tabletop-box-y tabletop-box-xy-offset))
                             (max 50 (+ tabletop-box-x tabletop-box-xy-offset))
                             (max 50 (+ tabletop-box-z tabletop-box-z-offset))))
+                    (setf (elt tabletop-box-pos 2)
+                          (+ (/ (z-of-cube tabletop-box) 2) *table-height* *table-z*))
                     (if box-rpy
                       (progn
                         (send tabletop-box :newcoords
@@ -227,6 +234,7 @@
                         (send tabletop-box :worldcoords))
                       (progn
                         (send tabletop-box-coords :rotate (/ pi 2) :z :world)
+                        (send tabletop-box-coords :locate tabletop-box-pos :world)
                         (send tabletop-box :newcoords tabletop-box-coords)
                         (send tabletop-box :worldcoords))))
                    (t
@@ -235,20 +243,18 @@
                              (max 50 (+ tabletop-box-x tabletop-box-xy-offset))
                              (max 50 (+ tabletop-box-y tabletop-box-xy-offset))
                              (max 50 (+ tabletop-box-z tabletop-box-z-offset))))
+                     (setf (elt tabletop-box-pos 2)
+                           (+ (/ (z-of-cube tabletop-box) 2) *table-height* *table-z*))
                      (if box-rpy
                        (progn
                          (send tabletop-box :newcoords
                                (make-coords :pos tabletop-box-pos :rpy box-rpy))
                          (send tabletop-box :worldcoords))
                        (progn
+                         (send tabletop-box-coords :locate tabletop-box-pos :world)
                          (send tabletop-box :newcoords tabletop-box-coords)
                          (send tabletop-box :worldcoords))))
-                   (if (null (= tabletop-box-z-offset 0))
-                     (send tabletop-box :translate
-                           (float-vector
-                             0 0 (- (elt (send tabletop-box :worldpos) 2)
-                                    (/ (z-of-cube tabletop-box) 2)))
-                           :world)))))
+                   )))
              (setq tabletop-box-rpy
                    (apply #'float-vector
                           (car (rpy-angle (send tabletop-box :worldrot)))))
