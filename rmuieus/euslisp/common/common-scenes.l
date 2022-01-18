@@ -270,12 +270,12 @@
   (let ((sorted-boxes (copy-object boxes)))
     (sort sorted-boxes #'<
           #'(lambda (box)
-              (let ((box-xy-pos (copy-seq (send box :worldpos)))
-                    (xy-pos (copy-seq pos)))
+              (let ((box-pos (copy-seq (send box :worldpos)))
+                    (obj-pos (copy-seq pos)))
                 ;; compare only x,y axis
-                (setf (elt box-xy-pos 2) 0)
-                (setf (elt xy-pos 2) 0)
-                (norm (v- box-xy-pos xy-pos)))))
+                ; (setf (elt box-pos 2) 0)
+                ; (setf (elt obj-pos 2) 0)
+                (norm (v- box-pos obj-pos)))))
     sorted-boxes))
 
 
