@@ -124,13 +124,18 @@
       (ros::create-timer 0.1 #'send self :server-cb)))
   (:server-cb (&rest args)
     (let* ((prev-scene-states (send updater :last-scene-states))
+           (start-stamp (ros::time-now))
            (update-p
              (eval (append '(and)
                             (send-all devices :update-device-orientation))))
            (device-states
-             (if update-p (send-all devices :get-device-state)))
+             (if update-p (send-all devices :get-device-state start-stamp)))
            (contact-positions
-             (if device-states
+             (if (and device-states
+                      (every #'(lambda (device-state)
+                                 (find :contact-positions device-state
+                                       :key #'car :test #'equal))
+                             device-states))
                (mapcar
                  #'(lambda (device-state)
                      (cadr (assoc :contact-positions device-state)))
@@ -151,60 +156,62 @@
            (dump-p (if update-scene-p (send updater :dump-files)))
            (executed-symbol update-scene-p)
            (scene-states (send updater :last-scene-states))
-           (executed-actions (send updater :executed-actions)))
+           (executed-actions (send updater :executed-actions))
+           (reset-devices (send-all devices :reset-device)))
       (if robotviewer (send robotviewer :draw-objects))
       (if pilotviewer (send pilotviewer :draw-objects))
       (if ri (send ri :draw-objects))
-      (ros::ros-info
-        (format nil "motion-symbols           : ~A" motion-symbols))
-      (ros::ros-info
-        (format nil "executed-symbol          : ~A" executed-symbol))
-      (ros::ros-info
-        (format nil "executed-actions         : ~A"
-                (mapcar #'(lambda (x)
-                            (find-if-not #'null (car x)))
-                        executed-actions)))
-      (ros::ros-info
-        (format nil "larm-contact-state       : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :larm-contact-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "rarm-contact-state       : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :rarm-contact-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "floor-contact-state      : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :floor-contact-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "object-location-state    : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :object-location-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "object-rotation-state    : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :object-rotation-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "cube-contact-state       : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :cube-contact-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "left-wall-contact-state  : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :left-wall-contact-state scene-state)))
-                        scene-states)))
-      (ros::ros-info
-        (format nil "front-wall-contact-state : ~A"
-                (mapcar #'(lambda (scene-state)
-                            (cadr (assoc :front-wall-contact-state scene-state)))
-                        scene-states)))
-      ))
+      (if contact-positions
+        (progn
+          (ros::ros-info
+            (format nil "motion-symbols           : ~A" motion-symbols))
+          (ros::ros-info
+            (format nil "executed-symbol          : ~A" executed-symbol))
+          (ros::ros-info
+            (format nil "executed-actions         : ~A"
+                    (mapcar #'(lambda (x)
+                                (find-if-not #'null (car x)))
+                            executed-actions)))
+          (ros::ros-info
+            (format nil "larm-contact-state       : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :larm-contact-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "rarm-contact-state       : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :rarm-contact-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "floor-contact-state      : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :floor-contact-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "object-location-state    : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :object-location-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "object-rotation-state    : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :object-rotation-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "cube-contact-state       : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :cube-contact-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "left-wall-contact-state  : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :left-wall-contact-state scene-state)))
+                            scene-states)))
+          (ros::ros-info
+            (format nil "front-wall-contact-state : ~A"
+                    (mapcar #'(lambda (scene-state)
+                                (cadr (assoc :front-wall-contact-state scene-state)))
+                            scene-states)))))))
   (:spin-once ()
     (if groupname
       (ros::spin-once groupname)

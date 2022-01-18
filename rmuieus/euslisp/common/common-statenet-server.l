@@ -462,13 +462,18 @@
           (progn
             (send stinteractor :stop-speech-recognition)
             (return-from :wait-device-user-input nil)))
-        (let* ((update-p
+        (let* ((start-stamp (ros::time-now))
+               (update-p
                  (eval (append '(and)
                                 (send-all devices :update-device-orientation))))
                (device-states
-                 (if update-p (send-all devices :get-device-state)))
+                 (if update-p (send-all devices :get-device-state start-stamp)))
                (contact-positions
-                 (if device-states
+                 (if (and device-states
+                          (every #'(lambda (device-state)
+                                     (find :contact-positions device-state
+                                           :key #'car :test #'equal))
+                                 device-states))
                    (mapcar
                      #'(lambda (device-state)
                          (cadr (assoc :contact-positions device-state)))
@@ -483,11 +488,14 @@
                    (send devexecutor :update-motion-symbol-queues motion-symbols)))
                (checked-motion-symbols
                  (if update-motion-symbol-queues
-                   (send devexecutor :check-motion-symbol-queues motion-symbols))))
-          (ros::ros-info
-            (format nil "motion-symbols         : ~A" motion-symbols))
-          (ros::ros-info
-            (format nil "checked-motion-symbols : ~A" checked-motion-symbols))
+                   (send devexecutor :check-motion-symbol-queues motion-symbols)))
+               (reset-devices (send-all devices :reset-device)))
+          (if contact-positions
+            (progn
+              (ros::ros-info
+                (format nil "motion-symbols         : ~A" motion-symbols))
+              (ros::ros-info
+                (format nil "checked-motion-symbols : ~A" checked-motion-symbols))))
           (if (not (every #'null checked-motion-symbols))
             (progn
               (setf (cdr (assoc :teach-motion-symbols userdata)) checked-motion-symbols)
