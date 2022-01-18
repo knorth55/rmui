@@ -686,7 +686,7 @@
                  (t approach-directions)))
          (pushed)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords)))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords)))
     (setq approached
           (push-motion-step
             approach-arm
@@ -821,7 +821,7 @@
     (ros::ros-error (format nil "arm is invalid: ~A" arm))
     (return-from grasp-motion nil))
   (let* ((prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
          (approach-av)
          (approach-target-coords
            (get-grasp-target-coords
@@ -1123,7 +1123,7 @@
             &allow-other-keys)
   (let ((av)
         (prev-av (send robot :angle-vector))
-        (prev-cube-coords (send cube :copy-worldcoords))
+        (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
         (cube-move-vector
           (cond ((eq push-axis :x) (float-vector move-distance 0 0))
                 ((eq push-axis :y) (float-vector 0 move-distance 0))
@@ -1215,8 +1215,8 @@
             &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
-         (cube-pos (send prev-cube-coords :worldpos))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
+         (cube-pos (copy-seq (send prev-cube-coords :worldpos)))
          (cube-width (get-cube-width :cube cube))
          (cube-move-vector
            (float-vector 0
@@ -1261,8 +1261,8 @@
             &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
-         (cube-pos (send prev-cube-coords :worldpos))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
+         (cube-pos (copy-seq (send prev-cube-coords :worldpos)))
          (cube-depth (get-cube-depth :cube cube))
          (cube-move-vector
            (float-vector
@@ -1417,7 +1417,7 @@
                        &allow-other-keys)
   (let* ((av)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
          (height-step 50)
          (height-count 0)
          (max-height-count (+ (floor (/ (abs lift-height) height-step)) 1))
@@ -1499,8 +1499,8 @@
     (setq cube-pos-y (elt (send cube :get :initial-pos) 1)))
   (let* ((av)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
-         (cube-pos (send prev-cube-coords :worldpos))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
+         (cube-pos (copy-seq (send prev-cube-coords :worldpos)))
          (cube-height (get-cube-height :cube cube))
          (height-step 50)
          (height-count 0)
@@ -1606,8 +1606,8 @@
     (setq cube-pos-z (elt (send cube :get :initial-pos) 2)))
   (let* ((av)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
-         (cube-pos (send prev-cube-coords :worldpos))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
+         (cube-pos (copy-seq (send prev-cube-coords :worldpos)))
          (move-step 50)
          (move-count 0)
          (cube-pos-x-diff (- cube-pos-x (elt cube-pos 0)))
@@ -1693,7 +1693,7 @@
          (moved)
          (lifted-down)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
          (cube-height (get-cube-height :cube cube))
          (cube-coords (send (send cube :worldcoords) :copy-worldcoords))
          (cube-pos (send cube-coords :worldpos))
@@ -1821,7 +1821,7 @@
                        (t 0)))))
          (current-angle 0)
          (prev-av (send robot :angle-vector))
-         (prev-cube-coords (send cube :copy-worldcoords))
+         (prev-cube-coords (send (send cube :worldcoords) :copy-worldcoords))
          (rotate-avs nil)
          (rotate-tms nil)
          (larm-target-coords nil)
