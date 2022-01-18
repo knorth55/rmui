@@ -11,13 +11,12 @@
   :slots (tfl
           namespace
           groupname
-          prx-threshold
-          prx-position-threshold
           device-frame-id
           device-world-frame-id
           device
-          proximity
           device-prx-vectors
+          prx-threshold
+          prx-position-threshold
           prx-initial-positions
           prx-x45-positions
           prx-y45-positions
@@ -26,6 +25,10 @@
           prx-x45-vectors
           prx-y45-vectors
           prx-z45-vectors
+          prx-timeout
+          ;; proximity data
+          proximity
+          proximity-stamp
           ))
 
 
@@ -43,6 +46,7 @@
                ((:prx-x45-vectors prxx45vec) *prx-x45-vectors*)
                ((:prx-y45-vectors prxy45vec) *prx-y45-vectors*)
                ((:prx-z45-vectors prxz45vec) *prx-z45-vectors*)
+               ((:prx-timeout prxtmout) 1.0)
                ((:transform-listener tflstner))
                ((:groupname gpn)))
     (setq namespace (if ns ns ""))
@@ -60,6 +64,7 @@
     (setq prx-x45-vectors prxx45vec)
     (setq prx-y45-vectors prxy45vec)
     (setq prx-z45-vectors prxz45vec)
+    (setq prx-timeout prxtmout)
     (setq device-prx-vectors (copy-prx-vectors prx-initial-vectors))
     (setq groupname (if gpn gpn))
     (if groupname (ros::create-nodehandle groupname))
@@ -74,8 +79,13 @@
     self)
   (:device-prx-vectors () device-prx-vectors)
   (:proximity () proximity)
+  (:proximity-stamp () proximity-stamp)
+  (:reset-device ()
+    (setq proximity nil)
+    (setq proximity-stamp nil))
   (:proximity-cb (msg)
-    (setq proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities))))
+    (setq proximity (mapcar #'(lambda (x) (send x :average)) (send msg :proximities)))
+    (setq proximity-stamp (send msg :header :stamp)))
   (:update-device-orientation ()
     (let* ((wait-p (send tfl :wait-for-transform
                          device-world-frame-id device-frame-id (ros::time 0) 0.1))
@@ -87,18 +97,22 @@
         (progn
           (send device :newcoords device-coords)
           (send device :worldcoords)))))
-  (:get-device-state ()
-    (if (send self :update-device-prx-vectors)
-      (let* ((device-rotation-state
-               (send self :get-device-rotation-state))
-             (device-prx-positions
-               (send self :get-device-prx-positions
-                     device-rotation-state))
-             (device-contact-positions
-               (send self :get-device-contact-positions
-                     device-prx-positions)))
-        (list (list :rotation-state device-rotation-state)
-              (list :contact-positions device-contact-positions)))))
+  (:get-device-state (&optional (stamp (ros::time-now)))
+    (if (and proximity
+             proximity-stamp
+             (ros::time> stamp proximity-stamp)
+             (< (send (ros::time- stamp proximity-stamp) :to-sec) prx-timeout))
+      (if (send self :update-device-prx-vectors)
+        (let* ((device-rotation-state
+                 (send self :get-device-rotation-state))
+               (device-prx-positions
+                 (send self :get-device-prx-positions
+                       device-rotation-state))
+               (device-contact-positions
+                 (send self :get-device-contact-positions
+                       device-prx-positions)))
+          (list (list :rotation-state device-rotation-state)
+                (list :contact-positions device-contact-positions))))))
   (:get-device-contact-positions (device-prx-positions)
     (let ((device-prx-index 0)
           (device-contact-positions nil))
