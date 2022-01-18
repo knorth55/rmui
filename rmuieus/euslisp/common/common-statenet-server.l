@@ -990,8 +990,9 @@
     (set-rmui-parameters rmui-names)
     (scene-init :table-pos-y 0
                 :scene-alist scene-alist
-                :wall-p wall-p)
-    (motion-init :move-robot t
+                :wall-p wall-p
+                :move-robot t)
+    (motion-init :move-robot nil
                  :robot *robot*
                  :ri *ri*
                  :cubes *boxes*

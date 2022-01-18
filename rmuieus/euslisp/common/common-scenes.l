@@ -576,7 +576,7 @@
   t)
 
 
-(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil))
+(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil) (move-robot nil))
   (if (null scene-alist)
     (setq scene-alist (load-scene-alist "one_ctb")))
   (let ((table-objects nil))
@@ -584,6 +584,8 @@
     (setq table-objects (list *table*))
     (robot-scene-init :table-pos *table-pos*)
 
+    (if move-robot
+      (reset-motion :robot *robot* :ri *ri* :move-robot t :vw nil))
     (box-scene-init scene-alist :base-frame-id *base-frame-id*)
     (setq table-objects (append table-objects *boxes*))
     (wall-scene-init)
