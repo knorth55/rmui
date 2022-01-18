@@ -13,8 +13,8 @@
         (cons :arccardboardbox1 (list 270 350 120))  ;; arc cardboard box1
         (cons :arccardboardbox2 (list 350 410 160))  ;; arc cardboard box2
         (cons :arccardboardbox3 (list 320 400 90))  ;; arc cardboard box3
-        (cons :arccardboardbox2+3 (list 320 400 250))  ;; arc cardboard box2 + box3
-        (cons :arccardboardbox1+3 (list 320 400 210))  ;; arc cardboard box1 + box3
+        (cons :arccardboardbox2+3 (list 320 400 270))  ;; arc cardboard box2 + box3
+        (cons :arccardboardbox1+3 (list 320 400 230))  ;; arc cardboard box1 + box3
         (cons :toybox (list 200 200 200))  ;; toy box for debugging
         (cons :toyobject (list 100 100 100)) ;; toy object for debugging
         ))
