@@ -624,7 +624,7 @@
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
       (send ri :wait-interpolation))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list (list av) (list tm)))))
 
 
@@ -951,7 +951,7 @@
         (delete-cubes-collision-object :cubes cubes :ri ri))
       (progn
         (send robot :angle-vector prev-av)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when (and released reseted)
       (list (append (car released) (car reseted))
             (append (cadr released) (cadr reseted))))))
@@ -1016,7 +1016,7 @@
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
       (send ri :wait-interpolation))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av
       (cond
         ((equal ee-type :contact) (discontact-cube arm :cube cube))
@@ -1146,7 +1146,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list (list av) (list tm)))))
 
 
@@ -1244,7 +1244,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list (list av) (list tm)))))
 
 
@@ -1291,7 +1291,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list (list av) (list tm)))))
 
 
@@ -1457,7 +1457,7 @@
                     :use-torso use-torso
                     :ee-type ee-type
                     :robot robot))))
-        (send vw :draw-objects)
+        (if vw (send vw :draw-objects))
         (if av
           (progn
             (setq avs (append avs (list av)))
@@ -1473,7 +1473,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list avs tms))))
 
 
@@ -1555,7 +1555,7 @@
                       :use-torso use-torso
                       :ee-type ee-type
                       :robot robot))))
-          (send vw :draw-objects)
+          (if vw (send vw :draw-objects))
           (if av
             (progn
               (setq avs (append avs (list av)))
@@ -1577,7 +1577,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av
       (if execute-move
         (list (append (car moved) avs) (append (cadr moved) tms))
@@ -1653,7 +1653,7 @@
                     :use-torso use-torso
                     :ee-type ee-type
                     :robot robot))))
-        (send vw :draw-objects)
+        (if vw (send vw :draw-objects))
         (if av
           (progn
             (setq avs (append avs (list av)))
@@ -1669,7 +1669,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list avs tms))))
 
 
@@ -1745,7 +1745,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when (and lifted-up moved lifted-down)
       (list (append (car lifted-up) (car moved) (car lifted-down))
             (append (cadr lifted-up) (cadr moved) (cadr lifted-down))))))
@@ -1862,7 +1862,7 @@
               (solve-ik-rotation-relax
                 :arms (list larm-target-coords rarm-target-coords)
                 :use-torso use-torso :robot robot))
-        (send vw :draw-objects)
+        (if vw (send vw :draw-objects))
         (if av
           (progn
             (setq rotate-avs (append rotate-avs (list av)))
@@ -1895,7 +1895,7 @@
             (solve-ik-rotation-relax
               :arms (list larm-target-coords rarm-target-coords)
               :use-torso use-torso :robot robot))
-      (send vw :draw-objects)
+      (if vw (send vw :draw-objects))
       (if av
         (progn
           (setq rotate-avs (append rotate-avs (list av)))
@@ -1911,7 +1911,7 @@
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
         (send cube :worldcoords)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when av (list rotate-avs rotate-tms))))
 
 
@@ -1947,7 +1947,7 @@
                                 (vw *irtviewer*)
                                 &allow-other-keys)
   (let ((av (send robot :reset-cube-manip-pose)))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (when move-robot
       (stop-grasp :arms :ri ri :wait t)
       ;: (start-grasp :arms :ri ri)
@@ -1966,7 +1966,7 @@
       (send ri :angle-vector av tm
             (get-arm-controller arm :use-torso use-torso) 0)
       (send ri :wait-interpolation))
-    (send vw :draw-objects)
+    (if vw (send vw :draw-objects))
     (list (list av) (list tm))))
 
 
