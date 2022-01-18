@@ -781,7 +781,7 @@
              (y-offset 0)
              (z-offset
                (+ (/ cube-height 2.0)
-                  (if (eq motion-type :approach) 100 (* -1 grasp-offset)))))
+                  (if (eq motion-type :approach) 150 (* -1 grasp-offset)))))
          (send target-coords :translate (float-vector x-offset y-offset z-offset) :world)
          (send target-coords :rotate pi/2 :y)
          target-coords))
