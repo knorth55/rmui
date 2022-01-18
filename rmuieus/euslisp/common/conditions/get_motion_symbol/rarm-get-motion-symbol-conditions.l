@@ -58,6 +58,7 @@
  ;  :top-push)
  ((and (equal rarm-contact-state :released)
        (null (equal larm-contact-state :top-contact))
+       (null (equal larm-contact-state :top-grasp))
        (null (equal larm-contact-state :bottom-left-side-contact))
        (or (equal floor-contact-state :bottom-contact)
            (equal floor-contact-state :bottom-left-side-contact)
