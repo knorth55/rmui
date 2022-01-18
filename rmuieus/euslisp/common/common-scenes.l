@@ -119,6 +119,8 @@
                 (cons :cardboardbox (list 350 350 300))  ;; cardboard box
                 (cons :trashbox (list 270 370 500))  ;; trash box
                 (cons :shredder (list 150 280 320))  ;; shredder
+                (cons :arccardboardbox1 (list 270 350 120))  ;; arc cardboard box1
+                (cons :arccardboardbox2 (list 350 410 160))  ;; arc cardboard box2
                 (cons :toybox (list 200 200 200))  ;; toy box for debugging
                 (cons :toyobject (list 100 100 100)) ;; toy object for debugging
                 )))
