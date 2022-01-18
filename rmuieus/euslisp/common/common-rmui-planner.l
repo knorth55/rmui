@@ -97,8 +97,9 @@
                        (and (equal rarm-contact-state :top-grasp)
                             (equal rarm-motion-symbol :grasp-down)))
                    (not (find :bottom-contact cube-contact-state)))
-            (setq grasp-down-index i)
-            (setq grasp-down-arm grasp-arm))
+            (progn
+              (setq grasp-down-index i)
+              (setq grasp-down-arm grasp-arm)))
           ;; lift up from hold pile up
           (if (and (or (and (equal larm-contact-state :front-contact)
                             (equal rarm-contact-state :back-contact))
