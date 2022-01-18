@@ -4,6 +4,19 @@
 (ros::roseus-add-msgs "jsk_recognition_msgs")
 
 
+(defvar *box-shapes*
+  (list (cons :ctb (list 270 420 220))  ;; ctb
+        (cons :jetson (list 220 200 200))  ;; jetson box
+        (cons :cardboardbox (list 350 350 300))  ;; cardboard box
+        (cons :trashbox (list 270 370 500))  ;; trash box
+        (cons :shredder (list 150 280 320))  ;; shredder
+        (cons :arccardboardbox1 (list 270 350 120))  ;; arc cardboard box1
+        (cons :arccardboardbox2 (list 350 410 160))  ;; arc cardboard box2
+        (cons :toybox (list 200 200 200))  ;; toy box for debugging
+        (cons :toyobject (list 100 100 100)) ;; toy object for debugging
+        ))
+
+
 (defun set-reset-state (&optional (boxes *boxes*))
   (defvar *reset-state* (get-initial-scene-states boxes))
   (ros::ros-info "reset-state: ~A" *reset-state*))
@@ -112,18 +125,7 @@
 
 (defun create-box (&key (box-type) (box-shapes) (box-pos) (box-rpy) (box-id))
   (if (null box-rpy) (setq box-rpy (float-vector 0 0 0)))
-  (if (null box-shapes)
-    (setq box-shapes
-          (list (cons :ctb (list 270 420 220))  ;; ctb
-                (cons :jetson (list 220 200 200))  ;; jetson box
-                (cons :cardboardbox (list 350 350 300))  ;; cardboard box
-                (cons :trashbox (list 270 370 500))  ;; trash box
-                (cons :shredder (list 150 280 320))  ;; shredder
-                (cons :arccardboardbox1 (list 270 350 120))  ;; arc cardboard box1
-                (cons :arccardboardbox2 (list 350 410 160))  ;; arc cardboard box2
-                (cons :toybox (list 200 200 200))  ;; toy box for debugging
-                (cons :toyobject (list 100 100 100)) ;; toy object for debugging
-                )))
+  (if (null box-shapes) (setq box-shapes (copy-tree *box-shapes*)))
   (let* ((box-shape (cdr (assoc box-type box-shapes)))
          (box (apply #'make-cube (append box-shape (list :name box-id)))))
     (setf (elt box-pos 2) (+ (elt box-pos 2) (/ (z-of-cube box) 2.0)))
@@ -138,16 +140,7 @@
 
 
 (defun get-box (&key (box-type) (box-pos) (box-rpy) (box-id) (tabletop-boxes))
-  (let* ((box-shapes
-           (list
-             (cons :ctb (list 270 420 220))  ;; ctb
-             (cons :jetson (list 220 200 200))  ;; jetson box
-             (cons :cardboardbox (list 350 350 300))  ;; cardboard box
-             (cons :trashbox (list 270 370 500))  ;; trash box
-             (cons :shredder (list 150 280 320))  ;; shredder
-             (cons :toybox (list 200 200 200))  ;; toy box for debugging
-             (cons :toyobject (list 100 100 100)) ;; toy object for debugging
-             ))
+  (let* ((box-shapes (copy-tree *box-shapes*))
          (box-type-names
            (mapcar #'(lambda (box-shape) (car box-shape)) box-shapes)))
     (cond
