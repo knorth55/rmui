@@ -130,7 +130,7 @@
             (load-merged-statenet-graph-with-reset
               reset-state
               :data-dirs (list object-statenet-dir collabo-statenet-dir)))
-      (send statenet-gr :put :box-types (copy-treee box-types))
+      (send statenet-gr :put :box-types (copy-tree box-types))
       (setq slvr (instance solver-class :init))
       (setq stplanner
             (instance statenet-planner :init
