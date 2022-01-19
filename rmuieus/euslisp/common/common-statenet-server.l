@@ -119,7 +119,7 @@
       (setq pilotviewer pltvw)
       (setq skip-interaction skip-intr-p)
       (setq n-box (length bxs))
-      (setq box-types (mapcar #'(lambda (bx) (send bx :get :box-type)) boxes))
+      (setq box-types (mapcar #'(lambda (bx) (send bx :get :box-type)) bxs))
 
       (setq device-topic-namespace
             (if (> (length device-namespaces) 1)
