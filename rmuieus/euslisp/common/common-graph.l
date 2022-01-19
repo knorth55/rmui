@@ -589,48 +589,54 @@
 (defun merge-graphs (graphs graphclass &key (reset-state nil))
   (let ((mgr (instance graphclass :init)))
     (dolist (gr graphs)
-      (dolist (node (send gr :nodes))
-        (let* ((arcs (send node :arc-list))
-               (node-sym
-                 (change-state-with-reset-state
-                   (convert-string-to-sym (send node :name))
-                   reset-state))
-               (mnode (send mgr :search-node-from-pddl-state node-sym)))
-          (if (null arcs)
-            (if (null mnode)
-              (send mgr :add-pddl-state-node node-sym :node-name :pprint))
-            (dolist (ac arcs)
-              (let ((from-sym
-                      (change-state-with-reset-state
-                        (convert-string-to-sym (send (send ac :from) :name))
-                        reset-state))
-                    (to-sym
-                      (change-state-with-reset-state
-                        (convert-string-to-sym (send (send ac :to) :name))
-                        reset-state))
-                    (action
-                      (change-action-with-reset-state
-                        (read-from-string (send ac :name))
-                        reset-state)))
-                (if (equal node-sym from-sym)
-                  (add-action-state-in-graph mgr action from-sym to-sym)
-                  (ros::ros-error (format nil "node and arc :from is not same: ~A != ~A"
-                                          node-sym from-sym)))))))))
+      (let ((box-types (copy-tree (send gr :get :box-types))))
+        (dolist (node (send gr :nodes))
+          (let* ((arcs (send node :arc-list))
+                 (node-sym
+                   (change-state-with-reset-state
+                     (convert-string-to-sym (send node :name))
+                     reset-state :box-types box-types))
+                 (mnode (send mgr :search-node-from-pddl-state node-sym)))
+            (if (null arcs)
+              (if (null mnode)
+                (send mgr :add-pddl-state-node node-sym :node-name :pprint))
+              (dolist (ac arcs)
+                (let ((from-sym
+                        (change-state-with-reset-state
+                          (convert-string-to-sym (send (send ac :from) :name))
+                          reset-state :box-types box-types))
+                      (to-sym
+                        (change-state-with-reset-state
+                          (convert-string-to-sym (send (send ac :to) :name))
+                          reset-state :box-types box-types))
+                      (action
+                        (change-action-with-reset-state
+                          (read-from-string (send ac :name))
+                          reset-state)))
+                  (if (equal node-sym from-sym)
+                    (add-action-state-in-graph mgr action from-sym to-sym)
+                    (ros::ros-error (format nil "node and arc :from is not same: ~A != ~A"
+                                            node-sym from-sym))))))))))
     mgr))
 
 
-(defun change-state-with-reset-state (org-node-sym reset-state)
+(defun change-state-with-reset-state
+  (org-node-sym reset-state &key (box-types))
   (if reset-state
     (let* ((n-reset-state (length reset-state))
            (n-org-node-sym (length org-node-sym))
-           (change-state (null (or (equal org-node-sym '(:init))
-                                   (equal n-reset-state n-org-node-sym)))))
+           (change-state (and (null (equal org-node-sym '(:init)))
+                              (or (null (equal n-reset-state n-org-node-sym))
+                                  (find :object box-types :test #'equal)))))
       (if change-state
         (let ((node-sym
-                (if (> n-reset-state n-org-node-sym)
-                  (append org-node-sym
-                          (copy-tree (subseq reset-state n-org-node-sym)))
-                  (copy-tree (subseq org-node-sym 0 n-reset-state))))
+                (cond
+                  ((> n-reset-state n-org-node-sym)
+                   (append org-node-sym
+                           (copy-tree (subseq reset-state n-org-node-sym))))
+                  ((< n-reset-state n-org-node-sym)
+                   (copy-tree (subseq org-node-sym 0 n-reset-state)))
+                  (t org-node-sym)))
               (larm-used nil)
               (rarm-used nil))
           (dotimes (node-i (length node-sym))
@@ -641,7 +647,9 @@
                      (cadr (assoc :rarm-contact-state node-s)))
                    (cube-contact-state
                      (cadr (assoc :cube-contact-state node-s)))
-                   (n-cube-contact-state (length cube-contact-state)))
+                   (n-cube-contact-state (length cube-contact-state))
+                   (box-type
+                     (if (and box-types (> (length box-types) node-i)) (elt box-types node-i))))
               (cond
                 ((> n-cube-contact-state n-reset-state)
                  (setf (cadr (assoc :cube-contact-state node-s))
@@ -662,7 +670,12 @@
                             (null (equal larm-contact-state :released)))))
                 (progn
                   (if larm-used (setf (cadr (assoc :larm-contact-state node-s)) :used))
-                  (if rarm-used (setf (cadr (assoc :rarm-contact-state node-s)) :used))))))
+                  (if rarm-used (setf (cadr (assoc :rarm-contact-state node-s)) :used))))
+              ;; ignore rotation when box-type is object
+              (if (equal box-type :object)
+                (setf (cadr (assoc :object-rotation-state node-s))
+                      (copy-tree
+                        (cadr (assoc :object-rotation-state (elt reset-state node-i))))))))
           node-sym)
         org-node-sym))
     org-node-sym))
