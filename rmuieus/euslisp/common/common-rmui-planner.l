@@ -188,7 +188,9 @@
         (dotimes (i (length motion-symbols))
           (let* ((motion-symbol (elt motion-symbols i))
                  (contact-position (elt contact-positions i))
-                 (contact-surface (mapcar #'car contact-position))
+                 (contact-surface
+                   (get-often-elements (mapcar #'car contact-position)
+                                       :count-threshold 2))
                  (scene-state (elt scene-states i))
                  (larm-contact-state
                    (cadr (assoc :larm-contact-state scene-state)))
@@ -341,7 +343,9 @@
              (cadr (assoc :left-wall-contact-state scene-state)))
            (front-wall-contact-state
              (cadr (assoc :front-wall-contact-state scene-state)))
-           (contact-surface (mapcar #'car contact-position))
+           (contact-surface
+             (get-often-elements (mapcar #'car contact-position)
+                                 :count-threshold 2))
            (left-contact-position
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :left) (cadr x) nil))

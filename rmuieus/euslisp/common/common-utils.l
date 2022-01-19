@@ -2,6 +2,22 @@
 (ros::roseus-add-srvs "topic_tools")
 
 
+(defun get-often-elements (l &key (count-threshold 2))
+  (let ((ofl nil))
+    (dolist (x (remove-duplicates l))
+      (if (>= (count-element x l)
+              count-threshold)
+        (setq ofl (append ofl (list x)))))
+    ofl))
+
+
+(defun count-element (a l)
+  (cond
+   ((null l) 0)
+   ((equal a (car l)) (+ 1 (count-element a (cdr l))))
+   (t (count-element a (cdr l)))))
+
+
 (defun topic-mux-select (service-name topic-name)
   (if (ros::wait-for-service service-name 1)
     (let ((req (instance topic_tools::MuxSelectRequest :init :topic topic-name))
