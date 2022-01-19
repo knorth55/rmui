@@ -34,15 +34,15 @@
   service_type: 'SetBool'
   default_value: true
 - name: |
-    Contact board1 sensor3
-    (initial front top)
-  service: '/rmui1/rmui_node/board1/sensor3/contact'
+    Contact board2 sensor3
+    (initial left top)
+  service: '/rmui1/rmui_node/board2/sensor3/contact'
   column: 3
   service_type: 'SetBool'
 - name: |
     Contact board2 sensor3
-    (initial left top)
-  service: '/rmui1/rmui_node/board2/sensor3/contact'
+    (initial left center)
+  service: '/rmui1/rmui_node/board2/sensor4/contact'
   column: 3
   service_type: 'SetBool'
 - name: |
@@ -52,8 +52,32 @@
   column: 3
   service_type: 'SetBool'
 - name: |
+    Contact board4 sensor3
+    (initial right center)
+  service: '/rmui1/rmui_node/board4/sensor4/contact'
+  column: 3
+  service_type: 'SetBool'
+- name: |
+    Contact board1 sensor3
+    (initial front top)
+  service: '/rmui1/rmui_node/board1/sensor3/contact'
+  column: 4
+  service_type: 'SetBool'
+- name: |
+    Contact board1 sensor3
+    (initial front center)
+  service: '/rmui1/rmui_node/board1/sensor4/contact'
+  column: 4
+  service_type: 'SetBool'
+- name: |
     Contact board3 sensor3
     (initial back top)
   service: '/rmui1/rmui_node/board3/sensor3/contact'
-  column: 3
+  column: 4
+  service_type: 'SetBool'
+- name: |
+    Contact board3 sensor3
+    (initial back center)
+  service: '/rmui1/rmui_node/board3/sensor4/contact'
+  column: 4
   service_type: 'SetBool'
