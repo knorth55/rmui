@@ -36,6 +36,7 @@
           pilotviewer
           skip-interaction
           n-box
+          box-types
           ;; statenet
           slvr
           sm
@@ -118,6 +119,7 @@
       (setq pilotviewer pltvw)
       (setq skip-interaction skip-intr-p)
       (setq n-box (length bxs))
+      (setq box-types (mapcar #'(lambda (bx) (send bx :get :box-type)) boxes))
 
       (setq device-topic-namespace
             (if (> (length device-namespaces) 1)
@@ -128,6 +130,7 @@
             (load-merged-statenet-graph-with-reset
               reset-state
               :data-dirs (list object-statenet-dir collabo-statenet-dir)))
+      (send statenet-gr :put :box-types (copy-treee box-types))
       (setq slvr (instance solver-class :init))
       (setq stplanner
             (instance statenet-planner :init
@@ -280,7 +283,7 @@
   (:plan-state-machine-with-trained-paths
     (start-state goal-state &key (first-action nil) (no-loop nil))
     (let* ((trained-data
-            (send self :load-trained-collabo-paths start-state goal-state))
+             (send self :load-trained-collabo-paths start-state goal-state))
            (trained-executed-collabo-paths (car trained-data))
            (trained-dump-dirnames (cdr trained-data))
            (trained-index 0)
