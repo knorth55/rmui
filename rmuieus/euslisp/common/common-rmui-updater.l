@@ -64,7 +64,7 @@
     (setq executed-actions nil)
     (setq pddl-gr (instance pddl-graph :init))
     (setq statenet-gr (instance statenet-graph :init))
-    (send statenet-gr :put :box-types box-types)
+    (send statenet-gr :put :box-types (copy-treee box-types))
     (setq dump-dir nil)
     (setq scene-states-list (list initial-scene-states)))
   (:initial-scene-states ()
