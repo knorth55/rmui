@@ -627,7 +627,8 @@
            (n-org-node-sym (length org-node-sym))
            (change-state (and (null (equal org-node-sym '(:init)))
                               (or (null (equal n-reset-state n-org-node-sym))
-                                  (find :object box-types :test #'equal)))))
+                                  (find :object box-types :test #'equal)
+                                  (find :toyobject box-types :test #'equal)))))
       (if change-state
         (let ((node-sym
                 (cond
@@ -672,7 +673,7 @@
                   (if larm-used (setf (cadr (assoc :larm-contact-state node-s)) :used))
                   (if rarm-used (setf (cadr (assoc :rarm-contact-state node-s)) :used))))
               ;; ignore rotation when box-type is object
-              (if (equal box-type :object)
+              (if (find box-type (list :object :toyobject) :test #'equal)
                 (setf (cadr (assoc :object-rotation-state node-s))
                       (copy-tree
                         (cadr (assoc :object-rotation-state (elt reset-state node-i))))))))
