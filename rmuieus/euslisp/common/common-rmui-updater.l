@@ -25,6 +25,7 @@
           data-dir
           dump-dir
           boxes
+          box-types
           larm-contact-state-conditions
           rarm-contact-state-conditions
           floor-contact-state-conditions
@@ -42,6 +43,7 @@
     (setq namespace (if ns ns ""))
     (setq data-dir ddir)
     (setq boxes bxs)
+    (setq box-types (mapcar #'(lambda (bx) (send bx :get :box-type)) boxes))
     (setq reset-state rs)
 
     ;; update conditions
@@ -62,6 +64,7 @@
     (setq executed-actions nil)
     (setq pddl-gr (instance pddl-graph :init))
     (setq statenet-gr (instance statenet-graph :init))
+    (send statenet-gr :put :box-types box-types)
     (setq dump-dir nil)
     (setq scene-states-list (list initial-scene-states)))
   (:initial-scene-states ()
