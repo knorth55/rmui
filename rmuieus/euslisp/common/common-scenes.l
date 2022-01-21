@@ -48,17 +48,32 @@
                    (if (and (> box-z-rotation-angle (/ pi 8))
                             (< box-z-rotation-angle (* (/ pi 8) 3)))
                      :z45 :z0))
-                 :z0)))
+                 :z0))
+             (box-conds (send box :get :initial-cond))
+             (floor-contact-state :bottom-contact))
         (setq cube-contact-state
               (make-list n-box :initial-element :released))
         (setf (elt cube-contact-state i) :never)
+        (if box-conds
+          (dolist (box-cond box-conds)
+            (let ((box-relative-cond (car box-cond))
+                  (box-relative-i (cadr box-cond)))
+              (cond
+                ((equal box-relative-cond :on)
+                 (setf (elt cube-contact-state box-relative-i)
+                       :bottom-contact)
+                 (setq floor-contact-state :released))
+                ((equal box-relative-cond :under)
+                 (setf (elt cube-contact-state box-relative-i)
+                       :top-contact))
+                (t nil)))))
         (setq scene-states
               (append scene-states
                       (list
                         (list
                           (list :larm-contact-state :released)
                           (list :rarm-contact-state :released)
-                          (list :floor-contact-state :bottom-contact)
+                          (list :floor-contact-state floor-contact-state)
                           (list :object-location-state :center)
                           (list :object-rotation-state
                                 (list :x0 :y0 box-z-rotation-state))
@@ -292,7 +307,8 @@
                  (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)))
          (tabletop-boxes
            (if recognize-tabletop
-             (recognize-tabletop-boxes :base-frame-id base-frame-id))))
+             (recognize-tabletop-boxes :base-frame-id base-frame-id)))
+         (box-pos-relatives nil))
     (dotimes (i (length scene-alist))
       (let* ((scene-a (elt scene-alist i))
              (box-id (format nil "box~A" i))
@@ -300,8 +316,10 @@
              (box-pos-a (cadr (assoc :box-pos scene-a)))
              (box-pos-x (+ *box-pos-x* (elt box-pos-a 0)))
              (box-pos-y (elt box-pos-a 1))
-             (box-pos-z (+ (+ *table-z* *table-height*)
-                           (elt box-pos-a 2)))
+             (box-pos-z-relative (listp (elt box-pos-a 2)))
+             (box-pos-z
+               (if box-pos-z-relative
+                 0 (+ (+ *table-z* *table-height*) (elt box-pos-a 2))))
              (box-pos (float-vector box-pos-x box-pos-y box-pos-z))
              (box-rpy-a (cadr (assoc :box-rpy scene-a)))
              (box-rpy (if box-rpy-a
@@ -320,7 +338,32 @@
         (send box :set-color (elt colors (mod i 6)))
         (eval `(defvar ,(read-from-string (format nil "*box~A*" i)) box))
         (setq boxes (append boxes (list box)))
+        (setq box-pos-relatives (append box-pos-relatives (list box-pos-z-relative)))
         ))
+    (if (null (every #'null box-pos-relatives))
+      (dotimes (box-i (length boxes))
+        (if (elt box-pos-relatives box-i)
+          (let* ((box (elt boxes box-i))
+                 (box-pos (copy-seq (send box :worldpos)))
+                 (box-pos-z (elt (cadr (assoc :box-pos (elt scene-alist box-i))) 2))
+                 (box-relative-cond (car box-pos-z))
+                 (box-relative-i (cadr box-pos-z))
+                 (box-relative (elt boxes box-relative-i))
+                 (box-relative-pos (copy-seq (send box-relative :worldpos))))
+            (cond
+              ((equal box-relative-cond :on)
+               (setf (elt box-pos 2)
+                     (+ (elt box-relative-pos 2)
+                        (/ (z-of-cube box-relative) 2.0)
+                        (/ (z-of-cube box) 2.0)))
+               (send box :locate box-pos :world)
+               (send box :put :initial-cond
+                     (append (send box :get :initial-cond)
+                             (list (list :on box-relative-i))))
+               (send box-relative :put :initial-cond
+                     (append (send box-relative :get :initial-cond)
+                             (list (list :under box-i)))))
+              (t (ros::ros-error "Unknown condition ~A" box-relative-cond)))))))
     (defvar *boxes* boxes)))
 
 
@@ -378,7 +421,8 @@
         (device-shapes
           (list (cons :mtc1 (list 120 120 120))  ;; miniature tangible cube rev.1
                 (cons :mtc2 (list 100 100 100))  ;; miniature tangible cube rev.2
-                )))
+                ))
+        (device-pos-relatives nil))
     (dotimes (i (length scene-alist))
       (let* ((scene-a (elt scene-alist i))
              (device-id (format nil "pilot-device~A" i))
@@ -388,9 +432,12 @@
              (device-pos-a (cadr (assoc :device-pos scene-a)))
              (device-pos-x (+ *pilot-device-pos-x* (elt device-pos-a 0)))
              (device-pos-y (elt device-pos-a 1))
-             (device-pos-z (+ (+ *pilot-table-z* *pilot-table-height*)
-                              (/ (z-of-cube device) 2.0)
-                              (elt device-pos-a 2)))
+             (device-pos-z-relative (listp (elt device-pos-a 2)))
+             (device-pos-z
+               (if device-pos-z-relative
+                 0 (+ *pilot-table-z* *pilot-table-height*
+                      (/ (z-of-cube device) 2.0)
+                      (elt device-pos-a 2))))
              (device-pos
                (float-vector device-pos-x device-pos-y device-pos-z))
              (box-rpy-a (cadr (assoc :box-rpy scene-a)))
@@ -413,7 +460,32 @@
         (send device :put :initial-rpy (copy-seq device-rpy))
         (eval `(defvar ,(read-from-string (format nil "*pilot-device~A*" i)) device))
         (setq devices (append devices (list device)))
+        (setq device-pos-relatives (append device-pos-relatives (list device-pos-z-relative)))
         ))
+    (if (null (every #'null device-pos-relatives))
+      (dotimes (device-i (length devices))
+        (if (elt device-pos-relatives device-i)
+          (let* ((device (elt devices device-i))
+                 (device-pos (copy-seq (send device :worldpos)))
+                 (device-pos-z (elt (cadr (assoc :device-pos (elt scene-alist device-i))) 2))
+                 (device-relative-cond (car device-pos-z))
+                 (device-relative-i (cadr device-pos-z))
+                 (device-relative (elt devices device-relative-i))
+                 (device-relative-pos (copy-seq (send device-relative :worldpos))))
+            (cond
+              ((equal device-relative-cond :on)
+               (setf (elt device-pos 2)
+                     (+ (elt device-relative-pos 2)
+                        (/ (z-of-cube device-relative) 2.0)
+                        (/ (z-of-cube device) 2.0)))
+               (send device :locate device-pos :world)
+               (send device :put :initial-cond
+                     (append (send device :get :initial-cond)
+                             (list (list :on device-relative-i))))
+               (send device-relative :put :initial-cond
+                     (append (send device-relative :get :initial-cond)
+                             (list (list :under device-i)))))
+              (t (ros::ros-error "Unknown condition ~A" device-relative-cond)))))))
     (defvar *pilot-devices* devices)))
 
 
@@ -602,7 +674,19 @@
     ;: viewer-init
     (send *ri* :objects table-objects)
     (make-irtviewer :title "Robot Viewer")
-    (objects (append (list *robot*) table-objects) *irtviewer*)))
+    (objects (append (list *robot*) table-objects) *irtviewer*)
+
+    ;; assoc boxes
+    (dolist (box *boxes*)
+      (let ((box-conds (send box :get :initial-cond)))
+        (dolist (box-cond box-conds)
+          (let ((box-relative-cond (car box-cond))
+                (box-relative-i (cadr box-cond)))
+            (cond
+              ((equal box-relative-cond :on)
+               (assoc-two-cubes (elt *boxes* box-relative-i) box :ri *ri*))
+              (t nil))))))
+    ))
 
 
 (defun pilot-scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil))
@@ -624,7 +708,19 @@
                       (list *pilot-left-wall* *pilot-front-wall*)))))
     ;: viewer-init
     (setq *pilotviewer* (instance x::irtviewer :create :title "Pilot Viewer"))
-    (objects (append (list *pilot*) table-objects) *pilotviewer*)))
+    (objects (append (list *pilot*) table-objects) *pilotviewer*)
+
+    ;; assoc devices
+    (dolist (device *pilot-devices*)
+      (let ((device-conds (send device :get :initial-cond)))
+        (dolist (device-cond device-conds)
+          (let ((device-relative-cond (car device-cond))
+                (device-relative-i (cadr device-cond)))
+            (cond
+              ((equal device-relative-cond :on)
+               (assoc-two-cubes (elt *pilot-devices* device-relative-i) device :ri nil))
+              (t nil))))))
+    ))
 
 
 (provide :common-scenes "common-scenes.l")
