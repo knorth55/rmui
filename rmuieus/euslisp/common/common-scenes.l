@@ -17,6 +17,7 @@
         (cons :arccardboardbox1+3 (list 320 400 230))  ;; arc cardboard box1 + box3
         (cons :toybox (list 200 200 200))  ;; toy box for debugging
         (cons :toyobject (list 100 100 100)) ;; toy object for debugging
+        (cons :graspobject (list 100 100 100)) ;; grasp object for grasp mask rcnn
         ))
 
 
