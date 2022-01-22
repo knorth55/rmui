@@ -16,6 +16,7 @@
 (defvar *use-torso* nil)
 
 
-(defun main (&key (scene-name "one_ctb") (wall-p nil))
+(defun main (&key (scene-name "one_ctb") (wall-p nil) (use-grasp-mask-rcnn nil))
   (ros::roseus "baxter_rmui_planning")
-  (rmui-server-main :scene-name scene-name :wall-p wall-p))
+  (rmui-server-main :scene-name scene-name :wall-p wall-p
+                    :use-grasp-mask-rcnn use-grasp-mask-rcnn))

@@ -125,8 +125,11 @@
 
 
 (defun recognize-tabletop-boxes
-  (&key (stamp (ros::time-now)) (timeout 30) (base-frame-id))
-  (let* ((decomposer-name "/tabletop_cpi_decomposer")
+  (&key (stamp (ros::time-now)) (timeout 30) (base-frame-id) (use-grasp-mask-rcnn nil))
+  (let* ((decomposer-name
+           (if use-grasp-mask-rcnn
+             "/grasp_mask_rcnn/cluster_indices_decomposer"
+             "/tabletop_cpi_decomposer"))
          (bbox-topic-name (format nil "~A/boxes" decomposer-name))
          (bbox-topic-type jsk_recognition_msgs::BoundingBoxArray)
          (bbox-is-publish
@@ -298,7 +301,7 @@
     sorted-boxes))
 
 
-(defun box-scene-init (scene-alist &key (base-frame-id))
+(defun box-scene-init (scene-alist &key (base-frame-id) (use-grasp-mask-rcnn nil))
   (let* ((boxes nil)
          (colors (list :red :green :blue :yellow :pink :purple))
          ;; TODO: support more object for recognize
@@ -307,7 +310,10 @@
                  (mapcar #'(lambda (scene-a) (cadr (assoc :box-type scene-a))) scene-alist)))
          (tabletop-boxes
            (if recognize-tabletop
-             (recognize-tabletop-boxes :base-frame-id base-frame-id)))
+             (recognize-tabletop-boxes
+               :base-frame-id base-frame-id
+               :use-grasp-mask-rcnn use-grasp-mask-rcnn
+               :timeout (if use-grasp-mask-rcnn 300 30))))
          (box-pos-relatives nil))
     (dotimes (i (length scene-alist))
       (let* ((scene-a (elt scene-alist i))
@@ -652,7 +658,7 @@
   t)
 
 
-(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil) (move-robot nil))
+(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil) (move-robot nil) (use-grasp-mask-rcnn nil))
   (if (null scene-alist)
     (setq scene-alist (load-scene-alist "one_ctb")))
   (let ((table-objects nil))
@@ -662,7 +668,9 @@
 
     (if move-robot
       (reset-motion :robot *robot* :ri *ri* :move-robot t :vw nil))
-    (box-scene-init scene-alist :base-frame-id *base-frame-id*)
+    (box-scene-init
+      scene-alist :base-frame-id *base-frame-id*
+      :use-grasp-mask-rcnn use-grasp-mask-rcnn)
     (setq table-objects (append table-objects *boxes*))
     (wall-scene-init)
     (if wall-p

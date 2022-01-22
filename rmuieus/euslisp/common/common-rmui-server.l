@@ -219,7 +219,7 @@
   )
 
 
-(defun rmui-server-main (&key (scene-name "one_ctb") (wall-p nil))
+(defun rmui-server-main (&key (scene-name "one_ctb") (wall-p nil) (use-grasp-mask-rcnn nil))
   (let* ((scene-alist (load-scene-alist scene-name))
          (rmui-names (mapcar #'(lambda (x) (cadr (assoc :device-name x))) scene-alist)))
     (if (not (listp rmui-names)) (setq rmui-names (list rmui-names)))
@@ -228,6 +228,7 @@
     (scene-init :table-pos-y 0
                 :scene-alist scene-alist
                 :wall-p wall-p
+                :use-grasp-mask-rcnn use-grasp-mask-rcnn
                 :move-robot t)
     (motion-init :move-robot nil
                  :robot *robot*

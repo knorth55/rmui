@@ -23,9 +23,10 @@
 
 
 (defun main (&key (pdf nil) (scene-name "one_ctb")
-                  (wall-p nil) (skip-interaction nil))
+                  (wall-p nil) (skip-interaction nil) (use-grasp-mask-rcnn nil))
   (ros::roseus "baxter_statenet_server")
   (statenet-server-main :pdf pdf
                         :scene-name scene-name
                         :wall-p wall-p
-                        :skip-interaction skip-interaction))
+                        :skip-interaction skip-interaction
+                        :use-grasp-mask-rcnn use-grasp-mask-rcnn))
