@@ -658,7 +658,9 @@
   t)
 
 
-(defun scene-init (&key (table-pos-y 0) (scene-alist nil) (wall-p nil) (move-robot nil) (use-grasp-mask-rcnn nil))
+(defun scene-init
+  (&key (table-pos-y 0) (scene-alist nil) (wall-p nil)
+        (move-robot nil) (use-grasp-mask-rcnn nil))
   (if (null scene-alist)
     (setq scene-alist (load-scene-alist "one_ctb")))
   (let ((table-objects nil))
