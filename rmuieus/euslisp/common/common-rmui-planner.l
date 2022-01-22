@@ -191,6 +191,7 @@
                  (contact-surface
                    (get-often-elements (mapcar #'car contact-position)
                                        :count-threshold 2))
+                 (sensitive-contact-surface (mapcar #'car contact-position))
                  (scene-state (elt scene-states i))
                  (larm-contact-state
                    (cadr (assoc :larm-contact-state scene-state)))
@@ -215,8 +216,8 @@
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact)
                         (find :bottom-contact cube-contact-state))
-                    (find :top contact-surface)
-                    (find :bottom contact-surface))
+                    (find :top sensitive-contact-surface)
+                    (find :bottom sensitive-contact-surface))
                (setf (car (elt motion-symbols push-hold-down-index))
                      (list :push-hold-pile-up :cube-index i))
                (setf (cadr (elt motion-symbols push-hold-down-index))
@@ -231,8 +232,8 @@
                         (equal floor-contact-state :bottom-left-side-contact)
                         (equal floor-contact-state :bottom-right-side-contact)
                         (find :bottom-contact cube-contact-state))
-                    (find :top contact-surface)
-                    (find :bottom contact-surface))
+                    (find :top sensitive-contact-surface)
+                    (find :bottom sensitive-contact-surface))
                (if (equal grasp-down-arm :larm)
                  (setf (car (elt motion-symbols grasp-down-index))
                        (list :grasp-pile-up :cube-index i))
@@ -346,6 +347,7 @@
            (contact-surface
              (get-often-elements (mapcar #'car contact-position)
                                  :count-threshold 2))
+           (sensitive-contact-surface (mapcar #'car contact-position))
            (left-contact-position
              (remove-if #'null
                         (mapcar #'(lambda (x) (if (equal (car x) :left) (cadr x) nil))

@@ -18,7 +18,7 @@
            (equal floor-contact-state :bottom-right-side-contact)
            (find :bottom-contact cube-contact-state))
        (null (find :top contact-surface))
-       (find :bottom contact-surface)
+       (find :bottom sensitive-contact-surface)
        grasp-p
        (equal grasp-arm :rarm))
   :grasp-release)
@@ -94,7 +94,7 @@
        (and (equal floor-contact-state :released)
             (null (find :bottom-contact cube-contact-state)))
        (find :top contact-surface)
-       (find :bottom contact-surface)
+       (find :bottom sensitive-contact-surface)
        grasp-p
        (equal grasp-arm :rarm))
   :grasp-down)
