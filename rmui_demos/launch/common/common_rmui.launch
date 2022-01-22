@@ -17,6 +17,7 @@
 
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
+  <arg name="grasp_mask_rcnn" default="false" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
@@ -38,6 +39,7 @@
     <arg name="scene_name" value="$(arg scene_name)" />
     <arg name="main" value="$(arg main)" />
     <arg name="wall" value="$(arg wall)" />
+    <arg name="grasp_mask_rcnn" value="$(arg grasp_mask_rcnn)" />
   </include>
 
   <!-- rosbag -->

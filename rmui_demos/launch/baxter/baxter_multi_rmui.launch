@@ -16,6 +16,7 @@
 
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
+  <arg name="grasp_mask_rcnn" default="false" />
   <arg name="scene_name" default="x_aligned_two_jetsons" />
 
   <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
@@ -31,6 +32,7 @@
     <arg name="compress" value="$(arg compress)" />
     <arg name="main" value="$(arg main)" />
     <arg name="wall" value="$(arg wall)" />
+    <arg name="grasp_mask_rcnn" value="$(arg grasp_mask_rcnn)" />
     <arg name="scene_name" value="$(arg scene_name)" />
     <arg name="marker" value="$(arg marker)" />
     <arg name="marker_frame_id" value="$(arg marker_frame_id)" />

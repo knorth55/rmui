@@ -4,12 +4,17 @@
 
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
+  <arg name="grasp_mask_rcnn" default="false" />
 
   <arg name="wall_flag" value="t" if="$(arg wall)" />
   <arg name="wall_flag" value="nil" unless="$(arg wall)" />
 
+  <arg name="grasp_mask_rcnn_flag" value="t" if="$(arg grasp_mask_rcnn)" />
+  <arg name="grasp_mask_rcnn_flag" value="nil" unless="$(arg grasp_mask_rcnn)" />
+
   <node pkg="rmuieus" type="$(arg robot)-rmui-planning.l" name="rmui_main"
         args="&quot;(main :scene-name \&quot;$(arg scene_name)\&quot;
-                          :wall-p $(arg wall_flag))&quot;"
+                          :wall-p $(arg wall_flag)
+                          :use-grasp-mask-rcnn $(arg grasp_mask_rcnn_flag))&quot;"
         if="$(arg main)" required="true" output="screen" />
 </launch>

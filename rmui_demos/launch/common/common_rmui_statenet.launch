@@ -19,6 +19,7 @@
   <arg name="wall" default="false" />
   <arg name="pdf" default="true" />
   <arg name="collabo" default="true" />
+  <arg name="grasp_mask_rcnn" default="false" />
 
   <arg name="marker" default="false" />
   <arg name="marker_frame_id" default="ar_marker_1" />
@@ -42,6 +43,7 @@
     <arg name="pdf" value="$(arg pdf)" />
     <arg name="wall" value="$(arg wall)" />
     <arg name="collabo" value="$(arg collabo)" />
+    <arg name="grasp_mask_rcnn" value="$(arg grasp_mask_rcnn)" />
   </include>
 
   <!-- rosbag -->
