@@ -97,6 +97,7 @@
   (:last-executed-action-name () (copy-tree last-executed-action-name))
   (:last-failed-action () (copy-tree last-failed-action))
   (:last-failed-action-name () (copy-tree last-failed-action-name))
+  (:motion-symbol-queues () motion-symbol-queues)
   (:append-motion-symbol-queue (motion-symbol-queue motion-symbol)
     (append
       (if (>= (length motion-symbol-queue) motion-symbol-length)
@@ -161,7 +162,8 @@
               (send self :update-motion-symbol-queue
                     (elt motion-symbols i)
                     (elt motion-symbol-queues i))))
-        (setf (elt motion-symbol-queues i) motion-symbol-queue))))
+        (setf (elt motion-symbol-queues i) motion-symbol-queue)))
+    (return-from :update-motion-symbol-queues t))
   (:update-motion-symbol-queue
     (motion-symbol motion-symbol-queue)
     (let* ((larm-motion-symbol-queue (car motion-symbol-queue))

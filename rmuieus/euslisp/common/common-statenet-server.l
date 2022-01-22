@@ -496,7 +496,12 @@
           (if contact-positions
             (progn
               (ros::ros-info
-                (format nil "motion-symbols         : ~A" motion-symbols))
+                (format nil "motion-symbols              : ~A" motion-symbols))
+              (ros::ros-info
+                (format nil "update-motion-symbol-queues : ~A" update-motion-symbol-queues))
+              (ros::ros-info
+                (format nil "motion-symbol-queues   : ~A"
+                        (send devexecutor :motion-symbol-queues)))
               (ros::ros-info
                 (format nil "checked-motion-symbols : ~A" checked-motion-symbols))))
           (if (not (every #'null checked-motion-symbols))
