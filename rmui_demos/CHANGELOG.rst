@@ -2,6 +2,21 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add launch args
+* add baxter reset app
+* add new task
+* split rqt gui
+* update credential yaml path
+* fix launch args
+* refactor launch
+* move launch
+* add scene config file
+* change default args
+* change default arg
+* Contributors: Shingo Kitagawa
+
 2.0.0 (2021-12-27)
 ------------------
 * change parameter name

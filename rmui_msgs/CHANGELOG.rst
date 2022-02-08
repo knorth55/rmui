@@ -2,6 +2,11 @@
 Changelog for package rmui_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add allow_object_number_difference field
+* Contributors: Shingo Kitagawa
+
 2.0.0 (2021-12-27)
 ------------------
 * change action name

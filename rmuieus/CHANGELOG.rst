@@ -2,6 +2,146 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* refactor
+* update timeout and length
+* fix conditions
+* add sensitive
+* add launch args
+* add grasp mask rcnn key
+* update statenet server
+* support initial pileup state
+* add grasp pileup scene
+* support toyobject
+* ignore rotation of object
+* fix typo
+* fix typo
+* refactor
+* save box-type in statenet-server
+* store box-types
+* check contact surface freq
+* update symbol length
+* update condition
+* update box shape
+* use larm for tidy up
+* fix typo in commom-rmui-planner
+* fix conditions
+* fix grasp approach length
+* update scene
+* use worldcoords
+* add new scene
+* add arc cardboard box
+* compare z axis too
+* move reset pose before recognition
+* add if for draw-objects
+* add box-shapes var
+* update tidyup
+* do not update contact positions when it is not recognized
+* add timeout for proximity message update
+* fix tabletopbox z calculation
+* add y_aligned_stuffed_animal
+* update z-offset
+* fix baxter offset
+* add x_aligned_stuffed animal
+* update baxter-scenes
+* set offset for make-cube
+* update scene rpy
+* update pilot device rpy
+* add comment
+* set reset-state z rotation from scene file
+* rename func and move
+* use (:reset)
+* add reset
+* use reset-state
+* add stuffed animal
+* add new scene
+* correct box rpy from given rpy
+* use toybox when large object not found
+* add x_aligned_large_objects
+* add largeobject
+* fix check with :teach
+* skip wall contact and object location for better pdf
+* add skip option for better pdf
+* move convert-string-to-sym
+* support different number object graph merge
+* use copy-tree for subseq
+* update lift-down-motion
+* use tabletop object detector
+* longer release distance
+* set larger collision bbox
+* refactor common-motions
+* ungrasp when release
+* use cube-rpy for grasp motion
+* liftup with reset-rpy
+* fix cpi :z
+* sort by xy position
+* wait for longer time
+* remove debug message
+* update tidyup scene
+* change grasp condition
+* wait-for-publisher for recognize
+* support :object to recognize
+* set base-frame-id var
+* use simulation-modep
+* wait for publishers
+* fix timeout
+* use same tfl
+* add recognize tabletop objects
+* fix grasp motions
+* fix typo in some
+* fix grasp motions
+* fix typo
+* rename to tidyup
+* add visualize-groupname
+* add new task
+* fix prev-av
+* fix conditions
+* refactor bottom cube contact assert
+* add dissoc for liftup
+* update comment
+* disable top push
+* assoc cubes when piled up
+* add assoc/dissoc two cubes
+* fix conditions
+* add move in liftup
+* fix typo
+* fix typo
+* add grasp pileup
+* add grasp-down action
+* add grasp-up
+* add grasp release motion
+* euslint
+* set grasp-arm for both arm
+* fix typo
+* add top-grasp
+* set boxtype and device-type
+* add grasp motion
+* add grasp coords for human
+* add wait for softhand
+* grasp in no simulation
+* add grasp-coords in scenes
+* rename functions
+* add grasp-cube and ungrasp-cube
+* add grasp conditions
+* add grasp action
+* add get-grasp-coords
+* change device shape in pilot viewer
+* update scene functions
+* remove unused conditions
+* add tidy_up scene
+* fix typo
+* refactor launch
+* remove unused launch
+* rename to scene
+* add scene config file
+* add load-config
+* add config
+* use baxter + softhand
+* change default args
+* change default arg
+* Contributors: Shingo Kitagawa
+
 2.0.0 (2021-12-27)
 ------------------
 * do not ask teach again

@@ -2,6 +2,12 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update dummy gui
+* split rqt gui
+* Contributors: Shingo Kitagawa
+
 2.0.0 (2021-12-27)
 ------------------
 * update rviz config
