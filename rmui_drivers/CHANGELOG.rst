@@ -2,8 +2,8 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2022-02-08)
+------------------
 * update dummy gui
 * split rqt gui
 * Contributors: Shingo Kitagawa
