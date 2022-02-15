@@ -3,10 +3,14 @@ object_statenet/*/executed-actions.l
 object_statenet/*/scene-states.l
 object_statenet/*/pddl-graph.l
 object_statenet/*/statenet-graph.l
+object_statenet/*/*.pdf
+object_statenet/*/*.dot
 object_statenet/latest
 object_statenet/merged-statenet-graph.l
 # collabo_statenet
 collabo_statenet/*/statenet-graph.l
 collabo_statenet/*/*/executed-collabo-path.l
+collabo_statenet/*/*.pdf
+collabo_statenet/*/*.dot
 collabo_statenet/latest
 collabo_statenet/merged-statenet-graph.l
