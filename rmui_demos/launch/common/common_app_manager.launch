@@ -23,8 +23,7 @@
     <arg name="soundplay_action_name" value="remotesound" />
     <arg name="volume" value="0.8" />
     <arg name="language" value="en-US" />
-    <arg name="use_yaml" value="true" />
-    <arg name="yaml_file" value="/var/lib/robot/baxter_dialogflow_credentials.yaml" />
+    <arg name="credential" value="/var/lib/robot/baxterenglish-99nl-b293d2d999c2.json" />
   </include>
   <rosparam ns="dialogflow_client">
     hotword:
