@@ -1,0 +1,26 @@
+tabbed_layout:
+  tab_list:
+    - rmui0_imu
+    - rmui0_system
+    - rmui1_imu
+    - rmui1_system
+  rmui0_imu:
+    name: 'RMUI0 IMU'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui0/imu_button_layout.yaml'
+  rmui0_system:
+    name: 'RMUI0 System'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui0/system_button_layout.yaml'
+  rmui1_imu:
+    name: 'rmui0 IMU'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui1/imu_button_layout.yaml'
+  rmui1_system:
+    name: 'rmui0 System'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui1/system_button_layout.yaml'

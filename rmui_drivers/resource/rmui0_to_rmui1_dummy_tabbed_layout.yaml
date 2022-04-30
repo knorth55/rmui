@@ -1,0 +1,38 @@
+tabbed_layout:
+  tab_list:
+    - rmui0_contact
+    - rmui0_rotate
+    - rmui0_detailed_contact
+    - rmui1_contact
+    - rmui1_rotate
+    - rmui1_detailed_contact
+  rmui0_contact:
+    name: 'RMUI0 Contact'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui0/contact_button_layout.yaml'
+  rmui0_rotate:
+    name: 'RMUi0 Rotate'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui0/rotate_button_layout.yaml'
+  rmui0_detailed_contact:
+    name: 'RMUI0 Detailed contact'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui0/contact_sensor_button_layout.yaml'
+  rmui1_contact:
+    name: 'RMUI1 Contact'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui1/contact_button_layout.yaml'
+  rmui1_rotate:
+    name: 'RMUI1 Rotate'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui1/rotate_button_layout.yaml'
+  rmui1_detailed_contact:
+    name: 'RMUI1 Detailed contact'
+    namespace: push
+    type: push
+    yaml_file: 'package://rmui_drivers/resource/rmui1/contact_sensor_button_layout.yaml'
