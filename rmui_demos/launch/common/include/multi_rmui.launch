@@ -8,18 +8,22 @@
   <arg name="gui" default="true" />
 
   <!-- rmui0 -->
+  <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
+    <arg name="rmui_name" value="rmui0" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="false" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+    <arg name="launch_static_transform" value="false" />
+  </include>
   <group if="$(eval arg('n_box') >= 3)">
-    <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
-      <arg name="rmui_name" value="rmui0" />
-      <arg name="n_board" value="$(arg n_board)" />
-      <arg name="duration" value="$(arg duration)" />
-      <arg name="gui" value="false" />
-      <arg name="dummy" value="$(arg dummy)" />
-      <arg name="launch_device" value="$(arg launch_device)" />
-      <arg name="launch_static_transform" value="false" />
-    </include>
     <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
           args="0 0 0 0 0 0 1 rmui_world rmui0_world 100" />
+  </group>
+  <group unless="$(eval arg('n_box') >= 3)">
+    <node pkg="tf" type="static_transform_publisher" name="rmui0_static_transform_publisher"
+          args="0 -0.3 0 0 0 0 1 rmui_world rmui0_world 100" />
   </group>
 
   <!-- rmui1 -->
@@ -42,22 +46,18 @@
   </group>
 
   <!-- rmui2 -->
-  <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
-    <arg name="rmui_name" value="rmui2" />
-    <arg name="n_board" value="$(arg n_board)" />
-    <arg name="duration" value="$(arg duration)" />
-    <arg name="gui" value="false" />
-    <arg name="dummy" value="$(arg dummy)" />
-    <arg name="launch_device" value="$(arg launch_device)" />
-    <arg name="launch_static_transform" value="false" />
-  </include>
   <group if="$(eval arg('n_box') >= 3)">
+    <include file="$(find rmui_demos)/launch/common/include/single_rmui.launch">
+      <arg name="rmui_name" value="rmui2" />
+      <arg name="n_board" value="$(arg n_board)" />
+      <arg name="duration" value="$(arg duration)" />
+      <arg name="gui" value="false" />
+      <arg name="dummy" value="$(arg dummy)" />
+      <arg name="launch_device" value="$(arg launch_device)" />
+      <arg name="launch_static_transform" value="false" />
+    </include>
     <node pkg="tf" type="static_transform_publisher" name="rmui2_static_transform_publisher"
           args="0 -0.5 0 0 0 0 1 rmui_world rmui2_world 100" />
-  </group>
-  <group unless="$(eval arg('n_box') >= 3)">
-    <node pkg="tf" type="static_transform_publisher" name="rmui2_static_transform_publisher"
-          args="0 -0.3 0 0 0 0 1 rmui_world rmui2_world 100" />
   </group>
 
   <!-- gui -->
@@ -69,7 +69,7 @@
       <rosparam command="load" if="$(eval arg('n_box') >= 3)"
                 file="$(find rmui_drivers)/resource/rmui0_to_rmui2_tabbed_layout.yaml" />
       <rosparam command="load" unless="$(eval arg('n_box') >= 3)"
-                file="$(find rmui_drivers)/resource/rmui1_to_rmui2_tabbed_layout.yaml" />
+                file="$(find rmui_drivers)/resource/rmui0_to_rmui1_tabbed_layout.yaml" />
     </node>
     <group if="$(arg dummy)">
       <node name="$(anon dummy_button)"
@@ -77,7 +77,7 @@
         <rosparam command="load" if="$(eval arg('n_box') >= 3)"
                   file="$(find rmui_drivers)/resource/rmui0_to_rmui2_dummy_tabbed_layout.yaml" />
         <rosparam command="load" unless="$(eval arg('n_box') >= 3)"
-                  file="$(find rmui_drivers)/resource/rmui1_to_rmui2_dummy_tabbed_layout.yaml" />
+                  file="$(find rmui_drivers)/resource/rmui0_to_rmui1_dummy_tabbed_layout.yaml" />
       </node>
     </group>
   </group>
