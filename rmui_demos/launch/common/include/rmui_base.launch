@@ -1,0 +1,31 @@
+<launch>
+  <arg name="rmui_machine" />
+  <arg name="rmui_name" />
+
+  <arg name="dummy" default="false" />
+  <arg name="launch_device" default="true" />
+
+  <arg name="n_board" default="6" />
+  <arg name="duration" default="0.1" />
+  <arg name="gui" default="true" />
+
+  <include file="$(find rmui_drivers)/launch/rmui/rmui_base.launch">
+    <arg name="machine" value="$(arg rmui_machine)" />
+    <arg name="group_name" value="$(arg rmui_name)" />
+    <arg name="n_board" value="$(arg n_board)" />
+    <arg name="duration" value="$(arg duration)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="dummy" value="$(arg dummy)" />
+    <arg name="launch_device" value="$(arg launch_device)" />
+  </include>
+
+  <group ns="$(arg rmui_name)">
+    <node pkg="rmui_demos" name="rmui_pose_publisher" type="rmui_pose_publisher.py"
+          respawn="true" output="screen">
+      <rosparam subst_value="true">
+        rmui_frame_id: $(arg rmui_name)_link
+      </rosparam>
+    </node>
+  </group>
+
+</launch>
