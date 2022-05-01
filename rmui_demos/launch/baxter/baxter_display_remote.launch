@@ -13,6 +13,11 @@
   <arg name="spherical_left_camera_ns" default="elp_head_left" />
   <arg name="spherical_right_camera_ns" default="elp_head_right" />
 
+  <!-- rmui -->
+  <arg name="n_box" default="2" />
+  <arg name="dummy" default="false" />
+
+
   <include file="$(find eus_vive)/launch/baxter/baxter_vr_display.launch">
     <arg name="head" value="$(arg head)" />
     <arg name="respeaker" value="$(arg respeaker)" />
@@ -27,7 +32,9 @@
     <arg name="spherical_right_camera_ns" value="$(arg spherical_right_camera_ns)" />
   </include>
 
-  <node name="$(anon rviz)" pkg="rviz" type="rviz"
-        args="-d $(find rmui_drivers)/rvizconfig/multi_rmui.rviz" />
+  <include file="$(find rmui_demos)/launch/common/include/display.launch">
+    <arg name="n_box" value="$(arg n_box)" />
+    <arg name="dummy" value="$(arg dummy)" />
+  </include>
 
 </launch>
