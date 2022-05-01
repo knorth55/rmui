@@ -1,7 +1,6 @@
 <launch>
   <arg name="collabo" default="false" />
   <arg name="rmui" default="false" />
-  <arg name="rmui_name" default="rmui0" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
@@ -28,7 +27,6 @@
     <arg name="robot" value="pr2" />
     <arg name="collabo" value="$(arg collabo)" />
     <arg name="rmui" value="$(arg rmui)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_box" value="1" />

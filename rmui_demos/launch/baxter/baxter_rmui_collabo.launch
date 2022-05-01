@@ -1,6 +1,5 @@
 <launch>
   <arg name="rmui" default="true" />
-  <arg name="rmui_name" default="rmui0" />
   <arg name="dummy" default="false" />
   <arg name="launch_device" default="true" />
 
@@ -26,7 +25,6 @@
   <include file="$(find rmui_demos)/launch/baxter/baxter_statenet.launch">
     <arg name="collabo" value="true" />
     <arg name="rmui" value="$(arg rmui)" />
-    <arg name="rmui_name" value="$(arg rmui_name)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />
     <arg name="n_board" value="$(arg n_board)" />
