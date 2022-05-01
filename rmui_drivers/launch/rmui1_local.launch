@@ -1,7 +1,7 @@
 <launch>
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />
-  <arg name="touch_prx_threshold" default="1000" />
+  <arg name="touch_prx_threshold" default="500" />
 
   <include file="$(find rmui_drivers)/launch/rmui/rmui_local.launch">
     <arg name="group_name" value="rmui1" />
