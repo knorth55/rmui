@@ -15,12 +15,12 @@ tabbed_layout:
     type: push
     yaml_file: 'package://rmui_drivers/resource/rmui0/system_button_layout.yaml'
   rmui1_imu:
-    name: 'rmui0 IMU'
+    name: 'RMUI1 IMU'
     namespace: push
     type: push
     yaml_file: 'package://rmui_drivers/resource/rmui1/imu_button_layout.yaml'
   rmui1_system:
-    name: 'rmui0 System'
+    name: 'RMUI1 System'
     namespace: push
     type: push
     yaml_file: 'package://rmui_drivers/resource/rmui1/system_button_layout.yaml'
