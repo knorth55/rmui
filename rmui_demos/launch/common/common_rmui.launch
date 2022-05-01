@@ -22,7 +22,7 @@
   <arg name="marker_frame_id" default="ar_marker_1" />
 
   <!-- rmui-->
-  <include file="$(find rmui_demos)/launch/common/include/rmui.launch" if="$(arg rmui)">
+  <include file="$(find rmui_demos)/launch/common/include/rmui_device.launch" if="$(arg rmui)">
     <arg name="n_box" value="$(arg n_box)" />
     <arg name="dummy" value="$(arg dummy)" />
     <arg name="launch_device" value="$(arg launch_device)" />

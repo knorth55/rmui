@@ -9,7 +9,7 @@
   <arg name="gui" default="true" />
 
   <!-- rmui0 -->
-  <include file="$(find rmui_demos)/launch/common/include/rmui_base.launch">
+  <include file="$(find rmui_demos)/launch/common/include/rmui_device_base.launch">
     <arg name="rmui_machine" value="rmui" />
     <arg name="rmui_name" value="rmui0" />
     <arg name="n_board" value="$(arg n_board)" />
@@ -34,7 +34,7 @@
 
   <!-- rmui1 -->
   <group if="$(eval arg('n_box') >= 2)">
-    <include file="$(find rmui_demos)/launch/common/include/rmui_base.launch">
+    <include file="$(find rmui_demos)/launch/common/include/rmui_device_base.launch">
       <arg name="rmui_machine" value="mtc2" />
       <arg name="rmui_name" value="rmui1" />
       <arg name="n_board" value="$(arg n_board)" />
@@ -55,7 +55,7 @@
 
   <!-- rmui2 -->
   <group if="$(eval arg('n_box') >= 3)">
-    <include file="$(find rmui_demos)/launch/common/include/rmui_base.launch">
+    <include file="$(find rmui_demos)/launch/common/include/rmui_device_base.launch">
       <arg name="rmui_machine" value="mtc3" />
       <arg name="rmui_name" value="rmui2" />
       <arg name="n_board" value="$(arg n_board)" />
