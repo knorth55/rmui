@@ -1,5 +1,5 @@
 <launch>
-  <arg name="machine" default="rmui" />
+  <arg name="machine" default="mtc1" />
   <arg name="group_name" default="rmui0" />
   <arg name="n_board" default="6" />
   <arg name="duration" default="0.1" />

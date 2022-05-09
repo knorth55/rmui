@@ -1,6 +1,10 @@
 <launch>
   <machine name="localhost" address="localhost" />
+  <!--
   <machine name="rmui" user="pi" address="rmui" timeout="100"
+           env-loader="/home/pi/env-loader.sh" />
+  -->
+  <machine name="mtc1" user="pi" address="mtc1" timeout="100"
            env-loader="/home/pi/env-loader.sh" />
   <machine name="mtc2" user="pi" address="mtc2" timeout="100"
            env-loader="/home/pi/env-loader.sh" />
