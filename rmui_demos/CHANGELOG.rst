@@ -2,6 +2,17 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add display launch
+* add baxter display remote launch
+* change file name
+* refactor launch
+* remove rmui_name args
+* use rmui0 to rmui1 for n_box:=2
+* use json instead of credential yaml
+* Contributors: Shingo Kitagawa
+
 2.1.0 (2022-02-08)
 ------------------
 * add launch args

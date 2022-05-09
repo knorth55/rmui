@@ -2,6 +2,15 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update rviz
+* fix typo
+* add sample launch dir
+* change threshold
+* add rmui0 to rmui1 gui
+* Contributors: Shingo Kitagawa
+
 2.1.0 (2022-02-08)
 ------------------
 * update dummy gui

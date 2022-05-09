@@ -2,6 +2,14 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make motions faster
+* use rmui0 instead of rmui2
+* update gitignore
+* update scene
+* Contributors: Shingo Kitagawa
+
 2.1.0 (2022-02-08)
 ------------------
 * refactor
