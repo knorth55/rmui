@@ -2,8 +2,8 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2022-05-09)
+------------------
 * update rviz
 * fix typo
 * add sample launch dir

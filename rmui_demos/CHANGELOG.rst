@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2022-05-09)
+------------------
 * add display launch
 * add baxter display remote launch
 * change file name

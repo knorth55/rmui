@@ -2,8 +2,8 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2022-05-09)
+------------------
 * make motions faster
 * use rmui0 instead of rmui2
 * update gitignore
