@@ -623,7 +623,7 @@
     (when (and av move-robot)
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
-      (send ri :wait-interpolation))
+      (send ri :wait-interpolation :default-controller 3))
     (if vw (send vw :draw-objects))
     (when av (list (list av) (list tm)))))
 
@@ -730,12 +730,12 @@
         (send ri :angle-vector
               (car (car approached)) (car (cadr approached))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation)
+        (send ri :wait-interpolation :default-controller 3)
         (delete-cubes-collision-object :cubes cubes :ri ri)
         (send ri :angle-vector-raw
               (car (car pushed)) (car (cadr pushed))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -870,11 +870,11 @@
         (add-cubes-collision-object :cubes cubes :robot robot :ri ri)
         (send ri :angle-vector approach-av approach-tm
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation)
+        (send ri :wait-interpolation :default-controller 3)
         (delete-cubes-collision-object :cubes cubes :ri ri)
         (send ri :angle-vector-raw grasp-av grasp-tm
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation)
+        (send ri :wait-interpolation :default-controller 3)
         (start-grasp arm :ri ri :wait t)
         )
       (progn
@@ -942,12 +942,12 @@
         (send ri :angle-vector-raw
               (car (car released)) (car (cadr released))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation)
+        (send ri :wait-interpolation :default-controller 3)
         (add-cubes-collision-object :cubes cubes :robot robot :ri ri)
         (send ri :angle-vector
               (car (car reseted)) (car (cadr reseted))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation)
+        (send ri :wait-interpolation :default-controller 3)
         (delete-cubes-collision-object :cubes cubes :ri ri))
       (progn
         (send robot :angle-vector prev-av)))
@@ -1015,7 +1015,7 @@
     (when (and av move-robot)
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
-      (send ri :wait-interpolation))
+      (send ri :wait-interpolation :default-controller 3))
     (if vw (send vw :draw-objects))
     (when av
       (cond
@@ -1141,7 +1141,7 @@
       (when move-robot
         (send ri :angle-vector av tm
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1239,7 +1239,7 @@
       (when move-robot
         (send ri :angle-vector av tm
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1286,7 +1286,7 @@
       (when move-robot
         (send ri :angle-vector av tm
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1468,7 +1468,7 @@
       (when move-robot
         (send ri :angle-vector-sequence avs tms
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1569,10 +1569,10 @@
             (send ri :angle-vector-sequence-raw
                   (car moved) (cadr moved)
                   (get-arm-controller :arms :use-torso use-torso) 0)
-            (send ri :wait-interpolation)))
+            (send ri :wait-interpolation :default-controller 3)))
         (send ri :angle-vector-sequence-raw avs tms
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1664,7 +1664,7 @@
       (when move-robot
         (send ri :angle-vector-sequence avs tms
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1740,7 +1740,7 @@
               (append (car lifted-up) (car moved) (car lifted-down))
               (append (cadr lifted-up) (cadr moved) (cadr lifted-down))
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1906,7 +1906,7 @@
         ;; raw usage
         (send ri :angle-vector-sequence-raw rotate-avs rotate-tms
               (get-arm-controller :arms :use-torso use-torso) 0)
-        (send ri :wait-interpolation))
+        (send ri :wait-interpolation :default-controller 3))
       (progn
         (send robot :angle-vector prev-av)
         (send cube :newcoords prev-cube-coords)
@@ -1953,7 +1953,7 @@
       ;: (start-grasp :arms :ri ri)
       (send ri :angle-vector av tm
             (get-arm-controller :arms :use-torso use-torso) 0)
-      (send ri :wait-interpolation))
+      (send ri :wait-interpolation :default-controller 3))
     (list (list av) (list tm))))
 
 
@@ -1965,7 +1965,7 @@
     (when move-robot
       (send ri :angle-vector av tm
             (get-arm-controller arm :use-torso use-torso) 0)
-      (send ri :wait-interpolation))
+      (send ri :wait-interpolation :default-controller 3))
     (if vw (send vw :draw-objects))
     (list (list av) (list tm))))
 
