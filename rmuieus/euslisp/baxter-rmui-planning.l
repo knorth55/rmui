@@ -9,7 +9,8 @@
 
 ;; parameters
 
-(defvar *prx-threshold* 500)
+;; (defvar *prx-threshold* 500)
+(defvar *prx-threshold* 450)
 (defvar *prx-position-threshold* 0.5)
 ;; (defvar *motion-symbol-length* 15)
 (defvar *motion-symbol-length* 5)
