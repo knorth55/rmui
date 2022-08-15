@@ -2,6 +2,15 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revert "add timeout for wait-interpolation"
+  This reverts commit ecbaea25c133bf739517650590ac3e780c82f897.
+* update threshold
+* add timeout for wait-interpolation
+* use baxter-softhand-interface
+* Contributors: Shingo Kitagawa
+
 2.2.0 (2022-05-09)
 ------------------
 * make motions faster

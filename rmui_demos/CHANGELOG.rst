@@ -2,6 +2,12 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use mtc2 and mtc3 for two devices
+* update machine name
+* Contributors: Shingo Kitagawa
+
 2.2.0 (2022-05-09)
 ------------------
 * add display launch

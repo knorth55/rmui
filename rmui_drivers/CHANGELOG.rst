@@ -2,6 +2,11 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* update machine name
+* Contributors: Shingo Kitagawa
+
 2.2.0 (2022-05-09)
 ------------------
 * update rviz

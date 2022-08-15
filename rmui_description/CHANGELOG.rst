@@ -2,6 +2,9 @@
 Changelog for package rmui_description
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.2.0 (2022-05-09)
 ------------------
 
