@@ -2,8 +2,8 @@
 Changelog for package rmui_drivers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2022-08-15)
+------------------
 * update machine name
 * Contributors: Shingo Kitagawa
 

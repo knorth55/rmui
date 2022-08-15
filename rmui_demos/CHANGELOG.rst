@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2022-08-15)
+------------------
 * use mtc2 and mtc3 for two devices
 * update machine name
 * Contributors: Shingo Kitagawa

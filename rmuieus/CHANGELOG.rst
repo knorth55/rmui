@@ -2,8 +2,8 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2022-08-15)
+------------------
 * Revert "add timeout for wait-interpolation"
   This reverts commit ecbaea25c133bf739517650590ac3e780c82f897.
 * update threshold
