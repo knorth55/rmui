@@ -85,7 +85,7 @@
   (send* ri :start-grasp arm :objects objects :wait wait args))
 
 
-(defun stop-grasp (&optional (arm :arms) &rest args (wait nil) (ri *ri*))
+(defun stop-grasp (&optional (arm :arms) &rest args &key (wait nil) (ri *ri*))
   (setq args (remove-key-from-args args :ri))
   (send* ri :stop-grasp arm :wait wait args))
 
