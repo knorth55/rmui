@@ -8,10 +8,6 @@
 
 (if (not (assoc :init-org (send pr2-interface :methods)))
   (rplaca (assoc :init (send pr2-interface :methods)) :init-org))
-;: (if (not (assoc :angle-vector-org (send pr2-interface :methods)))
-;:   (rplaca (assoc :angle-vector (send pr2-interface :methods)) :angle-vector-org))
-;: (if (not (assoc :angle-vector-sequence-org (send pr2-interface :methods)))
-;:   (rplaca (assoc :angle-vector-sequence (send pr2-interface :methods)) :angle-vector-sequence-org))
 
 
 (defmethod pr2-robot
