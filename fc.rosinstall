@@ -4,7 +4,7 @@
     version: master
 - git:
     local-name: knorth55/rmui
-    uri: git@github.com:knorth55/rmui.git
+    uri: https://github.com/knorth55/rmui.git
     version: master
 - git:
     local-name: jsk-ros-pkg/jsk_roseus
