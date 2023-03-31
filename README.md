@@ -55,6 +55,17 @@ cd ..
 catkin build
 ```
 
+## SSH to MTCs
+
+```bash
+# old one, rev 1 
+ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc1
+# new one, rev 2.1
+ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc2
+# new one, rev 2.1
+ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc3
+```
+
 ## Demo launch
 
 ### PR2 + RMUI
