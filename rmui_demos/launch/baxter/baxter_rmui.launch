@@ -16,7 +16,7 @@
   <arg name="main" default="true" />
   <arg name="wall" default="false" />
   <arg name="grasp_mask_rcnn" default="false" />
-  <arg name="scene_name" default="one_ctb" />
+  <arg name="scene_name" default="one_jetson" />
 
   <include file="$(find rmui_demos)/launch/common/common_rmui.launch">
     <arg name="robot" value="baxter" />

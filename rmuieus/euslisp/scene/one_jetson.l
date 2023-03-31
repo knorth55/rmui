@@ -1,0 +1,7 @@
+(((:device-name "rmui0")
+  (:box-type :jetson)
+  (:box-pos (0 0 0))
+  (:box-rpy (0 0 0))
+  (:device-type :mtc2)
+  (:device-pos (0 0 0))
+  (:device-rpy (0 0 0))))
