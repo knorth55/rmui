@@ -26,7 +26,7 @@ mkdir rmui_ws/src -p
 cd rmui_ws/src
 wget https://raw.githubusercontent.com/knorth55/rmui/master/fc.rosinstall -o .rosinstall
 wstool update -j 2
-rosdep install --ignore-src --from-path . -y -r -c
+rosdep install --ignore-src --from-path . -y -r
 cd ..
 catkin build
 ```
@@ -39,7 +39,7 @@ mkdir rmui_ws/src
 # for device
 wget https://raw.githubusercontent.com/knorth55/rmui/master/device.rosinstall.${ROS_DISTRO} -o .rosinstall
 wstool update -j 2
-rosdep install --ignore-src --from-path . -y -r -c
+rosdep install --ignore-src --from-path . -y -r
 cd ..
 catkin build
 ```
@@ -50,7 +50,7 @@ catkin build
 cd rmui_ws/src
 wstool merge knorth55/rmui/baxter.rosinstall
 wstool update -j 2
-rosdep install --ignore-src --from-path . -y -r -c
+rosdep install --ignore-src --from-path . -y -r
 cd ..
 catkin build
 ```
@@ -68,19 +68,25 @@ ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc3
 
 ## Demo launch
 
-### PR2 + RMUI
+### PR2 + MTC
 
 ```bash
+# single MTC
 roslaunch rmui_demos pr2_rmui.launch
+# multi MTC
+roslaunch rmui_demos pr2_multi_rmui.launc scene_name:=x_aligned_two_jetsonsh
 ```
 
-### PR2 + dummy RMUI
+### PR2 + dummy MTC
 
 ```bash
+# single MTC
 roslaunch rmui_demos pr2_rmui_dummy.launch
+# multi MTC
+roslaunch rmui_demos pr2_multi_rmui_dummy.launch scene_name:=x_aligned_two_jetsons
 ```
 
-### Baxter + RMUI
+### Baxter + single MTC
 
 ```bash
 # for real robot
@@ -88,10 +94,13 @@ roslaunch eus_vive baxter_moveit.launch
 ```
 
 ```bash
+# single MTC
 roslaunch rmui_demos baxter_rmui.launch
+# multi MTC
+roslaunch rmui_demos baxter_multi_rmui.launch scene_name:=x_aligned_two_jetsons
 ```
 
-### Baxter + dummy RMUI
+### Baxter + dummy MTC
 
 ```bash
 # for real robot
@@ -99,7 +108,10 @@ roslaunch eus_vive baxter_moveit.launch
 ```
 
 ```bash
+# single MTC
 roslaunch rmui_demos baxter_rmui_dummy.launch
+# multi MTC
+roslaunch rmui_demos baxter_multi_rmui_dummy.launch scene_name:=x_aligned_two_jetsons
 ```
 
 ## Device setup
