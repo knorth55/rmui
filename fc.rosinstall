@@ -8,8 +8,8 @@
     version: master
 - git:
     local-name: jsk-ros-pkg/jsk_roseus
-    uri: https://github.com/knorth55/jsk_roseus.git
-    version: devel
+    uri: https://github.com/jsk-ros-pkg/jsk_roseus.git
+    version: master
 - git:
     local-name: PR2/app_manager
     uri: https://github.com/knorth55/app_manager.git
