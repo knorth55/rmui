@@ -7,10 +7,6 @@
     uri: https://github.com/knorth55/eus_vive.git
     version: master
 - git:
-    local-name: knorth55/softhand_ros
-    uri: https://github.com/knorth55/softhand_ros.git
-    version: master
-- git:
     local-name: jsk-ros-pkg/jsk_pr2eus
     uri: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
     version: master 
@@ -20,8 +16,8 @@
     version: devel 
 - git:
     local-name: jsk-ros-pkg/jsk_robot
-    uri: https://github.com/knorth55/jsk_robot.git
-    version: baxter
+    uri: https://github.com/jsk-ros-pkg/jsk_robot.git
+    version: develop/baxter
 - git:
     local-name: pazeshun/dynamixel_motor
     uri: https://github.com/pazeshun/dynamixel_motor.git
