@@ -19,6 +19,12 @@ This package is the source code of the following paper:
 
 ## Installation & Build
 
+### Scipy Installation
+
+```
+pip install scipy==1.2.3
+```
+
 ### Normal Workspace build
 
 ```bash
@@ -90,7 +96,7 @@ roslaunch rmui_demos pr2_multi_rmui_dummy.launch scene_name:=x_aligned_two_jetso
 
 ```bash
 # for real robot
-roslaunch eus_vive baxter_moveit.launch
+roslaunch jsk_baxter_startup baxter_softhand.launch
 ```
 
 ```bash
@@ -104,7 +110,7 @@ roslaunch rmui_demos baxter_multi_rmui.launch scene_name:=x_aligned_two_jetsons
 
 ```bash
 # for real robot
-roslaunch eus_vive baxter_moveit.launch
+roslaunch jsk_baxter_startup baxter_softhand.launch
 ```
 
 ```bash
