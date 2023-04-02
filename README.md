@@ -21,7 +21,7 @@ This package is the source code of the following paper:
 
 ### Scipy Installation
 
-```
+```bash
 pip install scipy==1.2.3
 ```
 
@@ -64,7 +64,7 @@ catkin build
 ## SSH to MTCs
 
 ```bash
-# old one, rev 1 
+# old one, rev 1
 ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc1
 # new one, rev 2.1
 ssh -oHostKeyAlgorithms='ssh-rsa' pi@mtc2
