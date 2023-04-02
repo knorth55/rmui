@@ -2,8 +2,8 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.1 (2023-04-02)
+------------------
 * add one_jetson
 * Contributors: Shingo Kitagawa
 

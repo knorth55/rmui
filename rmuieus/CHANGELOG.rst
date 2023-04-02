@@ -2,8 +2,8 @@
 Changelog for package rmuieus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.1 (2023-04-02)
+------------------
 * update x aligned two jetsons
 * add one_jetson
 * fix typo in pr2-motions
