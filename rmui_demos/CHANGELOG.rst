@@ -2,6 +2,11 @@
 Changelog for package rmui_demos
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add one_jetson
+* Contributors: Shingo Kitagawa
+
 2.3.0 (2022-08-15)
 ------------------
 * use mtc2 and mtc3 for two devices
